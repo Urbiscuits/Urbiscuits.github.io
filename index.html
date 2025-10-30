@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的电影记录</title>
+    <title>我的影视记录</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
@@ -37,21 +37,15 @@
                 backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
             }
-            .movie-card-hover {
+            .card-hover {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
-            .movie-card-hover:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             }
             .gradient-bg {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            }
-            .rating-stars {
-                background: linear-gradient(90deg, #fbbf24 0%, #fbbf24 var(--rating-percent), #e5e7eb var(--rating-percent), #e5e7eb 100%);
-                -webkit-background-clip: text;
-                background-clip: text;
-                -webkit-text-fill-color: transparent;
             }
             .upload-area {
                 transition: all 0.3s ease;
@@ -65,13 +59,25 @@
                 border-color: #10b981;
                 background-color: #ecfdf5;
             }
-            .duplicate-warning {
-                animation: shake 0.5s ease-in-out;
+            .badge-pulse {
+                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            @keyframes pulse {
+                0%, 100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.7;
+                }
+            }
+            .shake {
+                animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
             }
             @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-5px); }
-                75% { transform: translateX(5px); }
+                10%, 90% { transform: translateX(-1px); }
+                20%, 80% { transform: translateX(2px); }
+                30%, 50%, 70% { transform: translateX(-3px); }
+                40%, 60% { transform: translateX(3px); }
             }
         }
     </style>
@@ -80,14 +86,21 @@
     <!-- 顶部导航 -->
     <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
+            <div class="flex flex-wrap justify-between items-center h-16">
                 <div class="flex items-center space-x-4">
                     <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center">
                         <i class="fa fa-film text-white text-lg"></i>
                     </div>
-                    <h1 class="text-xl font-bold text-gray-900">我的电影记录</h1>
+                    <h1 class="text-xl font-bold text-gray-900">我的影视记录</h1>
                 </div>
+                
                 <div class="flex items-center space-x-4">
+                    <!-- 管理类型按钮 -->
+                    <button id="manageGenresBtn" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fa fa-tags"></i>
+                        <span>管理类型</span>
+                    </button>
+                    
                     <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2">
                         <i class="fa fa-download"></i>
                         <span>导出数据</span>
@@ -102,13 +115,27 @@
         </div>
     </nav>
 
+    <!-- 内容类型切换 -->
+    <div class="border-b border-gray-200 bg-white/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-8">
+                <button class="content-tab active py-4 px-1 border-b-2 border-primary text-primary font-medium" data-type="movies">
+                    <i class="fa fa-film mr-2"></i>电影
+                </button>
+                <button class="content-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium" data-type="tvshows">
+                    <i class="fa fa-television mr-2"></i>电视剧
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 主要内容区域 -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- 添加电影按钮 -->
+        <!-- 添加记录按钮 -->
         <div class="text-center mb-8">
-            <button id="addMovieBtn" class="bg-gradient-to-r from-primary to-secondary text-white px-8 py-3 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center space-x-3 mx-auto">
+            <button id="addRecordBtn" class="bg-gradient-to-r from-primary to-secondary text-white px-8 py-3 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center space-x-3 mx-auto">
                 <i class="fa fa-plus-circle text-xl"></i>
-                <span class="font-semibold text-lg">添加新电影记录</span>
+                <span class="font-semibold text-lg" id="addRecordBtnText">添加新电影记录</span>
             </button>
         </div>
 
@@ -119,11 +146,11 @@
                 <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-600 text-sm font-medium">总电影数</p>
-                            <p id="totalMovies" class="text-3xl font-bold text-gray-900">0</p>
+                            <p class="text-gray-600 text-sm font-medium">总记录数</p>
+                            <p id="totalRecords" class="text-3xl font-bold text-gray-900">0</p>
                         </div>
                         <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="fa fa-film text-blue-600 text-xl"></i>
+                            <i class="fa fa-list text-blue-600 text-xl"></i>
                         </div>
                     </div>
                 </div>
@@ -141,8 +168,8 @@
                 <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-gray-600 text-sm font-medium">本月观看</p>
-                            <p id="monthMovies" class="text-3xl font-bold text-gray-900">0</p>
+                            <p class="text-gray-600 text-sm font-medium">本月添加</p>
+                            <p id="monthRecords" class="text-3xl font-bold text-gray-900">0</p>
                         </div>
                         <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                             <i class="fa fa-calendar text-green-600 text-xl"></i>
@@ -165,7 +192,7 @@
             <!-- 图表区域 -->
             <div class="lg:col-span-2 space-y-6">
                 <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">电影类型分布</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">类型分布</h3>
                     <div class="h-64">
                         <canvas id="genreChart"></canvas>
                     </div>
@@ -179,12 +206,12 @@
             </div>
         </div>
 
-        <!-- 电影筛选和搜索 -->
+        <!-- 筛选和搜索 -->
         <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="md:col-span-2">
                     <div class="relative">
-                        <input type="text" id="searchInput" placeholder="搜索电影名称、导演、演员或观后感..." 
+                        <input type="text" id="searchInput" placeholder="搜索名称、导演、演员或观后感..." 
                                class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
                         <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     </div>
@@ -192,20 +219,13 @@
                 <div>
                     <select id="genreFilter" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
                         <option value="">所有类型</option>
-                        <option value="动作">动作</option>
-                        <option value="喜剧">喜剧</option>
-                        <option value="爱情">爱情</option>
-                        <option value="科幻">科幻</option>
-                        <option value="悬疑">悬疑</option>
-                        <option value="动画">动画</option>
-                        <option value="剧情">剧情</option>
-                        <option value="恐怖">恐怖</option>
+                        <!-- 类型将动态加载 -->
                     </select>
                 </div>
                 <div>
                     <select id="sortBy" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
-                        <option value="dateDesc">观看时间 最新</option>
-                        <option value="dateAsc">观看时间 最早</option>
+                        <option value="dateDesc">添加时间 最新</option>
+                        <option value="dateAsc">添加时间 最早</option>
                         <option value="ratingDesc">评分 最高</option>
                         <option value="ratingAsc">评分 最低</option>
                         <option value="nameAsc">名称 A-Z</option>
@@ -213,52 +233,59 @@
                     </select>
                 </div>
             </div>
-            <div class="flex flex-wrap gap-2 mt-4">
-                <button class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-primary text-white" data-filter="all">
-                    全部电影
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors duration-200" data-filter="watched">
-                    已观看
-                </button>
-                <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors duration-200" data-filter="wishlist">
-                    愿望清单
-                </button>
+            
+            <!-- 演员筛选 -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">演员筛选</label>
+                <div class="relative">
+                    <input type="text" id="actorFilter" placeholder="输入演员名称搜索..." 
+                           class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                    <i class="fa fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <div id="actorSuggestions" class="hidden mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-40 overflow-y-auto z-10">
+                    <!-- 演员建议将动态加载 -->
+                </div>
+                <div id="activeFilters" class="flex flex-wrap gap-2 mt-4">
+                    <!-- 活跃的筛选器将显示在这里 -->
+                </div>
             </div>
         </div>
 
-        <!-- 电影列表 -->
-        <div id="movieGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- 电影卡片将在这里动态生成 -->
+        <!-- 记录列表 -->
+        <div id="recordsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- 记录卡片将在这里动态生成 -->
             <div class="col-span-full text-center py-12">
                 <div class="flex flex-col items-center justify-center space-y-4">
                     <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center">
-                        <i class="fa fa-film text-gray-400 text-4xl"></i>
+                        <i class="fa fa-film text-gray-400 text-4xl" id="emptyStateIcon"></i>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900">还没有电影记录</h3>
-                    <p class="text-gray-500">点击"添加新电影记录"开始记录您的观影体验</p>
+                    <h3 class="text-xl font-semibold text-gray-900">还没有记录</h3>
+                    <p class="text-gray-500">点击"添加新记录"开始记录您的观影体验</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 添加电影模态框 -->
-    <div id="addMovieModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <!-- 添加记录模态框 -->
+    <div id="addRecordModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-bold text-gray-900">添加电影记录</h2>
+                    <h2 class="text-2xl font-bold text-gray-900" id="modalTitle">添加电影记录</h2>
                     <button id="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
                         <i class="fa fa-times text-xl"></i>
                     </button>
                 </div>
             </div>
             <div class="p-6">
-                <form id="movieForm" class="space-y-6">
-                    <input type="hidden" id="movieId">
+                <form id="recordForm" class="space-y-6">
+                    <input type="hidden" id="recordId">
+                    <input type="hidden" id="recordType">
+                    
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <!-- 左侧：图片上传 -->
                         <div class="lg:col-span-1">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">电影封面</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">封面图片</label>
                             <div id="posterUploadArea" class="upload-area rounded-lg p-6 text-center cursor-pointer mb-4">
                                 <input type="file" id="posterFileInput" accept="image/*" class="hidden">
                                 <div id="posterPreview" class="space-y-2">
@@ -273,30 +300,37 @@
                             </button>
                         </div>
 
-                        <!-- 右侧：电影信息 -->
+                        <!-- 右侧：基本信息 -->
                         <div class="lg:col-span-2 space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">电影名称 *</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">名称 *</label>
                                     <div class="relative">
-                                        <input type="text" id="movieName" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
-                                        <div id="duplicateWarning" class="hidden absolute -bottom-6 left-0 text-red-500 text-sm">
-                                            <i class="fa fa-exclamation-triangle mr-1"></i>
-                                            <span>该电影名称已存在</span>
+                                        <input type="text" id="recordName" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                                        <div id="nameDuplicateWarning" class="hidden absolute -bottom-6 left-0 text-red-500 text-sm flex items-center">
+                                            <i class="fa fa-exclamation-circle mr-1"></i>
+                                            <span>该名称已存在</span>
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">观看日期</label>
                                     <input type="date" id="watchDate" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
                                 </div>
+                                
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
-                                    <select id="status" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
-                                        <option value="watched">已观看</option>
-                                        <option value="wishlist">愿望清单</option>
-                                    </select>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">类型</label>
+                                    <div class="flex">
+                                        <select id="recordGenre" class="flex-1 px-4 py-3 border border-gray-200 rounded-l-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                                            <!-- 类型将动态加载 -->
+                                        </select>
+                                        <button type="button" id="addGenreBtn" class="bg-gray-100 text-gray-700 px-3 border border-gray-200 border-l-0 rounded-r-lg hover:bg-gray-200 transition-colors duration-200">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
+                                
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">评分</label>
                                     <div class="flex items-center space-x-2">
@@ -309,53 +343,41 @@
                                         <span>10分</span>
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">电影类型</label>
-                                    <select id="genre" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
-                                        <option value="动作">动作</option>
-                                        <option value="喜剧">喜剧</option>
-                                        <option value="爱情">爱情</option>
-                                        <option value="科幻">科幻</option>
-                                        <option value="悬疑">悬疑</option>
-                                        <option value="动画">动画</option>
-                                        <option value="剧情">剧情</option>
-                                        <option value="恐怖">恐怖</option>
-                                        <option value="其他">其他</option>
-                                    </select>
+                                
+                                <!-- 电视剧特有字段 -->
+                                <div id="tvshowFields" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">季数</label>
+                                    <input type="number" id="seasons" min="1" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="例如：3">
+                                </div>
+                                
+                                <div id="tvshowEpisodeFields" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">集数（选填）</label>
+                                    <input type="number" id="episodes" min="1" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="例如：36（可选填）">
                                 </div>
                             </div>
+                            
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">导演</label>
                                 <input type="text" id="director" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
                             </div>
+                            
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">主要演员</label>
                                 <input type="text" id="actors" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="用逗号分隔">
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">观看时长 (分钟)</label>
-                                <input type="number" id="duration" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="例如：120">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">心情状态</label>
-                                <select id="mood" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
-                                    <option value="很棒">很棒</option>
-                                    <option value="不错">不错</option>
-                                    <option value="一般">一般</option>
-                                    <option value="失望">失望</option>
-                                    <option value="糟糕">糟糕</option>
-                                </select>
-                            </div>
+                            
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">标签</label>
                                 <input type="text" id="tags" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="用逗号分隔标签，例如：经典,必看,推荐">
                             </div>
+                            
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">观影感受</label>
-                                <textarea id="review" rows="4" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="记录您的观影感受..."></textarea>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">观看感受</label>
+                                <textarea id="review" rows="4" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="记录您的观看感受..."></textarea>
                             </div>
                         </div>
                     </div>
+                    
                     <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
                         <button type="button" id="cancelBtn" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">取消</button>
                         <button type="submit" id="submitBtn" class="bg-gradient-to-r from-primary to-secondary text-white px-8 py-3 rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">保存记录</button>
@@ -365,17 +387,17 @@
         </div>
     </div>
 
-    <!-- 电影详情模态框 -->
-    <div id="movieDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <!-- 详情模态框 -->
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex justify-between items-center">
-                    <h2 id="detailMovieTitle" class="text-2xl font-bold text-gray-900"></h2>
+                    <h2 id="detailTitle" class="text-2xl font-bold text-gray-900"></h2>
                     <div class="flex space-x-2">
-                        <button id="editMovieBtn" class="text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                        <button id="editRecordBtn" class="text-blue-600 hover:text-blue-800 transition-colors duration-200">
                             <i class="fa fa-edit text-xl"></i>
                         </button>
-                        <button id="deleteMovieBtn" class="text-red-600 hover:text-red-800 transition-colors duration-200">
+                        <button id="deleteRecordBtn" class="text-red-600 hover:text-red-800 transition-colors duration-200">
                             <i class="fa fa-trash text-xl"></i>
                         </button>
                         <button id="closeDetailModal" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
@@ -385,7 +407,7 @@
                 </div>
             </div>
             <div class="p-6">
-                <div id="movieDetailContent" class="space-y-6">
+                <div id="detailContent" class="space-y-6">
                     <!-- 详情内容将在这里动态生成 -->
                 </div>
             </div>
@@ -394,18 +416,97 @@
 
     <!-- 导入结果模态框 -->
     <div id="importResultModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
-            <div class="p-6 text-center">
-                <div id="importResultIcon" class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center">
-                    <i class="fa fa-check text-2xl text-white"></i>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div class="text-center mb-6" id="importResultIconContainer">
+                <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+                    <i class="fa fa-check text-green-500 text-2xl"></i>
                 </div>
-                <h3 id="importResultTitle" class="text-xl font-bold text-gray-900 mb-2">导入成功</h3>
-                <div id="importResultContent" class="text-gray-600 mb-6">
-                    <p>成功导入 <span id="importedCount" class="font-semibold text-primary">0</span> 条记录</p>
-                    <p>跳过重复记录 <span id="skippedCount" class="font-semibold text-yellow-600">0</span> 条</p>
-                </div>
-                <button id="closeImportResultBtn" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 text-center mb-2">导入成功</h3>
+            <p class="text-gray-600 text-center mb-6" id="importResultText">成功导入 5 条记录，跳过 2 条重复记录</p>
+            <div class="flex justify-center">
+                <button id="closeImportResultModal" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors duration-200">
                     确定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 类型管理模态框 -->
+    <div id="manageGenresModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900">管理类型</h2>
+                    <button id="closeManageGenresModal" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="mb-6">
+                    <div class="flex">
+                        <input type="text" id="newGenreName" placeholder="输入新类型名称" class="flex-1 px-4 py-3 border border-gray-200 rounded-l-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                        <button id="addNewGenreBtn" class="bg-primary text-white px-4 py-3 rounded-r-lg hover:bg-primary/90 transition-colors duration-200">
+                            添加类型
+                        </button>
+                    </div>
+                    <p id="genreDuplicateWarning" class="hidden mt-2 text-red-500 text-sm flex items-center">
+                        <i class="fa fa-exclamation-circle mr-1"></i>
+                        <span>该类型已存在</span>
+                    </p>
+                </div>
+                
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">现有类型</h3>
+                <div id="genresList" class="space-y-3">
+                    <!-- 类型列表将动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除类型确认模态框 -->
+    <div id="deleteGenreModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">删除类型</h3>
+            <p class="text-gray-600 mb-4">确定要删除类型 "<span id="deleteGenreName" class="font-medium"></span>" 吗？</p>
+            
+            <div id="genreInUseMessage" class="hidden bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-4">
+                <p class="text-sm">该类型正在被使用，删除前请选择替换类型：</p>
+                <select id="replaceGenreSelect" class="w-full mt-2 px-3 py-2 border border-gray-200 rounded-lg">
+                    <!-- 类型将动态加载 -->
+                </select>
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-6">
+                <button id="cancelDeleteGenreBtn" class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    取消
+                </button>
+                <button id="confirmDeleteGenreBtn" class="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+                    确认删除
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑类型模态框 -->
+    <div id="editGenreModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">编辑类型</h3>
+            <input type="hidden" id="editGenreId">
+            <div class="mb-4">
+                <input type="text" id="editGenreName" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                <p id="editGenreDuplicateWarning" class="hidden mt-2 text-red-500 text-sm flex items-center">
+                    <i class="fa fa-exclamation-circle mr-1"></i>
+                    <span>该类型已存在</span>
+                </p>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button id="cancelEditGenreBtn" class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    取消
+                </button>
+                <button id="confirmEditGenreBtn" class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200">
+                    保存修改
                 </button>
             </div>
         </div>
@@ -413,58 +514,146 @@
 
     <script>
         // 全局变量
-        let movies = [];
-        let currentMovieId = null;
-        let genreChart = null;
-        let ratingChart = null;
+        let movies = [];          // 电影数据
+        let tvshows = [];         // 电视剧数据
+        let genres = [];          // 类型数据
+        let currentType = 'movies'; // 当前显示类型：movies 或 tvshows
+        let currentRecordId = null; // 当前选中的记录ID
+        let activeActorFilters = []; // 活跃的演员筛选器
+        let genreChart = null;    // 类型分布图表
+        let ratingChart = null;   // 评分分布图表
 
         // 初始化应用
         document.addEventListener('DOMContentLoaded', function() {
-            loadMovies();
+            loadData();
             initializeEventListeners();
+            renderGenresDropdowns();
             updateStatistics();
-            renderMovieGrid();
+            renderRecordsGrid();
             initializeCharts();
         });
 
-        // 加载电影数据
-        function loadMovies() {
+        // 加载所有数据
+        function loadData() {
+            // 加载电影数据
             const savedMovies = localStorage.getItem('movieRecords');
             if (savedMovies) {
                 movies = JSON.parse(savedMovies);
             }
+            
+            // 加载电视剧数据
+            const savedTvshows = localStorage.getItem('tvshowRecords');
+            if (savedTvshows) {
+                tvshows = JSON.parse(savedTvshows);
+            }
+            
+            // 加载类型数据，如果没有则使用默认类型
+            const savedGenres = localStorage.getItem('genres');
+            if (savedGenres) {
+                genres = JSON.parse(savedGenres);
+            } else {
+                // 默认类型
+                genres = [
+                    { id: '1', name: '动作' },
+                    { id: '2', name: '喜剧' },
+                    { id: '3', name: '爱情' },
+                    { id: '4', name: '科幻' },
+                    { id: '5', name: '悬疑' },
+                    { id: '6', name: '动画' },
+                    { id: '7', name: '剧情' },
+                    { id: '8', name: '恐怖' }
+                ];
+                saveGenres();
+            }
         }
 
-        // 保存电影数据
-        function saveMovies() {
+        // 保存所有数据
+        function saveAllData() {
             localStorage.setItem('movieRecords', JSON.stringify(movies));
+            localStorage.setItem('tvshowRecords', JSON.stringify(tvshows));
             updateStatistics();
-            renderMovieGrid();
+            renderRecordsGrid();
             updateCharts();
         }
 
-        // 检查电影名称是否存在（不区分大小写）
-        function isMovieNameExists(movieName, excludeId = null) {
-            const normalizedName = movieName.trim().toLowerCase();
-            return movies.some(movie => 
-                movie.name.trim().toLowerCase() === normalizedName && 
-                movie.id !== excludeId
-            );
+        // 保存类型数据
+        function saveGenres() {
+            localStorage.setItem('genres', JSON.stringify(genres));
+            renderGenresDropdowns();
+            renderGenresList();
+            updateStatistics();
+            updateCharts();
+        }
+
+        // 获取当前类型的记录列表
+        function getCurrentRecords() {
+            return currentType === 'movies' ? movies : tvshows;
+        }
+
+        // 设置当前类型的记录列表
+        function setCurrentRecords(records) {
+            if (currentType === 'movies') {
+                movies = records;
+            } else {
+                tvshows = records;
+            }
         }
 
         // 初始化事件监听器
         function initializeEventListeners() {
-            // 添加电影按钮
-            document.getElementById('addMovieBtn').addEventListener('click', openAddMovieModal);
+            // 内容类型切换
+            document.querySelectorAll('.content-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.content-tab').forEach(t => {
+                        t.classList.remove('active', 'border-primary', 'text-primary');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    this.classList.add('active', 'border-primary', 'text-primary');
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    
+                    currentType = this.dataset.type;
+                    document.getElementById('addRecordBtnText').textContent = 
+                        currentType === 'movies' ? '添加新电影记录' : '添加新电视剧记录';
+                    document.getElementById('modalTitle').textContent = 
+                        currentType === 'movies' ? '添加电影记录' : '添加电视剧记录';
+                    
+                    // 显示/隐藏电视剧特有字段
+                    if (currentType === 'tvshows') {
+                        document.getElementById('tvshowFields').classList.remove('hidden');
+                        document.getElementById('tvshowEpisodeFields').classList.remove('hidden');
+                    } else {
+                        document.getElementById('tvshowFields').classList.add('hidden');
+                        document.getElementById('tvshowEpisodeFields').classList.add('hidden');
+                    }
+                    
+                    // 更新空状态图标
+                    document.getElementById('emptyStateIcon').className = 
+                        currentType === 'movies' ? 'fa fa-film text-gray-400 text-4xl' : 'fa fa-television text-gray-400 text-4xl';
+                    
+                    // 重置筛选器
+                    activeActorFilters = [];
+                    document.getElementById('activeFilters').innerHTML = '';
+                    
+                    renderRecordsGrid();
+                    updateStatistics();
+                    updateCharts();
+                });
+            });
+            
+            // 添加记录按钮
+            document.getElementById('addRecordBtn').addEventListener('click', openAddRecordModal);
             
             // 关闭模态框按钮
-            document.getElementById('closeModal').addEventListener('click', closeAddMovieModal);
-            document.getElementById('cancelBtn').addEventListener('click', closeAddMovieModal);
-            document.getElementById('closeDetailModal').addEventListener('click', closeMovieDetailModal);
-            document.getElementById('closeImportResultBtn').addEventListener('click', closeImportResultModal);
+            document.getElementById('closeModal').addEventListener('click', closeAddRecordModal);
+            document.getElementById('cancelBtn').addEventListener('click', closeAddRecordModal);
+            document.getElementById('closeDetailModal').addEventListener('click', closeDetailModal);
+            document.getElementById('closeImportResultModal').addEventListener('click', () => {
+                document.getElementById('importResultModal').classList.add('hidden');
+                document.getElementById('importResultModal').classList.remove('flex');
+            });
             
-            // 电影表单提交
-            document.getElementById('movieForm').addEventListener('submit', handleMovieFormSubmit);
+            // 记录表单提交
+            document.getElementById('recordForm').addEventListener('submit', handleRecordFormSubmit);
             
             // 评分滑块
             const ratingSlider = document.getElementById('rating');
@@ -473,43 +662,19 @@
                 ratingValue.textContent = this.value;
             });
 
-            // 电影名称重复检查
-            document.getElementById('movieName').addEventListener('input', function() {
-                const movieName = this.value;
-                const movieId = document.getElementById('movieId').value;
-                const duplicateWarning = document.getElementById('duplicateWarning');
-                const submitBtn = document.getElementById('submitBtn');
-                
-                if (movieName && isMovieNameExists(movieName, movieId)) {
-                    duplicateWarning.classList.remove('hidden');
-                    this.classList.add('border-red-500', 'duplicate-warning');
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                } else {
-                    duplicateWarning.classList.add('hidden');
-                    this.classList.remove('border-red-500', 'duplicate-warning');
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            });
-
             // 搜索和筛选
-            document.getElementById('searchInput').addEventListener('input', renderMovieGrid);
-            document.getElementById('genreFilter').addEventListener('change', renderMovieGrid);
-            document.getElementById('sortBy').addEventListener('change', renderMovieGrid);
+            document.getElementById('searchInput').addEventListener('input', renderRecordsGrid);
+            document.getElementById('genreFilter').addEventListener('change', renderRecordsGrid);
+            document.getElementById('sortBy').addEventListener('change', renderRecordsGrid);
 
-            // 过滤按钮
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-btn').forEach(b => {
-                        b.classList.remove('active', 'bg-primary', 'text-white');
-                        b.classList.add('bg-gray-100', 'text-gray-700');
-                    });
-                    this.classList.add('active', 'bg-primary', 'text-white');
-                    this.classList.remove('bg-gray-100', 'text-gray-700');
-                    renderMovieGrid();
-                });
+            // 演员筛选
+            document.getElementById('actorFilter').addEventListener('input', handleActorFilterInput);
+            document.getElementById('actorFilter').addEventListener('blur', () => {
+                setTimeout(() => {
+                    document.getElementById('actorSuggestions').classList.add('hidden');
+                }, 200);
             });
+            document.getElementById('actorFilter').addEventListener('focus', handleActorFilterInput);
 
             // 数据导入导出
             document.getElementById('exportBtn').addEventListener('click', exportData);
@@ -519,16 +684,66 @@
             document.getElementById('importFile').addEventListener('change', importData);
 
             // 模态框点击外部关闭
-            setupModalOutsideClick('addMovieModal', closeAddMovieModal);
-            setupModalOutsideClick('movieDetailModal', closeMovieDetailModal);
-            setupModalOutsideClick('importResultModal', closeImportResultModal);
+            setupModalOutsideClick('addRecordModal', closeAddRecordModal);
+            setupModalOutsideClick('detailModal', closeDetailModal);
+            setupModalOutsideClick('importResultModal', () => {
+                document.getElementById('importResultModal').classList.add('hidden');
+                document.getElementById('importResultModal').classList.remove('flex');
+            });
+            setupModalOutsideClick('manageGenresModal', closeManageGenresModal);
+            setupModalOutsideClick('deleteGenreModal', () => {
+                document.getElementById('deleteGenreModal').classList.add('hidden');
+                document.getElementById('deleteGenreModal').classList.remove('flex');
+            });
+            setupModalOutsideClick('editGenreModal', () => {
+                document.getElementById('editGenreModal').classList.add('hidden');
+                document.getElementById('editGenreModal').classList.remove('flex');
+            });
 
             // 详情模态框按钮
-            document.getElementById('editMovieBtn').addEventListener('click', handleEditMovie);
-            document.getElementById('deleteMovieBtn').addEventListener('click', handleDeleteMovie);
+            document.getElementById('editRecordBtn').addEventListener('click', handleEditRecord);
+            document.getElementById('deleteRecordBtn').addEventListener('click', handleDeleteRecord);
 
             // 图片上传
             setupImageUpload();
+
+            // 类型管理
+            document.getElementById('manageGenresBtn').addEventListener('click', openManageGenresModal);
+            document.getElementById('closeManageGenresModal').addEventListener('click', closeManageGenresModal);
+            document.getElementById('addGenreBtn').addEventListener('click', () => {
+                openManageGenresModal();
+                setTimeout(() => {
+                    document.getElementById('newGenreName').focus();
+                }, 300);
+            });
+            document.getElementById('addNewGenreBtn').addEventListener('click', addNewGenre);
+            document.getElementById('newGenreName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addNewGenre();
+                }
+            });
+
+            // 删除类型相关
+            document.getElementById('cancelDeleteGenreBtn').addEventListener('click', () => {
+                document.getElementById('deleteGenreModal').classList.add('hidden');
+                document.getElementById('deleteGenreModal').classList.remove('flex');
+            });
+            document.getElementById('confirmDeleteGenreBtn').addEventListener('click', confirmDeleteGenre);
+
+            // 编辑类型相关
+            document.getElementById('cancelEditGenreBtn').addEventListener('click', () => {
+                document.getElementById('editGenreModal').classList.add('hidden');
+                document.getElementById('editGenreModal').classList.remove('flex');
+            });
+            document.getElementById('confirmEditGenreBtn').addEventListener('click', confirmEditGenre);
+            document.getElementById('editGenreName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    confirmEditGenre();
+                }
+            });
+
+            // 电影名称唯一性检查
+            document.getElementById('recordName').addEventListener('input', checkNameUniqueness);
         }
 
         // 设置图片上传功能
@@ -559,7 +774,8 @@
             });
 
             // 移除图片
-            removeBtn.addEventListener('click', function() {
+            removeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
                 fileInput.value = '';
                 posterImage.src = '';
                 posterImage.classList.add('hidden');
@@ -605,14 +821,17 @@
             });
         }
 
-        // 打开添加电影模态框
-        function openAddMovieModal() {
-            document.getElementById('addMovieModal').classList.remove('hidden');
-            document.getElementById('addMovieModal').classList.add('flex');
-            document.getElementById('movieForm').reset();
+        // 打开添加记录模态框
+        function openAddRecordModal() {
+            document.getElementById('addRecordModal').classList.remove('hidden');
+            document.getElementById('addRecordModal').classList.add('flex');
+            document.getElementById('recordForm').reset();
             document.getElementById('ratingValue').textContent = '7';
             document.getElementById('rating').value = '7';
-            document.getElementById('movieId').value = '';
+            document.getElementById('recordId').value = '';
+            document.getElementById('recordType').value = currentType;
+            document.getElementById('nameDuplicateWarning').classList.add('hidden');
+            document.getElementById('submitBtn').disabled = false;
             
             // 重置图片上传区域
             const fileInput = document.getElementById('posterFileInput');
@@ -620,8 +839,6 @@
             const posterImage = document.getElementById('posterImage');
             const uploadArea = document.getElementById('posterUploadArea');
             const removeBtn = document.getElementById('removePosterBtn');
-            const duplicateWarning = document.getElementById('duplicateWarning');
-            const submitBtn = document.getElementById('submitBtn');
             
             fileInput.value = '';
             posterImage.src = '';
@@ -629,105 +846,161 @@
             posterPreview.classList.remove('hidden');
             uploadArea.classList.remove('active');
             removeBtn.classList.add('hidden');
-            duplicateWarning.classList.add('hidden');
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             
             // 设置默认日期为今天
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('watchDate').value = today;
             
-            currentMovieId = null;
-        }
-
-        // 关闭添加电影模态框
-        function closeAddMovieModal() {
-            document.getElementById('addMovieModal').classList.add('hidden');
-            document.getElementById('addMovieModal').classList.remove('flex');
-        }
-
-        // 关闭导入结果模态框
-        function closeImportResultModal() {
-            document.getElementById('importResultModal').classList.add('hidden');
-            document.getElementById('importResultModal').classList.remove('flex');
-        }
-
-        // 处理电影表单提交
-        function handleMovieFormSubmit(e) {
-            e.preventDefault();
-
-            const movieName = document.getElementById('movieName').value;
-            const movieId = document.getElementById('movieId').value;
+            // 显示/隐藏电视剧特有字段
+            if (currentType === 'tvshows') {
+                document.getElementById('tvshowFields').classList.remove('hidden');
+                document.getElementById('tvshowEpisodeFields').classList.remove('hidden');
+            } else {
+                document.getElementById('tvshowFields').classList.add('hidden');
+                document.getElementById('tvshowEpisodeFields').classList.add('hidden');
+            }
             
-            // 再次检查重复（防止绕过前端验证）
-            if (isMovieNameExists(movieName, movieId)) {
-                showNotification('该电影名称已存在', 'error');
+            currentRecordId = null;
+        }
+
+        // 关闭添加记录模态框
+        function closeAddRecordModal() {
+            document.getElementById('addRecordModal').classList.add('hidden');
+            document.getElementById('addRecordModal').classList.remove('flex');
+        }
+
+        // 检查名称唯一性
+        function checkNameUniqueness() {
+            const nameInput = document.getElementById('recordName');
+            const name = nameInput.value.trim().toLowerCase();
+            const warning = document.getElementById('nameDuplicateWarning');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // 空名称不检查
+            if (!name) {
+                warning.classList.add('hidden');
+                nameInput.classList.remove('border-red-500');
+                nameInput.classList.remove('shake');
+                submitBtn.disabled = false;
+                return true;
+            }
+            
+            const records = getCurrentRecords();
+            const isDuplicate = records.some(record => {
+                // 如果是编辑模式，允许与自身名称相同
+                if (currentRecordId && record.id === currentRecordId) {
+                    return false;
+                }
+                return record.name.trim().toLowerCase() === name;
+            });
+            
+            if (isDuplicate) {
+                warning.classList.remove('hidden');
+                nameInput.classList.add('border-red-500');
+                // 添加抖动动画
+                nameInput.classList.add('shake');
+                setTimeout(() => {
+                    nameInput.classList.remove('shake');
+                }, 500);
+                submitBtn.disabled = true;
+                return false;
+            } else {
+                warning.classList.add('hidden');
+                nameInput.classList.remove('border-red-500');
+                submitBtn.disabled = false;
+                return true;
+            }
+        }
+
+        // 处理记录表单提交
+        function handleRecordFormSubmit(e) {
+            e.preventDefault();
+            
+            // 再次检查名称唯一性
+            if (!checkNameUniqueness()) {
                 return;
             }
 
             const posterImage = document.getElementById('posterImage');
             const posterData = posterImage.src || '';
 
-            const movieData = {
-                id: movieId || Date.now().toString(),
-                name: movieName,
+            const recordData = {
+                id: document.getElementById('recordId').value || Date.now().toString(),
+                name: document.getElementById('recordName').value.trim(),
                 watchDate: document.getElementById('watchDate').value,
-                status: document.getElementById('status').value,
+                genre: document.getElementById('recordGenre').value,
                 rating: parseInt(document.getElementById('rating').value),
-                genre: document.getElementById('genre').value,
-                mood: document.getElementById('mood').value,
-                director: document.getElementById('director').value,
-                actors: document.getElementById('actors').value,
-                duration: document.getElementById('duration').value,
-                tags: document.getElementById('tags').value,
-                review: document.getElementById('review').value,
+                director: document.getElementById('director').value.trim(),
+                actors: document.getElementById('actors').value.trim(),
+                tags: document.getElementById('tags').value.trim(),
+                review: document.getElementById('review').value.trim(),
                 posterData: posterData, // 存储Base64图片数据
                 timestamp: new Date().toISOString()
             };
-
-            const existingIndex = movies.findIndex(movie => movie.id === movieData.id);
-            if (existingIndex !== -1) {
-                // 编辑现有电影
-                movies[existingIndex] = movieData;
-            } else {
-                // 添加新电影
-                movies.unshift(movieData);
+            
+            // 添加电视剧特有字段
+            if (currentType === 'tvshows') {
+                recordData.seasons = document.getElementById('seasons').value.trim() || '';
+                recordData.episodes = document.getElementById('episodes').value.trim() || '';
             }
 
-            saveMovies();
-            closeAddMovieModal();
+            const records = getCurrentRecords();
+            const existingIndex = records.findIndex(record => record.id === recordData.id);
+            
+            if (existingIndex !== -1) {
+                // 编辑现有记录
+                records[existingIndex] = recordData;
+            } else {
+                // 添加新记录
+                records.unshift(recordData);
+            }
+            
+            setCurrentRecords(records);
+            saveAllData();
+            closeAddRecordModal();
             
             // 显示成功消息
-            showNotification(existingIndex !== -1 ? '电影记录已更新' : '电影记录已添加', 'success');
+            showNotification(existingIndex !== -1 ? '记录已更新' : '记录已添加', 'success');
         }
 
-        // 渲染电影网格
-        function renderMovieGrid() {
-            const grid = document.getElementById('movieGrid');
+        // 渲染记录网格
+        function renderRecordsGrid() {
+            const grid = document.getElementById('recordsGrid');
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const genreFilter = document.getElementById('genreFilter').value;
             const sortBy = document.getElementById('sortBy').value;
-            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
 
-            // 过滤电影
-            let filteredMovies = movies.filter(movie => {
-                const matchesSearch = movie.name.toLowerCase().includes(searchTerm) ||
-                                     movie.director.toLowerCase().includes(searchTerm) ||
-                                     movie.actors.toLowerCase().includes(searchTerm) ||
-                                     movie.review.toLowerCase().includes(searchTerm) ||
-                                     movie.tags.toLowerCase().includes(searchTerm);
-                const matchesGenre = !genreFilter || movie.genre === genreFilter;
-                const matchesStatus = activeFilter === 'all' || movie.status === activeFilter;
-                return matchesSearch && matchesGenre && matchesStatus;
+            // 获取当前类型的记录
+            let records = getCurrentRecords();
+
+            // 过滤记录
+            let filteredRecords = records.filter(record => {
+                // 搜索词过滤
+                const matchesSearch = record.name.toLowerCase().includes(searchTerm) ||
+                                     record.director.toLowerCase().includes(searchTerm) ||
+                                     record.actors.toLowerCase().includes(searchTerm) ||
+                                     record.review.toLowerCase().includes(searchTerm) ||
+                                     record.tags.toLowerCase().includes(searchTerm);
+                
+                // 类型过滤
+                const matchesGenre = !genreFilter || record.genre === genreFilter;
+                
+                // 演员筛选
+                const matchesActors = activeActorFilters.length === 0 || 
+                                     activeActorFilters.every(actor => 
+                                         record.actors.toLowerCase().includes(actor.toLowerCase())
+                                     );
+                
+                return matchesSearch && matchesGenre && matchesActors;
             });
 
-            // 排序电影
-            filteredMovies.sort((a, b) => {
+            // 排序记录
+            filteredRecords.sort((a, b) => {
                 switch (sortBy) {
                     case 'dateDesc':
-                        return new Date(b.watchDate || b.timestamp) - new Date(a.watchDate || a.timestamp);
+                        return new Date(b.timestamp) - new Date(a.timestamp);
                     case 'dateAsc':
-                        return new Date(a.watchDate || a.timestamp) - new Date(b.watchDate || b.timestamp);
+                        return new Date(a.timestamp) - new Date(b.timestamp);
                     case 'ratingDesc':
                         return b.rating - a.rating;
                     case 'ratingAsc':
@@ -741,76 +1014,76 @@
                 }
             });
 
-            if (filteredMovies.length === 0) {
+            if (filteredRecords.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-12">
                         <div class="flex flex-col items-center justify-center space-y-4">
                             <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center">
-                                <i class="fa fa-search text-gray-400 text-4xl"></i>
+                                <i class="${currentType === 'movies' ? 'fa fa-film' : 'fa fa-television'} text-gray-400 text-4xl"></i>
                             </div>
-                            <h3 class="text-xl font-semibold text-gray-900">没有找到电影</h3>
-                            <p class="text-gray-500">尝试调整搜索条件或添加新的电影记录</p>
+                            <h3 class="text-xl font-semibold text-gray-900">没有找到记录</h3>
+                            <p class="text-gray-500">尝试调整搜索条件或添加新的记录</p>
                         </div>
                     </div>
                 `;
                 return;
             }
 
-            grid.innerHTML = filteredMovies.map(movie => `
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 movie-card-hover cursor-pointer" onclick="openMovieDetail('${movie.id}')">
+            // 生成记录卡片
+            grid.innerHTML = filteredRecords.map(record => `
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 card-hover cursor-pointer" onclick="openDetail('${record.id}')">
                     <div class="relative">
-                        <img src="${getPosterUrl(movie)}" alt="${movie.name}" 
+                        <img src="${getPosterUrl(record)}" alt="${record.name}" 
                              class="w-full h-64 object-cover">
-                        ${movie.status === 'wishlist' ? `
-                            <div class="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                <i class="fa fa-heart mr-1"></i>愿望清单
-                            </div>
-                        ` : `
-                            <div class="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                                ${movie.rating}/10
-                            </div>
-                        `}
+                        <div class="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            ${record.rating}/10
+                        </div>
                         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
                             <div class="flex justify-between items-end">
                                 <div>
                                     <span class="bg-white bg-opacity-90 text-gray-800 px-2 py-1 rounded text-xs font-medium">
-                                        ${movie.genre}
+                                        ${getGenreNameById(record.genre) || '未知类型'}
                                     </span>
                                 </div>
-                                ${movie.watchDate ? `
+                                ${record.watchDate ? `
                                     <div class="text-white text-sm font-medium">
-                                        ${formatDate(movie.watchDate)}
+                                        ${formatDate(record.watchDate)}
                                     </div>
                                 ` : ''}
                             </div>
                         </div>
                     </div>
                     <div class="p-4">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2 truncate">${movie.name}</h3>
-                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">${movie.director || '未知导演'}</p>
-                        ${movie.tags ? `
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 truncate">${record.name}</h3>
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">${record.director || '未知导演'}</p>
+                        
+                        ${currentType === 'tvshows' && (record.seasons || record.episodes) ? `
+                            <div class="mb-3">
+                                <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                                    ${record.seasons ? `${record.seasons}季` : ''} 
+                                    ${record.seasons && record.episodes ? ' ' : ''}
+                                    ${record.episodes ? `${record.episodes}集` : ''}
+                                </span>
+                            </div>
+                        ` : ''}
+                        
+                        ${record.tags ? `
                             <div class="flex flex-wrap gap-1 mb-3">
-                                ${movie.tags.split(',').map(tag => tag.trim()).filter(tag => tag).map(tag => `
+                                ${record.tags.split(',').map(tag => tag.trim()).filter(tag => tag).map(tag => `
                                     <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">${tag}</span>
                                 `).join('')}
                             </div>
                         ` : ''}
+                        
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-1">
-                                ${getMoodIcon(movie.mood)}
-                                <span class="text-gray-500 text-sm">${movie.mood}</span>
+                            <div class="flex flex-wrap gap-1">
+                                ${getActorTags(record.actors, 2)}
                             </div>
-                            ${movie.status === 'watched' ? `
-                                <div class="flex items-center space-x-1">
-                                    ${Array.from({length: 5}, (_, i) => `
-                                        <i class="fa fa-star text-xs ${i < Math.floor(movie.rating / 2) ? 'text-yellow-400' : 'text-gray-300'}"></i>
-                                    `).join('')}
-                                </div>
-                            ` : `
-                                <div class="text-purple-500">
-                                    <i class="fa fa-heart"></i>
-                                </div>
-                            `}
+                            <div class="flex items-center space-x-1">
+                                ${Array.from({length: 5}, (_, i) => `
+                                    <i class="fa fa-star text-xs ${i < Math.floor(record.rating / 2) ? 'text-yellow-400' : 'text-gray-300'}"></i>
+                                `).join('')}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -818,9 +1091,9 @@
         }
 
         // 获取海报URL
-        function getPosterUrl(movie) {
-            if (movie.posterData) {
-                return movie.posterData;
+        function getPosterUrl(record) {
+            if (record.posterData) {
+                return record.posterData;
             }
             // 使用一些示例海报URL
             const defaultPosters = [
@@ -832,16 +1105,41 @@
             return defaultPosters[Math.floor(Math.random() * defaultPosters.length)];
         }
 
-        // 获取心情图标
-        function getMoodIcon(mood) {
-            const icons = {
-                '很棒': '<i class="fa fa-smile-o text-yellow-400"></i>',
-                '不错': '<i class="fa fa-meh-o text-blue-400"></i>',
-                '一般': '<i class="fa fa-meh-o text-gray-400"></i>',
-                '失望': '<i class="fa fa-frown-o text-orange-400"></i>',
-                '糟糕': '<i class="fa fa-frown-o text-red-400"></i>'
-            };
-            return icons[mood] || '<i class="fa fa-question text-gray-400"></i>';
+        // 获取演员标签（限制显示数量）
+        function getActorTags(actorsStr, maxDisplay = 2) {
+            if (!actorsStr) return '';
+            
+            const actors = actorsStr.split(',').map(actor => actor.trim()).filter(actor => actor);
+            
+            if (actors.length === 0) return '';
+            
+            let result = '';
+            // 显示前maxDisplay个演员
+            for (let i = 0; i < Math.min(actors.length, maxDisplay); i++) {
+                result += `
+                    <span class="bg-green-50 text-green-700 px-2 py-1 rounded text-xs cursor-pointer actor-tag" data-actor="${actors[i]}">
+                        ${actors[i]}
+                    </span>
+                `;
+            }
+            
+            // 如果有更多演员，显示数量
+            if (actors.length > maxDisplay) {
+                result += `<span class="bg-gray-50 text-gray-700 px-2 py-1 rounded text-xs">+${actors.length - maxDisplay}</span>`;
+            }
+            
+            // 添加点击事件委托
+            setTimeout(() => {
+                document.querySelectorAll('.actor-tag').forEach(tag => {
+                    tag.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const actor = this.dataset.actor;
+                        addActorFilter(actor);
+                    });
+                });
+            }, 0);
+            
+            return result;
         }
 
         // 格式化日期
@@ -851,128 +1149,160 @@
             return date.toLocaleDateString('zh-CN', {month: 'short', day: 'numeric'});
         }
 
-        // 打开电影详情
-        function openMovieDetail(movieId) {
-            const movie = movies.find(m => m.id === movieId);
-            if (!movie) return;
+        // 打开记录详情
+        function openDetail(recordId) {
+            const records = getCurrentRecords();
+            const record = records.find(r => r.id === recordId);
+            if (!record) return;
 
-            currentMovieId = movieId;
-            document.getElementById('detailMovieTitle').textContent = movie.name;
+            currentRecordId = recordId;
+            document.getElementById('detailTitle').textContent = record.name;
             
-            const detailContent = document.getElementById('movieDetailContent');
-            detailContent.innerHTML = `
+            const detailContent = document.getElementById('detailContent');
+            
+            // 构建详情HTML
+            let detailHtml = `
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div class="lg:col-span-1">
-                        <img src="${getPosterUrl(movie)}" alt="${movie.name}" 
+                        <img src="${getPosterUrl(record)}" alt="${record.name}" 
                              class="w-full rounded-lg shadow-lg">
-                        ${movie.status === 'wishlist' ? `
-                            <div class="mt-4 text-center">
-                                <span class="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium">
-                                    <i class="fa fa-heart mr-1"></i>愿望清单
-                                </span>
-                            </div>
-                        ` : ''}
                     </div>
                     <div class="lg:col-span-3 space-y-6">
                         <div>
                             <div class="flex flex-wrap items-center gap-4 mb-4">
-                                ${movie.status === 'watched' ? `
-                                    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full text-2xl font-bold">
-                                        ${movie.rating}/10
-                                    </div>
-                                ` : ''}
-                                <div class="flex items-center space-x-2">
-                                    ${getMoodIcon(movie.mood)}
-                                    <span class="text-lg font-medium">${movie.mood}</span>
+                                <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full text-2xl font-bold">
+                                    ${record.rating}/10
                                 </div>
                                 <div class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
-                                    ${movie.genre}
+                                    ${getGenreNameById(record.genre) || '未知类型'}
                                 </div>
-                                ${movie.duration ? `
-                                    <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-                                        <i class="fa fa-clock-o mr-1"></i>${movie.duration}分钟
-                                    </div>
-                                ` : ''}
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                ${movie.watchDate ? `
+                                ${record.watchDate ? `
                                     <div>
                                         <p class="text-gray-600 text-sm">观看日期</p>
-                                        <p class="font-medium">${new Date(movie.watchDate).toLocaleDateString('zh-CN')}</p>
+                                        <p class="font-medium">${new Date(record.watchDate).toLocaleDateString('zh-CN')}</p>
                                     </div>
                                 ` : ''}
                                 <div>
                                     <p class="text-gray-600 text-sm">导演</p>
-                                    <p class="font-medium">${movie.director || '未知'}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-600 text-sm">演员</p>
-                                    <p class="font-medium">${movie.actors || '未知'}</p>
+                                    <p class="font-medium">${record.director || '未知'}</p>
                                 </div>
                                 <div>
                                     <p class="text-gray-600 text-sm">记录时间</p>
-                                    <p class="font-medium">${new Date(movie.timestamp).toLocaleString('zh-CN')}</p>
+                                    <p class="font-medium">${new Date(record.timestamp).toLocaleString('zh-CN')}</p>
                                 </div>
                             </div>
                         </div>
-                        ${movie.tags ? `
+                        
+                        ${currentType === 'tvshows' && (record.seasons || record.episodes) ? `
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fa fa-list-ol text-blue-500 mr-2"></i>
+                                    剧集信息
+                                </h4>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <p class="text-gray-700">
+                                        ${record.seasons ? `季数：${record.seasons}季` : '未填写季数'}
+                                        ${record.seasons && record.episodes ? '<br>' : ''}
+                                        ${record.episodes ? `集数：${record.episodes}集` : ''}
+                                    </p>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${record.actors ? `
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fa fa-users text-green-500 mr-2"></i>
+                                    演员
+                                </h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${record.actors.split(',').map(actor => actor.trim()).filter(actor => actor).map(actor => `
+                                        <span class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm cursor-pointer actor-tag" data-actor="${actor}">
+                                            ${actor}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${record.tags ? `
                             <div>
                                 <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
                                     <i class="fa fa-tags text-blue-500 mr-2"></i>
                                     标签
                                 </h4>
                                 <div class="flex flex-wrap gap-2">
-                                    ${movie.tags.split(',').map(tag => tag.trim()).filter(tag => tag).map(tag => `
+                                    ${record.tags.split(',').map(tag => tag.trim()).filter(tag => tag).map(tag => `
                                         <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">${tag}</span>
                                     `).join('')}
                                 </div>
                             </div>
                         ` : ''}
-                        ${movie.review ? `
+                        
+                        ${record.review ? `
                             <div class="bg-gray-50 rounded-lg p-6">
                                 <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
                                     <i class="fa fa-comment text-blue-500 mr-2"></i>
-                                    观影感受
+                                    观看感受
                                 </h4>
-                                <p class="text-gray-700 leading-relaxed whitespace-pre-line">${movie.review}</p>
+                                <p class="text-gray-700 leading-relaxed whitespace-pre-line">${record.review}</p>
                             </div>
                         ` : ''}
                     </div>
                 </div>
             `;
+            
+            detailContent.innerHTML = detailHtml;
+            
+            // 为演员标签添加点击事件
+            setTimeout(() => {
+                detailContent.querySelectorAll('.actor-tag').forEach(tag => {
+                    tag.addEventListener('click', function() {
+                        const actor = this.dataset.actor;
+                        addActorFilter(actor);
+                        closeDetailModal();
+                    });
+                });
+            }, 0);
 
-            document.getElementById('movieDetailModal').classList.remove('hidden');
-            document.getElementById('movieDetailModal').classList.add('flex');
+            document.getElementById('detailModal').classList.remove('hidden');
+            document.getElementById('detailModal').classList.add('flex');
         }
 
-        // 关闭电影详情模态框
-        function closeMovieDetailModal() {
-            document.getElementById('movieDetailModal').classList.add('hidden');
-            document.getElementById('movieDetailModal').classList.remove('flex');
+        // 关闭详情模态框
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            document.getElementById('detailModal').classList.remove('flex');
         }
 
-        // 处理编辑电影
-        function handleEditMovie() {
-            const movie = movies.find(m => m.id === currentMovieId);
-            if (!movie) return;
+        // 处理编辑记录
+        function handleEditRecord() {
+            const records = getCurrentRecords();
+            const record = records.find(r => r.id === currentRecordId);
+            if (!record) return;
 
-            closeMovieDetailModal();
-            openAddMovieModal();
+            closeDetailModal();
+            openAddRecordModal();
 
             // 填充表单数据
-            document.getElementById('movieId').value = movie.id;
-            document.getElementById('movieName').value = movie.name;
-            document.getElementById('watchDate').value = movie.watchDate || '';
-            document.getElementById('status').value = movie.status || 'watched';
-            document.getElementById('rating').value = movie.rating || 7;
-            document.getElementById('ratingValue').textContent = movie.rating || 7;
-            document.getElementById('genre').value = movie.genre || '其他';
-            document.getElementById('mood').value = movie.mood || '不错';
-            document.getElementById('director').value = movie.director || '';
-            document.getElementById('actors').value = movie.actors || '';
-            document.getElementById('duration').value = movie.duration || '';
-            document.getElementById('tags').value = movie.tags || '';
-            document.getElementById('review').value = movie.review || '';
+            document.getElementById('recordId').value = record.id;
+            document.getElementById('recordName').value = record.name;
+            document.getElementById('watchDate').value = record.watchDate || '';
+            document.getElementById('recordGenre').value = record.genre || '';
+            document.getElementById('rating').value = record.rating || 7;
+            document.getElementById('ratingValue').textContent = record.rating || 7;
+            document.getElementById('director').value = record.director || '';
+            document.getElementById('actors').value = record.actors || '';
+            document.getElementById('tags').value = record.tags || '';
+            document.getElementById('review').value = record.review || '';
+            
+            // 电视剧特有字段
+            if (currentType === 'tvshows') {
+                document.getElementById('seasons').value = record.seasons || '';
+                document.getElementById('episodes').value = record.episodes || '';
+            }
 
             // 处理海报图片
             const posterPreview = document.getElementById('posterPreview');
@@ -980,75 +1310,63 @@
             const uploadArea = document.getElementById('posterUploadArea');
             const removeBtn = document.getElementById('removePosterBtn');
 
-            if (movie.posterData) {
+            if (record.posterData) {
                 posterPreview.classList.add('hidden');
-                posterImage.src = movie.posterData;
+                posterImage.src = record.posterData;
                 posterImage.classList.remove('hidden');
                 uploadArea.classList.add('active');
                 removeBtn.classList.remove('hidden');
             }
-
-            // 检查电影名称是否重复（编辑时允许使用原名称）
-            const movieNameInput = document.getElementById('movieName');
-            const duplicateWarning = document.getElementById('duplicateWarning');
-            const submitBtn = document.getElementById('submitBtn');
-            
-            if (isMovieNameExists(movie.name, movie.id)) {
-                duplicateWarning.classList.remove('hidden');
-                movieNameInput.classList.add('border-red-500');
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
         }
 
-        // 处理删除电影
-        function handleDeleteMovie() {
-            if (confirm('确定要删除这条电影记录吗？此操作不可撤销。')) {
-                movies = movies.filter(movie => movie.id !== currentMovieId);
-                saveMovies();
-                closeMovieDetailModal();
-                showNotification('电影记录已删除', 'success');
+        // 处理删除记录
+        function handleDeleteRecord() {
+            if (confirm('确定要删除这条记录吗？此操作不可撤销。')) {
+                let records = getCurrentRecords();
+                records = records.filter(record => record.id !== currentRecordId);
+                setCurrentRecords(records);
+                saveAllData();
+                closeDetailModal();
+                showNotification('记录已删除', 'success');
             }
         }
 
         // 更新统计信息
         function updateStatistics() {
-            const totalMovies = movies.length;
-            document.getElementById('totalMovies').textContent = totalMovies;
+            const records = getCurrentRecords();
+            const totalRecords = records.length;
+            document.getElementById('totalRecords').textContent = totalRecords;
 
-            if (totalMovies === 0) {
+            if (totalRecords === 0) {
                 document.getElementById('avgRating').textContent = '0.0';
-                document.getElementById('monthMovies').textContent = '0';
+                document.getElementById('monthRecords').textContent = '0';
                 document.getElementById('favoriteGenre').textContent = '暂无';
                 return;
             }
 
-            // 已观看电影统计
-            const watchedMovies = movies.filter(m => m.status === 'watched');
-            
             // 平均评分
-            const avgRating = watchedMovies.length > 0 
-                ? (watchedMovies.reduce((sum, movie) => sum + movie.rating, 0) / watchedMovies.length).toFixed(1)
-                : '0.0';
+            const avgRating = (records.reduce((sum, record) => sum + record.rating, 0) / totalRecords).toFixed(1);
             document.getElementById('avgRating').textContent = avgRating;
 
-            // 本月观看
+            // 本月添加
             const currentMonth = new Date().getMonth();
             const currentYear = new Date().getFullYear();
-            const monthMovies = watchedMovies.filter(movie => {
-                if (!movie.watchDate) return false;
-                const date = new Date(movie.watchDate);
+            const monthRecords = records.filter(record => {
+                const date = new Date(record.timestamp);
                 return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
             }).length;
-            document.getElementById('monthMovies').textContent = monthMovies;
+            document.getElementById('monthRecords').textContent = monthRecords;
 
             // 最爱类型
             const genreCount = {};
-            watchedMovies.forEach(movie => {
-                genreCount[movie.genre] = (genreCount[movie.genre] || 0) + 1;
+            records.forEach(record => {
+                if (record.genre) {
+                    genreCount[record.genre] = (genreCount[record.genre] || 0) + 1;
+                }
             });
-            const favoriteGenre = Object.entries(genreCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '暂无';
-            document.getElementById('favoriteGenre').textContent = favoriteGenre;
+            
+            const favoriteGenreId = Object.entries(genreCount).sort((a, b) => b[1] - a[1])[0]?.[0];
+            document.getElementById('favoriteGenre').textContent = favoriteGenreId ? getGenreNameById(favoriteGenreId) : '暂无';
         }
 
         // 初始化图表
@@ -1063,7 +1381,8 @@
                         data: [],
                         backgroundColor: [
                             '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444',
-                            '#10B981', '#F97316', '#EC4899', '#6366F1'
+                            '#10B981', '#F97316', '#EC4899', '#6366F1',
+                            '#14B8A6', '#84CC16', '#60A5FA', '#EC4899'
                         ],
                         borderWidth: 0
                     }]
@@ -1090,7 +1409,7 @@
                 data: {
                     labels: ['1-2分', '3-4分', '5-6分', '7-8分', '9-10分'],
                     datasets: [{
-                        label: '电影数量',
+                        label: '记录数量',
                         data: [0, 0, 0, 0, 0],
                         backgroundColor: '#3B82F6',
                         borderRadius: 6
@@ -1120,9 +1439,9 @@
 
         // 更新图表数据
         function updateCharts() {
-            const watchedMovies = movies.filter(m => m.status === 'watched');
+            const records = getCurrentRecords();
             
-            if (watchedMovies.length === 0) {
+            if (records.length === 0) {
                 genreChart.data.labels = [];
                 genreChart.data.datasets[0].data = [];
                 ratingChart.data.datasets[0].data = [0, 0, 0, 0, 0];
@@ -1133,23 +1452,33 @@
 
             // 更新类型分布
             const genreCount = {};
-            watchedMovies.forEach(movie => {
-                genreCount[movie.genre] = (genreCount[movie.genre] || 0) + 1;
+            records.forEach(record => {
+                if (record.genre) {
+                    genreCount[record.genre] = (genreCount[record.genre] || 0) + 1;
+                }
             });
-            const genres = Object.keys(genreCount);
-            const counts = Object.values(genreCount);
+            
+            // 将类型ID转换为名称
+            const genreLabels = [];
+            const genreData = [];
+            
+            Object.entries(genreCount).forEach(([genreId, count]) => {
+                const genreName = getGenreNameById(genreId) || '未知类型';
+                genreLabels.push(genreName);
+                genreData.push(count);
+            });
 
-            genreChart.data.labels = genres;
-            genreChart.data.datasets[0].data = counts;
+            genreChart.data.labels = genreLabels;
+            genreChart.data.datasets[0].data = genreData;
 
             // 更新评分分布
             const ratingRanges = [0, 0, 0, 0, 0];
-            watchedMovies.forEach(movie => {
-                if (movie.rating >= 1 && movie.rating <= 2) ratingRanges[0]++;
-                else if (movie.rating >= 3 && movie.rating <= 4) ratingRanges[1]++;
-                else if (movie.rating >= 5 && movie.rating <= 6) ratingRanges[2]++;
-                else if (movie.rating >= 7 && movie.rating <= 8) ratingRanges[3]++;
-                else if (movie.rating >= 9 && movie.rating <= 10) ratingRanges[4]++;
+            records.forEach(record => {
+                if (record.rating >= 1 && record.rating <= 2) ratingRanges[0]++;
+                else if (record.rating >= 3 && record.rating <= 4) ratingRanges[1]++;
+                else if (record.rating >= 5 && record.rating <= 6) ratingRanges[2]++;
+                else if (record.rating >= 7 && record.rating <= 8) ratingRanges[3]++;
+                else if (record.rating >= 9 && record.rating <= 10) ratingRanges[4]++;
             });
 
             ratingChart.data.datasets[0].data = ratingRanges;
@@ -1158,26 +1487,121 @@
             ratingChart.update();
         }
 
-        // 导出数据
-        function exportData() {
-            if (movies.length === 0) {
-                showNotification('没有数据可导出', 'warning');
+        // 处理演员筛选输入
+        function handleActorFilterInput() {
+            const input = this;
+            const query = input.value.toLowerCase().trim();
+            const suggestionsContainer = document.getElementById('actorSuggestions');
+            
+            if (query.length < 1) {
+                suggestionsContainer.classList.add('hidden');
                 return;
             }
+            
+            // 获取所有演员并去重
+            const records = getCurrentRecords();
+            const allActors = new Set();
+            
+            records.forEach(record => {
+                if (record.actors) {
+                    record.actors.split(',').forEach(actor => {
+                        const trimmedActor = actor.trim();
+                        if (trimmedActor && !activeActorFilters.includes(trimmedActor)) {
+                            allActors.add(trimmedActor);
+                        }
+                    });
+                }
+            });
+            
+            // 筛选匹配的演员
+            const matchedActors = Array.from(allActors).filter(actor => 
+                actor.toLowerCase().includes(query)
+            ).sort();
+            
+            if (matchedActors.length === 0) {
+                suggestionsContainer.classList.add('hidden');
+                return;
+            }
+            
+            // 显示建议
+            suggestionsContainer.innerHTML = matchedActors.map(actor => `
+                <div class="px-4 py-2 hover:bg-gray-100 cursor-pointer actor-suggestion" data-actor="${actor}">
+                    ${actor}
+                </div>
+            `).join('');
+            
+            suggestionsContainer.classList.remove('hidden');
+            
+            // 添加点击事件
+            suggestionsContainer.querySelectorAll('.actor-suggestion').forEach(item => {
+                item.addEventListener('click', function() {
+                    const actor = this.dataset.actor;
+                    addActorFilter(actor);
+                    input.value = '';
+                    suggestionsContainer.classList.add('hidden');
+                });
+            });
+        }
 
-            const dataStr = JSON.stringify(movies, null, 2);
+        // 添加演员筛选
+        function addActorFilter(actor) {
+            if (!actor || activeActorFilters.includes(actor)) {
+                return;
+            }
+            
+            activeActorFilters.push(actor);
+            renderActiveFilters();
+            renderRecordsGrid();
+        }
+
+        // 移除演员筛选
+        function removeActorFilter(index) {
+            activeActorFilters.splice(index, 1);
+            renderActiveFilters();
+            renderRecordsGrid();
+        }
+
+        // 渲染活跃的筛选器
+        function renderActiveFilters() {
+            const container = document.getElementById('activeFilters');
+            
+            if (activeActorFilters.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = activeActorFilters.map((actor, index) => `
+                <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center">
+                    ${actor}
+                    <button class="ml-1 text-green-600 hover:text-green-900" onclick="removeActorFilter(${index})">
+                        <i class="fa fa-times-circle"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // 导出数据
+        function exportData() {
+            const data = {
+                movies: movies,
+                tvshows: tvshows,
+                genres: genres,
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
             const dataBlob = new Blob([dataStr], {type: 'application/json'});
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `movie_records_${new Date().toISOString().split('T')[0]}.json`;
+            link.download = `media_records_${new Date().toISOString().split('T')[0]}.json`;
             link.click();
             URL.revokeObjectURL(url);
             
-            showNotification('数据导出成功（包含所有图片）', 'success');
+            showNotification('数据导出成功（包含所有图片和类型）', 'success');
         }
 
-        // 导入数据（带重复过滤）
+        // 导入数据
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1185,73 +1609,92 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const importedMovies = JSON.parse(e.target.result);
-                    if (!Array.isArray(importedMovies)) {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // 验证数据格式
+                    if (typeof importedData !== 'object' || importedData === null) {
                         throw new Error('导入的数据格式不正确');
                     }
-
-                    let importedCount = 0;
-                    let skippedCount = 0;
-
-                    // 过滤重复电影（以电影名称为标准，不区分大小写）
-                    const newMovies = importedMovies.filter(importedMovie => {
-                        if (!importedMovie.name) {
-                            skippedCount++;
-                            return false;
-                        }
-                        
-                        const exists = isMovieNameExists(importedMovie.name);
-                        if (exists) {
-                            skippedCount++;
-                            return false;
-                        }
-                        
-                        // 为新电影生成新的ID
-                        importedMovie.id = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 9);
-                        importedMovie.timestamp = new Date().toISOString();
-                        importedCount++;
-                        return true;
-                    });
-
-                    // 添加新电影
-                    if (newMovies.length > 0) {
-                        movies = [...movies, ...newMovies];
-                        saveMovies();
+                    
+                    // 统计导入结果
+                    let addedMovies = 0;
+                    let addedTvshows = 0;
+                    let skippedMovies = 0;
+                    let skippedTvshows = 0;
+                    
+                    // 处理电影数据
+                    if (Array.isArray(importedData.movies)) {
+                        importedData.movies.forEach(movie => {
+                            // 检查是否已存在（按名称）
+                            const exists = movies.some(m => 
+                                m.name.trim().toLowerCase() === movie.name?.trim().toLowerCase()
+                            );
+                            
+                            if (!exists && movie.name) {
+                                // 确保有ID
+                                if (!movie.id) {
+                                    movie.id = Date.now().toString() + '_imported_' + Math.random().toString(36).substr(2, 9);
+                                }
+                                movies.push(movie);
+                                addedMovies++;
+                            } else {
+                                skippedMovies++;
+                            }
+                        });
                     }
-
+                    
+                    // 处理电视剧数据
+                    if (Array.isArray(importedData.tvshows)) {
+                        importedData.tvshows.forEach(tvshow => {
+                            // 检查是否已存在（按名称）
+                            const exists = tvshows.some(t => 
+                                t.name.trim().toLowerCase() === tvshow.name?.trim().toLowerCase()
+                            );
+                            
+                            if (!exists && tvshow.name) {
+                                // 确保有ID
+                                if (!tvshow.id) {
+                                    tvshow.id = Date.now().toString() + '_imported_' + Math.random().toString(36).substr(2, 9);
+                                }
+                                tvshows.push(tvshow);
+                                addedTvshows++;
+                            } else {
+                                skippedTvshows++;
+                            }
+                        });
+                    }
+                    
+                    // 处理类型数据（合并，不重复）
+                    if (Array.isArray(importedData.genres)) {
+                        importedData.genres.forEach(genre => {
+                            if (genre.id && genre.name && !genres.some(g => g.id === genre.id || g.name.trim().toLowerCase() === genre.name.trim().toLowerCase())) {
+                                genres.push(genre);
+                            }
+                        });
+                        saveGenres();
+                    }
+                    
+                    // 保存数据
+                    saveAllData();
+                    
                     // 显示导入结果
-                    showImportResult(importedCount, skippedCount);
-
+                    const totalAdded = addedMovies + addedTvshows;
+                    const totalSkipped = skippedMovies + skippedTvshows;
+                    
+                    document.getElementById('importResultText').textContent = 
+                        `成功导入 ${totalAdded} 条记录，跳过 ${totalSkipped} 条重复记录`;
+                    
+                    document.getElementById('importResultModal').classList.remove('hidden');
+                    document.getElementById('importResultModal').classList.add('flex');
+                    
                 } catch (error) {
                     showNotification('导入失败：' + error.message, 'error');
                 }
+                
+                // 重置文件输入
+                document.getElementById('importFile').value = '';
             };
             reader.readAsText(file);
-        }
-
-        // 显示导入结果
-        function showImportResult(importedCount, skippedCount) {
-            const modal = document.getElementById('importResultModal');
-            const icon = document.getElementById('importResultIcon');
-            const title = document.getElementById('importResultTitle');
-            const importedCountSpan = document.getElementById('importedCount');
-            const skippedCountSpan = document.getElementById('skippedCount');
-
-            importedCountSpan.textContent = importedCount;
-            skippedCountSpan.textContent = skippedCount;
-
-            if (importedCount > 0) {
-                icon.className = 'w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center';
-                icon.innerHTML = '<i class="fa fa-check text-2xl text-green-600"></i>';
-                title.textContent = '导入成功';
-            } else {
-                icon.className = 'w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100 flex items-center justify-center';
-                icon.innerHTML = '<i class="fa fa-exclamation-triangle text-2xl text-yellow-600"></i>';
-                title.textContent = '没有新数据';
-            }
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
         }
 
         // 显示通知
@@ -1279,8 +1722,364 @@
             }, 3000);
         }
 
+        // 渲染类型下拉框
+        function renderGenresDropdowns() {
+            // 为筛选器和表单中的类型下拉框填充选项
+            const genreFilter = document.getElementById('genreFilter');
+            const recordGenre = document.getElementById('recordGenre');
+            const replaceGenreSelect = document.getElementById('replaceGenreSelect');
+            
+            // 保存当前选中值
+            const currentFilterValue = genreFilter.value;
+            const currentRecordValue = recordGenre.value;
+            
+            // 清空现有选项（保留第一个"所有类型"选项）
+            while (genreFilter.options.length > 1) {
+                genreFilter.remove(1);
+            }
+            recordGenre.innerHTML = '';
+            replaceGenreSelect.innerHTML = '';
+            
+            // 添加类型选项
+            genres.forEach(genre => {
+                // 筛选器下拉框
+                const filterOption = document.createElement('option');
+                filterOption.value = genre.id;
+                filterOption.textContent = genre.name;
+                genreFilter.appendChild(filterOption);
+                
+                // 表单下拉框
+                const formOption = document.createElement('option');
+                formOption.value = genre.id;
+                formOption.textContent = genre.name;
+                recordGenre.appendChild(formOption);
+                
+                // 替换类型下拉框
+                const replaceOption = document.createElement('option');
+                replaceOption.value = genre.id;
+                replaceOption.textContent = genre.name;
+                replaceGenreSelect.appendChild(replaceOption);
+            });
+            
+            // 恢复选中值
+            if (currentFilterValue) {
+                genreFilter.value = currentFilterValue;
+            }
+            if (currentRecordValue) {
+                recordGenre.value = currentRecordValue;
+            }
+        }
+
+        // 打开类型管理模态框
+        function openManageGenresModal() {
+            renderGenresList();
+            document.getElementById('newGenreName').value = '';
+            document.getElementById('genreDuplicateWarning').classList.add('hidden');
+            document.getElementById('manageGenresModal').classList.remove('hidden');
+            document.getElementById('manageGenresModal').classList.add('flex');
+        }
+
+        // 关闭类型管理模态框
+        function closeManageGenresModal() {
+            document.getElementById('manageGenresModal').classList.add('hidden');
+            document.getElementById('manageGenresModal').classList.remove('flex');
+        }
+
+        // 渲染类型列表
+        function renderGenresList() {
+            const listContainer = document.getElementById('genresList');
+            
+            if (genres.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500">
+                        暂无类型，请添加新类型
+                    </div>
+                `;
+                return;
+            }
+            
+            // 计算每个类型的使用次数
+            const genreUsage = {};
+            genres.forEach(genre => {
+                genreUsage[genre.id] = 0;
+            });
+            
+            // 检查电影中使用的类型
+            movies.forEach(movie => {
+                if (movie.genre && genreUsage[movie.genre] !== undefined) {
+                    genreUsage[movie.genre]++;
+                }
+            });
+            
+            // 检查电视剧中使用的类型
+            tvshows.forEach(tvshow => {
+                if (tvshow.genre && genreUsage[tvshow.genre] !== undefined) {
+                    genreUsage[tvshow.genre]++;
+                }
+            });
+            
+            // 生成类型列表
+            listContainer.innerHTML = genres.map(genre => `
+                <div class="bg-gray-50 rounded-lg p-4 flex justify-between items-center">
+                    <div>
+                        <div class="font-medium text-gray-900">${genre.name}</div>
+                        <div class="text-sm text-gray-500">
+                            被使用 ${genreUsage[genre.id]} 次
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="text-blue-600 hover:text-blue-800 transition-colors" onclick="editGenre('${genre.id}', '${escapeHtml(genre.name)}')">
+                            <i class="fa fa-edit"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-800 transition-colors" onclick="deleteGenre('${genre.id}', '${escapeHtml(genre.name)}')">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 添加新类型
+        function addNewGenre() {
+            const nameInput = document.getElementById('newGenreName');
+            const name = nameInput.value.trim();
+            const warning = document.getElementById('genreDuplicateWarning');
+            
+            if (!name) {
+                nameInput.focus();
+                return;
+            }
+            
+            // 检查是否已存在
+            const exists = genres.some(genre => genre.name.trim().toLowerCase() === name.toLowerCase());
+            
+            if (exists) {
+                warning.classList.remove('hidden');
+                nameInput.classList.add('border-red-500');
+                nameInput.classList.add('shake');
+                setTimeout(() => {
+                    nameInput.classList.remove('shake');
+                }, 500);
+                return;
+            }
+            
+            // 添加新类型
+            genres.push({
+                id: Date.now().toString(),
+                name: name
+            });
+            
+            saveGenres();
+            nameInput.value = '';
+            warning.classList.add('hidden');
+            nameInput.classList.remove('border-red-500');
+            nameInput.focus();
+            
+            showNotification('类型添加成功', 'success');
+        }
+
+        // 编辑类型
+        function editGenre(genreId, genreName) {
+            const genre = genres.find(g => g.id === genreId);
+            if (!genre) return;
+            
+            document.getElementById('editGenreId').value = genreId;
+            document.getElementById('editGenreName').value = genreName;
+            document.getElementById('editGenreDuplicateWarning').classList.add('hidden');
+            
+            document.getElementById('editGenreModal').classList.remove('hidden');
+            document.getElementById('editGenreModal').classList.add('flex');
+        }
+
+        // 确认编辑类型
+        function confirmEditGenre() {
+            const genreId = document.getElementById('editGenreId').value;
+            const nameInput = document.getElementById('editGenreName');
+            const newName = nameInput.value.trim();
+            const warning = document.getElementById('editGenreDuplicateWarning');
+            
+            if (!newName) {
+                nameInput.focus();
+                return;
+            }
+            
+            const genreIndex = genres.findIndex(g => g.id === genreId);
+            if (genreIndex === -1) {
+                closeEditGenreModal();
+                return;
+            }
+            
+            // 检查是否已存在（排除自身）
+            const exists = genres.some(genre => 
+                genre.id !== genreId && genre.name.trim().toLowerCase() === newName.toLowerCase()
+            );
+            
+            if (exists) {
+                warning.classList.remove('hidden');
+                nameInput.classList.add('border-red-500');
+                nameInput.classList.add('shake');
+                setTimeout(() => {
+                    nameInput.classList.remove('shake');
+                }, 500);
+                return;
+            }
+            
+            // 更新类型名称
+            const oldName = genres[genreIndex].name;
+            genres[genreIndex].name = newName;
+            
+            saveGenres();
+            
+            // 关闭模态框
+            document.getElementById('editGenreModal').classList.add('hidden');
+            document.getElementById('editGenreModal').classList.remove('flex');
+            
+            showNotification('类型已更新', 'success');
+        }
+
+        // 删除类型
+        function deleteGenre(genreId, genreName) {
+            // 计算该类型的使用次数
+            let usageCount = 0;
+            
+            // 检查电影中使用的类型
+            movies.forEach(movie => {
+                if (movie.genre === genreId) {
+                    usageCount++;
+                }
+            });
+            
+            // 检查电视剧中使用的类型
+            tvshows.forEach(tvshow => {
+                if (tvshow.genre === genreId) {
+                    usageCount++;
+                }
+            });
+            
+            // 设置要删除的类型名称
+            document.getElementById('deleteGenreName').textContent = genreName;
+            
+            // 显示/隐藏使用提示
+            const inUseMessage = document.getElementById('genreInUseMessage');
+            if (usageCount > 0) {
+                inUseMessage.classList.remove('hidden');
+                // 确保替换类型下拉框不包含当前要删除的类型
+                const replaceOptions = document.getElementById('replaceGenreSelect').options;
+                for (let i = 0; i < replaceOptions.length; i++) {
+                    if (replaceOptions[i].value === genreId) {
+                        replaceOptions[i].selected = false;
+                        // 选择第一个其他类型
+                        if (replaceOptions.length > 1) {
+                            replaceOptions[0].selected = replaceOptions[0].value !== genreId;
+                            replaceOptions[1].selected = replaceOptions[0].value === genreId;
+                        }
+                        break;
+                    }
+                }
+            } else {
+                inUseMessage.classList.add('hidden');
+            }
+            
+            // 保存要删除的类型ID
+            document.getElementById('deleteGenreModal').dataset.genreId = genreId;
+            
+            // 显示删除确认模态框
+            document.getElementById('deleteGenreModal').classList.remove('hidden');
+            document.getElementById('deleteGenreModal').classList.add('flex');
+        }
+
+        // 确认删除类型
+        function confirmDeleteGenre() {
+            const genreId = document.getElementById('deleteGenreModal').dataset.genreId;
+            const genreIndex = genres.findIndex(g => g.id === genreId);
+            
+            if (genreIndex === -1) {
+                closeDeleteGenreModal();
+                return;
+            }
+            
+            // 检查是否被使用
+            let isUsed = false;
+            
+            movies.forEach(movie => {
+                if (movie.genre === genreId) {
+                    isUsed = true;
+                }
+            });
+            
+            tvshows.forEach(tvshow => {
+                if (tvshow.genre === genreId) {
+                    isUsed = true;
+                }
+            });
+            
+            // 如果被使用，获取替换类型
+            if (isUsed) {
+                const replaceGenreId = document.getElementById('replaceGenreSelect').value;
+                
+                if (!replaceGenreId) {
+                    return;
+                }
+                
+                // 更新所有使用该类型的记录
+                movies.forEach(movie => {
+                    if (movie.genre === genreId) {
+                        movie.genre = replaceGenreId;
+                    }
+                });
+                
+                tvshows.forEach(tvshow => {
+                    if (tvshow.genre === genreId) {
+                        tvshow.genre = replaceGenreId;
+                    }
+                });
+            }
+            
+            // 删除类型
+            genres.splice(genreIndex, 1);
+            saveGenres();
+            saveAllData();
+            
+            // 关闭模态框
+            document.getElementById('deleteGenreModal').classList.add('hidden');
+            document.getElementById('deleteGenreModal').classList.remove('flex');
+            
+            showNotification('类型已删除', 'success');
+        }
+
+        // 关闭删除类型模态框
+        function closeDeleteGenreModal() {
+            document.getElementById('deleteGenreModal').classList.add('hidden');
+            document.getElementById('deleteGenreModal').classList.remove('flex');
+        }
+
+        // 关闭编辑类型模态框
+        function closeEditGenreModal() {
+            document.getElementById('editGenreModal').classList.add('hidden');
+            document.getElementById('editGenreModal').classList.remove('flex');
+        }
+
+        // 根据ID获取类型名称
+        function getGenreNameById(genreId) {
+            const genre = genres.find(g => g.id === genreId);
+            return genre ? genre.name : null;
+        }
+
+        // HTML转义，防止XSS
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         // 全局函数供HTML调用
-        window.openMovieDetail = openMovieDetail;
+        window.openDetail = openDetail;
+        window.removeActorFilter = removeActorFilter;
+        window.editGenre = editGenre;
+        window.deleteGenre = deleteGenre;
     </script>
 </body>
 </html>
