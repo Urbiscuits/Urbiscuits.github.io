@@ -65,6 +65,14 @@
                 border-color: #10b981;
                 background-color: #ecfdf5;
             }
+            .duplicate-warning {
+                animation: shake 0.5s ease-in-out;
+            }
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
         }
     </style>
 </head>
@@ -270,7 +278,13 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">电影名称 *</label>
-                                    <input type="text" id="movieName" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                                    <div class="relative">
+                                        <input type="text" id="movieName" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                                        <div id="duplicateWarning" class="hidden absolute -bottom-6 left-0 text-red-500 text-sm">
+                                            <i class="fa fa-exclamation-triangle mr-1"></i>
+                                            <span>该电影名称已存在</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">观看日期</label>
@@ -344,7 +358,7 @@
                     </div>
                     <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
                         <button type="button" id="cancelBtn" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">取消</button>
-                        <button type="submit" class="bg-gradient-to-r from-primary to-secondary text-white px-8 py-3 rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">保存记录</button>
+                        <button type="submit" id="submitBtn" class="bg-gradient-to-r from-primary to-secondary text-white px-8 py-3 rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">保存记录</button>
                     </div>
                 </form>
             </div>
@@ -374,6 +388,25 @@
                 <div id="movieDetailContent" class="space-y-6">
                     <!-- 详情内容将在这里动态生成 -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入结果模态框 -->
+    <div id="importResultModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div class="p-6 text-center">
+                <div id="importResultIcon" class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center">
+                    <i class="fa fa-check text-2xl text-white"></i>
+                </div>
+                <h3 id="importResultTitle" class="text-xl font-bold text-gray-900 mb-2">导入成功</h3>
+                <div id="importResultContent" class="text-gray-600 mb-6">
+                    <p>成功导入 <span id="importedCount" class="font-semibold text-primary">0</span> 条记录</p>
+                    <p>跳过重复记录 <span id="skippedCount" class="font-semibold text-yellow-600">0</span> 条</p>
+                </div>
+                <button id="closeImportResultBtn" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                    确定
+                </button>
             </div>
         </div>
     </div>
@@ -410,6 +443,15 @@
             updateCharts();
         }
 
+        // 检查电影名称是否存在（不区分大小写）
+        function isMovieNameExists(movieName, excludeId = null) {
+            const normalizedName = movieName.trim().toLowerCase();
+            return movies.some(movie => 
+                movie.name.trim().toLowerCase() === normalizedName && 
+                movie.id !== excludeId
+            );
+        }
+
         // 初始化事件监听器
         function initializeEventListeners() {
             // 添加电影按钮
@@ -419,6 +461,7 @@
             document.getElementById('closeModal').addEventListener('click', closeAddMovieModal);
             document.getElementById('cancelBtn').addEventListener('click', closeAddMovieModal);
             document.getElementById('closeDetailModal').addEventListener('click', closeMovieDetailModal);
+            document.getElementById('closeImportResultBtn').addEventListener('click', closeImportResultModal);
             
             // 电影表单提交
             document.getElementById('movieForm').addEventListener('submit', handleMovieFormSubmit);
@@ -428,6 +471,26 @@
             const ratingValue = document.getElementById('ratingValue');
             ratingSlider.addEventListener('input', function() {
                 ratingValue.textContent = this.value;
+            });
+
+            // 电影名称重复检查
+            document.getElementById('movieName').addEventListener('input', function() {
+                const movieName = this.value;
+                const movieId = document.getElementById('movieId').value;
+                const duplicateWarning = document.getElementById('duplicateWarning');
+                const submitBtn = document.getElementById('submitBtn');
+                
+                if (movieName && isMovieNameExists(movieName, movieId)) {
+                    duplicateWarning.classList.remove('hidden');
+                    this.classList.add('border-red-500', 'duplicate-warning');
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    duplicateWarning.classList.add('hidden');
+                    this.classList.remove('border-red-500', 'duplicate-warning');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
             });
 
             // 搜索和筛选
@@ -458,6 +521,7 @@
             // 模态框点击外部关闭
             setupModalOutsideClick('addMovieModal', closeAddMovieModal);
             setupModalOutsideClick('movieDetailModal', closeMovieDetailModal);
+            setupModalOutsideClick('importResultModal', closeImportResultModal);
 
             // 详情模态框按钮
             document.getElementById('editMovieBtn').addEventListener('click', handleEditMovie);
@@ -556,6 +620,8 @@
             const posterImage = document.getElementById('posterImage');
             const uploadArea = document.getElementById('posterUploadArea');
             const removeBtn = document.getElementById('removePosterBtn');
+            const duplicateWarning = document.getElementById('duplicateWarning');
+            const submitBtn = document.getElementById('submitBtn');
             
             fileInput.value = '';
             posterImage.src = '';
@@ -563,6 +629,9 @@
             posterPreview.classList.remove('hidden');
             uploadArea.classList.remove('active');
             removeBtn.classList.add('hidden');
+            duplicateWarning.classList.add('hidden');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             
             // 设置默认日期为今天
             const today = new Date().toISOString().split('T')[0];
@@ -577,16 +646,31 @@
             document.getElementById('addMovieModal').classList.remove('flex');
         }
 
+        // 关闭导入结果模态框
+        function closeImportResultModal() {
+            document.getElementById('importResultModal').classList.add('hidden');
+            document.getElementById('importResultModal').classList.remove('flex');
+        }
+
         // 处理电影表单提交
         function handleMovieFormSubmit(e) {
             e.preventDefault();
+
+            const movieName = document.getElementById('movieName').value;
+            const movieId = document.getElementById('movieId').value;
+            
+            // 再次检查重复（防止绕过前端验证）
+            if (isMovieNameExists(movieName, movieId)) {
+                showNotification('该电影名称已存在', 'error');
+                return;
+            }
 
             const posterImage = document.getElementById('posterImage');
             const posterData = posterImage.src || '';
 
             const movieData = {
-                id: document.getElementById('movieId').value || Date.now().toString(),
-                name: document.getElementById('movieName').value,
+                id: movieId || Date.now().toString(),
+                name: movieName,
                 watchDate: document.getElementById('watchDate').value,
                 status: document.getElementById('status').value,
                 rating: parseInt(document.getElementById('rating').value),
@@ -903,6 +987,18 @@
                 uploadArea.classList.add('active');
                 removeBtn.classList.remove('hidden');
             }
+
+            // 检查电影名称是否重复（编辑时允许使用原名称）
+            const movieNameInput = document.getElementById('movieName');
+            const duplicateWarning = document.getElementById('duplicateWarning');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (isMovieNameExists(movie.name, movie.id)) {
+                duplicateWarning.classList.remove('hidden');
+                movieNameInput.classList.add('border-red-500');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
         }
 
         // 处理删除电影
@@ -1081,7 +1177,7 @@
             showNotification('数据导出成功（包含所有图片）', 'success');
         }
 
-        // 导入数据
+        // 导入数据（带重复过滤）
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1090,23 +1186,72 @@
             reader.onload = function(e) {
                 try {
                     const importedMovies = JSON.parse(e.target.result);
-                    if (Array.isArray(importedMovies)) {
-                        // 验证数据格式
-                        const validMovies = importedMovies.filter(movie => 
-                            movie.id && movie.name && typeof movie === 'object'
-                        );
-                        
-                        movies = [...movies, ...validMovies];
-                        saveMovies();
-                        showNotification(`成功导入 ${validMovies.length} 条记录（包含图片）`, 'success');
-                    } else {
+                    if (!Array.isArray(importedMovies)) {
                         throw new Error('导入的数据格式不正确');
                     }
+
+                    let importedCount = 0;
+                    let skippedCount = 0;
+
+                    // 过滤重复电影（以电影名称为标准，不区分大小写）
+                    const newMovies = importedMovies.filter(importedMovie => {
+                        if (!importedMovie.name) {
+                            skippedCount++;
+                            return false;
+                        }
+                        
+                        const exists = isMovieNameExists(importedMovie.name);
+                        if (exists) {
+                            skippedCount++;
+                            return false;
+                        }
+                        
+                        // 为新电影生成新的ID
+                        importedMovie.id = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 9);
+                        importedMovie.timestamp = new Date().toISOString();
+                        importedCount++;
+                        return true;
+                    });
+
+                    // 添加新电影
+                    if (newMovies.length > 0) {
+                        movies = [...movies, ...newMovies];
+                        saveMovies();
+                    }
+
+                    // 显示导入结果
+                    showImportResult(importedCount, skippedCount);
+
                 } catch (error) {
                     showNotification('导入失败：' + error.message, 'error');
                 }
             };
             reader.readAsText(file);
+        }
+
+        // 显示导入结果
+        function showImportResult(importedCount, skippedCount) {
+            const modal = document.getElementById('importResultModal');
+            const icon = document.getElementById('importResultIcon');
+            const title = document.getElementById('importResultTitle');
+            const importedCountSpan = document.getElementById('importedCount');
+            const skippedCountSpan = document.getElementById('skippedCount');
+
+            importedCountSpan.textContent = importedCount;
+            skippedCountSpan.textContent = skippedCount;
+
+            if (importedCount > 0) {
+                icon.className = 'w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center';
+                icon.innerHTML = '<i class="fa fa-check text-2xl text-green-600"></i>';
+                title.textContent = '导入成功';
+            } else {
+                icon.className = 'w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100 flex items-center justify-center';
+                icon.innerHTML = '<i class="fa fa-exclamation-triangle text-2xl text-yellow-600"></i>';
+                title.textContent = '没有新数据';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         // 显示通知
