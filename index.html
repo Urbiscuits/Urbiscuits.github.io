@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的电影记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#7c3aed',
+                        accent: '#f59e0b',
+                        dark: '#1f2937',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .glass-effect {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+            .movie-card-hover {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .movie-card-hover:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            .rating-stars {
+                background: linear-gradient(90deg, #fbbf24 0%, #fbbf24 var(--rating-percent), #e5e7eb var(--rating-percent), #e5e7eb 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .upload-area {
+                transition: all 0.3s ease;
+                border: 2px dashed #d1d5db;
+            }
+            .upload-area:hover {
+                border-color: #3b82f6;
+                background-color: #f0f9ff;
+            }
+            .upload-area.active {
+                border-color: #10b981;
+                background-color: #ecfdf5;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <!-- 顶部导航 -->
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center">
+                        <i class="fa fa-film text-white text-lg"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">我的电影记录</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fa fa-download"></i>
+                        <span>导出数据</span>
+                    </button>
+                    <button id="importBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fa fa-upload"></i>
+                        <span>导入数据</span>
+                    </button>
+                    <input type="file" id="importFile" accept=".json" class="hidden">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 添加电影按钮 -->
+        <div class="text-center mb-8">
+            <button id="addMovieBtn" class="bg-gradient-to-r from-primary to-secondary text-white px-8 py-3 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center space-x-3 mx-auto">
+                <i class="fa fa-plus-circle text-xl"></i>
+                <span class="font-semibold text-lg">添加新电影记录</span>
+            </button>
+        </div>
+
+        <!-- 统计卡片和图表 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- 统计卡片 -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">总电影数</p>
+                            <p id="totalMovies" class="text-3xl font-bold text-gray-900">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fa fa-film text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">平均评分</p>
+                            <p id="avgRating" class="text-3xl font-bold text-gray-900">0.0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fa fa-star text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">本月观看</p>
+                            <p id="monthMovies" class="text-3xl font-bold text-gray-900">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fa fa-calendar text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">最爱类型</p>
+                            <p id="favoriteGenre" class="text-xl font-bold text-gray-900">暂无</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fa fa-heart text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">电影类型分布</h3>
+                    <div class="h-64">
+                        <canvas id="genreChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">评分分布</h3>
+                    <div class="h-64">
+                        <canvas id="ratingChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 电影筛选和搜索 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="md:col-span-2">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="搜索电影名称、导演、演员或观后感..." 
+                               class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                        <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+                <div>
+                    <select id="genreFilter" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                        <option value="">所有类型</option>
+                        <option value="动作">动作</option>
+                        <option value="喜剧">喜剧</option>
+                        <option value="爱情">爱情</option>
+                        <option value="科幻">科幻</option>
+                        <option value="悬疑">悬疑</option>
+                        <option value="动画">动画</option>
+                        <option value="剧情">剧情</option>
+                        <option value="恐怖">恐怖</option>
+                    </select>
+                </div>
+                <div>
+                    <select id="sortBy" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                        <option value="dateDesc">观看时间 最新</option>
+                        <option value="dateAsc">观看时间 最早</option>
+                        <option value="ratingDesc">评分 最高</option>
+                        <option value="ratingAsc">评分 最低</option>
+                        <option value="nameAsc">名称 A-Z</option>
+                        <option value="nameDesc">名称 Z-A</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4">
+                <button class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-primary text-white" data-filter="all">
+                    全部电影
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors duration-200" data-filter="watched">
+                    已观看
+                </button>
+                <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors duration-200" data-filter="wishlist">
+                    愿望清单
+                </button>
+            </div>
+        </div>
+
+        <!-- 电影列表 -->
+        <div id="movieGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- 电影卡片将在这里动态生成 -->
+            <div class="col-span-full text-center py-12">
+                <div class="flex flex-col items-center justify-center space-y-4">
+                    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center">
+                        <i class="fa fa-film text-gray-400 text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900">还没有电影记录</h3>
+                    <p class="text-gray-500">点击"添加新电影记录"开始记录您的观影体验</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加电影模态框 -->
+    <div id="addMovieModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900">添加电影记录</h2>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form id="movieForm" class="space-y-6">
+                    <input type="hidden" id="movieId">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- 左侧：图片上传 -->
+                        <div class="lg:col-span-1">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">电影封面</label>
+                            <div id="posterUploadArea" class="upload-area rounded-lg p-6 text-center cursor-pointer mb-4">
+                                <input type="file" id="posterFileInput" accept="image/*" class="hidden">
+                                <div id="posterPreview" class="space-y-2">
+                                    <i class="fa fa-cloud-upload text-4xl text-gray-400"></i>
+                                    <p class="text-gray-500">点击上传封面图片</p>
+                                    <p class="text-xs text-gray-400">支持 JPG、PNG 格式</p>
+                                </div>
+                                <img id="posterImage" src="" alt="" class="hidden w-full h-48 object-cover rounded-lg">
+                            </div>
+                            <button type="button" id="removePosterBtn" class="w-full text-red-600 hover:text-red-800 text-sm font-medium hidden">
+                                <i class="fa fa-trash mr-1"></i>移除图片
+                            </button>
+                        </div>
+
+                        <!-- 右侧：电影信息 -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">电影名称 *</label>
+                                    <input type="text" id="movieName" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">观看日期</label>
+                                    <input type="date" id="watchDate" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">状态</label>
+                                    <select id="status" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                                        <option value="watched">已观看</option>
+                                        <option value="wishlist">愿望清单</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">评分</label>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="range" id="rating" min="1" max="10" value="7" class="flex-1 accent-primary">
+                                        <span id="ratingValue" class="text-lg font-semibold text-gray-900 w-8 text-center">7</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                        <span>1分</span>
+                                        <span>5分</span>
+                                        <span>10分</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">电影类型</label>
+                                    <select id="genre" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                                        <option value="动作">动作</option>
+                                        <option value="喜剧">喜剧</option>
+                                        <option value="爱情">爱情</option>
+                                        <option value="科幻">科幻</option>
+                                        <option value="悬疑">悬疑</option>
+                                        <option value="动画">动画</option>
+                                        <option value="剧情">剧情</option>
+                                        <option value="恐怖">恐怖</option>
+                                        <option value="其他">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">导演</label>
+                                <input type="text" id="director" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">主要演员</label>
+                                <input type="text" id="actors" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="用逗号分隔">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">观看时长 (分钟)</label>
+                                <input type="number" id="duration" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="例如：120">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">心情状态</label>
+                                <select id="mood" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200">
+                                    <option value="很棒">很棒</option>
+                                    <option value="不错">不错</option>
+                                    <option value="一般">一般</option>
+                                    <option value="失望">失望</option>
+                                    <option value="糟糕">糟糕</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">标签</label>
+                                <input type="text" id="tags" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="用逗号分隔标签，例如：经典,必看,推荐">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">观影感受</label>
+                                <textarea id="review" rows="4" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200" placeholder="记录您的观影感受..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+                        <button type="button" id="cancelBtn" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">取消</button>
+                        <button type="submit" class="bg-gradient-to-r from-primary to-secondary text-white px-8 py-3 rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">保存记录</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 电影详情模态框 -->
+    <div id="movieDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 id="detailMovieTitle" class="text-2xl font-bold text-gray-900"></h2>
+                    <div class="flex space-x-2">
+                        <button id="editMovieBtn" class="text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                            <i class="fa fa-edit text-xl"></i>
+                        </button>
+                        <button id="deleteMovieBtn" class="text-red-600 hover:text-red-800 transition-colors duration-200">
+                            <i class="fa fa-trash text-xl"></i>
+                        </button>
+                        <button id="closeDetailModal" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                            <i class="fa fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <div id="movieDetailContent" class="space-y-6">
+                    <!-- 详情内容将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let movies = [];
+        let currentMovieId = null;
+        let genreChart = null;
+        let ratingChart = null;
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMovies();
+            initializeEventListeners();
+            updateStatistics();
+            renderMovieGrid();
+            initializeCharts();
+        });
+
+        // 加载电影数据
+        function loadMovies() {
+            const savedMovies = localStorage.getItem('movieRecords');
+            if (savedMovies) {
+                movies = JSON.parse(savedMovies);
+            }
+        }
+
+        // 保存电影数据
+        function saveMovies() {
+            localStorage.setItem('movieRecords', JSON.stringify(movies));
+            updateStatistics();
+            renderMovieGrid();
+            updateCharts();
+        }
+
+        // 初始化事件监听器
+        function initializeEventListeners() {
+            // 添加电影按钮
+            document.getElementById('addMovieBtn').addEventListener('click', openAddMovieModal);
+            
+            // 关闭模态框按钮
+            document.getElementById('closeModal').addEventListener('click', closeAddMovieModal);
+            document.getElementById('cancelBtn').addEventListener('click', closeAddMovieModal);
+            document.getElementById('closeDetailModal').addEventListener('click', closeMovieDetailModal);
+            
+            // 电影表单提交
+            document.getElementById('movieForm').addEventListener('submit', handleMovieFormSubmit);
+            
+            // 评分滑块
+            const ratingSlider = document.getElementById('rating');
+            const ratingValue = document.getElementById('ratingValue');
+            ratingSlider.addEventListener('input', function() {
+                ratingValue.textContent = this.value;
+            });
+
+            // 搜索和筛选
+            document.getElementById('searchInput').addEventListener('input', renderMovieGrid);
+            document.getElementById('genreFilter').addEventListener('change', renderMovieGrid);
+            document.getElementById('sortBy').addEventListener('change', renderMovieGrid);
+
+            // 过滤按钮
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('active', 'bg-primary', 'text-white');
+                        b.classList.add('bg-gray-100', 'text-gray-700');
+                    });
+                    this.classList.add('active', 'bg-primary', 'text-white');
+                    this.classList.remove('bg-gray-100', 'text-gray-700');
+                    renderMovieGrid();
+                });
+            });
+
+            // 数据导入导出
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+            document.getElementById('importBtn').addEventListener('click', () => {
+                document.getElementById('importFile').click();
+            });
+            document.getElementById('importFile').addEventListener('change', importData);
+
+            // 模态框点击外部关闭
+            setupModalOutsideClick('addMovieModal', closeAddMovieModal);
+            setupModalOutsideClick('movieDetailModal', closeMovieDetailModal);
+
+            // 详情模态框按钮
+            document.getElementById('editMovieBtn').addEventListener('click', handleEditMovie);
+            document.getElementById('deleteMovieBtn').addEventListener('click', handleDeleteMovie);
+
+            // 图片上传
+            setupImageUpload();
+        }
+
+        // 设置图片上传功能
+        function setupImageUpload() {
+            const uploadArea = document.getElementById('posterUploadArea');
+            const fileInput = document.getElementById('posterFileInput');
+            const posterPreview = document.getElementById('posterPreview');
+            const posterImage = document.getElementById('posterImage');
+            const removeBtn = document.getElementById('removePosterBtn');
+
+            // 点击上传区域触发文件选择
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            // 文件选择处理
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        posterPreview.classList.add('hidden');
+                        posterImage.src = e.target.result;
+                        posterImage.classList.remove('hidden');
+                        uploadArea.classList.add('active');
+                        removeBtn.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // 移除图片
+            removeBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                posterImage.src = '';
+                posterImage.classList.add('hidden');
+                posterPreview.classList.remove('hidden');
+                uploadArea.classList.remove('active');
+                removeBtn.classList.add('hidden');
+            });
+
+            // 拖拽上传
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('active');
+            });
+
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('active');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('active');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        posterPreview.classList.add('hidden');
+                        posterImage.src = e.target.result;
+                        posterImage.classList.remove('hidden');
+                        removeBtn.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // 设置模态框外部点击关闭
+        function setupModalOutsideClick(modalId, closeFunction) {
+            const modal = document.getElementById(modalId);
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeFunction();
+                }
+            });
+        }
+
+        // 打开添加电影模态框
+        function openAddMovieModal() {
+            document.getElementById('addMovieModal').classList.remove('hidden');
+            document.getElementById('addMovieModal').classList.add('flex');
+            document.getElementById('movieForm').reset();
+            document.getElementById('ratingValue').textContent = '7';
+            document.getElementById('rating').value = '7';
+            document.getElementById('movieId').value = '';
+            
+            // 重置图片上传区域
+            const fileInput = document.getElementById('posterFileInput');
+            const posterPreview = document.getElementById('posterPreview');
+            const posterImage = document.getElementById('posterImage');
+            const uploadArea = document.getElementById('posterUploadArea');
+            const removeBtn = document.getElementById('removePosterBtn');
+            
+            fileInput.value = '';
+            posterImage.src = '';
+            posterImage.classList.add('hidden');
+            posterPreview.classList.remove('hidden');
+            uploadArea.classList.remove('active');
+            removeBtn.classList.add('hidden');
+            
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('watchDate').value = today;
+            
+            currentMovieId = null;
+        }
+
+        // 关闭添加电影模态框
+        function closeAddMovieModal() {
+            document.getElementById('addMovieModal').classList.add('hidden');
+            document.getElementById('addMovieModal').classList.remove('flex');
+        }
+
+        // 处理电影表单提交
+        function handleMovieFormSubmit(e) {
+            e.preventDefault();
+
+            const posterImage = document.getElementById('posterImage');
+            const posterData = posterImage.src || '';
+
+            const movieData = {
+                id: document.getElementById('movieId').value || Date.now().toString(),
+                name: document.getElementById('movieName').value,
+                watchDate: document.getElementById('watchDate').value,
+                status: document.getElementById('status').value,
+                rating: parseInt(document.getElementById('rating').value),
+                genre: document.getElementById('genre').value,
+                mood: document.getElementById('mood').value,
+                director: document.getElementById('director').value,
+                actors: document.getElementById('actors').value,
+                duration: document.getElementById('duration').value,
+                tags: document.getElementById('tags').value,
+                review: document.getElementById('review').value,
+                posterData: posterData, // 存储Base64图片数据
+                timestamp: new Date().toISOString()
+            };
+
+            const existingIndex = movies.findIndex(movie => movie.id === movieData.id);
+            if (existingIndex !== -1) {
+                // 编辑现有电影
+                movies[existingIndex] = movieData;
+            } else {
+                // 添加新电影
+                movies.unshift(movieData);
+            }
+
+            saveMovies();
+            closeAddMovieModal();
+            
+            // 显示成功消息
+            showNotification(existingIndex !== -1 ? '电影记录已更新' : '电影记录已添加', 'success');
+        }
+
+        // 渲染电影网格
+        function renderMovieGrid() {
+            const grid = document.getElementById('movieGrid');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const genreFilter = document.getElementById('genreFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+
+            // 过滤电影
+            let filteredMovies = movies.filter(movie => {
+                const matchesSearch = movie.name.toLowerCase().includes(searchTerm) ||
+                                     movie.director.toLowerCase().includes(searchTerm) ||
+                                     movie.actors.toLowerCase().includes(searchTerm) ||
+                                     movie.review.toLowerCase().includes(searchTerm) ||
+                                     movie.tags.toLowerCase().includes(searchTerm);
+                const matchesGenre = !genreFilter || movie.genre === genreFilter;
+                const matchesStatus = activeFilter === 'all' || movie.status === activeFilter;
+                return matchesSearch && matchesGenre && matchesStatus;
+            });
+
+            // 排序电影
+            filteredMovies.sort((a, b) => {
+                switch (sortBy) {
+                    case 'dateDesc':
+                        return new Date(b.watchDate || b.timestamp) - new Date(a.watchDate || a.timestamp);
+                    case 'dateAsc':
+                        return new Date(a.watchDate || a.timestamp) - new Date(b.watchDate || b.timestamp);
+                    case 'ratingDesc':
+                        return b.rating - a.rating;
+                    case 'ratingAsc':
+                        return a.rating - b.rating;
+                    case 'nameAsc':
+                        return a.name.localeCompare(b.name);
+                    case 'nameDesc':
+                        return b.name.localeCompare(a.name);
+                    default:
+                        return 0;
+                }
+            });
+
+            if (filteredMovies.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <div class="flex flex-col items-center justify-center space-y-4">
+                            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center">
+                                <i class="fa fa-search text-gray-400 text-4xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900">没有找到电影</h3>
+                            <p class="text-gray-500">尝试调整搜索条件或添加新的电影记录</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filteredMovies.map(movie => `
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 movie-card-hover cursor-pointer" onclick="openMovieDetail('${movie.id}')">
+                    <div class="relative">
+                        <img src="${getPosterUrl(movie)}" alt="${movie.name}" 
+                             class="w-full h-64 object-cover">
+                        ${movie.status === 'wishlist' ? `
+                            <div class="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                <i class="fa fa-heart mr-1"></i>愿望清单
+                            </div>
+                        ` : `
+                            <div class="absolute top-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                ${movie.rating}/10
+                            </div>
+                        `}
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <span class="bg-white bg-opacity-90 text-gray-800 px-2 py-1 rounded text-xs font-medium">
+                                        ${movie.genre}
+                                    </span>
+                                </div>
+                                ${movie.watchDate ? `
+                                    <div class="text-white text-sm font-medium">
+                                        ${formatDate(movie.watchDate)}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 truncate">${movie.name}</h3>
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">${movie.director || '未知导演'}</p>
+                        ${movie.tags ? `
+                            <div class="flex flex-wrap gap-1 mb-3">
+                                ${movie.tags.split(',').map(tag => tag.trim()).filter(tag => tag).map(tag => `
+                                    <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">${tag}</span>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1">
+                                ${getMoodIcon(movie.mood)}
+                                <span class="text-gray-500 text-sm">${movie.mood}</span>
+                            </div>
+                            ${movie.status === 'watched' ? `
+                                <div class="flex items-center space-x-1">
+                                    ${Array.from({length: 5}, (_, i) => `
+                                        <i class="fa fa-star text-xs ${i < Math.floor(movie.rating / 2) ? 'text-yellow-400' : 'text-gray-300'}"></i>
+                                    `).join('')}
+                                </div>
+                            ` : `
+                                <div class="text-purple-500">
+                                    <i class="fa fa-heart"></i>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 获取海报URL
+        function getPosterUrl(movie) {
+            if (movie.posterData) {
+                return movie.posterData;
+            }
+            // 使用一些示例海报URL
+            const defaultPosters = [
+                'https://doc.doubao.com/s/KMvVwaypsbk/',
+                'https://doc.doubao.com/s/KqNz86qc5Iw/',
+                'https://doc.doubao.com/s/LDnlkRTs5Hs/',
+                'https://doc.doubao.com/s/sApue-0iS00/'
+            ];
+            return defaultPosters[Math.floor(Math.random() * defaultPosters.length)];
+        }
+
+        // 获取心情图标
+        function getMoodIcon(mood) {
+            const icons = {
+                '很棒': '<i class="fa fa-smile-o text-yellow-400"></i>',
+                '不错': '<i class="fa fa-meh-o text-blue-400"></i>',
+                '一般': '<i class="fa fa-meh-o text-gray-400"></i>',
+                '失望': '<i class="fa fa-frown-o text-orange-400"></i>',
+                '糟糕': '<i class="fa fa-frown-o text-red-400"></i>'
+            };
+            return icons[mood] || '<i class="fa fa-question text-gray-400"></i>';
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-CN', {month: 'short', day: 'numeric'});
+        }
+
+        // 打开电影详情
+        function openMovieDetail(movieId) {
+            const movie = movies.find(m => m.id === movieId);
+            if (!movie) return;
+
+            currentMovieId = movieId;
+            document.getElementById('detailMovieTitle').textContent = movie.name;
+            
+            const detailContent = document.getElementById('movieDetailContent');
+            detailContent.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div class="lg:col-span-1">
+                        <img src="${getPosterUrl(movie)}" alt="${movie.name}" 
+                             class="w-full rounded-lg shadow-lg">
+                        ${movie.status === 'wishlist' ? `
+                            <div class="mt-4 text-center">
+                                <span class="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium">
+                                    <i class="fa fa-heart mr-1"></i>愿望清单
+                                </span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="lg:col-span-3 space-y-6">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-4 mb-4">
+                                ${movie.status === 'watched' ? `
+                                    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full text-2xl font-bold">
+                                        ${movie.rating}/10
+                                    </div>
+                                ` : ''}
+                                <div class="flex items-center space-x-2">
+                                    ${getMoodIcon(movie.mood)}
+                                    <span class="text-lg font-medium">${movie.mood}</span>
+                                </div>
+                                <div class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
+                                    ${movie.genre}
+                                </div>
+                                ${movie.duration ? `
+                                    <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                                        <i class="fa fa-clock-o mr-1"></i>${movie.duration}分钟
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                ${movie.watchDate ? `
+                                    <div>
+                                        <p class="text-gray-600 text-sm">观看日期</p>
+                                        <p class="font-medium">${new Date(movie.watchDate).toLocaleDateString('zh-CN')}</p>
+                                    </div>
+                                ` : ''}
+                                <div>
+                                    <p class="text-gray-600 text-sm">导演</p>
+                                    <p class="font-medium">${movie.director || '未知'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 text-sm">演员</p>
+                                    <p class="font-medium">${movie.actors || '未知'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 text-sm">记录时间</p>
+                                    <p class="font-medium">${new Date(movie.timestamp).toLocaleString('zh-CN')}</p>
+                                </div>
+                            </div>
+                        </div>
+                        ${movie.tags ? `
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fa fa-tags text-blue-500 mr-2"></i>
+                                    标签
+                                </h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${movie.tags.split(',').map(tag => tag.trim()).filter(tag => tag).map(tag => `
+                                        <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm">${tag}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${movie.review ? `
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                                    <i class="fa fa-comment text-blue-500 mr-2"></i>
+                                    观影感受
+                                </h4>
+                                <p class="text-gray-700 leading-relaxed whitespace-pre-line">${movie.review}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('movieDetailModal').classList.remove('hidden');
+            document.getElementById('movieDetailModal').classList.add('flex');
+        }
+
+        // 关闭电影详情模态框
+        function closeMovieDetailModal() {
+            document.getElementById('movieDetailModal').classList.add('hidden');
+            document.getElementById('movieDetailModal').classList.remove('flex');
+        }
+
+        // 处理编辑电影
+        function handleEditMovie() {
+            const movie = movies.find(m => m.id === currentMovieId);
+            if (!movie) return;
+
+            closeMovieDetailModal();
+            openAddMovieModal();
+
+            // 填充表单数据
+            document.getElementById('movieId').value = movie.id;
+            document.getElementById('movieName').value = movie.name;
+            document.getElementById('watchDate').value = movie.watchDate || '';
+            document.getElementById('status').value = movie.status || 'watched';
+            document.getElementById('rating').value = movie.rating || 7;
+            document.getElementById('ratingValue').textContent = movie.rating || 7;
+            document.getElementById('genre').value = movie.genre || '其他';
+            document.getElementById('mood').value = movie.mood || '不错';
+            document.getElementById('director').value = movie.director || '';
+            document.getElementById('actors').value = movie.actors || '';
+            document.getElementById('duration').value = movie.duration || '';
+            document.getElementById('tags').value = movie.tags || '';
+            document.getElementById('review').value = movie.review || '';
+
+            // 处理海报图片
+            const posterPreview = document.getElementById('posterPreview');
+            const posterImage = document.getElementById('posterImage');
+            const uploadArea = document.getElementById('posterUploadArea');
+            const removeBtn = document.getElementById('removePosterBtn');
+
+            if (movie.posterData) {
+                posterPreview.classList.add('hidden');
+                posterImage.src = movie.posterData;
+                posterImage.classList.remove('hidden');
+                uploadArea.classList.add('active');
+                removeBtn.classList.remove('hidden');
+            }
+        }
+
+        // 处理删除电影
+        function handleDeleteMovie() {
+            if (confirm('确定要删除这条电影记录吗？此操作不可撤销。')) {
+                movies = movies.filter(movie => movie.id !== currentMovieId);
+                saveMovies();
+                closeMovieDetailModal();
+                showNotification('电影记录已删除', 'success');
+            }
+        }
+
+        // 更新统计信息
+        function updateStatistics() {
+            const totalMovies = movies.length;
+            document.getElementById('totalMovies').textContent = totalMovies;
+
+            if (totalMovies === 0) {
+                document.getElementById('avgRating').textContent = '0.0';
+                document.getElementById('monthMovies').textContent = '0';
+                document.getElementById('favoriteGenre').textContent = '暂无';
+                return;
+            }
+
+            // 已观看电影统计
+            const watchedMovies = movies.filter(m => m.status === 'watched');
+            
+            // 平均评分
+            const avgRating = watchedMovies.length > 0 
+                ? (watchedMovies.reduce((sum, movie) => sum + movie.rating, 0) / watchedMovies.length).toFixed(1)
+                : '0.0';
+            document.getElementById('avgRating').textContent = avgRating;
+
+            // 本月观看
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const monthMovies = watchedMovies.filter(movie => {
+                if (!movie.watchDate) return false;
+                const date = new Date(movie.watchDate);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            }).length;
+            document.getElementById('monthMovies').textContent = monthMovies;
+
+            // 最爱类型
+            const genreCount = {};
+            watchedMovies.forEach(movie => {
+                genreCount[movie.genre] = (genreCount[movie.genre] || 0) + 1;
+            });
+            const favoriteGenre = Object.entries(genreCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '暂无';
+            document.getElementById('favoriteGenre').textContent = favoriteGenre;
+        }
+
+        // 初始化图表
+        function initializeCharts() {
+            // 类型分布图表
+            const genreCtx = document.getElementById('genreChart').getContext('2d');
+            genreChart = new Chart(genreCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444',
+                            '#10B981', '#F97316', '#EC4899', '#6366F1'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 评分分布图表
+            const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+            ratingChart = new Chart(ratingCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['1-2分', '3-4分', '5-6分', '7-8分', '9-10分'],
+                    datasets: [{
+                        label: '电影数量',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: '#3B82F6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            updateCharts();
+        }
+
+        // 更新图表数据
+        function updateCharts() {
+            const watchedMovies = movies.filter(m => m.status === 'watched');
+            
+            if (watchedMovies.length === 0) {
+                genreChart.data.labels = [];
+                genreChart.data.datasets[0].data = [];
+                ratingChart.data.datasets[0].data = [0, 0, 0, 0, 0];
+                genreChart.update();
+                ratingChart.update();
+                return;
+            }
+
+            // 更新类型分布
+            const genreCount = {};
+            watchedMovies.forEach(movie => {
+                genreCount[movie.genre] = (genreCount[movie.genre] || 0) + 1;
+            });
+            const genres = Object.keys(genreCount);
+            const counts = Object.values(genreCount);
+
+            genreChart.data.labels = genres;
+            genreChart.data.datasets[0].data = counts;
+
+            // 更新评分分布
+            const ratingRanges = [0, 0, 0, 0, 0];
+            watchedMovies.forEach(movie => {
+                if (movie.rating >= 1 && movie.rating <= 2) ratingRanges[0]++;
+                else if (movie.rating >= 3 && movie.rating <= 4) ratingRanges[1]++;
+                else if (movie.rating >= 5 && movie.rating <= 6) ratingRanges[2]++;
+                else if (movie.rating >= 7 && movie.rating <= 8) ratingRanges[3]++;
+                else if (movie.rating >= 9 && movie.rating <= 10) ratingRanges[4]++;
+            });
+
+            ratingChart.data.datasets[0].data = ratingRanges;
+
+            genreChart.update();
+            ratingChart.update();
+        }
+
+        // 导出数据
+        function exportData() {
+            if (movies.length === 0) {
+                showNotification('没有数据可导出', 'warning');
+                return;
+            }
+
+            const dataStr = JSON.stringify(movies, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `movie_records_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('数据导出成功（包含所有图片）', 'success');
+        }
+
+        // 导入数据
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedMovies = JSON.parse(e.target.result);
+                    if (Array.isArray(importedMovies)) {
+                        // 验证数据格式
+                        const validMovies = importedMovies.filter(movie => 
+                            movie.id && movie.name && typeof movie === 'object'
+                        );
+                        
+                        movies = [...movies, ...validMovies];
+                        saveMovies();
+                        showNotification(`成功导入 ${validMovies.length} 条记录（包含图片）`, 'success');
+                    } else {
+                        throw new Error('导入的数据格式不正确');
+                    }
+                } catch (error) {
+                    showNotification('导入失败：' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform translate-x-full transition-transform duration-300 ${
+                type === 'success' ? 'bg-green-500' :
+                type === 'warning' ? 'bg-yellow-500' :
+                type === 'error' ? 'bg-red-500' :
+                'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // 全局函数供HTML调用
+        window.openMovieDetail = openMovieDetail;
+    </script>
+</body>
+</html>
