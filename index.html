@@ -1091,6 +1091,19 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (!PARSER_SUB[category]) PARSER_SUB[category] = [];
             if (PARSER_SUB[category].indexOf(subcategory) === -1) PARSER_SUB[category].push(subcategory);
         }
+        // 从已存题目中重建/补齐小分类，确保批量导入/数据导入后筛选项立即可见
+        function rebuildSubcategoriesFromStore() {
+            try {
+                if (!store || !store.questions) return;
+                Object.keys(store.questions).forEach(function(qid) {
+                    var q = store.questions[qid];
+                    if (!q) return;
+                    var sec = q.section || q.category;
+                    var sub = q.subcategory;
+                    if (sec && sub) ensureSubcategory(sec, sub);
+                });
+            } catch (e) {}
+        }
         var store = {
             sets: [],
             questions: {},
@@ -1966,6 +1979,13 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             store.save();
             renderTree();
             fillSetSelects();
+            // 批量导入可能引入新“小类”，需同步刷新各处按类筛选
+            rebuildSubcategoriesFromStore();
+            updateSingleSub();
+            updateManageSub();
+            updatePracticeSub();
+            if (document.getElementById('exportCategoryFilter')) updateExportSubcategoryOptions();
+            checkExportState();
             document.getElementById('inputText').value = '';
             document.getElementById('batchPreviewWrap').style.display = 'none';
             showMsg('importStatus', '成功导入 ' + added + ' 题', 'success');
@@ -2418,6 +2438,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     });
                     if (cats.length > beforeLen) saveSetCategories(cats);
                     store.save();
+                    rebuildSubcategoriesFromStore();
                     renderTree();
                     fillCategorySelects();
                     renderCategoryList();
@@ -2473,6 +2494,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         }
 
         function generatePageHTML(questions, mode, pageIndex, globalStartNum, fontSize, includeSource) {
+            // 是否在题目页中包含解析 / 正确选项 / 分类信息
             var incExp = (document.getElementById('includeExplanation') && document.getElementById('includeExplanation').checked) !== false;
             var incAns = (document.getElementById('includeAnswer') && document.getElementById('includeAnswer').checked) !== false;
             var incCat = (document.getElementById('includeCategoryInfo') && document.getElementById('includeCategoryInfo').checked) !== false;
@@ -2480,19 +2502,104 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             includeSource = includeSource !== false;
             var fs = fontSize + 'px';
             var fsSmall = Math.max(9, fontSize - 1) + 'px';
-            var html = '<div class="page-content" style="font-size:' + fs + ';"><div class="page-title">' + (mode === 'practice' ? '行测练习题' : '行测学习题') + ' - 第' + pageIndex + '页</div>';
+
+            var html = '<div class="page-content" style="font-size:' + fs + ';"><div class="page-title">' +
+                (mode === 'practice' ? '行测练习题' : '行测学习题') + ' - 第' + pageIndex + '页</div>';
+
             questions.forEach(function(q, idx) {
                 var num = (globalStartNum !== undefined ? globalStartNum + idx : (pageIndex - 1) * questions.length + idx + 1);
                 var src = q.source || q.timeRegion || '';
                 var setName = '';
-                if (includeSource && q.setId) { var s = store.getSet(q.setId); if (s && s.name) setName = s.name; }
+                if (includeSource && q.setId) {
+                    var s = store.getSet(q.setId);
+                    if (s && s.name) setName = s.name;
+                }
                 var numPrefix = setName ? num + '（' + esc(setName) + '）：' : num + '. ';
+
+                // 材料（文字 + 图片）
+                var materialHtml = '';
+                var hasMaterialText = !!(q.material && String(q.material).trim());
+                var hasMaterialImages = Array.isArray(q.materialImages) && q.materialImages.length > 0;
+                if (hasMaterialText || hasMaterialImages) {
+                    var materialImgsHtml = (q.materialImages || []).map(function(src) {
+                        return '<div><img src="' + src + '" style="max-width:100%; margin:4px 0;" /></div>';
+                    }).join('');
+                    materialHtml =
+                        '<div class="page-question-material" style="margin-bottom:8px; font-size:' + fsSmall + ';">' +
+                            (hasMaterialText ? '<div>' + esc(q.material || '') + '</div>' : '') +
+                            materialImgsHtml +
+                        '</div>';
+                }
+
+                // 题干（文字 + 图片）
+                var stemText = esc(q.content || '');
+                var stemImgsHtml = (q.stemImages || []).map(function(src) {
+                    return '<div><img src="' + src + '" style="max-width:100%; margin:4px 0;" /></div>';
+                }).join('');
+                var stemHtml =
+                    '<div class="page-question-content" style="font-size:' + fs + ';">' +
+                        '<strong>' + numPrefix + '</strong>' +
+                        stemText +
+                        stemImgsHtml +
+                    '</div>';
+
+                // 选项（文字 + 图片）
+                var optionsHtml = (q.options || []).map(function(o) {
+                    var imgs = (o.images || []).map(function(src) {
+                        return '<div><img src="' + src + '" style="max-width:100%; margin:4px 0;" /></div>';
+                    }).join('');
+                    if (mode === 'practice') {
+                        return '<div class="page-option">' + o.label + '. ' + esc(o.text || '') + imgs + '</div>';
+                    } else {
+                        var isCorrect = incAns && o.label === q.answer;
+                        return '<div class="page-option ' + (isCorrect ? 'correct' : '') + '">' +
+                            (isCorrect ? '✓ ' : '') +
+                            o.label + '. ' + esc(o.text || '') +
+                            imgs +
+                            '</div>';
+                    }
+                }).join('');
+
+                var headerHtml = '';
+                if (incCat) {
+                    headerHtml =
+                        '<div class="page-question-header" style="font-size:' + fsSmall + ';">' +
+                            '【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】' +
+                            (src ? '(' + esc(src) + ')' : '') +
+                        '</div>';
+                }
+
                 if (mode === 'practice') {
-                    html += '<div class="page-question">' + (incCat ? '<div class="page-question-header" style="font-size:' + fsSmall + ';">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】' + (src ? '(' + esc(src) + ')' : '') + '</div>' : '') + '<div class="page-question-content" style="font-size:' + fs + ';"><strong>' + numPrefix + '</strong>' + esc(q.content || '') + '</div><div class="page-options" style="font-size:' + fsSmall + ';">' + (q.options || []).map(function(o) { return '<div class="page-option">' + o.label + '. ' + esc(o.text) + '</div>'; }).join('') + '</div></div>';
+                    html +=
+                        '<div class="page-question">' +
+                            headerHtml +
+                            materialHtml +
+                            stemHtml +
+                            '<div class="page-options" style="font-size:' + fsSmall + ';">' +
+                                optionsHtml +
+                            '</div>' +
+                        '</div>';
                 } else {
-                    html += '<div class="page-question">' + (incCat ? '<div class="page-question-header" style="font-size:' + fsSmall + ';">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】' + (src ? '(' + esc(src) + ')' : '') + '</div>' : '') + '<div class="page-question-content" style="font-size:' + fs + ';"><strong>' + numPrefix + '</strong>' + esc(q.content || '') + '</div><div class="page-options" style="font-size:' + fsSmall + ';">' + (q.options || []).map(function(o) { return '<div class="page-option ' + (incAns && o.label === q.answer ? 'correct' : '') + '">' + (incAns && o.label === q.answer ? '✓ ' : '') + o.label + '. ' + esc(o.text) + '</div>'; }).join('') + '</div>' + (incExp && q.explanation ? '<div class="page-answer" style="font-size:' + fsSmall + ';"><strong>解析：</strong>' + esc(q.explanation) + '</div>' : '') + '</div>';
+                    var expHtml = '';
+                    if (incExp && q.explanation) {
+                        expHtml =
+                            '<div class="page-answer" style="font-size:' + fsSmall + ';"><strong>解析：</strong>' +
+                                esc(q.explanation) +
+                            '</div>';
+                    }
+                    html +=
+                        '<div class="page-question">' +
+                            headerHtml +
+                            materialHtml +
+                            stemHtml +
+                            '<div class="page-options" style="font-size:' + fsSmall + ';">' +
+                                optionsHtml +
+                            '</div>' +
+                            expHtml +
+                        '</div>';
                 }
             });
+
             return html + '</div>';
         }
         function generateAnswerPageHTML(questions, pageIndex, globalStartNum, fontSize) {
@@ -2637,6 +2744,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
 
         document.addEventListener('DOMContentLoaded', function() {
             store.load();
+            rebuildSubcategoriesFromStore();
             if (!store.sets.length) { store.addSet('默认套卷'); store.save(); }
             document.querySelectorAll('.tab').forEach(function(t) {
                 t.addEventListener('click', function() { switchTab(t.getAttribute('data-tab')); });
