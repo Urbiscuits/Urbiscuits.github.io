@@ -1060,6 +1060,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <input type="file" id="importDataFile" accept=".json,.txt,application/json,text/plain" style="margin-right: 12px;">
                             <button class="btn btn-primary" onclick="importData()"><i class="fas fa-upload"></i> 导入</button>
                         </div>
+                        <div class="control-group" style="margin-top: 16px;">
+                            <button class="btn btn-info" onclick="refreshFromRemoteStore()"><i class="fas fa-sync-alt"></i> 刷新题库</button>
+                            <span style="margin-left: 12px; color: #6c757d;">一次性导入 data 目录下所有 TXT（批量导入格式）与 JSON（导出格式）文件</span>
+                        </div>
                         <div class="control-group" style="margin-top: 24px;">
                             <button class="btn btn-warning" onclick="clearAllCache()"><i class="fas fa-eraser"></i> 清除所有缓存</button>
                             <span style="margin-left: 12px; color: #6c757d;">重置所有题目正确率、做题次数及历史做题记录</span>
@@ -1082,6 +1086,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析'];
         var SUBCATEGORIES = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择', '片段阅读'], '数量关系': ['数量关系'], '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断', '图形推理'], '资料分析': ['资料分析'] };
         var PARSER_SUB = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择', '片段阅读'], '数量关系': ['数量关系'], '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断', '图形推理'], '资料分析': ['资料分析'] };
+        // GitHub 上托管的在线题库（JSON），默认 data/store.json，可按需修改
+        var ENABLE_REMOTE_STORE = true;
+        var REMOTE_STORE_URL = './data/store.json';
 
         function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9); }
         function ensureSubcategory(category, subcategory) {
@@ -1103,6 +1110,195 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     if (sec && sub) ensureSubcategory(sec, sub);
                 });
             } catch (e) {}
+        }
+        // 应用远程题库数据（GitHub 上的 store.json），在本地保留个人做题统计字段
+        function applyRemoteStore(remote) {
+            if (!remote || !Array.isArray(remote.sets) || !remote.questions) return;
+            var oldQuestions = store.questions || {};
+            var mergedQuestions = {};
+            Object.keys(remote.questions).forEach(function(qid) {
+                var rq = remote.questions[qid];
+                var lq = oldQuestions[qid] || {};
+                // 保留本地个人统计
+                rq.totalAttempts = lq.totalAttempts || 0;
+                rq.correctCount = lq.correctCount || 0;
+                rq.done = lq.done || false;
+                mergedQuestions[qid] = rq;
+            });
+            store.sets = remote.sets;
+            store.questions = mergedQuestions;
+
+            // 同步试卷“分类”选项（左侧套卷分类管理）
+            if (typeof getSetCategories === 'function' && typeof saveSetCategories === 'function') {
+                var cats = getSetCategories();
+                var beforeLen = cats.length;
+                store.sets.forEach(function(s) {
+                    if (s.category && cats.indexOf(s.category) < 0) cats.push(s.category);
+                });
+                if (cats.length > beforeLen) saveSetCategories(cats);
+            }
+
+            store.save();
+            rebuildSubcategoriesFromStore();
+            // 刷新各个依赖题库的界面
+            renderTree();
+            fillCategorySelects();
+            renderCategoryList();
+            fillSetSelects();
+            if (typeof filterSetList === 'function') filterSetList();
+            if (typeof updateSingleSub === 'function') updateSingleSub();
+            if (typeof updateManageSub === 'function') updateManageSub();
+            if (typeof updatePracticeSub === 'function') updatePracticeSub();
+            if (typeof renderPracticePointsCheckboxes === 'function') renderPracticePointsCheckboxes();
+            if (document.getElementById('exportCategoryFilter')) updateExportSubcategoryOptions();
+            if (typeof checkExportState === 'function') checkExportState();
+        }
+        // 从 GitHub 上拉取远程题库（store.json），用于“管理员上传即可在线更新”
+        function loadRemoteStore() {
+            if (!ENABLE_REMOTE_STORE || !window.fetch) return;
+            fetch(REMOTE_STORE_URL + '?t=' + Date.now())
+                .then(function(resp) { if (!resp.ok) throw new Error('remote store not found'); return resp.json(); })
+                .then(function(data) { applyRemoteStore(data); })
+                .catch(function() { /* 静默失败，保留本地题库 */ });
+        }
+        /**
+         * 在“数据”页面手动刷新题库：
+         * 一次性读取 data 目录下配置好的所有 TXT/JSON 文件并导入题库。
+         *
+         * 需要在 data 目录下提供一个 files.json 清单，例如：
+         * {
+         *   "txt": ["batch1.txt", "batch2.txt"],
+         *   "json": ["store.json", "extra1.json"]
+         * }
+         * 或简单数组：["batch1.txt", "store.json"]
+         */
+        function refreshFromRemoteStore() {
+            if (!window.fetch) {
+                showMsg('dataStatus', '当前浏览器不支持在线刷新题库（缺少 fetch）。', 'error');
+                return;
+            }
+            showMsg('dataStatus', '正在扫描 data 目录下的 TXT / JSON 文件，请稍候...', 'info');
+            // 约定 files.json 列出需要导入的所有文件
+            fetch('./data/files.json?t=' + Date.now())
+                .then(function(resp) {
+                    if (!resp.ok) throw new Error('files.json 未找到，请在 data 目录下创建。');
+                    return resp.json();
+                })
+                .then(function(manifest) {
+                    var txtFiles = [];
+                    var jsonFiles = [];
+                    if (Array.isArray(manifest)) {
+                        manifest.forEach(function(p) {
+                            if (typeof p !== 'string') return;
+                            if (/\.txt$/i.test(p)) txtFiles.push(p);
+                            else if (/\.json$/i.test(p)) jsonFiles.push(p);
+                        });
+                    } else {
+                        (manifest.txt || []).forEach(function(p) { if (typeof p === 'string') txtFiles.push(p); });
+                        (manifest.json || []).forEach(function(p) { if (typeof p === 'string') jsonFiles.push(p); });
+                    }
+                    if (!txtFiles.length && !jsonFiles.length) {
+                        showMsg('dataStatus', 'files.json 中未配置任何 TXT/JSON 文件。', 'error');
+                        return;
+                    }
+                    var txtPromises = txtFiles.map(function(p) {
+                        return fetch('./data/' + p + '?t=' + Date.now())
+                            .then(function(r) {
+                                if (!r.ok) throw new Error('无法读取 TXT：' + p);
+                                return r.text();
+                            })
+                            .then(function(text) {
+                                importTxtFileToSetAuto(p, text);
+                            });
+                    });
+                    var jsonPromises = jsonFiles.map(function(p) {
+                        return fetch('./data/' + p + '?t=' + Date.now())
+                            .then(function(r) {
+                                if (!r.ok) throw new Error('无法读取 JSON：' + p);
+                                return r.json();
+                            })
+                            .catch(function(err) {
+                                console.error(err);
+                                showMsg('dataStatus', '读取 JSON 失败：' + p + '，原因：' + (err && err.message), 'error');
+                                return null;
+                            });
+                    });
+                    return Promise.all(txtPromises.concat(jsonPromises)).then(function(results) {
+                        // 合并所有 JSON 数据（导出格式：{ sets, questions }）
+                        var jsonResults = results.slice(txtPromises.length).filter(Boolean);
+                        var mergedSets = [];
+                        var mergedQuestions = {};
+                        jsonResults.forEach(function(d) {
+                            if (!d) return;
+                            if (Array.isArray(d.sets)) mergedSets = mergedSets.concat(d.sets);
+                            if (d.questions && typeof d.questions === 'object') {
+                                Object.keys(d.questions).forEach(function(qid) {
+                                    mergedQuestions[qid] = d.questions[qid];
+                                });
+                            }
+                        });
+                        // 按“合并”模式导入所有 JSON
+                        if (mergedSets.length || Object.keys(mergedQuestions).length) {
+                            var setIds = {};
+                            mergedSets.forEach(function(s) {
+                                var name = (s.name || '').trim();
+                                var existing = store.sets.find(function(x) { return (x.name || '').trim() === name; });
+                                if (existing) {
+                                    setIds[s.id] = existing.id;
+                                    MAIN_SECTIONS.forEach(function(sec) {
+                                        var incoming = s[sec] || [];
+                                        incoming.forEach(function(qid) {
+                                            if (mergedQuestions[qid] && existing[sec].indexOf(qid) === -1) existing[sec].push(qid);
+                                        });
+                                    });
+                                } else {
+                                    var id = genId();
+                                    setIds[s.id] = id;
+                                    store.sets.push({
+                                        id: id,
+                                        name: name || '未命名',
+                                        category: s.category || '',
+                                        '言语理解': s['言语理解'] || [],
+                                        '数量关系': s['数量关系'] || [],
+                                        '判断推理': s['判断推理'] || [],
+                                        '资料分析': s['资料分析'] || []
+                                    });
+                                }
+                            });
+                            Object.keys(mergedQuestions).forEach(function(qid) {
+                                var q = mergedQuestions[qid];
+                                if (q && setIds[q.setId]) {
+                                    q.setId = setIds[q.setId];
+                                    q.knowledgePoints = q.knowledgePoints || (q.knowledgePoint ? [q.knowledgePoint] : []);
+                                    store.questions[qid] = q;
+                                }
+                            });
+                        }
+                        // 统一刷新分类、统计和界面
+                        var cats = getSetCategories();
+                        var beforeLen = cats.length;
+                        store.sets.forEach(function(s) {
+                            if (s.category && cats.indexOf(s.category) < 0) cats.push(s.category);
+                        });
+                        if (cats.length > beforeLen) saveSetCategories(cats);
+                        store.save();
+                        rebuildSubcategoriesFromStore();
+                        renderTree();
+                        fillCategorySelects();
+                        renderCategoryList();
+                        fillSetSelects();
+                        if (typeof filterSetList === 'function') filterSetList();
+                        if (typeof updateManageSub === 'function') updateManageSub();
+                        if (typeof updatePracticeSub === 'function') updatePracticeSub();
+                        if (typeof renderPracticePointsCheckboxes === 'function') renderPracticePointsCheckboxes();
+                        if (typeof checkExportState === 'function') checkExportState();
+                        showMsg('dataStatus', '已从 data 目录刷新题库：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
+                    });
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    showMsg('dataStatus', '刷新题库失败：' + (err && err.message ? err.message : '网络或跨域错误'), 'error');
+                });
         }
         var store = {
             sets: [],
@@ -1991,6 +2187,36 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             showMsg('importStatus', '成功导入 ' + added + ' 题', 'success');
         }
 
+        /**
+         * 将一个 TXT 文件（批量导入格式）自动导入到套卷：
+         * - 套卷名称 = 文件名（不含扩展名）
+         * - 若同名套卷已存在，则直接追加题目；否则新建套卷
+         */
+        function importTxtFileToSetAuto(fileName, text) {
+            text = (text || '').trim();
+            if (!text) return;
+            var base = fileName.replace(/^.*[\\/]/, ''); // 去掉路径，仅保留文件名
+            var pure = base.replace(/\.[^.]+$/, '') || '未命名';
+            var name = pure.trim() || '未命名';
+            var existing = store.sets.find(function(s) { return (s.name || '').trim() === name; });
+            var setId;
+            if (existing) {
+                setId = existing.id;
+            } else {
+                setId = store.addSet(name, '');
+            }
+            if (!setId) return;
+            var list = parseBatchText(text);
+            if (!list.length) return;
+            list.forEach(function(q) {
+                var section = q.category;
+                var set = store.getSet(setId);
+                if (set && set[section]) {
+                    store.addQuestion(setId, section, Object.assign({}, q));
+                }
+            });
+        }
+
         function updateSingleSub() {
             var section = document.getElementById('singleSection').value;
             var sub = document.getElementById('singleSubcategory');
@@ -2779,6 +3005,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var practiceSectionsWrap = document.getElementById('practiceSectionsWrap');
             if (practiceSectionsWrap) practiceSectionsWrap.addEventListener('change', function(e) { if (e.target.name === 'practiceSection') updatePracticeSub(); });
             checkExportState();
+            // 页面初始化后，尝试从 GitHub 上拉取最新题库（data/store.json）
+            loadRemoteStore();
         });
     </script>
 </body>
