@@ -2382,7 +2382,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var hint = document.getElementById('setupModeHint');
             if (elPractice) elPractice.classList.toggle('active', mode === 'practice');
             if (elMemorize) elMemorize.classList.toggle('active', mode === 'memorize');
-            if (hint) hint.textContent = mode === 'practice' ? '练习模式：做完所有题后提交，在新页面查看答案与正确率' : '背题模式：选完题后提交，在新页面查看答案与正确率';
+            if (hint) {
+                hint.textContent = mode === 'practice'
+                    ? '练习模式：选择答案后自动跳到下一题（最后一题除外），做完所有题后点击提交统一查看答案与正确率'
+                    : '背题模式：一边做一边看答案，选择答案后立刻显示本题答案，由你手动切换下一题，或点击提交查看整体情况';
+            }
         }
         function startPractice() {
             var practiceType = document.getElementById('practiceType').value;

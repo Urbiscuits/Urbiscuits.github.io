@@ -270,7 +270,17 @@
             var q = practiceQuestions[practiceIndex];
             if (!q) return;
             practiceUserSelections[practiceIndex] = label;
-            renderPracticeQuestion();
+            if (practiceMode === 'memorize') {
+                // 背题模式：当前题立即显示答案，由用户手动切换下一题
+                renderPracticeQuestion();
+                revealCurrentAnswer();
+            } else {
+                // 练习模式：选完答案后直接跳转到下一题（最后一题则停留）
+                if (practiceIndex < practiceQuestions.length - 1) {
+                    practiceIndex++;
+                }
+                renderPracticeQuestion();
+            }
         }
         function prevQuestion() { if (practiceIndex > 0) { practiceIndex--; renderPracticeQuestion(); } }
         function nextQuestion() { if (practiceIndex < practiceQuestions.length - 1) { practiceIndex++; renderPracticeQuestion(); } }
