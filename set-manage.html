@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>套卷题目管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary-color: #4a6baf; --success-color: #28a745; --border-radius: 8px; --box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: #fff; border-radius: var(--border-radius); box-shadow: var(--box-shadow); padding: 24px; margin-bottom: 20px; }
+        .btn { padding: 10px 20px; border: none; border-radius: var(--border-radius); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--primary-color); color: #fff; }
+        .btn-success { background: var(--success-color); color: #fff; }
+        .btn-default { background: #eaeaea; color: #333; }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-info { background: #17a2b8; color: #fff; }
+        .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+        .question-item { border: 2px solid #eaeaea; border-radius: var(--border-radius); padding: 14px; margin: 8px 0 8px 16px; background: #fff; }
+        .question-category { background: var(--primary-color); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px; }
+        .option { padding: 10px; border-radius: var(--border-radius); background: #f8f9fa; border-left: 4px solid #ddd; margin: 6px 0; }
+        .option.correct { border-left-color: var(--success-color); background: #d4edda; }
+        .answer-block { margin-top: 12px; padding: 12px; background: #f0f5ff; border-left: 4px solid var(--primary-color); border-radius: var(--border-radius); }
+        .empty-state { text-align: center; padding: 48px 24px; color: #6c757d; }
+        .overlay { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9998; overflow: auto; }
+        .overlay-inner { max-width: 800px; margin: 24px auto; background: #fff; border-radius: var(--border-radius); padding: 24px; box-shadow: var(--box-shadow); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="noSet" class="card empty-state" style="display:none;">
+            <p>未指定套卷，请从主页套卷管理点击「管理题目」进入。</p>
+            <p style="margin-top:12px;"><a href="输出为pdf.html">返回主页</a></p>
+        </div>
+        <div id="mainBlock" style="display:none;">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                    <h2 style="color:var(--primary-color);" id="setTitle"></h2>
+                    <div>
+                        <a href="输出为pdf.html" class="btn btn-default">返回主页</a>
+                        <button type="button" class="btn btn-primary" id="btnAddQuestion">在此套卷添加题目</button>
+                    </div>
+                </div>
+                <div id="questionList" style="margin-top:20px;"></div>
+            </div>
+        </div>
+    </div>
+    <!-- 题目详情弹层 -->
+    <div id="detailOverlay" class="overlay" style="display:none;">
+        <div class="overlay-inner">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="color:var(--primary-color);">题目详情</h3>
+                <button type="button" class="btn btn-default" onclick="closeDetail()">关闭</button>
+            </div>
+            <div id="detailBody"></div>
+        </div>
+    </div>
+    <!-- 编辑题目弹层 -->
+    <div id="editOverlay" class="overlay" style="display:none;">
+        <div class="overlay-inner">
+            <h3 style="margin-bottom:16px; color:var(--primary-color);">编辑题目</h3>
+            <div><label>题干</label><textarea id="editContent" rows="4" style="width:100%; padding:10px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></textarea></div>
+            <div style="margin-top:12px;"><label>选项 A</label><input type="text" id="editA" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
+            <div style="margin-top:8px;"><label>选项 B</label><input type="text" id="editB" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
+            <div style="margin-top:8px;"><label>选项 C</label><input type="text" id="editC" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
+            <div style="margin-top:8px;"><label>选项 D</label><input type="text" id="editD" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
+            <div style="margin-top:12px;"><label>答案</label><select id="editAnswer" style="padding:8px; margin-top:4px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
+            <div style="margin-top:12px;"><label>解析</label><textarea id="editExplanation" rows="3" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></textarea></div>
+            <div style="margin-top:16px;"><button type="button" class="btn btn-success" onclick="saveEdit()">保存</button> <button type="button" class="btn btn-default" onclick="closeEdit()">取消</button></div>
+        </div>
+    </div>
+    <script>
+        var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析'];
+        var currentSetId = null;
+        var currentSet = null;
+        var editQid = null;
+
+        function getSetIdFromUrl() {
+            var m = /[?&]setId=([^&]+)/.exec(location.search);
+            return m ? decodeURIComponent(m[1]) : null;
+        }
+        function loadStore() {
+            try {
+                var s = localStorage.getItem('xingce_sets');
+                var q = localStorage.getItem('xingce_questions');
+                return { sets: s ? JSON.parse(s) : [], questions: q ? JSON.parse(q) : {} };
+            } catch (e) { return { sets: [], questions: {} }; }
+        }
+        function saveStore(data) {
+            try {
+                localStorage.setItem('xingce_sets', JSON.stringify(data.sets));
+                localStorage.setItem('xingce_questions', JSON.stringify(data.questions));
+            } catch (e) {}
+        }
+        function getSet(setId) {
+            var data = loadStore();
+            return data.sets.filter(function(s) { return s.id === setId; })[0] || null;
+        }
+        function getQuestion(qid) {
+            return loadStore().questions[qid] || null;
+        }
+
+        function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />'; }
+        function renderLaTeX(el) {
+            if (!el || !window.renderMathInElement) return;
+            try { renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }, { left: '$', right: '$', display: false }], throwOnError: false }); } catch (e) {}
+        }
+
+        function renderList() {
+            if (!currentSetId || !currentSet) return;
+            var data = loadStore();
+            var bySection = {};
+            MAIN_SECTIONS.forEach(function(sec) {
+                (currentSet[sec] || []).forEach(function(qid) {
+                    var q = data.questions[qid];
+                    if (q) {
+                        var sub = q.subcategory || sec;
+                        if (!bySection[sec]) bySection[sec] = {};
+                        if (!bySection[sec][sub]) bySection[sec][sub] = [];
+                        bySection[sec][sub].push(q);
+                    }
+                });
+            });
+            var html = '';
+            MAIN_SECTIONS.forEach(function(sec) {
+                if (!bySection[sec]) return;
+                html += '<div style="margin-bottom:16px;"><strong style="color:var(--primary-color);">' + esc(sec) + '</strong>';
+                Object.keys(bySection[sec]).sort().forEach(function(sub) {
+                    bySection[sec][sub].forEach(function(q) {
+                        html += '<div class="question-item"><span class="question-category">' + esc(sub) + '</span> ' + esc((q.content||'').slice(0, 80)) + '… <button type="button" class="btn btn-info btn-sm" onclick="showDetail(\'' + q.id + '\')">查看</button> <button type="button" class="btn btn-default btn-sm" onclick="openEdit(\'' + q.id + '\')">编辑</button> <button type="button" class="btn btn-danger btn-sm" onclick="doDelete(\'' + q.id + '\')">删除</button></div>';
+                    });
+                });
+                html += '</div>';
+            });
+            document.getElementById('questionList').innerHTML = html || '<p style="color:#6c757d;">该套卷下暂无题目</p>';
+        }
+
+        function showDetail(qid) {
+            var q = getQuestion(qid);
+            if (!q) return;
+            var hist = (q.totalAttempts || 0) > 0 ? ((q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)') : '暂无';
+            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(imgTag).join('');
+            var optHtml = (q.options || []).map(function(o) {
+                var c = o.label === q.answer ? 'correct' : '';
+                return '<div class="option ' + c + '"><span>' + o.label + '.</span> ' + esc(o.text) + (o.images || []).map(imgTag).join('') + '</div>';
+            }).join('');
+            document.getElementById('detailBody').innerHTML = '<p style="margin-bottom:8px;"><strong>历史正确率：</strong>' + hist + '</p><div style="font-size:0.95rem; color:var(--primary-color); margin-bottom:8px;">【' + esc(q.section) + '-' + esc(q.subcategory||q.section) + '】</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content" style="line-height:1.7;">' + stemHtml + '</div><div style="margin-top:12px;">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：' + esc(q.explanation) + '</div>' : '');
+            renderLaTeX(document.getElementById('detailBody'));
+            document.getElementById('detailOverlay').style.display = 'block';
+        }
+        function closeDetail() { document.getElementById('detailOverlay').style.display = 'none'; }
+
+        function openEdit(qid) {
+            editQid = qid;
+            var q = getQuestion(qid);
+            if (!q) return;
+            document.getElementById('editContent').value = q.content || '';
+            var opts = q.options || [];
+            document.getElementById('editA').value = (opts[0] && opts[0].text) || '';
+            document.getElementById('editB').value = (opts[1] && opts[1].text) || '';
+            document.getElementById('editC').value = (opts[2] && opts[2].text) || '';
+            document.getElementById('editD').value = (opts[3] && opts[3].text) || '';
+            document.getElementById('editAnswer').value = q.answer || 'A';
+            document.getElementById('editExplanation').value = q.explanation || '';
+            document.getElementById('editOverlay').style.display = 'block';
+        }
+        function closeEdit() { document.getElementById('editOverlay').style.display = 'none'; editQid = null; }
+        function saveEdit() {
+            if (!editQid) return;
+            var data = loadStore();
+            var q = data.questions[editQid];
+            if (!q) return;
+            q.content = (document.getElementById('editContent').value || '').trim();
+            q.options = [
+                { label: 'A', text: (document.getElementById('editA').value || '').trim() },
+                { label: 'B', text: (document.getElementById('editB').value || '').trim() },
+                { label: 'C', text: (document.getElementById('editC').value || '').trim() },
+                { label: 'D', text: (document.getElementById('editD').value || '').trim() }
+            ];
+            q.answer = document.getElementById('editAnswer').value || 'A';
+            q.explanation = (document.getElementById('editExplanation').value || '').trim();
+            saveStore(data);
+            closeEdit();
+            renderList();
+        }
+
+        function doDelete(qid) {
+            if (!confirm('确定删除此题？')) return;
+            var data = loadStore();
+            var q = data.questions[qid];
+            if (!q || !q.setId) return;
+            var set = data.sets.filter(function(s) { return s.id === q.setId; })[0];
+            if (set && set[q.section]) set[q.section] = set[q.section].filter(function(id) { return id !== qid; });
+            delete data.questions[qid];
+            saveStore(data);
+            currentSet = getSet(currentSetId);
+            renderList();
+        }
+
+        function goAddQuestion() {
+            try { sessionStorage.setItem('xingce_add_to_set_id', currentSetId); } catch (e) {}
+            window.location.href = '输出为pdf.html?addToSetId=' + encodeURIComponent(currentSetId) + '#single';
+        }
+
+        window.onload = function() {
+            currentSetId = getSetIdFromUrl();
+            if (!currentSetId) {
+                document.getElementById('noSet').style.display = 'block';
+                return;
+            }
+            currentSet = getSet(currentSetId);
+            if (!currentSet) {
+                document.getElementById('noSet').style.display = 'block';
+                document.querySelector('#noSet p').textContent = '套卷不存在或已删除。';
+                return;
+            }
+            document.getElementById('mainBlock').style.display = 'block';
+            document.getElementById('setTitle').textContent = currentSet.name || '未命名套卷';
+            document.getElementById('btnAddQuestion').onclick = goAddQuestion;
+            renderList();
+        };
+    </script>
+</body>
+</html>

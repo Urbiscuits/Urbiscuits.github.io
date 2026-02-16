@@ -684,15 +684,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="stats-card">
-                    <h3><i class="fas fa-info-circle"></i> 说明</h3>
-                    <ul style="list-style: none; padding-left: 0;">
-                        <li style="margin-bottom: 8px; display: flex; gap: 8px;"><i class="fas fa-check-circle" style="color: var(--success-color);"></i><span>题目统计为所有套卷四板块合并，可折叠</span></li>
-                        <li style="margin-bottom: 8px; display: flex; gap: 8px;"><i class="fas fa-check-circle" style="color: var(--success-color);"></i><span>单题/批量导入，支持图片与 LaTeX</span></li>
-                        <li style="margin-bottom: 8px; display: flex; gap: 8px;"><i class="fas fa-check-circle" style="color: var(--success-color);"></i><span>刷题优先未做过题目</span></li>
-                        <li style="display: flex; gap: 8px;"><i class="fas fa-check-circle" style="color: var(--success-color);"></i><span>PDF 题目在前、答案在最后</span></li>
-                    </ul>
-                </div>
             </aside>
             
             <main class="main-content">
@@ -702,6 +693,9 @@
                     <div class="tab" data-tab="single"><i class="fas fa-edit"></i> 单题录入</div>
                     <div class="tab" data-tab="manage"><i class="fas fa-list"></i> 题目管理</div>
                     <div class="tab" data-tab="practice"><i class="fas fa-pen-fancy"></i> 刷题</div>
+                    <div class="tab" data-tab="history"><i class="fas fa-history"></i> 历史记录</div>
+                    <div class="tab" data-tab="wrong"><i class="fas fa-book"></i> 错题本</div>
+                    <div class="tab" data-tab="points"><i class="fas fa-tag"></i> 考点</div>
                     <div class="tab" data-tab="export"><i class="fas fa-file-pdf"></i> 导出PDF</div>
                     <div class="tab" data-tab="data"><i class="fas fa-database"></i> 数据</div>
                 </div>
@@ -750,19 +744,24 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <p>言语理解：逻辑填空、中心理解、细节判断、标题填入、语句排序、接语选择、<strong>片段阅读</strong>。判断推理：类比推理、加强题型、削弱题型、真假推理、翻译推理、定义判断。</p>
                         </div>
                         <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="batchSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
-                        <p style="margin-bottom:12px; color:#6c757d;">每道题必须以 <code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 开头，来源可省略；没有的小分类会自动创建。</p>
+                        <p style="margin-bottom:12px; color:#6c757d;">每道题必须以 <code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 开头；题干与选项中 <code>$$...$$</code> 或 <code>\( \)</code> 会自动识别为公式。</p>
                         <div class="control-group" style="margin-bottom: 12px;">
                             <label>从 TXT 导入：</label>
                             <input type="file" id="batchTxtFile" accept=".txt,text/plain" onchange="onBatchTxtFileChange()" style="margin-right: 12px;">
-                            <span style="color:#6c757d;">选择 TXT 后内容会填入下方框，可编辑后点击「导入」</span>
+                            <span style="color:#6c757d;">选择 TXT 后内容会填入下方框，可编辑后点击「预览」或「导入」</span>
                         </div>
                         <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT 填入</label>
                         <textarea id="inputText" rows="14" placeholder="粘贴题目内容，或选择上方 TXT 文件填入..."></textarea>
                         <div style="margin-top: 16px; display: flex; gap: 12px;">
                             <button class="btn btn-primary" onclick="batchImport()"><i class="fas fa-upload"></i> 导入</button>
-                            <button class="btn" onclick="document.getElementById('inputText').value=''; document.getElementById('batchTxtFile').value='';" style="background:#eaeaea;">清空</button>
+                            <button class="btn btn-info" onclick="batchPreview()"><i class="fas fa-eye"></i> 预览（公式渲染）</button>
+                            <button class="btn" onclick="document.getElementById('inputText').value=''; document.getElementById('batchTxtFile').value=''; document.getElementById('batchPreviewWrap').style.display='none';" style="background:#eaeaea;">清空</button>
                         </div>
                         <div id="importStatus" class="status-message"></div>
+                        <div id="batchPreviewWrap" style="display:none; margin-top:20px; padding:16px; background:#f8f9fa; border-radius:var(--border-radius);">
+                            <h4 style="margin-bottom:12px; color:var(--primary-color);">解析预览（共 <span id="batchPreviewCount">0</span> 题，$$ 已按公式显示）</h4>
+                            <div id="batchPreviewList" class="question-list"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -789,6 +788,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         </div>
                         <button class="btn btn-success" onclick="singleSave()" style="margin-top: 12px;"><i class="fas fa-save"></i> 保存题目</button>
                         <div id="singleStatus" class="status-message"></div>
+                        <div id="singlePreviewWrap" style="margin-top:24px; padding:20px; background:#f8f9fa; border-radius:var(--border-radius); border:1px solid #eaeaea;">
+                            <h4 style="margin-bottom:12px; color:var(--primary-color);">下方预览（公式与图片实时渲染）</h4>
+                            <div id="singlePreview" class="preview-area" style="min-height:80px; padding:16px; background:#fff; border-radius:var(--border-radius);"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -817,14 +820,28 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div class="control-group" style="margin-bottom: 16px;">
                                 <label>练习方式：</label>
                                 <select id="practiceType" onchange="onPracticeTypeChange()" style="padding:10px; border:2px solid #eaeaea; border-radius: var(--border-radius);">
-                                    <option value="category">按分类出题</option>
+                                    <option value="category">按分类出题（可多选大类）</option>
+                                    <option value="point">按考点出题</option>
                                     <option value="set">整套试卷练习</option>
                                 </select>
                             </div>
+                            <div class="control-group" style="margin-bottom: 16px;">
+                                <label>答题模式：</label>
+                                <div class="practice-mode-toggle" style="margin-top:8px;">
+                                    <span id="setupModePractice" class="active" onclick="setSetupPracticeMode('practice')">练习模式</span>
+                                    <span id="setupModeMemorize" onclick="setSetupPracticeMode('memorize')">背题模式</span>
+                                </div>
+                                <p class="practice-mode-desc" id="setupModeHint" style="margin-top:8px; color:#6c757d; font-size:0.9rem;">练习模式：做完所有题后提交，在新页面查看答案与正确率</p>
+                            </div>
                             <div id="practiceByCategory" class="filter-controls">
-                                <div><label>大类</label><select id="practiceSection" onchange="updatePracticeSub()" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
-                                <div><label>小类</label><select id="practiceSubcategory" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option></select></div>
+                                <div style="margin-bottom:12px;"><label>大类（可多选）</label><div id="practiceSectionsWrap" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:12px;"><label><input type="checkbox" name="practiceSection" value="言语理解"> 言语理解</label><label><input type="checkbox" name="practiceSection" value="数量关系"> 数量关系</label><label><input type="checkbox" name="practiceSection" value="判断推理"> 判断推理</label><label><input type="checkbox" name="practiceSection" value="资料分析"> 资料分析</label></div></div>
+                                <div><label>小类（下方为已选大类的合并，可多选，不选即全部）</label><div id="practiceSubcategoriesWrap" style="margin-top:8px; max-height:120px; overflow-y:auto; display:flex; flex-wrap:wrap; gap:8px;"></div></div>
                                 <div><label>题数</label><input type="number" id="practiceCount" value="10" min="1" max="200" style="width:80px; padding:10px; margin-top:5px;"></div>
+                                <div style="align-self: flex-end;"><button class="btn btn-primary" onclick="startPractice()"><i class="fas fa-play"></i> 开始</button></div>
+                            </div>
+                            <div id="practiceByPoint" style="display:none;" class="filter-controls">
+                                <div><label>考点（可多选）</label><div id="practicePointsWrap" style="margin-top:8px; max-height:120px; overflow-y:auto; display:flex; flex-wrap:wrap; gap:8px;"></div></div>
+                                <div><label>题数</label><input type="number" id="practicePointCount" value="10" min="1" max="200" style="width:80px; padding:10px; margin-top:5px;"></div>
                                 <div style="align-self: flex-end;"><button class="btn btn-primary" onclick="startPractice()"><i class="fas fa-play"></i> 开始</button></div>
                             </div>
                             <div id="practiceBySet" style="display:none;" class="filter-controls">
@@ -832,55 +849,79 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 <div style="align-self: flex-end;"><button class="btn btn-primary" onclick="startPractice()"><i class="fas fa-play"></i> 开始整套练习</button></div>
                             </div>
                         </div>
-                        <div id="practiceArea" style="display:none;">
-                            <div class="practice-toolbar">
-                                <div class="practice-mode-toggle">
-                                    <span id="practiceModePractice" class="active" onclick="setPracticeMode('practice')">练习模式</span>
-                                    <span id="practiceModeMemorize" onclick="setPracticeMode('memorize')">背题模式</span>
-                                </div>
-                                <span id="practiceTimer" class="practice-timer" style="display:none;"></span>
-                                <span class="practice-mode-hint" id="practiceModeHint">练习模式：做完所有题后提交，再查看答案</span>
-                            </div>
-                            <div class="practice-card" id="practiceCard">
-                                <div id="practiceQuestionSource" class="practice-question-source" style="text-align:center; margin-bottom:12px; color:#4a6baf; font-weight:500;"></div>
-                                <div id="practiceQuestion"></div>
-                                <div id="practiceOptionsWrap"></div>
-                                <div id="practiceShowAnswerWrap" class="practice-show-answer-btn" style="display:none;"><button class="btn btn-info" id="practiceShowAnswerBtn" onclick="showPracticeAnswer()">显示答案</button></div>
-                                <div id="practiceAnswer" class="answer-block" style="display:none;"></div>
-                                <div id="practiceDoneMsg" class="practice-done-msg" style="display:none;">已答完本组题目，可点击「提交」查看答题结果</div>
-                                <div class="practice-nav">
-                                    <button class="btn" id="btnPrev" onclick="prevQuestion()"><i class="fas fa-arrow-left"></i> 上一题</button>
-                                    <span id="practiceProgress">1/10</span>
-                                    <button class="btn" id="btnNext" onclick="nextQuestion()">下一题 <i class="fas fa-arrow-right"></i></button>
-                                </div>
-                                <div class="practice-submit-row" style="margin-top:16px;">
-                                    <button class="btn btn-success" id="btnSubmitPractice" onclick="submitPractice()"><i class="fas fa-paper-plane"></i> 提交并查看结果</button>
-                                    <button class="btn btn-default" onclick="openDraftOverlay()" style="margin-left:8px;"><i class="fas fa-pen"></i> 草稿（涂鸦）</button>
-                                </div>
-                            </div>
-                            <div id="practiceQuestionNav" class="practice-question-nav" style="display:none; margin-top:16px; padding:12px; background:#f8f9fa; border-radius:var(--border-radius);">
-                                <div style="margin-bottom:8px; font-weight:500; color:#6c757d;">题号导航</div>
-                                <div id="practiceQuestionNavBtns" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
-                            </div>
-                            <div id="practiceResultWrap" style="display:none;" class="practice-result-wrap">
-                                <h3 style="margin-bottom:16px; color:var(--primary-color);">答题结果（单题查看，类似背题模式）</h3>
-                                <div id="practiceResultCard">
-                                    <div id="practiceResultQuestion"></div>
-                                    <div id="practiceResultAnswer" class="answer-block" style="margin-top:16px;"></div>
-                                </div>
-                                <div class="practice-nav" style="margin-top:16px;">
-                                    <button class="btn" id="btnResultPrev" onclick="prevResultQuestion()"><i class="fas fa-arrow-left"></i> 上一题</button>
-                                    <span id="practiceResultProgress">1/10</span>
-                                    <button class="btn" id="btnResultNext" onclick="nextResultQuestion()">下一题 <i class="fas fa-arrow-right"></i></button>
-                                </div>
-                                <div id="practiceResultNav" style="margin-top:16px;">
-                                    <div style="margin-bottom:8px; font-weight:500; color:#6c757d;">题号导航</div>
-                                    <div id="practiceResultNavBtns" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
-                                    <button class="btn btn-default" onclick="closePracticeResult()" style="margin-top:16px;">返回刷题</button>
-                                </div>
-                            </div>
-                            <button class="btn" onclick="exitPractice()" style="background:#eaeaea;">退出刷题</button>
+                        <p style="margin-top:12px; color:#6c757d;">点击「开始」将在<strong>新页面</strong>中做题，主页面不显示题目，保持简洁。</p>
+                    </div>
+                </div>
+
+                <!-- 历史记录 -->
+                <div id="tab-history" class="tab-content">
+                    <div class="card">
+                        <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-history"></i> 历史做题记录</h2>
+                        <div id="historyList" class="set-list"></div>
+                        <div id="historyDetail" style="display:none;">
+                            <h4 style="margin-bottom:12px;" id="historyDetailTitle"></h4>
+                            <div id="historyDetailContent"></div>
+                            <button class="btn btn-default" style="margin-top:12px;" onclick="document.getElementById('historyDetail').style.display='none'; document.getElementById('historyList').style.display='block';">返回列表</button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- 错题本 -->
+                <div id="tab-wrong" class="tab-content">
+                    <div class="card">
+                        <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-book"></i> 错题本</h2>
+                        <p style="margin-bottom:12px; color:#6c757d;">以下为曾做错过的题目，可点击查看题目详情或按考点刷题。</p>
+                        <div id="wrongList"></div>
+                    </div>
+                </div>
+
+                <!-- 考点 -->
+                <div id="tab-points" class="tab-content">
+                    <div class="card">
+                        <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-tag"></i> 考点</h2>
+                        <p style="margin-bottom:12px; color:#6c757d;">点击考点可查看该考点下所有题目；可多选考点进行自定义数量刷题。题目详情与做题结果中可编辑考点。</p>
+                        <div id="pointsList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+                        <div id="pointsQuestions" style="display:none; margin-top:16px;">
+                            <h4 id="pointsQuestionsTitle" style="margin-bottom:12px;"></h4>
+                            <div id="pointsQuestionsContent"></div>
+                            <button class="btn btn-default" style="margin-top:12px;" onclick="document.getElementById('pointsQuestions').style.display='none';">返回</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 题目详情弹层 -->
+                <div id="questionDetailOverlay" style="display:none; position:fixed; left:0; top:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9998; overflow:auto;">
+                    <div style="max-width:800px; margin:24px auto; background:#fff; border-radius:var(--border-radius); padding:24px; box-shadow:var(--box-shadow);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <h3 style="color:var(--primary-color);">题目详情</h3>
+                            <button class="btn btn-default" onclick="closeQuestionDetail()">关闭</button>
+                        </div>
+                        <div id="questionDetailBody"></div>
+                        <div style="margin-top:16px;"><strong>考点：</strong><span id="questionDetailPoints"></span> <button class="btn btn-info btn-sm" onclick="openEditPoints()">编辑考点</button></div>
+                        <div id="questionDetailPointsEdit" style="display:none; margin-top:8px;">
+                            <input type="text" id="questionDetailPointsInput" placeholder="输入考点，多个用逗号分隔" style="width:100%; padding:8px; margin-bottom:8px;">
+                            <button class="btn btn-success btn-sm" onclick="saveQuestionPoints()">保存</button> <button class="btn btn-default btn-sm" onclick="document.getElementById('questionDetailPointsEdit').style.display='none';">取消</button>
+                        </div>
+                        <div style="margin-top:16px;">
+                            <button class="btn btn-info btn-sm" id="btnDeepSeek" onclick="fetchDeepSeekExplanation()">AI 解析 (DeepSeek)</button>
+                            <span id="deepSeekStatus" style="margin-left:8px; font-size:0.9rem;"></span>
+                        </div>
+                        <div id="questionDetailDeepSeekResult" style="display:none; margin-top:12px; padding:12px; background:#f0f5ff; border-radius:var(--border-radius);"></div>
+                    </div>
+                </div>
+
+                <!-- 题目编辑弹层 -->
+                <div id="questionEditOverlay" style="display:none; position:fixed; left:0; top:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; overflow:auto;">
+                    <div style="max-width:700px; margin:24px auto; background:#fff; border-radius:var(--border-radius); padding:24px; box-shadow:var(--box-shadow);">
+                        <h3 style="margin-bottom:16px; color:var(--primary-color);">编辑题目</h3>
+                        <div><label>题干</label><textarea id="editQuestionContent" rows="4" style="width:100%; padding:10px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></textarea></div>
+                        <div style="margin-top:12px;"><label>选项 A</label><input type="text" id="editOptA" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
+                        <div style="margin-top:8px;"><label>选项 B</label><input type="text" id="editOptB" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
+                        <div style="margin-top:8px;"><label>选项 C</label><input type="text" id="editOptC" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
+                        <div style="margin-top:8px;"><label>选项 D</label><input type="text" id="editOptD" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
+                        <div style="margin-top:12px;"><label>答案</label><select id="editAnswer" style="padding:8px; margin-top:4px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
+                        <div style="margin-top:12px;"><label>解析</label><textarea id="editExplanation" rows="3" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></textarea></div>
+                        <div style="margin-top:16px;"><button class="btn btn-success" onclick="saveEditQuestion()">保存</button> <button class="btn btn-default" onclick="closeEditQuestion()">取消</button></div>
                     </div>
                 </div>
 
@@ -1003,15 +1044,24 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 <div id="tab-data" class="tab-content">
                     <div class="card">
                         <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-database"></i> 数据导出 / 导入</h2>
-                        <p style="margin-bottom: 16px; color: #6c757d;">导出数据可备份或迁移到其他设备；导入数据会与当前数据合并（同 id 的套卷/题目会覆盖）。</p>
+                        <p style="margin-bottom: 16px; color: #6c757d;">导出数据可备份或迁移；<strong>导出包含 LaTeX、图片（base64）、考点</strong>。导入默认<strong>合并</strong>（套卷名称相同视为同一套卷直接覆盖，不删除原有数据）；可选<strong>覆盖</strong>（清空后导入）。</p>
                         <div class="control-group" style="margin-bottom: 20px;">
                             <button class="btn btn-success" onclick="exportData()"><i class="fas fa-download"></i> 导出数据</button>
-                            <span style="margin-left: 12px; color: #6c757d;">下载 JSON 文件，包含所有套卷与题目</span>
+                            <span style="margin-left: 12px; color: #6c757d;">下载 JSON，含套卷、题目、考点</span>
+                        </div>
+                        <div class="control-group" style="margin-bottom: 12px;">
+                            <label>导入方式：</label>
+                            <label style="margin-right:16px;"><input type="radio" name="importMode" value="merge" checked> 合并（同名套卷覆盖，不删原有）</label>
+                            <label><input type="radio" name="importMode" value="overwrite"> 覆盖（清空当前后导入）</label>
                         </div>
                         <div class="control-group">
                             <label>导入数据：</label>
-                            <input type="file" id="importDataFile" accept=".json,application/json" style="margin-right: 12px;">
-                            <button class="btn btn-primary" onclick="importData()"><i class="fas fa-upload"></i> 导入并合并</button>
+                            <input type="file" id="importDataFile" accept=".json,.txt,application/json,text/plain" style="margin-right: 12px;">
+                            <button class="btn btn-primary" onclick="importData()"><i class="fas fa-upload"></i> 导入</button>
+                        </div>
+                        <div class="control-group" style="margin-top: 24px;">
+                            <button class="btn btn-warning" onclick="clearAllCache()"><i class="fas fa-eraser"></i> 清除所有缓存</button>
+                            <span style="margin-left: 12px; color: #6c757d;">重置所有题目正确率、做题次数及历史做题记录</span>
                         </div>
                         <div id="dataStatus" class="status-message"></div>
                     </div>
@@ -1043,17 +1093,25 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         var store = {
             sets: [],
             questions: {},
+            setExistsByName: function(name, excludeSetId) {
+                var n = (name || '').trim();
+                return this.sets.some(function(s) { return (s.name || '').trim() === n && s.id !== excludeSetId; });
+            },
             addSet: function(name, category) {
+                var n = (name || '未命名套卷').trim();
+                if (this.setExistsByName(n, null)) return null;
                 var id = genId();
-                this.sets.push({ id: id, name: name || '未命名套卷', category: category || '', '言语理解': [], '数量关系': [], '判断推理': [], '资料分析': [] });
+                this.sets.push({ id: id, name: n || '未命名套卷', category: category || '', '言语理解': [], '数量关系': [], '判断推理': [], '资料分析': [] });
                 return id;
             },
             getSet: function(setId) { return this.sets.find(function(s) { return s.id === setId; }); },
             updateSet: function(setId, obj) {
                 var set = this.getSet(setId);
                 if (!set) return;
-                if (obj.name !== undefined) set.name = obj.name;
+                if (obj.name !== undefined && this.setExistsByName(obj.name, setId)) return false;
+                if (obj.name !== undefined) set.name = (obj.name || '').trim() || set.name;
                 if (obj.category !== undefined) set.category = obj.category;
+                return true;
             },
             deleteSet: function(setId) {
                 var set = this.getSet(setId);
@@ -1071,6 +1129,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 q.done = q.done || false;
                 q.correctCount = q.correctCount != null ? q.correctCount : 0;
                 q.totalAttempts = q.totalAttempts != null ? q.totalAttempts : 0;
+                q.knowledgePoints = Array.isArray(q.knowledgePoints) ? q.knowledgePoints : (q.knowledgePoint ? [q.knowledgePoint] : []);
                 this.questions[q.id] = q;
                 var set = this.getSet(setId);
                 if (set && set[section]) set[section].push(q.id);
@@ -1156,10 +1215,101 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 ids = undone.concat(done);
                 return ids.map(function(qid) { return store.questions[qid]; }).filter(Boolean);
             },
+            getRandomQuestionsBySections: function(sections, subcategory, count) {
+                var subs = (!subcategory || subcategory === 'all') ? [] : [subcategory];
+                return this.getRandomQuestionsBySectionsAndSubs(sections, subs, count);
+            },
+            getRandomQuestionsBySectionsAndSubs: function(sections, subcategories, count) {
+                if (!sections || !sections.length) return this.getRandomQuestions(null, null, count);
+                var ids = [];
+                var self = this;
+                var subSet = (subcategories && subcategories.length) ? {} : null;
+                if (subSet) subcategories.forEach(function(s) { subSet[s] = true; });
+                this.sets.forEach(function(set) {
+                    (sections || []).forEach(function(section) {
+                        (set[section] || []).forEach(function(qid) {
+                            var q = self.questions[qid];
+                            if (!q) return;
+                            if (!subSet || subSet[q.subcategory]) ids.push(qid);
+                        });
+                    });
+                });
+                ids = Array.from(new Set(ids));
+                var undone = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) === 0; });
+                var done = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) > 0; });
+                for (var i = undone.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = undone[i]; undone[i] = undone[j]; undone[j] = t; }
+                done.sort(function(a, b) {
+                    var qa = store.questions[a], qb = store.questions[b];
+                    var ra = (qa.totalAttempts && qa.totalAttempts > 0) ? (qa.correctCount || 0) / qa.totalAttempts : 0;
+                    var rb = (qb.totalAttempts && qb.totalAttempts > 0) ? (qb.correctCount || 0) / qb.totalAttempts : 0;
+                    return ra - rb;
+                });
+                ids = undone.concat(done);
+                return ids.slice(0, count).map(function(qid) { return store.questions[qid]; }).filter(Boolean);
+            },
+            getQuestionIdsByKnowledgePoints: function(kps) {
+                if (!kps || !kps.length) return this.getAllQuestionIds();
+                var kpSet = kps.length ? (typeof kps === 'string' ? [kps] : kps) : [];
+                var ids = [];
+                var self = this;
+                this.sets.forEach(function(set) {
+                    MAIN_SECTIONS.forEach(function(s) {
+                        (set[s] || []).forEach(function(qid) {
+                            var q = self.questions[qid];
+                            if (!q) return;
+                            var arr = q.knowledgePoints || q.knowledgePoint ? [q.knowledgePoint] : [];
+                            if (kpSet.some(function(kp) { return arr.indexOf(kp) !== -1; })) ids.push(qid);
+                        });
+                    });
+                });
+                return Array.from(new Set(ids));
+            },
+            getRandomQuestionsByKnowledgePoints: function(kps, count) {
+                var ids = this.getQuestionIdsByKnowledgePoints(kps);
+                var undone = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) === 0; });
+                var done = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) > 0; });
+                for (var i = undone.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = undone[i]; undone[i] = undone[j]; undone[j] = t; }
+                done.sort(function(a, b) {
+                    var qa = store.questions[a], qb = store.questions[b];
+                    var ra = (qa.totalAttempts && qa.totalAttempts > 0) ? (qa.correctCount || 0) / qa.totalAttempts : 0;
+                    var rb = (qb.totalAttempts && qb.totalAttempts > 0) ? (qb.correctCount || 0) / qb.totalAttempts : 0;
+                    return ra - rb;
+                });
+                ids = undone.concat(done);
+                return ids.slice(0, count).map(function(qid) { return store.questions[qid]; }).filter(Boolean);
+            },
+            getAllKnowledgePoints: function() {
+                var set = {};
+                var self = this;
+                this.sets.forEach(function(s) {
+                    MAIN_SECTIONS.forEach(function(sec) {
+                        (s[sec] || []).forEach(function(qid) {
+                            var q = self.questions[qid];
+                            if (q && (q.knowledgePoints || []).length) (q.knowledgePoints || []).forEach(function(kp) { if (kp) set[kp] = true; });
+                        });
+                    });
+                });
+                return Object.keys(set).sort();
+            },
+            getWrongQuestionIds: function() {
+                var ids = [];
+                var self = this;
+                this.sets.forEach(function(set) {
+                    MAIN_SECTIONS.forEach(function(s) {
+                        (set[s] || []).forEach(function(qid) {
+                            var q = self.questions[qid];
+                            if (q && (q.totalAttempts || 0) > 0 && (q.correctCount || 0) < q.totalAttempts) ids.push(qid);
+                        });
+                    });
+                });
+                return ids;
+            },
             getQuestion: function(qid) { return this.questions[qid]; },
             save: function() { localStorage.setItem('xingce_sets', JSON.stringify(this.sets)); localStorage.setItem('xingce_questions', JSON.stringify(this.questions)); },
             load: function() { try { var s = localStorage.getItem('xingce_sets'); var q = localStorage.getItem('xingce_questions'); if (s) this.sets = JSON.parse(s); if (q) this.questions = JSON.parse(q); } catch (e) {} }
         };
+        function getHistory() { try { var h = localStorage.getItem('xingce_history'); return h ? JSON.parse(h) : []; } catch (e) { return []; } }
+        function saveHistory(arr) { try { localStorage.setItem('xingce_history', JSON.stringify(arr)); } catch (e) {} }
 
         function parseBatchText(text) {
             var results = [];
@@ -1204,7 +1354,22 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 if (inContent) content += (content ? ' ' : '') + line;
             }
             if (!content.trim() || options.length === 0) return null;
-            return { category: category, subcategory: subcategory, source: source, content: content.trim(), options: options, answer: answer, explanation: explanation, material: '', materialImages: [], stemImages: [], optionImages: [] };
+            return { category: category, subcategory: subcategory, source: source, content: content.trim(), options: options, answer: answer, explanation: explanation, material: '', materialImages: [], stemImages: [], optionImages: [], knowledgePoints: [] };
+        }
+
+        /** 对容器内题目/选项实时渲染 LaTeX：支持 $$ 块级公式、\\( \\) 行内公式，以及分数 \\frac、根号 \\sqrt 等 */
+        function renderLaTeXInElement(el) {
+            if (!el || !window.renderMathInElement) return;
+            try {
+                renderMathInElement(el, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '\\(', right: '\\)', display: false },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            } catch (e) {}
         }
 
         function switchTab(tabName) {
@@ -1215,9 +1380,216 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             document.querySelectorAll('.tab').forEach(function(t) { if (t.getAttribute('data-tab') === tabName) t.classList.add('active'); });
             if (tabName === 'sets') { fillCategorySelects(); renderCategoryList(); }
             if (tabName === 'manage') filterManage();
+            if (tabName === 'single') { updateSinglePreview(); }
             if (tabName === 'practice') { updatePracticeSub(); onPracticeTypeChange(); }
+            if (tabName === 'history') { renderHistoryList(); }
+            if (tabName === 'wrong') { renderWrongList(); }
+            if (tabName === 'points') { renderPointsList(); }
             if (tabName === 'export') { checkExportState(); onExportScopeChange(); }
             if (tabName === 'data') { document.getElementById('importDataFile').value = ''; document.getElementById('dataStatus').style.display = 'none'; }
+        }
+        var detailQid = null;
+        function showQuestionDetail(qid) {
+            detailQid = qid;
+            var q = store.getQuestion(qid);
+            if (!q) return;
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />'; }
+            var hist = (q.totalAttempts || 0) > 0 ? ((q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)') : '暂无';
+            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(imgTag).join('');
+            var optHtml = (q.options || []).map(function(o) {
+                var c = o.label === q.answer ? 'correct' : '';
+                return '<div class="option ' + c + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + (o.images || []).map(imgTag).join('') + '</div>';
+            }).join('');
+            document.getElementById('questionDetailBody').innerHTML = '<p style="margin-bottom:8px;"><strong>历史正确率：</strong>' + hist + '</p><div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div><div class="options-grid" style="margin-top:12px;">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：' + esc(q.explanation) + '</div>' : '');
+            renderLaTeXInElement(document.getElementById('questionDetailBody'));
+            var pts = (q.knowledgePoints || []).join('、');
+            document.getElementById('questionDetailPoints').textContent = pts || '暂无';
+            document.getElementById('questionDetailPointsEdit').style.display = 'none';
+            document.getElementById('questionDetailOverlay').style.display = 'block';
+        }
+        function closeQuestionDetail() { document.getElementById('questionDetailOverlay').style.display = 'none'; detailQid = null; }
+        function openEditPoints() {
+            var q = detailQid && store.getQuestion(detailQid);
+            document.getElementById('questionDetailPointsInput').value = (q && (q.knowledgePoints || []).length) ? (q.knowledgePoints || []).join('，') : '';
+            document.getElementById('questionDetailPointsEdit').style.display = 'block';
+        }
+        function saveQuestionPoints() {
+            if (!detailQid) return;
+            var raw = (document.getElementById('questionDetailPointsInput').value || '').trim();
+            var arr = raw ? raw.split(/[,，]/).map(function(s) { return s.trim(); }).filter(Boolean) : [];
+            var q = store.getQuestion(detailQid);
+            if (q) { q.knowledgePoints = arr; store.save(); document.getElementById('questionDetailPoints').textContent = arr.join('、') || '暂无'; document.getElementById('questionDetailPointsEdit').style.display = 'none'; renderPointsList(); renderPracticePointsCheckboxes(); }
+        }
+        var DEEPSEEK_API_KEY = 'sk-0c154dd4e49a471492ffd96e8de2091e';
+        function fetchDeepSeekExplanation() {
+            if (!detailQid) return;
+            var q = store.getQuestion(detailQid);
+            if (!q) return;
+            var statusEl = document.getElementById('deepSeekStatus');
+            var resultEl = document.getElementById('questionDetailDeepSeekResult');
+            var btn = document.getElementById('btnDeepSeek');
+            statusEl.textContent = '请求中…';
+            resultEl.style.display = 'none';
+            if (btn) btn.disabled = true;
+            var optStr = (q.options || []).map(function(o) { return o.label + '. ' + (o.text || ''); }).join('\n');
+            var userContent = '请对以下行测题目给出解析（为什么选正确答案，其他选项为何不选）：\n\n' + (q.content || '') + '\n\n选项：\n' + optStr + '\n\n正确答案：' + (q.answer || '');
+            fetch('https://api.deepseek.com/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_API_KEY },
+                body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: '你是一名行测题目解析助手，用简洁清晰的中文作答。' }, { role: 'user', content: userContent }], stream: false })
+            }).then(function(res) { return res.json(); }).then(function(data) {
+                statusEl.textContent = '';
+                if (btn) btn.disabled = false;
+                var text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? data.choices[0].message.content : (data.error ? (data.error.message || '请求失败') : '无返回内容');
+                resultEl.innerHTML = '<strong>AI 解析：</strong><div style="margin-top:8px; white-space:pre-wrap;">' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div><p style="margin-top:8px;"><button class="btn btn-success btn-sm" onclick="saveDeepSeekToQuestion()">保存为题目解析</button></p>';
+                resultEl.style.display = 'block';
+            }).catch(function(err) {
+                statusEl.textContent = '失败';
+                if (btn) btn.disabled = false;
+                resultEl.innerHTML = '<span style="color:#dc3545;">' + (err.message || '网络错误') + '</span>';
+                resultEl.style.display = 'block';
+            });
+        }
+        function saveDeepSeekToQuestion() {
+            if (!detailQid) return;
+            var resultEl = document.getElementById('questionDetailDeepSeekResult');
+            var div = resultEl.querySelector('div[style*="white-space"]');
+            var text = div ? div.textContent : '';
+            var q = store.getQuestion(detailQid);
+            if (q) { q.explanation = (q.explanation ? q.explanation + '\n\n【AI解析】\n' : '') + text; store.save(); showQuestionDetail(detailQid); document.getElementById('questionDetailDeepSeekResult').style.display = 'none'; }
+        }
+        var editQid = null;
+        function openEditQuestion(qid) {
+            editQid = qid;
+            var q = store.getQuestion(qid);
+            if (!q) return;
+            document.getElementById('editQuestionContent').value = q.content || '';
+            var opts = q.options || [];
+            document.getElementById('editOptA').value = (opts[0] && opts[0].text) || '';
+            document.getElementById('editOptB').value = (opts[1] && opts[1].text) || '';
+            document.getElementById('editOptC').value = (opts[2] && opts[2].text) || '';
+            document.getElementById('editOptD').value = (opts[3] && opts[3].text) || '';
+            document.getElementById('editAnswer').value = q.answer || 'A';
+            document.getElementById('editExplanation').value = q.explanation || '';
+            document.getElementById('questionEditOverlay').style.display = 'block';
+        }
+        function closeEditQuestion() { document.getElementById('questionEditOverlay').style.display = 'none'; editQid = null; }
+        function saveEditQuestion() {
+            if (!editQid) return;
+            var q = store.getQuestion(editQid);
+            if (!q) return;
+            var content = (document.getElementById('editQuestionContent').value || '').trim();
+            var a = (document.getElementById('editOptA').value || '').trim(), b = (document.getElementById('editOptB').value || '').trim(), c = (document.getElementById('editOptC').value || '').trim(), d = (document.getElementById('editOptD').value || '').trim();
+            q.content = content;
+            q.options = [{ label: 'A', text: a }, { label: 'B', text: b }, { label: 'C', text: c }, { label: 'D', text: d }];
+            q.answer = document.getElementById('editAnswer').value || 'A';
+            q.explanation = (document.getElementById('editExplanation').value || '').trim();
+            store.save();
+            closeEditQuestion();
+            if (detailQid === editQid) showQuestionDetail(detailQid);
+            filterManage();
+            showMsg('setStatus', '题目已更新', 'success');
+        }
+        function renderHistoryList() {
+            var list = getHistory();
+            var container = document.getElementById('historyList');
+            if (!container) return;
+            if (!list.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>暂无做题记录</p></div>'; return; }
+            container.style.display = 'block';
+            container.innerHTML = list.slice().reverse().map(function(h, revIdx) {
+                var origIdx = list.length - 1 - revIdx;
+                var rate = h.total ? Math.round(100 * (h.correctCount || 0) / h.total) : 0;
+                var dateStr = h.date ? new Date(h.date).toLocaleString('zh-CN') : '';
+                var totalMin = h.totalTime ? Math.floor(h.totalTime / 60000) : 0;
+                var totalSec = h.totalTime ? Math.floor((h.totalTime % 60000) / 1000) : 0;
+                var timeStr = totalMin + '分' + totalSec + '秒';
+                return '<div class="set-item"><span>' + dateStr + '</span> <span style="color:#6c757d;">正确率 ' + (h.correctCount||0) + '/' + h.total + ' (' + rate + '%) 总用时 ' + timeStr + '</span> <button class="btn btn-info btn-sm" onclick="showHistoryDetail(' + origIdx + ')">查看详情</button></div>';
+            }).join('');
+        }
+        function showHistoryDetail(origIndex) {
+            var list = getHistory();
+            var h = list[origIndex];
+            if (!h) return;
+            document.getElementById('historyList').style.display = 'none';
+            document.getElementById('historyDetail').style.display = 'block';
+            document.getElementById('historyDetailTitle').textContent = (h.date ? new Date(h.date).toLocaleString('zh-CN') : '') + ' 正确率 ' + (h.correctCount||0) + '/' + h.total + ' 总用时 ' + (h.totalTime ? (Math.floor(h.totalTime/60000) + '分' + Math.floor((h.totalTime%60000)/1000) + '秒') : '');
+            var bySub = h.bySubcategory || {};
+            var subHtml = Object.keys(bySub).map(function(k) { var v = bySub[k]; return k + ' ' + (v.correct||0) + '/' + (v.total||0); }).join('； ');
+            var results = (h.questionResults || []).map(function(r, idx) {
+                var q = store.getQuestion(r.qid);
+                var name = q ? (q.section + '-' + (q.subcategory||'')) : '';
+                var t = r.timeSpent ? (Math.floor(r.timeSpent/1000) + '秒') : '—';
+                var status = r.correct === null ? '未作答' : (r.correct ? '✓正确' : '✗错误');
+                return (idx+1) + '. ' + name + ' ' + status + ' 用时' + t + ' <a href="#" onclick="showQuestionDetail(\'' + r.qid + '\'); return false;">题目详情</a>';
+            }).join('<br>');
+            document.getElementById('historyDetailContent').innerHTML = '<p style="margin-bottom:8px;">小分类正确率：' + (subHtml || '—') + '</p><p style="margin-bottom:8px; color:#6c757d;">共 ' + (h.questionResults || []).length + ' 题（含未作答）</p><div>' + (results || '无') + '</div>';
+        }
+        function renderWrongList() {
+            var ids = store.getWrongQuestionIds();
+            var container = document.getElementById('wrongList');
+            if (!container) return;
+            if (!ids.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><p>暂无错题</p></div>'; return; }
+            var list = ids.map(function(qid) { return store.getQuestion(qid); }).filter(Boolean);
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            container.innerHTML = '<div class="filter-controls" style="margin-bottom:12px;"><button class="btn btn-primary" onclick="startPracticeFromWrong()">从错题本刷题</button></div>' + list.map(function(q) {
+                var hist = (q.totalAttempts || 0) > 0 ? ((q.correctCount || 0) + '/' + q.totalAttempts) : '—';
+                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.section) + '-' + esc(q.subcategory||q.section) + '</span> <span style="color:#6c757d;">历史 ' + hist + '</span> <button class="btn btn-info btn-sm" onclick="showQuestionDetail(\'' + q.id + '\')">题目详情</button></div><div class="question-content">' + esc((q.content||'').slice(0, 120)) + '…</div></div>';
+            }).join('');
+        }
+        function startPracticeFromWrong() {
+            var ids = store.getWrongQuestionIds();
+            if (!ids.length) { alert('暂无错题'); return; }
+            var questions = ids.slice(0, 50).map(function(qid) { return store.getQuestion(qid); }).filter(Boolean);
+            for (var i = questions.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = questions[i]; questions[i] = questions[j]; questions[j] = t; }
+            var setNames = {}; store.sets.forEach(function(s) { setNames[s.id] = s.name || ''; });
+            try { sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames })); } catch (e) { alert('无法保存'); return; }
+            window.open('practice.html', '_blank');
+        }
+        function renderPointsList() {
+            var points = store.getAllKnowledgePoints();
+            var container = document.getElementById('pointsList');
+            if (!container) return;
+            if (!points.length) { container.innerHTML = '<span style="color:#6c757d;">暂无考点，在题目详情中编辑考点</span>'; return; }
+            container.innerHTML = points.map(function(p) {
+                var count = store.getQuestionIdsByKnowledgePoints([p]).length;
+                return '<a href="#" class="set-item" style="text-decoration:none; color:inherit;" data-kp="' + (p.replace(/"/g, '&quot;')) + '" onclick="showPointsQuestions(this.getAttribute(\'data-kp\')); return false;">' + p.replace(/</g, '&lt;') + ' <span class="tree-count">' + count + '</span></a>';
+            }).join('');
+        }
+        function showPointsQuestions(kp) {
+            if (!kp) return;
+            var ids = store.getQuestionIdsByKnowledgePoints([kp]);
+            document.getElementById('pointsQuestionsTitle').textContent = '考点「' + kp.replace(/</g, '&lt;') + '」共 ' + ids.length + ' 题';
+            var list = ids.map(function(qid) { return store.getQuestion(qid); }).filter(Boolean);
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            document.getElementById('pointsQuestionsContent').innerHTML = list.map(function(q) {
+                return '<div class="question-item"><span>' + esc(q.section) + '-' + esc(q.subcategory||'') + '</span> ' + esc((q.content||'').slice(0, 80)) + '… <button class="btn btn-info btn-sm" onclick="showQuestionDetail(\'' + q.id + '\')">题目详情</button> <button class="btn btn-primary btn-sm" data-kp="' + (kp.replace(/"/g, '&quot;')) + '" onclick="startPracticeByPoint(this.getAttribute(\'data-kp\'))">刷题</button></div>';
+            }).join('');
+            document.getElementById('pointsQuestions').style.display = 'block';
+        }
+        function startPracticeByPoint(kp) {
+            if (!kp) return;
+            var questions = store.getRandomQuestionsByKnowledgePoints([kp], 20);
+            if (!questions.length) { alert('该考点下暂无题目'); return; }
+            var setNames = {}; store.sets.forEach(function(s) { setNames[s.id] = s.name || ''; });
+            try { sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames })); } catch (e) { alert('无法保存'); return; }
+            window.open('practice.html', '_blank');
+        }
+        function clearAllCache() {
+            if (!confirm('将清除所有题目的正确率、做题次数及历史做题记录，是否继续？')) return;
+            store.sets.forEach(function(set) {
+                MAIN_SECTIONS.forEach(function(sec) {
+                    (set[sec] || []).forEach(function(qid) {
+                        var q = store.getQuestion(qid);
+                        if (q) { q.correctCount = 0; q.totalAttempts = 0; q.done = false; }
+                    });
+                });
+            });
+            store.save();
+            saveHistory([]);
+            renderTree(); renderHistoryList(); renderWrongList();
+            showMsg('dataStatus', '已清除所有缓存', 'success');
         }
 
         function renderTree() {
@@ -1280,8 +1652,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function onPracticeTypeChange() {
             var type = document.getElementById('practiceType').value;
             document.getElementById('practiceByCategory').style.display = type === 'category' ? 'flex' : 'none';
+            document.getElementById('practiceByPoint').style.display = type === 'point' ? 'flex' : 'none';
             document.getElementById('practiceBySet').style.display = type === 'set' ? 'flex' : 'none';
             if (type === 'set') fillSetSelects();
+            if (type === 'point') renderPracticePointsCheckboxes();
         }
         var DEFAULT_SET_CATEGORIES = ['', '国考', '省考', '模拟', '其他'];
         function getSetCategories() {
@@ -1366,7 +1740,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function addSet() {
             var name = (document.getElementById('newSetName').value || '').trim() || '未命名套卷';
             var category = (document.getElementById('newSetCategory').value || '').trim();
-            store.addSet(name, category);
+            var id = store.addSet(name, category);
+            if (id == null) { showMsg('setStatus', '套卷名称已存在，不可重复', 'error'); return; }
             store.save();
             document.getElementById('newSetName').value = '';
             document.getElementById('newSetCategory').value = '';
@@ -1406,9 +1781,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     '<div class="set-item-actions">' +
                     '<button class="btn btn-info" style="padding:6px 12px;" onclick="batchImportToSet(\'' + s.id + '\')">多题导入</button> ' +
                     '<button class="btn" style="padding:6px 12px; background:#eaeaea;" onclick="singleImportToSet(\'' + s.id + '\')">单题录入</button> ' +
+                    '<button class="btn btn-default set-toggle-manage" style="padding:6px 12px;" onclick="toggleSetManage(\'' + s.id + '\')"><i class="fas fa-cog"></i> 管理</button> ' +
+                    '<button class="btn btn-info btn-sm" style="padding:6px 12px;" onclick="window.open(\'set-manage.html?setId=' + s.id + '\', \'_blank\')"><i class="fas fa-list"></i> 管理题目</button> ' +
+                    '<span class="set-manage-btns" id="set-manage-btns-' + s.id + '" style="display:none;">' +
                     '<button class="btn" style="padding:6px 12px; background:#fff3cd;" onclick="editSet(\'' + s.id + '\')"><i class="fas fa-edit"></i> 编辑</button> ' +
                     '<button class="btn" style="padding:6px 12px; background:#f8d7da; color:#721c24;" onclick="deleteSet(\'' + s.id + '\')"><i class="fas fa-trash"></i> 删除</button>' +
-                    '</div></div>' +
+                    '</span></div></div>' +
                     '<div class="set-item-edit" id="set-edit-' + s.id + '">' +
                     '<div class="filter-controls"><div><label>名称</label><input type="text" id="set-edit-name-' + s.id + '" value="' + (s.name||'').replace(/"/g,'&quot;') + '" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius: var(--border-radius);"></div>' +
                     '<div><label>分类</label><select id="set-edit-cat-' + s.id + '" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius: var(--border-radius);">' + catOpts + '</select></div>' +
@@ -1435,10 +1813,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var name = (nameEl && nameEl.value) ? nameEl.value.trim() : '';
             var category = (catEl && catEl.value) ? catEl.value.trim() : '';
             if (!name) { showMsg('setStatus', '名称不能为空', 'error'); return; }
-            store.updateSet(setId, { name: name, category: category });
+            if (!store.updateSet(setId, { name: name, category: category })) { showMsg('setStatus', '套卷名称已存在，不可重复', 'error'); return; }
             store.save();
             fillSetSelects();
             filterSetList();
+            cancelSetEdit(setId);
             showMsg('setStatus', '套卷已更新', 'success');
         }
         function deleteSet(setId) {
@@ -1454,8 +1833,30 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             checkExportState();
             showMsg('setStatus', '套卷已删除', 'success');
         }
+        function toggleSetManage(setId) {
+            var el = document.getElementById('set-manage-btns-' + setId);
+            if (el) el.style.display = el.style.display === 'none' ? 'inline' : 'none';
+        }
         function batchImportToSet(setId) { document.getElementById('batchSetId').value = setId; switchTab('batch'); }
         function singleImportToSet(setId) { document.getElementById('singleSetId').value = setId; switchTab('single'); }
+        function batchPreview() {
+            var text = (document.getElementById('inputText').value || '').trim();
+            var wrap = document.getElementById('batchPreviewWrap');
+            var listEl = document.getElementById('batchPreviewList');
+            var countEl = document.getElementById('batchPreviewCount');
+            if (!text) { showMsg('importStatus', '请先填入题目内容', 'error'); return; }
+            var list = parseBatchText(text);
+            if (!list.length) { showMsg('importStatus', '未解析到有效题目，请检查格式与分类', 'error'); wrap.style.display = 'none'; return; }
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            listEl.innerHTML = list.map(function(q, i) {
+                var optHtml = (q.options || []).map(function(o) { return '<div class="option"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + '</div>'; }).join('');
+                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.category) + ' - ' + esc(q.subcategory) + '</span> <span style="color:#6c757d;">' + (i+1) + '.</span></div><div class="question-content">' + esc(q.content || '') + '</div><div class="options-grid">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block">解析：' + esc(q.explanation) + '</div>' : '') + '</div>';
+            }).join('');
+            if (countEl) countEl.textContent = list.length;
+            wrap.style.display = 'block';
+            renderLaTeXInElement(listEl);
+            showMsg('importStatus', '已解析 ' + list.length + ' 题，公式已渲染；确认无误可点击「导入」', 'success');
+        }
         function batchImport() {
             var setId = document.getElementById('batchSetId').value;
             if (!setId) { showMsg('importStatus', '请先选择或新建套卷', 'error'); return; }
@@ -1472,6 +1873,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             renderTree();
             fillSetSelects();
             document.getElementById('inputText').value = '';
+            document.getElementById('batchPreviewWrap').style.display = 'none';
             showMsg('importStatus', '成功导入 ' + added + ' 题', 'success');
         }
 
@@ -1517,6 +1919,33 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }
             return { text: walk(el).trim(), images: images };
         }
+        var _singlePreviewTimer = null;
+        function updateSinglePreview() {
+            if (_singlePreviewTimer) clearTimeout(_singlePreviewTimer);
+            _singlePreviewTimer = setTimeout(function() {
+                _singlePreviewTimer = null;
+                var wrap = document.getElementById('singlePreview');
+                if (!wrap) return;
+                function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+                var materialData = getEditableContent('singleMaterial');
+                var stemData = getEditableContent('singleStem');
+                var optA = getEditableContent('singleOptA'), optB = getEditableContent('singleOptB'), optC = getEditableContent('singleOptC'), optD = getEditableContent('singleOptD');
+                var materialImgs = (materialData.images || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+                var stemImgs = (stemData.images || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+                var html = '';
+                if (materialData.text || materialImgs) html += '<div style="margin-bottom:12px;"><strong>材料</strong><div>' + esc(materialData.text) + materialImgs + '</div></div>';
+                html += '<div style="margin-bottom:12px;"><strong>题干</strong><div>' + esc(stemData.text) + stemImgs + '</div></div>';
+                ['A','B','C','D'].forEach(function(lbl, i) {
+                    var o = [optA,optB,optC,optD][i];
+                    var imgs = (o.images || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:4px 0;" />'; }).join('');
+                    html += '<div style="margin-bottom:8px;"><strong>选项' + lbl + '</strong> ' + esc(o.text) + imgs + '</div>';
+                });
+                var exp = (document.getElementById('singleExplanation') && document.getElementById('singleExplanation').value) || '';
+                if (exp) html += '<div style="margin-top:12px;"><strong>解析</strong><div>' + esc(exp) + '</div></div>';
+                wrap.innerHTML = html || '<span style="color:#6c757d;">输入题干或选项后此处显示预览</span>';
+                renderLaTeXInElement(wrap);
+            }, 200);
+        }
         function singleSave() {
             var setId = document.getElementById('singleSetId').value;
             if (!setId) { showMsg('singleStatus', '请先选择套卷', 'error'); return; }
@@ -1540,6 +1969,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             showMsg('singleStatus', '题目已保存', 'success');
             document.getElementById('singleExplanation').value = '';
             ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
+            updateSinglePreview();
         }
 
         function updateManageSub() {
@@ -1563,13 +1993,23 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var showAnswer = document.getElementById('manageShowAnswer') && document.getElementById('manageShowAnswer').checked;
             if (!list.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无题目</p></div>'; return; }
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />'; }
             container.innerHTML = list.map(function(q, i) {
-                var optHtml = (q.options || []).map(function(o) { return '<div class="option ' + (showAnswer && o.label === q.answer ? 'correct' : '') + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + '</div>'; }).join('');
-                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.section) + ' - ' + esc(q.subcategory || q.section) + '</span> <span style="color:#6c757d;">' + esc(q.source || q.timeRegion || '') + '</span> <button class="btn" style="padding:4px 10px; background:#f8d7da;" onclick="deleteQuestion(\'' + q.id + '\')"><i class="fas fa-trash"></i></button></div><div class="question-content">' + (i+1) + '. ' + esc(q.content || '(无题干)') + '</div><div class="options-grid">' + optHtml + '</div>' + (showAnswer && q.explanation ? '<div class="answer-block">解析：' + esc(q.explanation) + '</div>' : '') + (showAnswer ? '<div class="answer-block">答案：' + esc(q.answer) + '</div>' : '') + '</div>';
+                var histRate = (q.totalAttempts || 0) > 0 ? (q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)' : '—';
+                var pts = (q.knowledgePoints || []).join('、') || '—';
+                var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+                var stemHtml = esc(q.content || '(无题干)') + (q.stemImages || []).map(imgTag).join('');
+                var optHtml = (q.options || []).map(function(o) {
+                    var optImgs = (o.images || []).map(imgTag).join('');
+                    return '<div class="option ' + (showAnswer && o.label === q.answer ? 'correct' : '') + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + optImgs + '</div>';
+                }).join('');
+                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.section) + ' - ' + esc(q.subcategory || q.section) + '</span> <span style="color:#6c757d;">' + esc(q.source || q.timeRegion || '') + '</span> <span style="font-size:0.9rem;">历史正确率 ' + histRate + '</span> 考点：' + esc(pts) + ' <button class="btn btn-info btn-sm" onclick="showQuestionDetail(\'' + q.id + '\')">题目详情</button> <button class="btn" style="padding:4px 10px; background:#f8d7da;" onclick="deleteQuestion(\'' + q.id + '\')"><i class="fas fa-trash"></i></button></div>' + (materialHtml ? '<div class="question-content" style="margin-bottom:8px;">材料：' + materialHtml + '</div>' : '') + '<div class="question-content">' + (i+1) + '. ' + stemHtml + '</div><div class="options-grid">' + optHtml + '</div>' + (showAnswer && q.explanation ? '<div class="answer-block">解析：' + esc(q.explanation) + '</div>' : '') + (showAnswer ? '<div class="answer-block">答案：' + esc(q.answer) + '</div>' : '') + '</div>';
             }).join('');
+            renderLaTeXInElement(container);
         }
         function deleteQuestion(qid) {
             if (!confirm('确定删除此题？')) return;
+            var setId = store.getQuestion(qid) && store.getQuestion(qid).setId;
             store.removeQuestion(qid);
             store.save();
             renderTree();
@@ -1578,86 +2018,75 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             checkExportState();
         }
 
-        var practiceQuestions = [], practiceIndex = 0, practiceUserSelections = {}, practiceStartTime = 0, practiceMode = 'practice', practiceAnswerRevealed = {}, practiceTimerInterval = null;
+        var practiceQuestions = [], practiceIndex = 0, practiceUserSelections = {}, practiceStartTime = 0, practiceMode = 'practice', practiceTimerInterval = null;
         function updatePracticeSub() {
-            var section = document.getElementById('practiceSection').value;
-            var sub = document.getElementById('practiceSubcategory');
-            var opts = section ? (SUBCATEGORIES[section] || []) : [];
-            sub.innerHTML = '<option value="">全部</option>' + opts.map(function(s) { return '<option value="' + s + '">' + s + '</option>'; }).join('');
+            var sections = [];
+            document.querySelectorAll('input[name="practiceSection"]:checked').forEach(function(cb) { sections.push(cb.value); });
+            if (sections.length === 0) sections = MAIN_SECTIONS.slice();
+            var subMap = {};
+            sections.forEach(function(sec) { (SUBCATEGORIES[sec] || []).forEach(function(s) { subMap[s] = true; }); });
+            var opts = Object.keys(subMap).sort();
+            var wrap = document.getElementById('practiceSubcategoriesWrap');
+            if (wrap) wrap.innerHTML = opts.length ? opts.map(function(s) { return '<label><input type="checkbox" name="practiceSubcategory" value="' + s.replace(/"/g, '&quot;') + '"> ' + s.replace(/</g, '&lt;') + '</label>'; }).join('') : '<span style="color:#6c757d;">请先选择大类</span>';
+        }
+        function renderPracticePointsCheckboxes() {
+            var wrap = document.getElementById('practicePointsWrap');
+            if (!wrap) return;
+            var points = store.getAllKnowledgePoints();
+            wrap.innerHTML = points.length ? points.map(function(p) { return '<label><input type="checkbox" name="practicePoint" value="' + p.replace(/"/g, '&quot;') + '"> ' + p.replace(/</g, '&lt;') + '</label>'; }).join('') : '<span style="color:#6c757d;">暂无考点，请在题目详情中编辑考点</span>';
         }
         function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-        function setPracticeMode(mode) {
-            practiceMode = mode;
-            var elPractice = document.getElementById('practiceModePractice');
-            var elMemorize = document.getElementById('practiceModeMemorize');
-            var hint = document.getElementById('practiceModeHint');
+        function setSetupPracticeMode(mode) {
+            var elPractice = document.getElementById('setupModePractice');
+            var elMemorize = document.getElementById('setupModeMemorize');
+            var hint = document.getElementById('setupModeHint');
             if (elPractice) elPractice.classList.toggle('active', mode === 'practice');
             if (elMemorize) elMemorize.classList.toggle('active', mode === 'memorize');
-            if (hint) hint.textContent = mode === 'practice' ? '练习模式：做完所有题后提交，再查看答案' : '背题模式：选择答案后立即查看答案，不自动下一题，全部做完后提交查看整体情况';
-            if (practiceQuestions.length) renderPracticeQuestion();
+            if (hint) hint.textContent = mode === 'practice' ? '练习模式：做完所有题后提交，在新页面查看答案与正确率' : '背题模式：选完题后提交，在新页面查看答案与正确率';
         }
         function startPractice() {
             var practiceType = document.getElementById('practiceType').value;
+            var questions = [];
             if (practiceType === 'set') {
                 var setId = document.getElementById('practiceSetId').value;
                 if (!setId) { alert('请选择套卷'); return; }
-                practiceQuestions = store.getQuestionsBySet(setId);
+                questions = store.getQuestionsBySet(setId);
+            } else if (practiceType === 'point') {
+                var selectedPoints = [];
+                document.querySelectorAll('input[name="practicePoint"]:checked').forEach(function(cb) { selectedPoints.push(cb.value); });
+                if (!selectedPoints.length) { alert('请至少选择一个考点'); return; }
+                var count = parseInt(document.getElementById('practicePointCount').value, 10) || 10;
+                questions = store.getRandomQuestionsByKnowledgePoints(selectedPoints, count);
             } else {
-                var section = document.getElementById('practiceSection').value;
-                var sub = (document.getElementById('practiceSubcategory').value || '') || 'all';
+                var sections = [];
+                document.querySelectorAll('input[name="practiceSection"]:checked').forEach(function(cb) { sections.push(cb.value); });
+                if (sections.length === 0) sections = MAIN_SECTIONS.slice();
+                var subs = [];
+                document.querySelectorAll('input[name="practiceSubcategory"]:checked').forEach(function(cb) { subs.push(cb.value); });
                 var count = parseInt(document.getElementById('practiceCount').value, 10) || 10;
-                practiceQuestions = store.getRandomQuestions(section || null, sub, count);
+                questions = store.getRandomQuestionsBySectionsAndSubs(sections, subs.length ? subs : null, count);
             }
-            if (!practiceQuestions.length) { alert('当前没有符合条件的题目'); return; }
-            practiceIndex = 0;
-            practiceUserSelections = {};
-            practiceAnswerRevealed = {};
-            practiceStartTime = Date.now();
-            practiceMode = document.getElementById('practiceModePractice') && document.getElementById('practiceModePractice').classList.contains('active') ? 'practice' : 'memorize';
-            var hint = document.getElementById('practiceModeHint');
-            if (hint) hint.textContent = practiceMode === 'practice' ? '练习模式：可随时提交，提交后查看答案' : '背题模式：选择答案后立即查看答案，可随时提交查看整体情况';
-            document.getElementById('practiceSetup').style.display = 'none';
-            document.getElementById('practiceArea').style.display = 'block';
-            document.getElementById('practiceCard').style.display = 'block';
-            document.getElementById('practiceResultWrap').style.display = 'none';
-            document.getElementById('practiceDoneMsg').style.display = 'none';
-            if (practiceTimerInterval) clearInterval(practiceTimerInterval);
-            if (practiceMode === 'practice') {
-                var timerEl = document.getElementById('practiceTimer');
-                if (timerEl) { timerEl.style.display = ''; timerEl.textContent = '0:00'; }
-                practiceTimerInterval = setInterval(function() {
-                    if (!practiceStartTime || !document.getElementById('practiceTimer')) return;
-                    var sec = Math.floor((Date.now() - practiceStartTime) / 1000);
-                    document.getElementById('practiceTimer').textContent = Math.floor(sec / 60) + ':' + (sec % 60 < 10 ? '0' : '') + (sec % 60);
-                }, 1000);
-            } else {
-                if (document.getElementById('practiceTimer')) document.getElementById('practiceTimer').style.display = 'none';
-            }
-            document.removeEventListener('keydown', window._practiceKeydown);
-            document.addEventListener('keydown', window._practiceKeydown);
-            renderPracticeQuestion();
-            renderPracticeQuestionNav();
+            if (!questions.length) { alert('当前没有符合条件的题目'); return; }
+            var setNames = {};
+            store.sets.forEach(function(s) { setNames[s.id] = s.name || ''; });
+            try {
+                sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames }));
+            } catch (e) { alert('无法保存练习数据，请检查浏览器设置'); return; }
+            window.open('practice.html', '_blank');
         }
         function onPracticeOptionClick(label) {
             var q = practiceQuestions[practiceIndex];
             if (!q) return;
             practiceUserSelections[practiceIndex] = label;
-            if (practiceMode === 'memorize') practiceAnswerRevealed[practiceIndex] = true;
             renderPracticeQuestion();
             var allAnswered = practiceQuestions.every(function(_, i) { return practiceUserSelections[i]; });
             var doneMsg = document.getElementById('practiceDoneMsg');
             if (doneMsg) doneMsg.style.display = allAnswered ? 'block' : 'none';
         }
-        function showPracticeAnswer() {
-            practiceAnswerRevealed[practiceIndex] = true;
-            document.getElementById('practiceAnswer').style.display = 'block';
-            document.getElementById('practiceShowAnswerWrap').style.display = 'none';
-        }
         function renderPracticeQuestion() {
             var q = practiceQuestions[practiceIndex];
             if (!q) return;
             var selected = practiceUserSelections[practiceIndex];
-            var showAnswerBlock = (practiceMode === 'memorize' && practiceAnswerRevealed[practiceIndex]);
             var setName = '';
             var set = store.getSet(q.setId);
             if (set && set.name) setName = set.name;
@@ -1665,26 +2094,19 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (sourceEl) sourceEl.textContent = setName ? '题目出处：' + setName : '';
             var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
             var stemHtml = esc(q.content || '') + (q.stemImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
-            document.getElementById('practiceQuestion').innerHTML = '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || q.timeRegion || '') + '</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div>';
+            var practiceQuestionEl = document.getElementById('practiceQuestion');
+            practiceQuestionEl.innerHTML = '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || q.timeRegion || '') + '</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div>';
+            renderLaTeXInElement(practiceQuestionEl);
             var optWrap = document.getElementById('practiceOptionsWrap');
             var options = q.options || [];
             optWrap.innerHTML = options.map(function(o) {
                 var text = esc(o.text || '');
                 var imgs = (o.images && o.images.length) ? o.images.map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:4px 0;" />'; }).join('') : '';
                 var isSelected = (selected === o.label);
-                var cls = 'option-clickable';
-                if (isSelected) cls += ' selected';
-                if (showAnswerBlock && o.label === q.answer) cls += ' correct';
-                else if (showAnswerBlock && isSelected && o.label !== q.answer) cls += ' wrong';
+                var cls = 'option-clickable' + (isSelected ? ' selected' : '');
                 return '<div class="' + cls + '" data-option="' + o.label + '" onclick="onPracticeOptionClick(\'' + o.label + '\')"><span class="option-label">' + o.label + '.</span> ' + imgs + ' ' + text + (isSelected ? ' <i class="fas fa-check-circle option-check"></i>' : '') + '</div>';
             }).join('');
-            var answerBlock = document.getElementById('practiceAnswer');
-            answerBlock.innerHTML = '<strong>答案：' + q.answer + '</strong>' + (q.explanation ? '<p style="margin-top:8px;">解析：' + esc(q.explanation) + '</p>' : '');
-            answerBlock.style.display = showAnswerBlock ? 'block' : 'none';
-            var showBtnWrap = document.getElementById('practiceShowAnswerWrap');
-            if (practiceMode === 'memorize') {
-                if (showAnswerBlock) { if (showBtnWrap) showBtnWrap.style.display = 'none'; } else { if (showBtnWrap) showBtnWrap.style.display = 'block'; }
-            } else { if (showBtnWrap) showBtnWrap.style.display = 'none'; }
+            renderLaTeXInElement(optWrap);
             document.getElementById('practiceProgress').textContent = (practiceIndex + 1) + ' / ' + practiceQuestions.length;
             document.getElementById('btnPrev').disabled = practiceIndex === 0;
             document.getElementById('btnNext').disabled = practiceIndex === practiceQuestions.length - 1;
@@ -1722,6 +2144,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             });
             store.save();
             practiceResultIndex = 0;
+            var total = practiceQuestions.length;
+            var correctCount = practiceQuestions.filter(function(q, i) { var sel = practiceUserSelections[i]; return sel != null && sel === q.answer; }).length;
+            var rateEl = document.getElementById('practiceCorrectRate');
+            if (rateEl) rateEl.textContent = '正确率：' + correctCount + '/' + total + ' (' + (total ? Math.round(100 * correctCount / total) : 0) + '%)';
             document.getElementById('practiceCard').style.display = 'none';
             document.getElementById('practiceQuestionNav').style.display = 'none';
             document.getElementById('practiceResultWrap').style.display = 'block';
@@ -1741,16 +2167,20 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 else if (o.label === sel && !correct) c = 'wrong';
                 return '<div class="option ' + c + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + '</div>';
             }).join('');
-            document.getElementById('practiceResultQuestion').innerHTML =
+            var resultQuestionEl = document.getElementById('practiceResultQuestion');
+            resultQuestionEl.innerHTML =
                 '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || q.timeRegion || '') + '</div>' +
                 (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') +
                 '<div class="question-content">' + stemHtml + '</div>' +
                 '<div class="options-grid" style="margin-top:12px;">' + optHtml + '</div>';
-            document.getElementById('practiceResultAnswer').innerHTML =
+            renderLaTeXInElement(resultQuestionEl);
+            var resultAnswerEl = document.getElementById('practiceResultAnswer');
+            resultAnswerEl.innerHTML =
                 '<div class="' + (correct ? 'correct' : 'wrong') + '" style="padding:12px; border-radius:8px; margin-bottom:12px;">' +
                 '你的答案：' + sel + ' | 正确答案：' + q.answer + (correct ? ' <span style="color:var(--success-color);">✓</span>' : ' <span style="color:#dc3545;">✗</span>') +
                 '</div>' +
                 (q.explanation ? '<p><strong>解析：</strong>' + esc(q.explanation) + '</p>' : '');
+            renderLaTeXInElement(resultAnswerEl);
             document.getElementById('practiceResultProgress').textContent = (practiceResultIndex + 1) + ' / ' + practiceQuestions.length;
             document.getElementById('btnResultPrev').disabled = practiceResultIndex === 0;
             document.getElementById('btnResultNext').disabled = practiceResultIndex === practiceQuestions.length - 1;
@@ -1768,10 +2198,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (!btns) return;
             btns.innerHTML = practiceQuestions.map(function(q, i) {
                 var sel = practiceUserSelections[i];
-                var correct = sel === q.answer;
+                var correct = sel != null && sel === q.answer;
                 var cls = 'nav-btn' + (i === practiceResultIndex ? ' active' : '');
-                if (correct) cls += ' correct'; else cls += ' wrong';
-                return '<button class="' + cls + '" onclick="jumpToResultQuestion(' + i + ')" title="第' + (i+1) + '题 ' + (correct ? '正确' : '错误') + '">' + (i+1) + '</button>';
+                if (sel != null) { if (correct) cls += ' correct'; else cls += ' wrong'; }
+                return '<button class="' + cls + '" onclick="jumpToResultQuestion(' + i + ')" title="第' + (i+1) + '题 ' + (sel != null ? (correct ? '正确' : '错误') : '未作答') + ' - 点击查看解析">' + (i+1) + '</button>';
             }).join('');
         }
         function closePracticeResult() {
@@ -1811,7 +2241,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
             var stemHtml = esc(q.content || '') + (q.stemImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
             var optHtml = (q.options || []).map(function(o) { return '<div style="margin:8px 0;">' + o.label + '. ' + esc(o.text) + '</div>'; }).join('');
-            document.getElementById('draftContent').innerHTML = '<div class="page-question-header">题目出处：' + esc(setName) + '</div><div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || '') + '</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div><div style="margin-top:16px;">' + optHtml + '</div>';
+            var draftContentEl = document.getElementById('draftContent');
+            draftContentEl.innerHTML = '<div class="page-question-header">题目出处：' + esc(setName) + '</div><div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || '') + '</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div><div style="margin-top:16px;">' + optHtml + '</div>';
+            renderLaTeXInElement(draftContentEl);
             document.getElementById('draftOverlay').style.display = 'flex';
             draftPaths = [];
             draftCurrentPath = null;
@@ -1884,6 +2316,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             document.getElementById('exportControls').style.display = total ? 'block' : 'none';
         }
         function exportData() {
+            // 导出含 materialImages、stemImages、options[].images（base64），可与小程序互通
             var data = { sets: store.sets, questions: store.questions, exportTime: new Date().toISOString() };
             var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             var a = document.createElement('a');
@@ -1896,6 +2329,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function importData() {
             var input = document.getElementById('importDataFile');
             if (!input.files || !input.files.length) { showMsg('dataStatus', '请选择要导入的 JSON 文件', 'error'); return; }
+            var mode = (document.querySelector('input[name="importMode"]:checked') || {}).value || 'merge';
             var file = input.files[0];
             var reader = new FileReader();
             reader.onload = function() {
@@ -1903,17 +2337,48 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     var data = JSON.parse(reader.result);
                     var sets = data.sets || [];
                     var questions = data.questions || {};
+                    if (mode === 'overwrite') {
+                        store.sets = [];
+                        store.questions = {};
+                    }
                     var setIds = {};
-                    sets.forEach(function(s) {
-                        var existing = store.sets.find(function(x) { return x.id === s.id; });
-                        if (existing) { setIds[s.id] = s.id; Object.assign(existing, s); } else { store.sets.push(s); setIds[s.id] = s.id; }
-                    });
-                    Object.keys(questions).forEach(function(qid) {
-                        store.questions[qid] = questions[qid];
-                    });
+                    if (mode === 'overwrite') {
+                        sets.forEach(function(s) {
+                            var id = s.id || genId();
+                            setIds[s.id] = id;
+                            store.sets.push({ id: id, name: s.name || '未命名', category: s.category || '', '言语理解': s['言语理解'] || [], '数量关系': s['数量关系'] || [], '判断推理': s['判断推理'] || [], '资料分析': s['资料分析'] || [] });
+                        });
+                        Object.keys(questions).forEach(function(qid) {
+                            var q = questions[qid];
+                            var setId = setIds[q.setId] || q.setId;
+                            if (setId) { q.setId = setId; store.questions[qid] = q; }
+                        });
+                    } else {
+                        sets.forEach(function(s) {
+                            var name = (s.name || '').trim();
+                            var existing = store.sets.find(function(x) { return (x.name || '').trim() === name; });
+                            if (existing) {
+                                setIds[s.id] = existing.id;
+                                MAIN_SECTIONS.forEach(function(sec) {
+                                    var incoming = s[sec] || [];
+                                    incoming.forEach(function(qid) {
+                                        if (questions[qid] && existing[sec].indexOf(qid) === -1) existing[sec].push(qid);
+                                    });
+                                });
+                            } else {
+                                var id = genId();
+                                setIds[s.id] = id;
+                                store.sets.push({ id: id, name: name || '未命名', category: s.category || '', '言语理解': s['言语理解'] || [], '数量关系': s['数量关系'] || [], '判断推理': s['判断推理'] || [], '资料分析': s['资料分析'] || [] });
+                            }
+                        });
+                        Object.keys(questions).forEach(function(qid) {
+                            var q = questions[qid];
+                            if (q && setIds[q.setId]) { q.setId = setIds[q.setId]; q.knowledgePoints = q.knowledgePoints || (q.knowledgePoint ? [q.knowledgePoint] : []); store.questions[qid] = q; }
+                        });
+                    }
                     var cats = getSetCategories();
                     var beforeLen = cats.length;
-                    sets.forEach(function(s) {
+                    store.sets.forEach(function(s) {
                         if (s.category && cats.indexOf(s.category) < 0) cats.push(s.category);
                     });
                     if (cats.length > beforeLen) saveSetCategories(cats);
@@ -1925,8 +2390,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     filterSetList();
                     updateManageSub();
                     updatePracticeSub();
+                    renderPracticePointsCheckboxes();
                     checkExportState();
-                    showMsg('dataStatus', '导入成功，已合并 ' + sets.length + ' 个套卷、' + Object.keys(questions).length + ' 道题目', 'success');
+                    showMsg('dataStatus', (mode === 'overwrite' ? '已覆盖并导入 ' : '已合并 ') + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
                     input.value = '';
                 } catch (e) { showMsg('dataStatus', '导入失败：' + (e && e.message), 'error'); }
             };
@@ -2047,7 +2513,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 var temp = document.getElementById('tempContainer');
                 temp.innerHTML = html;
                 temp.style.visibility = 'visible';
-                if (window.renderMathInElement) try { renderMathInElement(temp, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }] }); } catch (e) {}
+                if (window.renderMathInElement) try { renderMathInElement(temp, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }, { left: '$', right: '$', display: false }], throwOnError: false }); } catch (e) {}
                 setTimeout(function() {
                     html2canvas(temp, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#fff', logging: false, width: 794, height: 1123 }).then(function(canvas) {
                         temp.innerHTML = '';
@@ -2147,12 +2613,28 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             renderCategoryList();
             fillSetSelects();
             renderSetList();
+            if (location.hash === '#single') {
+                var addToSetId = (function() { var m = /[?&]addToSetId=([^&]+)/.exec(location.search); return m ? decodeURIComponent(m[1]) : null; })();
+                if (!addToSetId) { try { addToSetId = sessionStorage.getItem('xingce_add_to_set_id'); } catch (e) {} }
+                if (addToSetId) {
+                    document.getElementById('singleSetId').value = addToSetId;
+                    try { sessionStorage.removeItem('xingce_add_to_set_id'); } catch (e) {}
+                }
+                switchTab('single');
+            }
             updateSingleSub();
             document.getElementById('singleSection').addEventListener('change', updateSingleSub);
             bindEditablePaste();
+            ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) { el.addEventListener('input', updateSinglePreview); el.addEventListener('paste', function() { setTimeout(updateSinglePreview, 100); }); }
+            });
+            var expEl = document.getElementById('singleExplanation');
+            if (expEl) expEl.addEventListener('input', updateSinglePreview);
             updateManageSub();
             updatePracticeSub();
-            document.getElementById('practiceSection').addEventListener('change', updatePracticeSub);
+            var practiceSectionsWrap = document.getElementById('practiceSectionsWrap');
+            if (practiceSectionsWrap) practiceSectionsWrap.addEventListener('change', function(e) { if (e.target.name === 'practiceSection') updatePracticeSub(); });
             checkExportState();
         });
     </script>

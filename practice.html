@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刷题</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-color: #4a6baf;
+            --success-color: #28a745;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: #fff; border-radius: var(--border-radius); box-shadow: var(--box-shadow); padding: 24px; margin-bottom: 20px; }
+        .btn { padding: 12px 24px; border: none; border-radius: var(--border-radius); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--primary-color); color: #fff; }
+        .btn-success { background: var(--success-color); color: #fff; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .question-content { line-height: 1.7; margin: 12px 0; }
+        .page-question-header { font-size: 0.95rem; color: var(--primary-color); margin-bottom: 8px; }
+        .option-clickable { cursor: pointer; padding: 12px 14px; border-radius: var(--border-radius); border: 2px solid transparent; margin-bottom: 8px; transition: background 0.2s, border-color 0.2s; }
+        .option-clickable:hover { background: #f5f5f5; }
+        .option-clickable.selected { background: #E6F7FF; border-color: #1890FF; }
+        .option-clickable .option-check { float: right; display: none; }
+        .option-clickable.selected .option-check { display: inline; }
+        .practice-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid #eaeaea; flex-wrap: wrap; gap: 10px; }
+        .practice-done-msg { text-align: center; padding: 24px; color: var(--success-color); font-weight: bold; }
+        .practice-question-nav { margin-top: 16px; padding: 12px; background: #f8f9fa; border-radius: var(--border-radius); }
+        .nav-btn { min-width: 36px; height: 36px; padding: 0 8px; border: 1px solid #dee2e6; border-radius: 6px; background: #fff; cursor: pointer; font-size: 0.9rem; }
+        .nav-btn.answered { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .nav-btn.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+        .nav-btn.correct { border-color: var(--success-color); background: #d4edda; }
+        .nav-btn.wrong { border-color: #dc3545; background: #f8d7da; }
+        .answer-block { margin-top: 16px; padding: 14px; background: #f0f5ff; border-radius: var(--border-radius); border-left: 4px solid var(--primary-color); }
+        .option.correct { background: #d4edda; border-left: 4px solid var(--success-color); }
+        .option.wrong { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .options-grid { display: grid; gap: 8px; }
+        .option { padding: 12px; border-radius: var(--border-radius); background: #f8f9fa; border-left: 4px solid #ddd; }
+        .option-label { font-weight: bold; margin-right: 8px; color: var(--primary-color); }
+        .empty-state { text-align: center; padding: 48px 24px; color: #6c757d; }
+        .empty-state a { color: var(--primary-color); }
+        .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="noData" class="card empty-state" style="display:none;">
+            <p>无练习数据，请从<strong>主页</strong>点击「开始」后再进入本页。</p>
+            <p style="margin-top:12px;"><a href="输出为pdf.html">返回主页</a></p>
+        </div>
+        <div id="practiceWrap" style="display:none;">
+            <div class="card" id="practiceCard">
+                <div id="practiceQuestionSource" style="text-align:center; margin-bottom:12px; color:var(--primary-color); font-weight:500;"></div>
+                <div id="practiceQuestion"></div>
+                <div id="practiceOptionsWrap"></div>
+                <div id="practiceDoneMsg" class="practice-done-msg" style="display:none;">已答完，可点击「提交」查看结果</div>
+                <div class="practice-nav">
+                    <button class="btn" id="btnPrev" onclick="prevQuestion()">上一题</button>
+                    <span id="practiceProgress">1/10</span>
+                    <button class="btn" id="btnNext" onclick="nextQuestion()">下一题</button>
+                </div>
+                <div style="margin-top:16px;">
+                    <button class="btn btn-success" id="btnSubmit" onclick="submitPractice()">提交并查看结果</button>
+                </div>
+            </div>
+            <div id="practiceQuestionNav" class="practice-question-nav" style="display:none;">
+                <div style="margin-bottom:8px; font-weight:500; color:#6c757d;">题号导航</div>
+                <div id="practiceQuestionNavBtns" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+            </div>
+            <div id="practiceResultWrap" style="display:none;" class="card">
+                <div id="practiceResultSummary" style="margin-bottom:16px; padding:16px; background:linear-gradient(135deg,#f0f5ff,#e8f4fd); border-radius:var(--border-radius);">
+                    <h3 style="margin-bottom:8px; color:var(--primary-color);">答题结果</h3>
+                    <p id="practiceCorrectRate" style="font-size:1.1rem; font-weight:600;">正确率：0/0 (0%)</p>
+                    <p style="font-size:0.9rem; color:#6c757d; margin-top:4px;">点击下方题号查看解析，<span style="color:var(--success-color);">绿</span>正确 <span style="color:#dc3545;">红</span>错误</p>
+                </div>
+                <div style="margin-bottom:8px; font-weight:500; color:#6c757d;">题号导航（点击查看解析）</div>
+                <div id="practiceResultNavBtns" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;"></div>
+                <div id="practiceResultQuestion"></div>
+                <div id="practiceResultAnswer" class="answer-block" style="margin-top:16px;"></div>
+                <div class="practice-nav" style="margin-top:16px;">
+                    <button class="btn" id="btnResultPrev" onclick="prevResultQuestion()">上一题</button>
+                    <span id="practiceResultProgress">1/10</span>
+                    <button class="btn" id="btnResultNext" onclick="nextResultQuestion()">下一题</button>
+                </div>
+                <button class="btn" style="background:#eaeaea; margin-top:16px;" onclick="goBack()">返回主页</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        var practiceQuestions = [], practiceIndex = 0, practiceUserSelections = {}, practiceResultIndex = 0;
+        var setNames = {};
+        var questionStartTime = null, questionTimes = {};
+
+        function loadStore() {
+            try {
+                var s = localStorage.getItem('xingce_sets');
+                var q = localStorage.getItem('xingce_questions');
+                return { sets: s ? JSON.parse(s) : [], questions: q ? JSON.parse(q) : {} };
+            } catch (e) { return { sets: [], questions: {} }; }
+        }
+        function saveStore(data) {
+            try {
+                localStorage.setItem('xingce_sets', JSON.stringify(data.sets));
+                localStorage.setItem('xingce_questions', JSON.stringify(data.questions));
+            } catch (e) {}
+        }
+        function getSet(setId) {
+            var data = loadStore();
+            return data.sets.filter(function(s) { return s.id === setId; })[0] || null;
+        }
+        function recordAnswer(qid, selected, correct) {
+            var data = loadStore();
+            var q = data.questions[qid];
+            if (!q) return;
+            q.totalAttempts = (q.totalAttempts || 0) + 1;
+            q.correctCount = (q.correctCount || 0) + (correct ? 1 : 0);
+            q.done = true;
+            data.questions[qid] = q;
+            saveStore(data);
+        }
+
+        function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function renderLaTeXInElement(el) {
+            if (!el || !window.renderMathInElement) return;
+            try {
+                renderMathInElement(el, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '\\(', right: '\\)', display: false },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            } catch (e) {}
+        }
+
+        function recordCurrentQuestionTime() {
+            if (questionStartTime != null && practiceQuestions[practiceIndex]) {
+                questionTimes[practiceIndex] = (questionTimes[practiceIndex] || 0) + (Date.now() - questionStartTime);
+                questionStartTime = null;
+            }
+        }
+        function renderPracticeQuestion() {
+            recordCurrentQuestionTime();
+            var q = practiceQuestions[practiceIndex];
+            if (!q) return;
+            questionStartTime = Date.now();
+            var selected = practiceUserSelections[practiceIndex];
+            var setName = setNames[q.setId] || '';
+            document.getElementById('practiceQuestionSource').textContent = setName ? '题目出处：' + setName : '';
+            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+            var practiceQuestionEl = document.getElementById('practiceQuestion');
+            practiceQuestionEl.innerHTML = '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || q.timeRegion || '') + '</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div>';
+            renderLaTeXInElement(practiceQuestionEl);
+            var optWrap = document.getElementById('practiceOptionsWrap');
+            var options = q.options || [];
+            optWrap.innerHTML = options.map(function(o) {
+                var text = esc(o.text || '');
+                var imgs = (o.images && o.images.length) ? o.images.map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:4px 0;" />'; }).join('') : '';
+                var isSelected = (selected === o.label);
+                var cls = 'option-clickable' + (isSelected ? ' selected' : '');
+                return '<div class="' + cls + '" data-option="' + esc(o.label) + '" onclick="onPracticeOptionClick(\'' + String(o.label).replace(/'/g, "&#39;") + '\')"><span class="option-label">' + o.label + '.</span> ' + imgs + ' ' + text + (isSelected ? ' <span class="option-check">✓</span>' : '') + '</div>';
+            }).join('');
+            renderLaTeXInElement(optWrap);
+            document.getElementById('practiceProgress').textContent = (practiceIndex + 1) + ' / ' + practiceQuestions.length;
+            document.getElementById('btnPrev').disabled = practiceIndex === 0;
+            document.getElementById('btnNext').disabled = practiceIndex === practiceQuestions.length - 1;
+            var allAnswered = practiceQuestions.every(function(_, i) { return practiceUserSelections[i]; });
+            document.getElementById('practiceDoneMsg').style.display = allAnswered ? 'block' : 'none';
+            renderPracticeQuestionNav();
+        }
+        function onPracticeOptionClick(label) {
+            var q = practiceQuestions[practiceIndex];
+            if (!q) return;
+            practiceUserSelections[practiceIndex] = label;
+            renderPracticeQuestion();
+        }
+        function prevQuestion() { if (practiceIndex > 0) { practiceIndex--; renderPracticeQuestion(); } }
+        function nextQuestion() { if (practiceIndex < practiceQuestions.length - 1) { practiceIndex++; renderPracticeQuestion(); } }
+        function jumpToQuestion(idx) {
+            if (idx < 0 || idx >= practiceQuestions.length) return;
+            practiceIndex = idx;
+            renderPracticeQuestion();
+        }
+        function getHistory() { try { var h = localStorage.getItem('xingce_history'); return h ? JSON.parse(h) : []; } catch (e) { return []; } }
+        function saveHistoryEntry(entry) {
+            var list = getHistory();
+            entry.id = 'hist_' + Date.now();
+            list.push(entry);
+            try { localStorage.setItem('xingce_history', JSON.stringify(list)); } catch (e) {} 
+        }
+        function getQuestionFromStore(qid) {
+            var data = loadStore();
+            return data.questions[qid] || null;
+        }
+        function updateQuestionPoints(qid, pointsArr) {
+            var data = loadStore();
+            if (data.questions[qid]) {
+                data.questions[qid].knowledgePoints = pointsArr;
+                saveStore(data);
+            }
+        }
+        function renderPracticeQuestionNav() {
+            var wrap = document.getElementById('practiceQuestionNav');
+            var btns = document.getElementById('practiceQuestionNavBtns');
+            if (!wrap || !btns || !practiceQuestions.length) return;
+            wrap.style.display = 'block';
+            btns.innerHTML = practiceQuestions.map(function(_, i) {
+                var ans = practiceUserSelections[i];
+                var cls = 'nav-btn' + (i === practiceIndex ? ' active' : '') + (ans ? ' answered' : '');
+                return '<button class="' + cls + '" type="button" onclick="jumpToQuestion(' + i + ')">' + (i + 1) + '</button>';
+            }).join('');
+        }
+        function submitPractice() {
+            recordCurrentQuestionTime();
+            var total = practiceQuestions.length;
+            var correctCount = 0;
+            var bySubcategory = {};
+            var questionResults = [];
+            practiceQuestions.forEach(function(q, i) {
+                var sel = practiceUserSelections[i];
+                var correct = sel != null ? (sel === q.answer) : null;
+                if (sel != null) {
+                    recordAnswer(q.id, sel, correct);
+                    if (correct) correctCount++;
+                    var sub = q.subcategory || q.section || '';
+                    if (sub) { bySubcategory[sub] = bySubcategory[sub] || { correct: 0, total: 0 }; bySubcategory[sub].total++; if (correct) bySubcategory[sub].correct++; }
+                }
+                questionResults.push({ qid: q.id, correct: correct, timeSpent: questionTimes[i] || 0 });
+            });
+            var totalTime = 0;
+            for (var k in questionTimes) totalTime += questionTimes[k] || 0;
+            saveHistoryEntry({ date: new Date().toISOString(), totalTime: totalTime, correctCount: correctCount, total: total, bySubcategory: bySubcategory, questionResults: questionResults });
+            var totalMin = Math.floor(totalTime / 60000), totalSec = Math.floor((totalTime % 60000) / 1000);
+            var timeStr = totalMin + '分' + totalSec + '秒';
+            var subRateHtml = Object.keys(bySubcategory).map(function(k) { var v = bySubcategory[k]; return k + ' ' + (v.correct||0) + '/' + (v.total||0) + ' (' + (v.total ? Math.round(100 * (v.correct||0) / v.total) : 0) + '%)'; }).join('； ');
+            document.getElementById('practiceCorrectRate').innerHTML = '正确率：' + correctCount + '/' + total + ' (' + (total ? Math.round(100 * correctCount / total) : 0) + '%)';
+            var summaryEl = document.getElementById('practiceResultSummary');
+            var extra = summaryEl.querySelector('.result-extra') || document.createElement('div');
+            extra.className = 'result-extra';
+            extra.style.marginTop = '8px';
+            extra.innerHTML = '<p>总用时：' + timeStr + '</p><p style="font-size:0.9rem; color:#6c757d;">小分类正确率：' + (subRateHtml || '—') + '</p>';
+            if (!summaryEl.querySelector('.result-extra')) summaryEl.appendChild(extra);
+            document.getElementById('practiceCard').style.display = 'none';
+            document.getElementById('practiceQuestionNav').style.display = 'none';
+            document.getElementById('practiceResultWrap').style.display = 'block';
+            practiceResultIndex = 0;
+            renderResultQuestion();
+            renderResultNav();
+        }
+        function renderResultQuestion() {
+            var q = practiceQuestions[practiceResultIndex];
+            if (!q) return;
+            var sel = practiceUserSelections[practiceResultIndex] || '—';
+            var correct = sel === q.answer;
+            var timeSpent = questionTimes[practiceResultIndex] || 0;
+            var timeStr = timeSpent >= 1000 ? (Math.floor(timeSpent / 1000) + '秒') : (timeSpent + '毫秒');
+            var storeQ = getQuestionFromStore(q.id);
+            var histRate = storeQ && (storeQ.totalAttempts || 0) > 0 ? ((storeQ.correctCount || 0) + '/' + storeQ.totalAttempts + ' (' + Math.round(100 * (storeQ.correctCount || 0) / storeQ.totalAttempts) + '%)') : '—';
+            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+            var optHtml = (q.options || []).map(function(o) {
+                var c = (o.label === q.answer) ? 'correct' : (o.label === sel && !correct ? 'wrong' : '');
+                return '<div class="option ' + c + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + (o.images || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:4px 0;" />'; }).join('') + '</div>';
+            }).join('');
+            var resultQuestionEl = document.getElementById('practiceResultQuestion');
+            resultQuestionEl.innerHTML = '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || q.timeRegion || '') + '</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div><div class="options-grid" style="margin-top:12px;">' + optHtml + '</div>';
+            renderLaTeXInElement(resultQuestionEl);
+            var resultAnswerEl = document.getElementById('practiceResultAnswer');
+            var pts = (q.knowledgePoints || []).join('、') || '—';
+            resultAnswerEl.innerHTML = '<div style="padding:12px; border-radius:8px; margin-bottom:12px; background:' + (correct ? '#d4edda' : '#f8d7da') + ';">你的答案：' + sel + ' | 正确答案：' + q.answer + (correct ? ' ✓' : ' ✗') + ' &nbsp;|&nbsp; 作答本题时长：' + timeStr + ' &nbsp;|&nbsp; 历史正确率：' + histRate + '</div><p style="margin-top:8px;">考点：' + (pts === '—' ? '—' : pts) + ' <button type="button" class="btn btn-info btn-sm" onclick="editPointsInResult(\'' + q.id + '\')">编辑考点</button></p>' + (q.explanation ? '<p><strong>解析：</strong>' + esc(q.explanation) + '</p>' : '');
+            renderLaTeXInElement(resultAnswerEl);
+            document.getElementById('practiceResultProgress').textContent = (practiceResultIndex + 1) + ' / ' + practiceQuestions.length;
+            document.getElementById('btnResultPrev').disabled = practiceResultIndex === 0;
+            document.getElementById('btnResultNext').disabled = practiceResultIndex === practiceQuestions.length - 1;
+        }
+        function prevResultQuestion() { if (practiceResultIndex > 0) { practiceResultIndex--; renderResultQuestion(); } }
+        function nextResultQuestion() { if (practiceResultIndex < practiceQuestions.length - 1) { practiceResultIndex++; renderResultQuestion(); } }
+        function jumpToResultQuestion(idx) {
+            if (idx < 0 || idx >= practiceQuestions.length) return;
+            practiceResultIndex = idx;
+            renderResultQuestion();
+        }
+        function renderResultNav() {
+            var btns = document.getElementById('practiceResultNavBtns');
+            if (!btns) return;
+            btns.innerHTML = practiceQuestions.map(function(q, i) {
+                var sel = practiceUserSelections[i];
+                var correct = sel != null && sel === q.answer;
+                var cls = 'nav-btn' + (i === practiceResultIndex ? ' active' : '');
+                if (sel != null) { if (correct) cls += ' correct'; else cls += ' wrong'; }
+                return '<button class="' + cls + '" type="button" onclick="jumpToResultQuestion(' + i + ')">' + (i + 1) + '</button>';
+            }).join('');
+        }
+        function editPointsInResult(qid) {
+            var q = practiceQuestions[practiceResultIndex];
+            if (!q || q.id !== qid) return;
+            var current = (q.knowledgePoints || []).join('，');
+            var raw = prompt('输入考点，多个用逗号分隔：', current);
+            if (raw == null) return;
+            var arr = (raw || '').split(/[,，]/).map(function(s) { return s.trim(); }).filter(Boolean);
+            updateQuestionPoints(qid, arr);
+            q.knowledgePoints = arr;
+            renderResultQuestion();
+        }
+        function goBack() {
+            if (!confirm('确定返回主页？')) return;
+            try { if (window.opener) window.close(); else window.location.href = '输出为pdf.html'; } catch (e) { window.location.href = '输出为pdf.html'; }
+        }
+
+        window.onload = function() {
+            try {
+                var raw = sessionStorage.getItem('xingce_practice_session');
+                if (!raw) { document.getElementById('noData').style.display = 'block'; return; }
+                var session = JSON.parse(raw);
+                practiceQuestions = session.questions || [];
+                setNames = session.setNames || {};
+            } catch (e) { practiceQuestions = []; setNames = {}; }
+            if (!practiceQuestions.length) { document.getElementById('noData').style.display = 'block'; return; }
+            document.getElementById('practiceWrap').style.display = 'block';
+            renderPracticeQuestion();
+            renderPracticeQuestionNav();
+        };
+    </script>
+</body>
+</html>
