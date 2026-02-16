@@ -1029,6 +1029,15 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     <div class="card">
                         <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-database"></i> 数据导出 / 导入</h2>
                         <p style="margin-bottom: 16px; color: #6c757d;">导出数据可备份或迁移；<strong>导出包含 LaTeX、图片（base64）、考点</strong>。导入默认<strong>合并</strong>（套卷名称相同视为同一套卷直接覆盖，不删除原有数据）；可选<strong>覆盖</strong>（清空后导入）。</p>
+                        <div class="control-group" style="margin-bottom: 12px;">
+                            <label>导出范围：</label>
+                            <label style="margin-right:16px;"><input type="radio" name="exportScope" value="all" checked onchange="toggleExportSetList()"> 全部套卷</label>
+                            <label><input type="radio" name="exportScope" value="selected" onchange="toggleExportSetList()"> 选择套卷</label>
+                        </div>
+                        <div id="exportSetListWrap" style="display:none; margin-bottom: 16px; padding: 12px; background: #f8f9fa; border-radius: var(--border-radius); max-height: 200px; overflow-y: auto;">
+                            <div style="margin-bottom: 8px;"><button type="button" class="btn btn-sm" style="background:#eaeaea;" onclick="exportSelectAllSets(true)">全选</button> <button type="button" class="btn btn-sm" style="background:#eaeaea;" onclick="exportSelectAllSets(false)">取消全选</button></div>
+                            <div id="exportSetList" style="display:flex; flex-wrap: wrap; gap: 8px;"></div>
+                        </div>
                         <div class="control-group" style="margin-bottom: 20px;">
                             <button class="btn btn-success" onclick="exportData()"><i class="fas fa-download"></i> 导出数据</button>
                             <span style="margin-left: 12px; color: #6c757d;">下载 JSON，含套卷、题目、考点</span>
@@ -1370,7 +1379,28 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (tabName === 'wrong') { renderWrongList(); }
             if (tabName === 'points') { renderPointsList(); }
             if (tabName === 'export') { checkExportState(); onExportScopeChange(); }
-            if (tabName === 'data') { document.getElementById('importDataFile').value = ''; document.getElementById('dataStatus').style.display = 'none'; }
+            if (tabName === 'data') {
+                document.getElementById('importDataFile').value = '';
+                document.getElementById('dataStatus').style.display = 'none';
+                renderExportSetList();
+                toggleExportSetList();
+            }
+        }
+        function toggleExportSetList() {
+            var scope = (document.querySelector('input[name="exportScope"]:checked') || {}).value || 'all';
+            document.getElementById('exportSetListWrap').style.display = scope === 'selected' ? 'block' : 'none';
+        }
+        function renderExportSetList() {
+            var container = document.getElementById('exportSetList');
+            if (!container) return;
+            if (!store.sets.length) { container.innerHTML = '<span style="color:#6c757d;">暂无套卷</span>'; return; }
+            container.innerHTML = store.sets.map(function(s) {
+                var n = (s.name || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+                return '<label style="display:inline-flex; align-items:center; gap:4px; cursor:pointer;"><input type="checkbox" name="exportSetId" value="' + s.id + '"> ' + n + '</label>';
+            }).join('');
+        }
+        function exportSelectAllSets(checked) {
+            document.querySelectorAll('input[name="exportSetId"]').forEach(function(cb) { cb.checked = checked; });
         }
         var detailQid = null;
         function showQuestionDetail(qid) {
@@ -2222,15 +2252,34 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             document.getElementById('exportControls').style.display = total ? 'block' : 'none';
         }
         function exportData() {
-            // 导出含 materialImages、stemImages、options[].images（base64），可与小程序互通
-            var data = { sets: store.sets, questions: store.questions, exportTime: new Date().toISOString() };
+            var scope = (document.querySelector('input[name="exportScope"]:checked') || {}).value || 'all';
+            var setsToExport = store.sets;
+            var questionIdsToExport = {};
+            if (scope === 'selected') {
+                var selectedIds = [];
+                document.querySelectorAll('input[name="exportSetId"]:checked').forEach(function(cb) { selectedIds.push(cb.value); });
+                if (!selectedIds.length) { showMsg('dataStatus', '请至少勾选一个套卷', 'error'); return; }
+                setsToExport = store.sets.filter(function(s) { return selectedIds.indexOf(s.id) !== -1; });
+                setsToExport.forEach(function(s) {
+                    MAIN_SECTIONS.forEach(function(sec) {
+                        (s[sec] || []).forEach(function(qid) { questionIdsToExport[qid] = true; });
+                    });
+                });
+            }
+            var questionsExport = {};
+            if (scope === 'all') {
+                questionsExport = store.questions;
+            } else {
+                for (var qid in questionIdsToExport) { if (store.questions[qid]) questionsExport[qid] = store.questions[qid]; }
+            }
+            var data = { sets: setsToExport, questions: questionsExport, exportTime: new Date().toISOString() };
             var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             var a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'xingce_data_' + new Date().toISOString().slice(0, 10) + '.json';
             a.click();
             URL.revokeObjectURL(a.href);
-            showMsg('dataStatus', '已导出数据', 'success');
+            showMsg('dataStatus', '已导出 ' + setsToExport.length + ' 个套卷', 'success');
         }
         function importData() {
             var input = document.getElementById('importDataFile');
