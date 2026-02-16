@@ -633,10 +633,6 @@
         .practice-result-wrap .nav-btn.active.correct, .practice-result-wrap .nav-btn.active.wrong { color:#333; }
         .practice-result-view { display:none; }
         .practice-result-view.active { display:block; }
-        .draft-overlay { position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 9999; background: #f5f5f5; display: flex; flex-direction: column; }
-        .draft-layer-content { flex: 1; overflow: auto; padding: 24px; background: #fff; }
-        .draft-layer-canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: auto; z-index: 2; }
-        .draft-toolbar { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px 20px; background: rgba(255,255,255,0.95); border-top: 1px solid #eaeaea; z-index: 3; display: flex; gap: 10px; }
         .btn-sm { padding: 8px 16px; font-size: 0.9rem; }
 
         @media (max-width: 768px) {
@@ -922,18 +918,6 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <div style="margin-top:12px;"><label>答案</label><select id="editAnswer" style="padding:8px; margin-top:4px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
                         <div style="margin-top:12px;"><label>解析</label><textarea id="editExplanation" rows="3" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></textarea></div>
                         <div style="margin-top:16px;"><button class="btn btn-success" onclick="saveEditQuestion()">保存</button> <button class="btn btn-default" onclick="closeEditQuestion()">取消</button></div>
-                    </div>
-                </div>
-
-                <!-- 草稿页浮层：底层题目 + 上层透明画布 -->
-                <div id="draftOverlay" class="draft-overlay" style="display:none;">
-                    <div class="draft-layer-content" id="draftContent"></div>
-                    <canvas id="draftCanvas" class="draft-layer-canvas"></canvas>
-                    <div class="draft-toolbar">
-                        <button class="btn btn-default btn-sm" onclick="draftClear()">清空</button>
-                        <button class="btn btn-default btn-sm" onclick="draftUndo()">撤销</button>
-                        <button class="btn btn-info btn-sm" onclick="draftSaveImage()">保存图片</button>
-                        <button class="btn btn-primary btn-sm" onclick="closeDraftOverlay()">关闭</button>
                     </div>
                 </div>
 
@@ -1544,7 +1528,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var questions = ids.slice(0, 50).map(function(qid) { return store.getQuestion(qid); }).filter(Boolean);
             for (var i = questions.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = questions[i]; questions[i] = questions[j]; questions[j] = t; }
             var setNames = {}; store.sets.forEach(function(s) { setNames[s.id] = s.name || ''; });
-            try { sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames })); } catch (e) { alert('无法保存'); return; }
+            try { sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames, practiceMode: practiceMode })); } catch (e) { alert('无法保存'); return; }
             window.open('practice.html', '_blank');
         }
         function renderPointsList() {
@@ -1573,7 +1557,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var questions = store.getRandomQuestionsByKnowledgePoints([kp], 20);
             if (!questions.length) { alert('该考点下暂无题目'); return; }
             var setNames = {}; store.sets.forEach(function(s) { setNames[s.id] = s.name || ''; });
-            try { sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames })); } catch (e) { alert('无法保存'); return; }
+            try { sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames, practiceMode: practiceMode })); } catch (e) { alert('无法保存'); return; }
             window.open('practice.html', '_blank');
         }
         function clearAllCache() {
@@ -2070,7 +2054,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var setNames = {};
             store.sets.forEach(function(s) { setNames[s.id] = s.name || ''; });
             try {
-                sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames }));
+                sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames, practiceMode: practiceMode }));
             } catch (e) { alert('无法保存练习数据，请检查浏览器设置'); return; }
             window.open('practice.html', '_blank');
         }
@@ -2231,84 +2215,6 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 if (e.key === 'ArrowRight') { e.preventDefault(); nextQuestion(); }
             }
         };
-
-        var draftPaths = [], draftCurrentPath = null, draftCtx = null, draftCanvas = null;
-        function openDraftOverlay() {
-            var q = practiceQuestions[practiceIndex];
-            if (!q) return;
-            var set = store.getSet(q.setId);
-            var setName = (set && set.name) ? set.name : '';
-            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
-            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
-            var optHtml = (q.options || []).map(function(o) { return '<div style="margin:8px 0;">' + o.label + '. ' + esc(o.text) + '</div>'; }).join('');
-            var draftContentEl = document.getElementById('draftContent');
-            draftContentEl.innerHTML = '<div class="page-question-header">题目出处：' + esc(setName) + '</div><div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || '') + '</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div><div style="margin-top:16px;">' + optHtml + '</div>';
-            renderLaTeXInElement(draftContentEl);
-            document.getElementById('draftOverlay').style.display = 'flex';
-            draftPaths = [];
-            draftCurrentPath = null;
-            draftCanvas = document.getElementById('draftCanvas');
-            var rect = draftCanvas.parentElement.getBoundingClientRect();
-            draftCanvas.width = rect.width;
-            draftCanvas.height = rect.height;
-            draftCanvas.style.width = rect.width + 'px';
-            draftCanvas.style.height = rect.height + 'px';
-            draftCtx = draftCanvas.getContext('2d');
-            draftCtx.lineCap = 'round';
-            draftCtx.lineJoin = 'round';
-            draftCtx.strokeStyle = '#000';
-            draftCtx.lineWidth = 3;
-            draftCanvas.onmousedown = draftMouseDown;
-            draftCanvas.onmousemove = draftMouseMove;
-            draftCanvas.onmouseup = draftMouseUp;
-            draftCanvas.onmouseleave = draftMouseUp;
-            draftCanvas.ontouchstart = function(e) { e.preventDefault(); var t = e.touches[0]; draftMouseDown({ clientX: t.clientX, clientY: t.clientY }); };
-            draftCanvas.ontouchmove = function(e) { e.preventDefault(); var t = e.touches[0]; draftMouseMove({ clientX: t.clientX, clientY: t.clientY }); };
-            draftCanvas.ontouchend = draftMouseUp;
-        }
-        function getDraftXY(e) {
-            var r = draftCanvas.getBoundingClientRect();
-            return { x: e.clientX - r.left, y: e.clientY - r.top };
-        }
-        function draftMouseDown(e) {
-            var xy = getDraftXY(e);
-            draftCurrentPath = { points: [xy], color: draftCtx.strokeStyle, width: draftCtx.lineWidth };
-            draftCtx.beginPath();
-            draftCtx.moveTo(xy.x, xy.y);
-        }
-        function draftMouseMove(e) {
-            if (!draftCurrentPath) return;
-            var xy = getDraftXY(e);
-            draftCurrentPath.points.push(xy);
-            draftCtx.lineTo(xy.x, xy.y);
-            draftCtx.stroke();
-        }
-        function draftMouseUp() {
-            if (draftCurrentPath) { draftPaths.push(draftCurrentPath); draftCurrentPath = null; }
-        }
-        function draftRedraw() {
-            if (!draftCtx || !draftCanvas) return;
-            draftCtx.clearRect(0, 0, draftCanvas.width, draftCanvas.height);
-            draftPaths.forEach(function(p) {
-                draftCtx.strokeStyle = p.color;
-                draftCtx.lineWidth = p.width;
-                draftCtx.beginPath();
-                if (p.points.length) { draftCtx.moveTo(p.points[0].x, p.points[0].y); for (var i = 1; i < p.points.length; i++) draftCtx.lineTo(p.points[i].x, p.points[i].y); draftCtx.stroke(); }
-            });
-        }
-        function draftUndo() { draftPaths.pop(); draftRedraw(); }
-        function draftClear() { draftPaths = []; draftRedraw(); }
-        function closeDraftOverlay() {
-            document.getElementById('draftOverlay').style.display = 'none';
-            draftCanvas.onmousedown = draftCanvas.onmousemove = draftCanvas.onmouseup = draftCanvas.onmouseleave = draftCanvas.ontouchstart = draftCanvas.ontouchmove = draftCanvas.ontouchend = null;
-        }
-        function draftSaveImage() {
-            if (!draftCanvas) return;
-            var link = document.createElement('a');
-            link.download = '草稿.png';
-            link.href = draftCanvas.toDataURL('image/png');
-            link.click();
-        }
 
         function checkExportState() {
             var total = store.getAllQuestionIds().length;
