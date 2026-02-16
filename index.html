@@ -737,7 +737,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
 
 [言语理解-片段阅读](26CG超大杯刷题)
 题号30： 下一道题…</code></p>
-                            <p>言语理解：逻辑填空、中心理解、细节判断、标题填入、语句排序、接语选择、<strong>片段阅读</strong>。判断推理：图形推理、类比推理、加强题型、削弱题型、真假推理、翻译推理、定义判断。</p>
+                            <p>言语理解：逻辑填空、中心理解、细节判断、标题填入、语句排序、接语选择、<strong>片段阅读</strong>。判断推理：类比推理、加强题型、削弱题型、真假推理、翻译推理、定义判断、图形推理。</p>
                         </div>
                         <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="batchSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                         <p style="margin-bottom:12px; color:#6c757d;">每道题必须以 <code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 开头；题干与选项中 <code>$$...$$</code> 或 <code>\( \)</code> 会自动识别为公式。</p>
@@ -772,12 +772,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div><label>小类</label><select id="singleSubcategory" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                             <div style="flex:1;"><label>来源</label><input type="text" id="singleSource" placeholder="如：2025年5月11日重庆A类" style="width:100%; padding:10px; margin-top:5px; border:2px solid #eaeaea; border-radius: var(--border-radius);"></div>
                         </div>
-                        <div style="margin-bottom: 12px;"><label>材料（可粘贴图片）</label><div id="singleMaterial" class="editable-area" contenteditable="true"></div></div>
-                        <div style="margin-bottom: 12px;"><label>题干（可粘贴图片）</label><div id="singleStem" class="editable-area" contenteditable="true"></div></div>
-                        <div style="margin-bottom: 12px;"><label>选项 A</label><div id="singleOptA" class="editable-area" contenteditable="true"></div></div>
-                        <div style="margin-bottom: 12px;"><label>选项 B</label><div id="singleOptB" class="editable-area" contenteditable="true"></div></div>
-                        <div style="margin-bottom: 12px;"><label>选项 C</label><div id="singleOptC" class="editable-area" contenteditable="true"></div></div>
-                        <div style="margin-bottom: 12px;"><label>选项 D</label><div id="singleOptD" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom: 12px;"><label>材料（可粘贴图片，支持LaTeX公式）</label><div id="singleMaterial" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom: 12px;"><label>题干（可粘贴图片，支持LaTeX公式）</label><div id="singleStem" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom: 12px;"><label>选项 A（可粘贴图片，支持LaTeX公式）</label><div id="singleOptA" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom: 12px;"><label>选项 B（可粘贴图片，支持LaTeX公式）</label><div id="singleOptB" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom: 12px;"><label>选项 C（可粘贴图片，支持LaTeX公式）</label><div id="singleOptC" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom: 12px;"><label>选项 D（可粘贴图片，支持LaTeX公式）</label><div id="singleOptD" class="editable-area" contenteditable="true"></div></div>
                         <div class="filter-controls">
                             <div><label>答案</label><select id="singleAnswer" style="width:100%; padding:10px; margin-top:5px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
                             <div style="flex:2;"><label>解析</label><textarea id="singleExplanation" rows="3" style="width:100%; padding:10px; margin-top:5px; border:2px solid #eaeaea; border-radius: var(--border-radius);" placeholder="可选"></textarea></div>
@@ -890,7 +890,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     <div style="max-width:800px; margin:24px auto; background:#fff; border-radius:var(--border-radius); padding:24px; box-shadow:var(--box-shadow);">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                             <h3 style="color:var(--primary-color);">题目详情</h3>
-                            <button class="btn btn-default" onclick="closeQuestionDetail()">关闭</button>
+                            <div>
+                                <button class="btn btn-primary" id="btnEditFromDetail" style="margin-right:8px;">编辑</button>
+                                <button class="btn btn-default" onclick="closeQuestionDetail()">关闭</button>
+                            </div>
                         </div>
                         <div id="questionDetailBody"></div>
                         <div style="margin-top:16px;"><strong>考点：</strong><span id="questionDetailPoints"></span> <button class="btn btn-info btn-sm" onclick="openEditPoints()">编辑考点</button></div>
@@ -910,13 +913,18 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 <div id="questionEditOverlay" style="display:none; position:fixed; left:0; top:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; overflow:auto;">
                     <div style="max-width:700px; margin:24px auto; background:#fff; border-radius:var(--border-radius); padding:24px; box-shadow:var(--box-shadow);">
                         <h3 style="margin-bottom:16px; color:var(--primary-color);">编辑题目</h3>
-                        <div><label>题干</label><textarea id="editQuestionContent" rows="4" style="width:100%; padding:10px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></textarea></div>
-                        <div style="margin-top:12px;"><label>选项 A</label><input type="text" id="editOptA" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
-                        <div style="margin-top:8px;"><label>选项 B</label><input type="text" id="editOptB" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
-                        <div style="margin-top:8px;"><label>选项 C</label><input type="text" id="editOptC" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
-                        <div style="margin-top:8px;"><label>选项 D</label><input type="text" id="editOptD" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></div>
+                        <div style="margin-bottom:12px;"><label>材料（可粘贴图片，支持LaTeX公式）</label><div id="editMaterial" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom:12px;"><label>题干（可粘贴图片，支持LaTeX公式）</label><div id="editQuestionContent" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom:12px;"><label>选项 A（可粘贴图片，支持LaTeX公式）</label><div id="editOptA" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom:12px;"><label>选项 B（可粘贴图片，支持LaTeX公式）</label><div id="editOptB" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom:12px;"><label>选项 C（可粘贴图片，支持LaTeX公式）</label><div id="editOptC" class="editable-area" contenteditable="true"></div></div>
+                        <div style="margin-bottom:12px;"><label>选项 D（可粘贴图片，支持LaTeX公式）</label><div id="editOptD" class="editable-area" contenteditable="true"></div></div>
                         <div style="margin-top:12px;"><label>答案</label><select id="editAnswer" style="padding:8px; margin-top:4px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
                         <div style="margin-top:12px;"><label>解析</label><textarea id="editExplanation" rows="3" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></textarea></div>
+                        <div id="editPreviewWrap" style="margin-top:16px; padding:16px; background:#f8f9fa; border-radius:var(--border-radius); border:1px solid #eaeaea;">
+                            <h4 style="margin-bottom:8px; font-size:0.9rem; color:var(--primary-color);">预览（公式与图片实时渲染）</h4>
+                            <div id="editPreview" class="preview-area" style="min-height:60px; padding:12px; background:#fff; border-radius:var(--border-radius);"></div>
+                        </div>
                         <div style="margin-top:16px;"><button class="btn btn-success" onclick="saveEditQuestion()">保存</button> <button class="btn btn-default" onclick="closeEditQuestion()">取消</button></div>
                     </div>
                 </div>
@@ -1072,8 +1080,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
 
     <script>
         var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析'];
-        var SUBCATEGORIES = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择', '片段阅读'], '数量关系': ['数量关系'], '判断推理': ['图形推理', '类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断'], '资料分析': ['资料分析'] };
-        var PARSER_SUB = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择', '片段阅读'], '数量关系': ['数量关系'], '判断推理': ['图形推理', '类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断'], '资料分析': ['资料分析'] };
+        var SUBCATEGORIES = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择', '片段阅读'], '数量关系': ['数量关系'], '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断', '图形推理'], '资料分析': ['资料分析'] };
+        var PARSER_SUB = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择', '片段阅读'], '数量关系': ['数量关系'], '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断', '图形推理'], '资料分析': ['资料分析'] };
 
         function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9); }
         function ensureSubcategory(category, subcategory) {
@@ -1421,6 +1429,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var pts = (q.knowledgePoints || []).join('、');
             document.getElementById('questionDetailPoints').textContent = pts || '暂无';
             document.getElementById('questionDetailPointsEdit').style.display = 'none';
+            document.getElementById('btnEditFromDetail').onclick = function() {
+                openEditQuestion(qid);
+            };
             document.getElementById('questionDetailOverlay').style.display = 'block';
         }
         function closeQuestionDetail() { document.getElementById('questionDetailOverlay').style.display = 'none'; detailQid = null; }
@@ -1475,29 +1486,98 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (q) { q.explanation = (q.explanation ? q.explanation + '\n\n【AI解析】\n' : '') + text; store.save(); showQuestionDetail(detailQid); document.getElementById('questionDetailDeepSeekResult').style.display = 'none'; }
         }
         var editQid = null;
+        function editPreviewOnPaste() { setTimeout(updateEditPreview, 100); }
         function openEditQuestion(qid) {
             editQid = qid;
             var q = store.getQuestion(qid);
             if (!q) return;
-            document.getElementById('editQuestionContent').value = q.content || '';
+            function setEditableContent(id, text, images) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                var html = (text || '').replace(/\n/g, '<br>');
+                if (images && images.length) {
+                    html += images.map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+                }
+                el.innerHTML = html;
+            }
+            setEditableContent('editMaterial', q.material || '', q.materialImages || []);
+            setEditableContent('editQuestionContent', q.content || '', q.stemImages || []);
             var opts = q.options || [];
-            document.getElementById('editOptA').value = (opts[0] && opts[0].text) || '';
-            document.getElementById('editOptB').value = (opts[1] && opts[1].text) || '';
-            document.getElementById('editOptC').value = (opts[2] && opts[2].text) || '';
-            document.getElementById('editOptD').value = (opts[3] && opts[3].text) || '';
+            setEditableContent('editOptA', (opts[0] && opts[0].text) || '', (opts[0] && opts[0].images) || []);
+            setEditableContent('editOptB', (opts[1] && opts[1].text) || '', (opts[1] && opts[1].images) || []);
+            setEditableContent('editOptC', (opts[2] && opts[2].text) || '', (opts[2] && opts[2].images) || []);
+            setEditableContent('editOptD', (opts[3] && opts[3].text) || '', (opts[3] && opts[3].images) || []);
             document.getElementById('editAnswer').value = q.answer || 'A';
-            document.getElementById('editExplanation').value = q.explanation || '';
+            var expEl = document.getElementById('editExplanation');
+            if (expEl) expEl.value = q.explanation || '';
             document.getElementById('questionEditOverlay').style.display = 'block';
+            updateEditPreview();
+            ['editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', updateEditPreview);
+                    el.addEventListener('paste', editPreviewOnPaste);
+                }
+            });
+            if (expEl) expEl.addEventListener('input', updateEditPreview);
         }
-        function closeEditQuestion() { document.getElementById('questionEditOverlay').style.display = 'none'; editQid = null; }
+        function closeEditQuestion() {
+            document.getElementById('questionEditOverlay').style.display = 'none';
+            editQid = null;
+            ['editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.removeEventListener('input', updateEditPreview);
+                    el.removeEventListener('paste', editPreviewOnPaste);
+                }
+            });
+            var expEl = document.getElementById('editExplanation');
+            if (expEl) expEl.removeEventListener('input', updateEditPreview);
+        }
+        var _editPreviewTimer = null;
+        function updateEditPreview() {
+            if (_editPreviewTimer) clearTimeout(_editPreviewTimer);
+            _editPreviewTimer = setTimeout(function() {
+                _editPreviewTimer = null;
+                var wrap = document.getElementById('editPreview');
+                if (!wrap) return;
+                function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+                var materialData = getEditableContent('editMaterial');
+                var stemData = getEditableContent('editQuestionContent');
+                var optA = getEditableContent('editOptA'), optB = getEditableContent('editOptB'), optC = getEditableContent('editOptC'), optD = getEditableContent('editOptD');
+                var materialImgs = (materialData.images || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+                var stemImgs = (stemData.images || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+                var html = '';
+                if (materialData.text || materialImgs) html += '<div style="margin-bottom:12px;"><strong>材料</strong><div>' + esc(materialData.text) + materialImgs + '</div></div>';
+                html += '<div style="margin-bottom:12px;"><strong>题干</strong><div>' + esc(stemData.text) + stemImgs + '</div></div>';
+                ['A','B','C','D'].forEach(function(lbl, i) {
+                    var o = [optA,optB,optC,optD][i];
+                    var imgs = (o.images || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:4px 0;" />'; }).join('');
+                    html += '<div style="margin-bottom:8px;"><strong>选项' + lbl + '</strong> ' + esc(o.text) + imgs + '</div>';
+                });
+                var exp = (document.getElementById('editExplanation') && document.getElementById('editExplanation').value) || '';
+                if (exp) html += '<div style="margin-top:12px;"><strong>解析</strong><div>' + esc(exp) + '</div></div>';
+                wrap.innerHTML = html || '<span style="color:#6c757d;">输入题干或选项后此处显示预览</span>';
+                renderLaTeXInElement(wrap);
+            }, 200);
+        }
         function saveEditQuestion() {
             if (!editQid) return;
             var q = store.getQuestion(editQid);
             if (!q) return;
-            var content = (document.getElementById('editQuestionContent').value || '').trim();
-            var a = (document.getElementById('editOptA').value || '').trim(), b = (document.getElementById('editOptB').value || '').trim(), c = (document.getElementById('editOptC').value || '').trim(), d = (document.getElementById('editOptD').value || '').trim();
-            q.content = content;
-            q.options = [{ label: 'A', text: a }, { label: 'B', text: b }, { label: 'C', text: c }, { label: 'D', text: d }];
+            var materialData = getEditableContent('editMaterial');
+            var stemData = getEditableContent('editQuestionContent');
+            var optA = getEditableContent('editOptA'), optB = getEditableContent('editOptB'), optC = getEditableContent('editOptC'), optD = getEditableContent('editOptD');
+            q.material = materialData.text;
+            q.materialImages = materialData.images;
+            q.content = stemData.text;
+            q.stemImages = stemData.images;
+            q.options = [
+                { label: 'A', text: optA.text, images: optA.images },
+                { label: 'B', text: optB.text, images: optB.images },
+                { label: 'C', text: optC.text, images: optC.images },
+                { label: 'D', text: optD.text, images: optD.images }
+            ];
             q.answer = document.getElementById('editAnswer').value || 'A';
             q.explanation = (document.getElementById('editExplanation').value || '').trim();
             store.save();
@@ -1897,7 +1977,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             sub.innerHTML = (SUBCATEGORIES[section] || []).map(function(s) { return '<option value="' + s + '">' + s + '</option>'; }).join('');
         }
         function bindEditablePaste() {
-            ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD'].forEach(function(id) {
+            ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD', 'editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (!el) return;
                 el.addEventListener('paste', function(e) {
