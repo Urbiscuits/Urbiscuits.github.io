@@ -1466,11 +1466,15 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 });
             } catch (e) {}
         }
-        // 应用远程题库数据（GitHub 上的 store.json），在本地保留个人做题统计字段
+        // 应用远程题库数据（GitHub 上的 store.json），在本地保留个人做题统计字段和用户本地添加的题目
         function applyRemoteStore(remote) {
             if (!remote || !Array.isArray(remote.sets) || !remote.questions) return;
             var oldQuestions = store.questions || {};
+            var oldSets = store.sets || [];
             var mergedQuestions = {};
+            var mergedSets = [];
+            
+            // 先处理远程题目，保留本地统计信息
             Object.keys(remote.questions).forEach(function(qid) {
                 var rq = remote.questions[qid];
                 var lq = oldQuestions[qid] || {};
@@ -1480,7 +1484,65 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 rq.done = lq.done || false;
                 mergedQuestions[qid] = rq;
             });
-            store.sets = remote.sets;
+            
+            // 保留用户本地添加的题目（不在远程数据中的题目）
+            Object.keys(oldQuestions).forEach(function(qid) {
+                if (!mergedQuestions[qid]) {
+                    // 这是用户本地添加的题目，保留它
+                    mergedQuestions[qid] = oldQuestions[qid];
+                }
+            });
+            
+            // 合并套卷：先添加远程套卷，然后添加本地独有的套卷
+            var remoteSetIds = {};
+            remote.sets.forEach(function(rs) {
+                remoteSetIds[rs.id] = true;
+                // 查找本地是否有同名套卷
+                var localSet = oldSets.find(function(ls) { return ls.id === rs.id || (ls.name && ls.name.trim() === (rs.name || '').trim()); });
+                if (localSet) {
+                    // 合并题目ID：保留远程的题目ID列表，但也要检查是否有本地独有的题目
+                    var mergedSet = {
+                        id: rs.id,
+                        name: rs.name || localSet.name,
+                        category: rs.category || localSet.category || '',
+                        '言语理解': [],
+                        '数量关系': [],
+                        '判断推理': [],
+                        '资料分析': []
+                    };
+                    // 先添加远程题目
+                    MAIN_SECTIONS.forEach(function(sec) {
+                        (rs[sec] || []).forEach(function(qid) {
+                            if (mergedQuestions[qid]) {
+                                mergedSet[sec].push(qid);
+                            }
+                        });
+                    });
+                    // 再添加本地独有的题目（不在远程套卷中的）
+                    MAIN_SECTIONS.forEach(function(sec) {
+                        (localSet[sec] || []).forEach(function(qid) {
+                            if (mergedQuestions[qid] && mergedSet[sec].indexOf(qid) === -1) {
+                                mergedSet[sec].push(qid);
+                            }
+                        });
+                    });
+                    mergedSets.push(mergedSet);
+                } else {
+                    // 远程新套卷，直接添加
+                    mergedSets.push(rs);
+                }
+            });
+            
+            // 添加本地独有的套卷（不在远程数据中的）
+            oldSets.forEach(function(ls) {
+                var isRemote = remoteSetIds[ls.id] || remote.sets.some(function(rs) { return (rs.name || '').trim() === (ls.name || '').trim(); });
+                if (!isRemote) {
+                    // 这是用户本地添加的套卷，保留它
+                    mergedSets.push(ls);
+                }
+            });
+            
+            store.sets = mergedSets;
             store.questions = mergedQuestions;
 
             // 同步试卷“分类”选项（左侧套卷分类管理）
