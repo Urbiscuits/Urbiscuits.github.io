@@ -50,6 +50,11 @@
                     </div>
                 </div>
                 <p class="muted" style="margin-top:10px;">说明：此页面仅管理本地管理员题库（`localStorage`），需要同步到 GitHub 请回到管理员后台操作。</p>
+                <div id="debugBox" class="card" style="margin-top:14px; padding:12px; background:#fff3cd; display:none;">
+                    <div style="font-weight:600; margin-bottom:6px;">诊断信息</div>
+                    <div id="debugText" style="color:#856404; font-size:0.95rem; line-height:1.5;"></div>
+                    <div id="errorText" style="color:#721c24; font-size:0.95rem; line-height:1.5; margin-top:6px;"></div>
+                </div>
                 <div id="questionList" style="margin-top:20px;"></div>
             </div>
         </div>
@@ -163,6 +168,20 @@
         var detailQid = null;
         var currentImageUploadTarget = null;
 
+        function showDebug(text, isError) {
+            var box = document.getElementById('debugBox');
+            var t = document.getElementById('debugText');
+            var e = document.getElementById('errorText');
+            if (!box || !t || !e) return;
+            box.style.display = 'block';
+            if (isError) e.textContent = text || '';
+            else t.textContent = text || '';
+        }
+        window.onerror = function(message, source, lineno, colno) {
+            showDebug('页面脚本错误：' + message + (lineno ? (' @ ' + lineno + ':' + colno) : ''), true);
+            return false;
+        };
+
         function getSetIdFromUrl() {
             var m = /[?&]setId=([^&]+)/.exec(location.search);
             return m ? decodeURIComponent(m[1]) : null;
@@ -217,11 +236,13 @@
                 html += '<div style="margin-bottom:16px;"><strong style="color:var(--primary-color);">' + esc(sec) + '</strong>';
                 Object.keys(bySection[sec]).sort().forEach(function(sub) {
                     bySection[sec][sub].forEach(function(q) {
-                        var qid = String(q.id || '').replace(/'/g, "\\'");
-                        html += '<div class="question-item"><span class="question-category">' + esc(sub) + '</span> ' + esc((q.content||'').slice(0, 80)) + '… ' +
-                            '<button type="button" class="btn btn-info btn-sm" onclick="showDetail(\'' + qid + '\')">查看</button> ' +
-                            '<button type="button" class="btn btn-default btn-sm" onclick="openEdit(\'' + qid + '\')">编辑</button> ' +
-                            '<button type="button" class="btn btn-danger btn-sm" onclick="doDelete(\'' + qid + '\')">删除</button>' +
+                        var qid = String(q.id || '');
+                        // 使用 data-* + 事件委托，避免 inline onclick 在某些环境下失效
+                        html += '<div class="question-item">' +
+                            '<span class="question-category">' + esc(sub) + '</span> ' + esc((q.content||'').slice(0, 80)) + '… ' +
+                            '<button type="button" class="btn btn-info btn-sm" data-action="view" data-qid="' + esc(qid) + '">查看</button> ' +
+                            '<button type="button" class="btn btn-default btn-sm" data-action="edit" data-qid="' + esc(qid) + '">编辑</button> ' +
+                            '<button type="button" class="btn btn-danger btn-sm" data-action="delete" data-qid="' + esc(qid) + '">删除</button>' +
                             '</div>';
                     });
                 });
@@ -475,7 +496,29 @@
             document.getElementById('mainBlock').style.display = 'block';
             document.getElementById('setTitle').textContent = (currentSet.name || '未命名套卷') + '（管理员题库）';
             document.getElementById('btnAddQuestion').onclick = goAddQuestion;
+            try {
+                var data = loadStore();
+                var setCount = (data.sets || []).length;
+                var qCount = data.questions ? Object.keys(data.questions).length : 0;
+                showDebug('当前 setId=' + currentSetId + '；管理员套卷数=' + setCount + '；管理员题目数=' + qCount + '。若这里为 0，说明你打开此页面的域名/协议与管理员后台不一致（localStorage 不共享）。', false);
+            } catch (e) {}
             renderList();
+
+            // 事件委托：处理查看/编辑/删除
+            var listEl = document.getElementById('questionList');
+            if (listEl) {
+                listEl.addEventListener('click', function(ev) {
+                    var btn = ev.target && ev.target.closest ? ev.target.closest('button[data-action]') : null;
+                    if (!btn) return;
+                    var action = btn.getAttribute('data-action');
+                    var qid = btn.getAttribute('data-qid');
+                    if (!qid) return;
+                    if (action === 'view') return showDetail(qid);
+                    if (action === 'edit') return openEdit(qid);
+                    if (action === 'delete') return doDelete(qid);
+                });
+            }
+
             ['editContent', 'editA', 'editB', 'editC', 'editD', 'editExplanation'].forEach(function(fieldId) {
                 var el = document.getElementById(fieldId);
                 if (el) el.addEventListener('input', function() { updatePreview(fieldId); });

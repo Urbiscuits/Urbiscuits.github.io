@@ -4394,7 +4394,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
                     '<div><strong>' + esc(s.name) + '</strong> <span style="color:#6c757d; margin-left:8px;">' + esc(s.category || '不分类') + '</span> <span style="color:#6c757d; margin-left:8px;">共 ' + total + ' 题</span></div>' +
                     '<div style="display:flex; gap:8px; flex-wrap:wrap;">' +
-                    '<button class="btn btn-sm btn-info" onclick="window.open(\'admin-set-manage.html?setId=' + s.id + '\', \'_blank\')" title="查看题目"><i class="fas fa-list"></i> 查看题目</button>' +
+                    '<button class="btn btn-sm btn-info" onclick="window.open(\'admin-set-manage.html?setId=' + s.id + '&t=' + Date.now() + '\', \'_blank\')" title="查看题目"><i class="fas fa-list"></i> 查看题目</button>' +
                     '<button class="btn btn-sm btn-primary" onclick="adminBatchImportToSet(\'' + s.id + '\')" title="批量导入到此套卷"><i class="fas fa-file-import"></i> 批量导入</button>' +
                     '<button class="btn btn-sm btn-success" onclick="adminSingleImportToSet(\'' + s.id + '\')" title="单题导入到此套卷"><i class="fas fa-edit"></i> 单题导入</button>' +
                     '<button class="btn btn-sm" style="background:#eaeaea;" onclick="adminEditSet(\'' + s.id + '\')" title="编辑"><i class="fas fa-edit"></i> 编辑</button>' +
