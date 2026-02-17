@@ -1192,6 +1192,24 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div id="favoritesList"></div>
                         </div>
                         <div class="profile-section">
+                            <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fab fa-github"></i> GitHub 同步配置</h4>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">配置 GitHub Personal Access Token 后，批量录入、单题录入、编辑题目等操作将自动同步到 GitHub 仓库的 data/store.json 文件。</p>
+                            <div class="control-group" style="margin-bottom:12px;">
+                                <label style="display:block; margin-bottom:6px;">GitHub Personal Access Token：</label>
+                                <input type="password" id="githubTokenInput" placeholder="输入 Token（需要 repo 权限）" style="width:100%; max-width:500px; padding:8px; border:1px solid var(--border-color); border-radius:var(--border-radius); font-family:monospace; font-size:0.9rem;">
+                                <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:6px;">
+                                    <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--primary-color);">创建 Token</a> | 
+                                    当前状态：<span id="githubTokenStatus" style="color:var(--text-secondary);">未配置</span>
+                                </p>
+                            </div>
+                            <div class="control-group" style="margin-bottom:12px;">
+                                <button class="btn btn-primary btn-sm" onclick="saveGitHubToken()"><i class="fas fa-save"></i> 保存 Token</button>
+                                <button class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color); margin-left:8px;" onclick="testGitHubConnection()"><i class="fas fa-check-circle"></i> 测试连接</button>
+                                <button class="btn btn-sm" style="background:#dc3545; color:#fff; border-color:#dc3545; margin-left:8px;" onclick="clearGitHubToken()"><i class="fas fa-trash"></i> 清除 Token</button>
+                            </div>
+                            <div id="githubStatus" class="status-message" style="display:none;"></div>
+                        </div>
+                        <div class="profile-section">
                             <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-database"></i> 数据</h4>
                             <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">导出可备份或迁移；导入默认合并，可选覆盖。导入后题目统计与套卷列表将自动刷新。</p>
                             <div class="control-group" style="margin-bottom:10px;">
@@ -1263,6 +1281,32 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         // GitHub 上托管的在线题库（JSON），默认 data/store.json，可按需修改
         var ENABLE_REMOTE_STORE = true;
         var REMOTE_STORE_URL = './data/store.json';
+        
+        // GitHub API 配置：用于将数据同步到 GitHub 仓库
+        // 请填写你的 GitHub 仓库信息和个人访问令牌（Personal Access Token）
+        // Token 需要 repo 权限，可在 https://github.com/settings/tokens 创建
+        var GITHUB_CONFIG = {
+            owner: 'urbiscuits',           // GitHub 用户名或组织名
+            repo: 'urbiscuits.github.io',  // 仓库名（不含 .git）
+            path: 'data/store.json',       // 要更新的文件路径
+            branch: 'main',                // 分支名（通常是 main 或 master）
+            token: ''                      // GitHub Personal Access Token（请在此填写，或通过 localStorage 设置）
+        };
+        
+        // 从 localStorage 读取 Token（如果已设置）
+        try {
+            var savedToken = localStorage.getItem('github_token');
+            if (savedToken) {
+                GITHUB_CONFIG.token = savedToken;
+            } else {
+                // 如果没有保存的 Token，使用默认值（首次使用时）
+                var defaultToken = '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';
+                if (defaultToken) {
+                    localStorage.setItem('github_token', defaultToken);
+                    GITHUB_CONFIG.token = defaultToken;
+                }
+            }
+        } catch(e) {}
 
         function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9); }
         function ensureSubcategory(category, subcategory) {
@@ -1716,6 +1760,87 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 var cls = x.amount >= 0 ? 'color:var(--success-color)' : 'color:#dc3545';
                 return '<div style="padding:8px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>' + d + ' ' + (x.desc || '') + '</span><span style="' + cls + '">' + amt + '</span></div>';
             }).join('');
+            
+            // 更新 GitHub Token 状态显示
+            var tokenStatusEl = document.getElementById('githubTokenStatus');
+            var tokenInputEl = document.getElementById('githubTokenInput');
+            if (tokenStatusEl) {
+                var token = GITHUB_CONFIG.token || '';
+                if (token) {
+                    tokenStatusEl.textContent = '已配置 (' + token.substring(0, 8) + '...)';
+                    tokenStatusEl.style.color = 'var(--success-color)';
+                    if (tokenInputEl) tokenInputEl.value = token;
+                } else {
+                    tokenStatusEl.textContent = '未配置';
+                    tokenStatusEl.style.color = 'var(--text-secondary)';
+                    if (tokenInputEl) tokenInputEl.value = '';
+                }
+            }
+        }
+        
+        function saveGitHubToken() {
+            var input = document.getElementById('githubTokenInput');
+            if (!input) return;
+            var token = (input.value || '').trim();
+            if (!token) {
+                showMsg('githubStatus', '请输入 Token', 'error');
+                return;
+            }
+            try {
+                localStorage.setItem('github_token', token);
+                GITHUB_CONFIG.token = token;
+                showMsg('githubStatus', 'Token 已保存', 'success');
+                renderProfileTab();
+            } catch (e) {
+                showMsg('githubStatus', '保存失败：' + (e.message || '未知错误'), 'error');
+            }
+        }
+        
+        function clearGitHubToken() {
+            if (!confirm('确定要清除 GitHub Token 吗？清除后将无法自动同步到 GitHub。')) return;
+            try {
+                localStorage.removeItem('github_token');
+                GITHUB_CONFIG.token = '';
+                var input = document.getElementById('githubTokenInput');
+                if (input) input.value = '';
+                showMsg('githubStatus', 'Token 已清除', 'success');
+                renderProfileTab();
+            } catch (e) {
+                showMsg('githubStatus', '清除失败：' + (e.message || '未知错误'), 'error');
+            }
+        }
+        
+        function testGitHubConnection() {
+            if (!GITHUB_CONFIG.token) {
+                showMsg('githubStatus', '请先配置 Token', 'error');
+                return;
+            }
+            showMsg('githubStatus', '正在测试连接...', 'info');
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo;
+            fetch(apiUrl, {
+                headers: {
+                    'Authorization': 'token ' + GITHUB_CONFIG.token,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            })
+            .then(function(resp) {
+                if (!resp.ok) {
+                    if (resp.status === 401) {
+                        throw new Error('Token 无效或已过期');
+                    } else if (resp.status === 404) {
+                        throw new Error('仓库不存在或无访问权限');
+                    } else {
+                        throw new Error('连接失败：' + resp.status);
+                    }
+                }
+                return resp.json();
+            })
+            .then(function(data) {
+                showMsg('githubStatus', '连接成功！仓库：' + (data.full_name || GITHUB_CONFIG.repo), 'success');
+            })
+            .catch(function(err) {
+                showMsg('githubStatus', '连接失败：' + (err.message || '未知错误'), 'error');
+            });
         }
         function toggleExportSetList() {
             var scope = (document.querySelector('input[name="exportScope"]:checked') || {}).value || 'all';
@@ -1933,6 +2058,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             filterManage();
             if (document.getElementById('tab-single') && document.getElementById('tab-single').classList.contains('active')) renderSingleHistory();
             showMsg('setStatus', '题目已更新', 'success');
+            saveToGitHub();
         }
         function renderHistoryList() {
             var list = getHistory();
@@ -2387,6 +2513,106 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             renderLaTeXInElement(listEl);
             showMsg('importStatus', '已解析 ' + list.length + ' 题，公式已渲染；确认无误可点击「导入」', 'success');
         }
+        
+        /**
+         * 通过 GitHub API 将数据同步到 GitHub 仓库的 data/store.json
+         * 需要配置 GITHUB_CONFIG 中的 token
+         */
+        function saveToGitHub() {
+            if (!GITHUB_CONFIG.token) {
+                console.log('GitHub Token 未配置，跳过同步到 GitHub');
+                return Promise.resolve();
+            }
+            
+            if (!window.fetch) {
+                console.log('浏览器不支持 fetch，跳过同步到 GitHub');
+                return Promise.resolve();
+            }
+            
+            // 准备要上传的数据（格式与 exportData 一致）
+            var data = {
+                sets: store.sets,
+                questions: store.questions,
+                exportTime: new Date().toISOString()
+            };
+            var content = JSON.stringify(data, null, 2);
+            var encodedContent = btoa(unescape(encodeURIComponent(content)));
+            
+            // GitHub API: 先获取文件信息（如果存在）以获取 SHA
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + GITHUB_CONFIG.path;
+            var headers = {
+                'Authorization': 'token ' + GITHUB_CONFIG.token,
+                'Accept': 'application/vnd.github.v3+json'
+            };
+            
+            return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, {
+                method: 'GET',
+                headers: headers
+            })
+            .then(function(resp) {
+                if (resp.status === 404) {
+                    // 文件不存在，创建新文件
+                    return null;
+                }
+                if (!resp.ok) {
+                    throw new Error('获取文件信息失败: ' + resp.status);
+                }
+                return resp.json();
+            })
+            .then(function(fileInfo) {
+                // 准备提交数据
+                var commitData = {
+                    message: '更新题库数据 - ' + new Date().toLocaleString('zh-CN'),
+                    content: encodedContent,
+                    branch: GITHUB_CONFIG.branch
+                };
+                
+                // 如果文件已存在，需要提供 SHA
+                if (fileInfo && fileInfo.sha) {
+                    commitData.sha = fileInfo.sha;
+                }
+                
+                // 提交更新
+                return fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify(commitData)
+                });
+            })
+            .then(function(resp) {
+                if (!resp.ok) {
+                    return resp.json().then(function(err) {
+                        throw new Error('同步到 GitHub 失败: ' + (err.message || resp.status));
+                    });
+                }
+                return resp.json();
+            })
+            .then(function(result) {
+                console.log('成功同步到 GitHub:', result.commit.html_url);
+                return result;
+            })
+            .catch(function(err) {
+                console.error('同步到 GitHub 失败:', err);
+                // 不抛出错误，避免影响正常流程
+                return null;
+            });
+        }
+        
+        /**
+         * 保存数据后同步到 GitHub（如果配置了 Token）
+         * 这是一个辅助函数，可以在任何 store.save() 后调用
+         */
+        function saveAndSyncToGitHub() {
+            // 先保存到本地
+            store.save();
+            // 然后同步到 GitHub
+            saveToGitHub().then(function() {
+                // 同步成功
+            }).catch(function() {
+                // 同步失败已在 saveToGitHub 中处理
+            });
+        }
+        
         function batchImport() {
             var setId = document.getElementById('batchSetId').value;
             if (!setId) { showMsg('importStatus', '请先选择或新建套卷', 'error'); return; }
@@ -2412,6 +2638,13 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             document.getElementById('inputText').value = '';
             document.getElementById('batchPreviewWrap').style.display = 'none';
             showMsg('importStatus', '成功导入 ' + added + ' 题', 'success');
+            
+            // 同步到 GitHub（如果配置了 Token）
+            saveToGitHub().then(function() {
+                // 同步成功，可选提示
+            }).catch(function() {
+                // 同步失败已在 saveToGitHub 中处理，这里不做额外处理
+            });
         }
 
         /**
@@ -2664,6 +2897,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 store.save();
                 renderTree();
                 showMsg('singleStatus', '已保存 ' + added + ' 道小题（一材料多题）', 'success');
+                saveToGitHub();
                 renderSingleHistory();
                 document.getElementById('singleMaterialZiliao').innerHTML = '';
                 cards.forEach(function(card) {
@@ -2691,6 +2925,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 store.save();
                 renderTree();
                 showMsg('singleStatus', '题目已保存', 'success');
+                saveToGitHub();
                 renderSingleHistory();
                 var expEl = document.getElementById('singleExplanation');
                 if (expEl) expEl.innerHTML = '';
@@ -2744,6 +2979,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             fillSetSelects();
             filterManage();
             checkExportState();
+            saveToGitHub();
         }
 
         var practiceQuestions = [], practiceIndex = 0, practiceUserSelections = {}, practiceStartTime = 0, practiceMode = 'practice', practiceTimerInterval = null;
