@@ -2581,6 +2581,34 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function saveSetCategories(arr) {
             localStorage.setItem('xingce_set_categories', JSON.stringify(arr));
         }
+
+        // 管理员端“套卷分类”独立存储（与首页分类完全隔离）
+        // 兼容迁移：若管理员独立分类未初始化，则从旧的 xingce_set_categories 复制一份作为初始值
+        var DEFAULT_ADMIN_SET_CATEGORIES = ['', '国考', '省考', '模拟', '其他'];
+        function getAdminSetCategories() {
+            try {
+                var saved = localStorage.getItem('xingce_admin_set_categories');
+                if (saved) {
+                    var arr = JSON.parse(saved);
+                    if (Array.isArray(arr) && arr.length) return arr;
+                }
+            } catch (e) {}
+            // migration: copy once from old shared categories (avoid sudden "丢失")
+            try {
+                var old = localStorage.getItem('xingce_set_categories');
+                if (old) {
+                    var arr2 = JSON.parse(old);
+                    if (Array.isArray(arr2) && arr2.length) {
+                        localStorage.setItem('xingce_admin_set_categories', JSON.stringify(arr2));
+                        return arr2;
+                    }
+                }
+            } catch (e) {}
+            return DEFAULT_ADMIN_SET_CATEGORIES.slice();
+        }
+        function saveAdminSetCategories(arr) {
+            try { localStorage.setItem('xingce_admin_set_categories', JSON.stringify(arr)); } catch (e) {}
+        }
         function fillCategorySelects() {
             var cats = getSetCategories();
             var opts = cats.map(function(c) { return '<option value="' + (c||'') + '">' + (c || '不分类') + '</option>'; }).join('');
@@ -4071,7 +4099,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function fillAdminCategorySelects() {
             var el = document.getElementById('adminNewSetCategory');
             if (!el) return;
-            var cats = getSetCategories();
+            var cats = getAdminSetCategories();
             el.innerHTML = '<option value="">不分类</option>';
             cats.forEach(function(c) {
                 var opt = document.createElement('option');
@@ -4094,7 +4122,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function renderAdminCategoryList() {
             var container = document.getElementById('adminCategoryList');
             if (!container) return;
-            var cats = getSetCategories().filter(function(c) { return c; });
+            var cats = getAdminSetCategories().filter(function(c) { return c; });
             if (!cats.length) {
                 container.innerHTML = '<span style="color: var(--text-secondary);">暂无分类</span>';
                 return;
@@ -4115,14 +4143,14 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 showMsg('adminCategoryStatus', '请输入分类名称', 'error');
                 return;
             }
-            var cats = getSetCategories();
+            var cats = getAdminSetCategories();
             if (cats.indexOf(name) >= 0) {
                 showMsg('adminCategoryStatus', '该分类已存在', 'error');
                 return;
             }
             cats.push(name);
             cats.sort(function(a,b) { return (a||'').localeCompare(b||''); });
-            saveSetCategories(cats);
+            saveAdminSetCategories(cats);
             document.getElementById('adminNewCategoryName').value = '';
             fillAdminCategorySelects();
             renderAdminCategoryList();
@@ -4131,7 +4159,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         }
         
         function adminDeleteCategory(name) {
-            var cats = getSetCategories();
+            var cats = getAdminSetCategories();
             var idx = cats.indexOf(name);
             if (idx < 0) return;
             var used = adminStore.sets.some(function(s) { return (s.category||'') === name; });
@@ -4139,7 +4167,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             adminStore.sets.forEach(function(s) { if ((s.category||'') === name) s.category = ''; });
             adminStore.save();
             cats.splice(idx, 1);
-            saveSetCategories(cats);
+            saveAdminSetCategories(cats);
             fillAdminCategorySelects();
             renderAdminCategoryList();
             adminFilterSetList();
@@ -4149,7 +4177,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function adminRenameCategory(oldName) {
             var newName = prompt('请输入新的分类名称：', oldName);
             if (newName == null || (newName = newName.trim()) === '') return;
-            var cats = getSetCategories();
+            var cats = getAdminSetCategories();
             if (cats.indexOf(newName) >= 0 && newName !== oldName) {
                 alert('该分类名已存在');
                 return;
@@ -4158,7 +4186,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (idx >= 0) cats[idx] = newName;
             adminStore.sets.forEach(function(s) { if ((s.category||'') === oldName) s.category = newName; });
             adminStore.save();
-            saveSetCategories(cats);
+            saveAdminSetCategories(cats);
             fillAdminCategorySelects();
             renderAdminCategoryList();
             adminFilterSetList();
