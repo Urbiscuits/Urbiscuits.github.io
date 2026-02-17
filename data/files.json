@@ -1,3 +1,6 @@
 {
-  "json": ["store.json"]
+  "json": [
+    "store.json"
+  ],
+  "txt": []
 }
