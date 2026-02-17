@@ -1261,6 +1261,26 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         </div>
                     </div>
                     <div id="adminContent" style="display:none;">
+                        <!-- 数据同步操作 -->
+                        <div class="card" style="margin-bottom: 20px; border: 2px solid var(--primary-color);">
+                            <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-cloud-upload-alt"></i> 数据同步操作</h2>
+                            <div style="margin-bottom: 16px;">
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">将管理员题库管理中的数据同步到 GitHub 仓库的 data/store.json</p>
+                                <div class="control-group" style="margin-bottom: 12px;">
+                                    <label>同步模式：</label>
+                                    <label style="margin-right: 16px;"><input type="radio" name="adminSyncMode" value="merge" checked> 合并（保留GitHub现有数据，添加新数据）</label>
+                                    <label><input type="radio" name="adminSyncMode" value="overwrite"> 覆盖（完全替换GitHub数据）</label>
+                                </div>
+                                <button class="btn btn-success" onclick="adminSyncToGitHub()" style="padding: 12px 24px; font-size: 1rem;"><i class="fas fa-cloud-upload-alt"></i> 同步到 GitHub</button>
+                                <div id="adminSyncStatus" class="status-message" style="margin-top: 12px;"></div>
+                            </div>
+                            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #dc3545;">
+                                <p style="font-size: 0.9rem; color: #721c24; margin-bottom: 12px;"><strong>危险操作：</strong>删除 GitHub 仓库中的所有题目和数据</p>
+                                <button class="btn" style="background: #dc3545; color: #fff; border-color: #dc3545; padding: 10px 20px;" onclick="adminResetGitHubData()"><i class="fas fa-exclamation-triangle"></i> 重置 GitHub 数据</button>
+                                <div id="adminResetStatus" class="status-message" style="margin-top: 12px;"></div>
+                            </div>
+                        </div>
+                        
                         <!-- GitHub 同步配置 -->
                         <div class="card" style="margin-bottom: 20px;">
                             <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fab fa-github"></i> GitHub 同步配置</h2>
@@ -1276,14 +1296,16 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div class="control-group" style="margin-bottom:12px;">
                                 <button class="btn btn-primary" onclick="adminSaveGitHubToken()"><i class="fas fa-save"></i> 保存 Token</button>
                                 <button class="btn" style="background:var(--light-bg); border:1px solid var(--border-color); margin-left:8px;" onclick="adminTestGitHubConnection()"><i class="fas fa-check-circle"></i> 测试连接</button>
-                                <button class="btn" style="background:#dc3545; color:#fff; border-color:#dc3545; margin-left:8px;" onclick="adminClearGitHubToken()"><i class="fas fa-trash"></i> 清除 Token</button>
                             </div>
                             <div id="adminGithubStatus" class="status-message" style="display:none;"></div>
                         </div>
                         
                         <!-- 套卷管理 -->
                         <div class="card" style="margin-bottom: 20px;">
-                            <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-folder-open"></i> 套卷管理</h2>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <h2 style="margin: 0; color: var(--primary-color);"><i class="fas fa-folder-open"></i> 套卷管理</h2>
+                                <button class="btn btn-info" onclick="adminRefreshSetList()"><i class="fas fa-sync-alt"></i> 刷新</button>
+                            </div>
                             
                             <!-- 套卷分类管理 -->
                             <div style="margin-bottom: 20px; padding: 16px; background: var(--light-bg); border-radius: var(--border-radius); border: 1px solid var(--border-color);">
@@ -1311,12 +1333,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         </div>
 
                         <!-- 批量导入 -->
-                        <div class="card" style="margin-bottom: 20px;">
-                            <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-file-import"></i> 批量导入（将同步到 GitHub）</h2>
-                            <div class="format-example">
-                                <p><strong>格式：</strong>题与题之间以单独一行的 <code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 区分，来源可要可不要。同一道题内可任意换行。</p>
-                                <p>支持 <code>考点：xxx</code> 或 <code>考点：a、b、c</code> 多考点。言语理解、判断推理等同上。资料分析：<code>[资料分析-文字类](2026国考)</code> 材料+题目1/2/3… 智能识别。</p>
-                            </div>
+                        <div id="adminBatchImportCard" class="card" style="margin-bottom: 20px; display:none;">
+                            <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-file-import"></i> 批量导入</h2>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">批量导入的题目将保存到管理员题库中，导入后会自动同步到 GitHub。</p>
                             <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="adminBatchSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                             <div class="control-group" style="margin-bottom: 12px;">
                                 <label>从 TXT 导入：</label>
@@ -1326,21 +1345,22 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT 填入（支持 <code>考点：xxx</code> 导入）</label>
                             <textarea id="adminInputText" rows="14" placeholder="粘贴题目内容，或选择上方 TXT 文件填入..."></textarea>
                             <div style="margin-top: 16px; display: flex; gap: 12px;">
-                                <button class="btn btn-primary" onclick="adminBatchImport()"><i class="fas fa-upload"></i> 导入并同步到 GitHub</button>
+                                <button class="btn btn-primary" onclick="adminBatchImport()"><i class="fas fa-upload"></i> 导入</button>
                                 <button class="btn btn-info" onclick="adminBatchPreview()"><i class="fas fa-eye"></i> 预览（公式渲染）</button>
                                 <button class="btn" onclick="document.getElementById('adminInputText').value=''; document.getElementById('adminBatchTxtFile').value=''; document.getElementById('adminBatchPreviewWrap').style.display='none';" style="background:#eaeaea;">清空</button>
                             </div>
                             <div id="adminImportStatus" class="status-message"></div>
                             <div id="adminBatchPreviewWrap" style="display:none; margin-top:20px; padding:16px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color);">
                                 <h4 style="margin-bottom:12px; color:var(--primary-color);">解析预览（共 <span id="adminBatchPreviewCount">0</span> 题，$$ 已按公式显示）</h4>
-                                <p style="margin-bottom:12px; color:#6c757d;">请确认解析无误后再点击上方「导入并同步到 GitHub」按钮。</p>
+                                <p style="margin-bottom:12px; color:#6c757d;">请确认解析无误后再点击上方「导入」按钮。</p>
                                 <div id="adminBatchPreviewList" class="question-list batch-preview-scroll"></div>
                             </div>
                         </div>
 
                         <!-- 单题录入 -->
-                        <div class="card">
-                            <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-edit"></i> 单题录入（将同步到 GitHub）</h2>
+                        <div id="adminSingleImportCard" class="card" style="display:none;">
+                            <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-edit"></i> 单题录入</h2>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">单题录入的题目将保存到管理员题库中，保存后会自动同步到 GitHub。</p>
                             <p style="margin-bottom: 12px; color: var(--text-secondary); font-size: 0.9rem;">材料/题干/选项可 Ctrl+V 粘贴图片，支持 LaTeX。</p>
                             <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="adminSingleSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                             <div style="margin-bottom:12px;">
@@ -1371,7 +1391,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 <div><label>答案</label><select id="adminSingleAnswer" style="width:100%; padding:10px; margin-top:5px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
                                 <div style="flex:2;"><label>解析（可粘贴图片，支持 LaTeX 公式）</label><div id="adminSingleExplanation" class="editable-area" contenteditable="true" style="min-height:80px; margin-top:5px;"></div></div>
                             </div>
-                            <button class="btn btn-success" onclick="adminSingleSave()" style="margin-top: 12px;"><i class="fas fa-save"></i> 保存并同步到 GitHub</button>
+                            <button class="btn btn-success" onclick="adminSingleSave()" style="margin-top: 12px;"><i class="fas fa-save"></i> 保存题目</button>
                             <div id="adminSingleStatus" class="status-message"></div>
                         </div>
                     </div>
@@ -3778,6 +3798,76 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         var ADMIN_PASSWORD = '0710';
         var adminAuthenticated = false;
         
+        // 管理员独立的数据存储（与首页的store分离）
+        var adminStore = {
+            sets: [],
+            questions: {},
+            setExistsByName: function(name, excludeSetId) {
+                var n = (name || '').trim();
+                return this.sets.some(function(s) { return (s.name || '').trim() === n && s.id !== excludeSetId; });
+            },
+            addSet: function(name, category) {
+                var n = (name || '未命名套卷').trim();
+                if (this.setExistsByName(n, null)) return null;
+                var id = genId();
+                this.sets.push({ id: id, name: n || '未命名套卷', category: category || '', '言语理解': [], '数量关系': [], '判断推理': [], '资料分析': [] });
+                return id;
+            },
+            getSet: function(setId) { return this.sets.find(function(s) { return s.id === setId; }); },
+            updateSet: function(setId, obj) {
+                var set = this.getSet(setId);
+                if (!set) return;
+                if (obj.name !== undefined && this.setExistsByName(obj.name, setId)) return false;
+                if (obj.name !== undefined) set.name = (obj.name || '').trim() || set.name;
+                if (obj.category !== undefined) set.category = obj.category;
+                return true;
+            },
+            deleteSet: function(setId) {
+                var set = this.getSet(setId);
+                if (!set) return;
+                var self = this;
+                MAIN_SECTIONS.forEach(function(section) {
+                    (set[section] || []).forEach(function(qid) { delete self.questions[qid]; });
+                });
+                this.sets = this.sets.filter(function(s) { return s.id !== setId; });
+            },
+            addQuestion: function(setId, section, q) {
+                if (!q.id) q.id = genId();
+                q.setId = setId;
+                q.section = section;
+                q.done = q.done || false;
+                q.correctCount = q.correctCount != null ? q.correctCount : 0;
+                q.totalAttempts = q.totalAttempts != null ? q.totalAttempts : 0;
+                q.knowledgePoints = Array.isArray(q.knowledgePoints) ? q.knowledgePoints : (q.knowledgePoint ? [q.knowledgePoint] : []);
+                this.questions[q.id] = q;
+                var set = this.getSet(setId);
+                if (set && set[section]) set[section].push(q.id);
+                return q.id;
+            },
+            removeQuestion: function(qid) {
+                var q = this.questions[qid];
+                if (!q || !q.setId) return;
+                var set = this.getSet(q.setId);
+                if (set && set[q.section]) set[q.section] = set[q.section].filter(function(id) { return id !== qid; });
+                delete this.questions[qid];
+            },
+            getQuestion: function(qid) { return this.questions[qid]; },
+            save: function() {
+                try {
+                    localStorage.setItem('xingce_admin_sets', JSON.stringify(this.sets));
+                    localStorage.setItem('xingce_admin_questions', JSON.stringify(this.questions));
+                } catch (e) {}
+            },
+            load: function() {
+                try {
+                    var s = localStorage.getItem('xingce_admin_sets');
+                    var q = localStorage.getItem('xingce_admin_questions');
+                    if (s) this.sets = JSON.parse(s);
+                    if (q) this.questions = JSON.parse(q);
+                } catch (e) {}
+            }
+        };
+        
         function adminLogin() {
             var password = document.getElementById('adminPassword').value;
             if (password === ADMIN_PASSWORD) {
@@ -3795,12 +3885,24 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         
         function initAdminPage() {
             if (!adminAuthenticated) return;
+            adminStore.load(); // 加载管理员数据
             updateAdminGithubTokenStatus();
             fillAdminSetSelects();
             fillAdminCategorySelects();
             renderAdminCategoryList();
             adminFilterSetList();
             updateAdminSingleSub();
+            // 设置默认值：判断推理、图形推理
+            document.getElementById('adminSingleSection').value = '判断推理';
+            updateAdminSingleSub();
+            document.getElementById('adminSingleSubcategory').value = '图形推理';
+            setAdminSingleOptionDefaults();
+            // 确保批量导入和单题录入区域默认隐藏
+            var batchCard = document.getElementById('adminBatchImportCard');
+            var singleCard = document.getElementById('adminSingleImportCard');
+            if (batchCard) batchCard.style.display = 'none';
+            if (singleCard) singleCard.style.display = 'none';
+            adminCurrentImportType = null;
             var adminZiliaoCb = document.getElementById('adminSingleZiliaoMode');
             if (adminZiliaoCb) {
                 adminZiliaoCb.addEventListener('change', function() {
@@ -3830,7 +3932,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 var el = document.getElementById(id);
                 if (!el) return;
                 el.innerHTML = '<option value="">请选择套卷</option>';
-                store.sets.forEach(function(s) {
+                adminStore.sets.forEach(function(s) {
                     var opt = document.createElement('option');
                     opt.value = s.id;
                     opt.textContent = s.name || '未命名';
@@ -3898,34 +4000,23 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             fillAdminCategorySelects();
             renderAdminCategoryList();
             adminFilterSetList();
-            showMsg('adminCategoryStatus', '已添加分类：' + name + '，正在同步到 GitHub...', 'info');
-            // 同步到GitHub（分类信息会包含在store.json中）
-            saveToGitHub().then(function() {
-                showMsg('adminCategoryStatus', '已添加分类：' + name + ' 并已同步到 GitHub', 'success');
-            }).catch(function(err) {
-                showMsg('adminCategoryStatus', '已添加分类：' + name + '，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
-            });
+            showMsg('adminCategoryStatus', '已添加分类：' + name, 'success');
         }
         
         function adminDeleteCategory(name) {
             var cats = getSetCategories();
             var idx = cats.indexOf(name);
             if (idx < 0) return;
-            var used = store.sets.some(function(s) { return (s.category||'') === name; });
+            var used = adminStore.sets.some(function(s) { return (s.category||'') === name; });
             if (used && !confirm('有套卷使用该分类，删除后这些套卷将变为「不分类」。确定删除？')) return;
-            store.sets.forEach(function(s) { if ((s.category||'') === name) s.category = ''; });
-            store.save();
+            adminStore.sets.forEach(function(s) { if ((s.category||'') === name) s.category = ''; });
+            adminStore.save();
             cats.splice(idx, 1);
             saveSetCategories(cats);
             fillAdminCategorySelects();
             renderAdminCategoryList();
             adminFilterSetList();
-            showMsg('adminCategoryStatus', '已删除分类，正在同步到 GitHub...', 'info');
-            saveToGitHub().then(function() {
-                showMsg('adminCategoryStatus', '已删除分类并已同步到 GitHub', 'success');
-            }).catch(function(err) {
-                showMsg('adminCategoryStatus', '已删除分类，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
-            });
+            showMsg('adminCategoryStatus', '已删除分类', 'success');
         }
         
         function adminRenameCategory(oldName) {
@@ -3938,44 +4029,42 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }
             var idx = cats.indexOf(oldName);
             if (idx >= 0) cats[idx] = newName;
-            store.sets.forEach(function(s) { if ((s.category||'') === oldName) s.category = newName; });
-            store.save();
+            adminStore.sets.forEach(function(s) { if ((s.category||'') === oldName) s.category = newName; });
+            adminStore.save();
             saveSetCategories(cats);
             fillAdminCategorySelects();
             renderAdminCategoryList();
             adminFilterSetList();
-            showMsg('adminCategoryStatus', '已重命名分类，正在同步到 GitHub...', 'info');
-            saveToGitHub().then(function() {
-                showMsg('adminCategoryStatus', '已重命名分类并已同步到 GitHub', 'success');
-            }).catch(function(err) {
-                showMsg('adminCategoryStatus', '已重命名分类，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
-            });
+            showMsg('adminCategoryStatus', '已重命名分类', 'success');
         }
         
         function adminAddSet() {
             var name = (document.getElementById('adminNewSetName').value || '').trim() || '未命名套卷';
             var category = (document.getElementById('adminNewSetCategory').value || '').trim();
-            var id = store.addSet(name, category);
+            var id = adminStore.addSet(name, category);
             if (id == null) {
                 showMsg('adminSetStatus', '套卷名称已存在，不可重复', 'error');
                 return;
             }
-            store.save();
-            saveToGitHub().then(function() {
-                showMsg('adminSetStatus', '套卷已创建并同步到 GitHub', 'success');
-            }).catch(function() {
-                showMsg('adminSetStatus', '套卷已创建，但同步到 GitHub 失败', 'error');
-            });
+            adminStore.save();
             document.getElementById('adminNewSetName').value = '';
             document.getElementById('adminNewSetCategory').value = '';
             fillAdminSetSelects();
             adminFilterSetList();
+            showMsg('adminSetStatus', '套卷已创建（已保存到管理员题库）', 'success');
+        }
+        
+        function adminRefreshSetList() {
+            adminStore.load();
+            fillAdminSetSelects();
+            adminFilterSetList();
+            showMsg('adminSetStatus', '已刷新套卷列表', 'success');
         }
         
         function adminFilterSetList() {
             var category = document.getElementById('adminSetFilterCategory').value;
             var nameFilter = (document.getElementById('adminSetFilterName').value || '').trim().toLowerCase();
-            var filtered = store.sets.filter(function(s) {
+            var filtered = adminStore.sets.filter(function(s) {
                 if (category && s.category !== category) return false;
                 if (nameFilter && !(s.name || '').toLowerCase().includes(nameFilter)) return false;
                 return true;
@@ -3989,24 +4078,547 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
             container.innerHTML = filtered.map(function(s) {
                 var total = (s['言语理解']||[]).length + (s['数量关系']||[]).length + (s['判断推理']||[]).length + (s['资料分析']||[]).length;
-                return '<div class="set-item" style="padding:12px; border:1px solid var(--border-color); border-radius:var(--border-radius); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong>' + esc(s.name) + '</strong> <span style="color:#6c757d; margin-left:8px;">' + esc(s.category || '不分类') + '</span> <span style="color:#6c757d; margin-left:8px;">共 ' + total + ' 题</span></div><button class="btn btn-sm" style="background:#dc3545; color:#fff;" onclick="adminDeleteSet(\'' + s.id + '\')"><i class="fas fa-trash"></i> 删除</button></div>';
+                return '<div class="set-item" style="padding:12px; border:1px solid var(--border-color); border-radius:var(--border-radius); margin-bottom:8px;">' +
+                    '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
+                    '<div><strong>' + esc(s.name) + '</strong> <span style="color:#6c757d; margin-left:8px;">' + esc(s.category || '不分类') + '</span> <span style="color:#6c757d; margin-left:8px;">共 ' + total + ' 题</span></div>' +
+                    '<div style="display:flex; gap:8px; flex-wrap:wrap;">' +
+                    '<button class="btn btn-sm btn-info" onclick="adminViewSetDetails(\'' + s.id + '\')" title="查看题目"><i class="fas fa-list"></i> 查看题目</button>' +
+                    '<button class="btn btn-sm btn-primary" onclick="adminBatchImportToSet(\'' + s.id + '\')" title="批量导入到此套卷"><i class="fas fa-file-import"></i> 批量导入</button>' +
+                    '<button class="btn btn-sm btn-success" onclick="adminSingleImportToSet(\'' + s.id + '\')" title="单题导入到此套卷"><i class="fas fa-edit"></i> 单题导入</button>' +
+                    '<button class="btn btn-sm" style="background:#eaeaea;" onclick="adminEditSet(\'' + s.id + '\')" title="编辑"><i class="fas fa-edit"></i> 编辑</button>' +
+                    '<button class="btn btn-sm" style="background:#dc3545; color:#fff;" onclick="adminDeleteSet(\'' + s.id + '\')" title="删除"><i class="fas fa-trash"></i> 删除</button>' +
+                    '</div></div></div>';
             }).join('');
         }
         
+        var adminCurrentImportType = null; // 'batch' 或 'single' 或 null
+        function adminBatchImportToSet(setId) {
+            var batchCard = document.getElementById('adminBatchImportCard');
+            var singleCard = document.getElementById('adminSingleImportCard');
+            
+            // 如果当前显示的是批量导入，则隐藏；否则显示批量导入并隐藏单题录入
+            if (adminCurrentImportType === 'batch') {
+                batchCard.style.display = 'none';
+                adminCurrentImportType = null;
+                return;
+            }
+            
+            document.getElementById('adminBatchSetId').value = setId;
+            batchCard.style.display = 'block';
+            if (singleCard) singleCard.style.display = 'none';
+            adminCurrentImportType = 'batch';
+            
+            // 滚动到批量导入区域
+            setTimeout(function() {
+                batchCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+            showMsg('adminImportStatus', '已选择套卷，请在下方输入题目内容', 'info');
+        }
+        
+        function adminSingleImportToSet(setId) {
+            var batchCard = document.getElementById('adminBatchImportCard');
+            var singleCard = document.getElementById('adminSingleImportCard');
+            
+            // 如果当前显示的是单题录入，则隐藏；否则显示单题录入并隐藏批量导入
+            if (adminCurrentImportType === 'single') {
+                singleCard.style.display = 'none';
+                adminCurrentImportType = null;
+                return;
+            }
+            
+            document.getElementById('adminSingleSetId').value = setId;
+            // 设置默认值：判断推理、图形推理
+            document.getElementById('adminSingleSection').value = '判断推理';
+            updateAdminSingleSub();
+            document.getElementById('adminSingleSubcategory').value = '图形推理';
+            setAdminSingleOptionDefaults();
+            
+            singleCard.style.display = 'block';
+            if (batchCard) batchCard.style.display = 'none';
+            adminCurrentImportType = 'single';
+            
+            // 滚动到单题录入区域
+            setTimeout(function() {
+                singleCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+            showMsg('adminSingleStatus', '已选择套卷，请填写题目内容', 'info');
+        }
+        
+        function setAdminSingleOptionDefaults() {
+            var sub = document.getElementById('adminSingleSubcategory');
+            if (!sub) return;
+            var isGraph = sub.value === '图形推理';
+            var def = isGraph ? ['A', 'B', 'C', 'D'] : ['', '', '', ''];
+            ['adminSingleOptA', 'adminSingleOptB', 'adminSingleOptC', 'adminSingleOptD'].forEach(function(id, i) {
+                var el = document.getElementById(id);
+                if (el) el.innerHTML = def[i];
+            });
+        }
+        
+        function adminEditSet(setId) {
+            var set = adminStore.getSet(setId);
+            if (!set) return;
+            var newName = prompt('请输入新的套卷名称：', set.name || '');
+            if (newName == null) return;
+            newName = newName.trim();
+            if (!newName) {
+                showMsg('adminSetStatus', '套卷名称不能为空', 'error');
+                return;
+            }
+            if (!adminStore.updateSet(setId, { name: newName })) {
+                showMsg('adminSetStatus', '套卷名称已存在，不可重复', 'error');
+                return;
+            }
+            adminStore.save();
+            fillAdminSetSelects();
+            adminFilterSetList();
+            showMsg('adminSetStatus', '套卷已更新', 'success');
+        }
+        
+        var adminCurrentViewSetId = null;
+        function adminViewSetDetails(setId) {
+            adminCurrentViewSetId = setId;
+            var set = adminStore.getSet(setId);
+            if (!set) return;
+            // 隐藏套卷列表，显示题目详情页面
+            var setListContainer = document.getElementById('adminSetList');
+            var setListCard = setListContainer ? setListContainer.closest('.card') : null;
+            if (setListCard) {
+                setListCard.style.display = 'none';
+            }
+            // 创建或显示题目详情页面
+            var detailContainer = document.getElementById('adminSetDetailView');
+            if (!detailContainer) {
+                detailContainer = document.createElement('div');
+                detailContainer.id = 'adminSetDetailView';
+                detailContainer.className = 'card';
+                detailContainer.style.marginBottom = '20px';
+                // 插入到套卷管理card内部，在adminSetList之后
+                if (setListContainer && setListContainer.parentElement) {
+                    setListContainer.parentElement.insertBefore(detailContainer, setListContainer.nextSibling);
+                }
+            }
+            detailContainer.style.display = 'block';
+            
+            var allQids = [];
+            MAIN_SECTIONS.forEach(function(sec) {
+                (set[sec] || []).forEach(function(qid) { allQids.push({ qid: qid, section: sec }); });
+            });
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />'; }
+            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">' +
+                '<h2 style="margin:0; color:var(--primary-color);"><i class="fas fa-list"></i> ' + esc(set.name) + ' - 题目列表（共 ' + allQids.length + ' 题）</h2>' +
+                '<div style="display:flex; gap:8px;">' +
+                '<button class="btn btn-primary" onclick="adminBatchImportToSet(\'' + setId + '\')"><i class="fas fa-file-import"></i> 批量导入</button>' +
+                '<button class="btn btn-success" onclick="adminSingleImportToSet(\'' + setId + '\')"><i class="fas fa-edit"></i> 单题导入</button>' +
+                '<button class="btn" onclick="adminBackToSetList()"><i class="fas fa-arrow-left"></i> 返回列表</button>' +
+                '</div></div>';
+            
+            if (!allQids.length) {
+                html += '<div class="empty-state"><i class="fas fa-inbox"></i><p>该套卷暂无题目</p></div>';
+            } else {
+                html += '<div id="adminSetDetailQuestions" style="max-height:70vh; overflow-y:auto;">';
+                html += allQids.map(function(item, idx) {
+                    var q = adminStore.getQuestion(item.qid);
+                    if (!q) return '';
+                    var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+                    var stemHtml = esc(q.content || '(无题干)') + (q.stemImages || []).map(imgTag).join('');
+                    var optHtml = (q.options || []).map(function(o) {
+                        var optImgs = (o.images || []).map(imgTag).join('');
+                        return '<div class="option"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + optImgs + '</div>';
+                    }).join('');
+                    return '<div class="question-item" style="margin-bottom:16px; padding:12px; border:1px solid var(--border-color); border-radius:var(--border-radius);">' +
+                        '<div class="question-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
+                        '<span class="question-category">' + esc(item.section) + ' - ' + esc(q.subcategory || item.section) + '</span> ' +
+                        '<div style="display:flex; gap:8px;">' +
+                        '<button class="btn btn-sm btn-info" onclick="adminShowQuestionDetail(\'' + item.qid + '\')" title="查看详情"><i class="fas fa-eye"></i> 详情</button>' +
+                        '<button class="btn btn-sm" style="background:#eaeaea;" onclick="adminEditQuestion(\'' + item.qid + '\')" title="编辑"><i class="fas fa-edit"></i> 编辑</button>' +
+                        '<button class="btn btn-sm" style="background:#dc3545; color:#fff;" onclick="adminDeleteQuestion(\'' + item.qid + '\', \'' + setId + '\')" title="删除"><i class="fas fa-trash"></i> 删除</button>' +
+                        '</div></div>' +
+                        (materialHtml ? '<div style="margin-bottom:8px; padding:8px; background:var(--light-bg); border-radius:var(--border-radius);"><strong>材料：</strong>' + materialHtml + '</div>' : '') +
+                        '<div class="question-content">' + (idx+1) + '. ' + stemHtml + '</div>' +
+                        '<div class="options-grid">' + optHtml + '</div>' +
+                        (q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') +
+                        '<div class="answer-block">答案：' + esc(q.answer) + '</div>' +
+                        '</div>';
+                }).join('');
+                html += '</div>';
+            }
+            detailContainer.innerHTML = html;
+            renderLaTeXInElement(detailContainer);
+        }
+        
+        function adminBackToSetList() {
+            adminCurrentViewSetId = null;
+            var detailContainer = document.getElementById('adminSetDetailView');
+            if (detailContainer) {
+                detailContainer.style.display = 'none';
+            }
+            var setListContainer = document.getElementById('adminSetList');
+            var setListCard = setListContainer ? setListContainer.closest('.card') : null;
+            if (setListCard) {
+                setListCard.style.display = 'block';
+            }
+            adminFilterSetList();
+        }
+        
         function adminDeleteSet(setId) {
-            var set = store.getSet(setId);
+            var set = adminStore.getSet(setId);
             if (!set) return;
             var total = (set['言语理解']||[]).length + (set['数量关系']||[]).length + (set['判断推理']||[]).length + (set['资料分析']||[]).length;
             if (!confirm('确定删除套卷「' + (set.name || '') + '」吗？将同时删除该套卷下 ' + total + ' 道题目，且不可恢复。')) return;
-            store.deleteSet(setId);
-            store.save();
-            saveToGitHub().then(function() {
-                showMsg('adminSetStatus', '套卷已删除并同步到 GitHub', 'success');
-            }).catch(function() {
-                showMsg('adminSetStatus', '套卷已删除，但同步到 GitHub 失败', 'error');
-            });
+            adminStore.deleteSet(setId);
+            adminStore.save();
             fillAdminSetSelects();
             adminFilterSetList();
+            showMsg('adminSetStatus', '套卷已删除', 'success');
+        }
+        
+        function adminDeleteQuestion(qid, setId) {
+            if (!confirm('确定删除此题吗？')) return;
+            adminStore.removeQuestion(qid);
+            adminStore.save();
+            if (adminCurrentViewSetId === setId) {
+                adminViewSetDetails(setId);
+            } else {
+                adminFilterSetList();
+            }
+            fillAdminSetSelects();
+            showMsg('adminSetStatus', '题目已删除', 'success');
+        }
+        
+        var adminDetailQid = null;
+        function adminShowQuestionDetail(qid) {
+            adminDetailQid = qid;
+            var q = adminStore.getQuestion(qid);
+            if (!q) return;
+            var set = adminStore.getSet(q.setId);
+            var html = '<div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px;">' +
+                '<div style="background:var(--surface); border-radius:var(--border-radius); padding:24px; max-width:800px; max-height:90vh; overflow-y:auto; width:100%; position:relative;">' +
+                '<button onclick="document.getElementById(\'adminQuestionDetailModal\').remove()" style="position:absolute; top:12px; right:12px; background:#dc3545; color:#fff; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; font-size:18px;">×</button>' +
+                '<h3 style="margin-bottom:16px;">题目详情</h3>';
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }
+            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(imgTag).join('');
+            var optHtml = (q.options || []).map(function(o) {
+                var optImgs = (o.images || []).map(imgTag).join('');
+                var isCorrect = o.label === q.answer;
+                return '<div class="option ' + (isCorrect ? 'correct' : '') + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + optImgs + (isCorrect ? ' <span style="color:var(--success-color);">✓</span>' : '') + '</div>';
+            }).join('');
+            html += '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || '') + '</div>';
+            if (materialHtml) html += '<div style="margin-bottom:16px; padding:12px; background:var(--light-bg); border-radius:8px;"><strong>材料：</strong>' + materialHtml + '</div>';
+            html += '<div class="question-content">' + stemHtml + '</div>';
+            html += '<div class="options-grid">' + optHtml + '</div>';
+            html += '<div class="answer-block">答案：<strong>' + esc(q.answer) + '</strong></div>';
+            if (q.explanation) html += '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>';
+            if (q.knowledgePoints && q.knowledgePoints.length) html += '<div class="answer-block">考点：' + esc(q.knowledgePoints.join('、')) + '</div>';
+            html += '</div></div>';
+            var modal = document.createElement('div');
+            modal.id = 'adminQuestionDetailModal';
+            modal.innerHTML = html;
+            document.body.appendChild(modal);
+            renderLaTeXInElement(modal);
+        }
+        
+        function adminEditQuestion(qid) {
+            adminDetailQid = qid;
+            var q = adminStore.getQuestion(qid);
+            if (!q) return;
+            // 打开编辑界面（可以复用首页的编辑功能，但使用adminStore）
+            // 这里简化处理，直接跳转到单题录入页面并填充数据
+            document.getElementById('adminSingleSetId').value = q.setId;
+            document.getElementById('adminSingleSection').value = q.section;
+            updateAdminSingleSub();
+            document.getElementById('adminSingleSubcategory').value = q.subcategory || '';
+            document.getElementById('adminSingleSource').value = q.source || '';
+            var materialEl = document.getElementById('adminSingleMaterial');
+            if (materialEl) {
+                materialEl.innerHTML = q.material || '';
+                if (q.materialImages && q.materialImages.length) {
+                    q.materialImages.forEach(function(src) {
+                        var img = document.createElement('img');
+                        img.src = src;
+                        img.style.maxWidth = '100%';
+                        materialEl.appendChild(img);
+                    });
+                }
+            }
+            var stemEl = document.getElementById('adminSingleStem');
+            if (stemEl) {
+                stemEl.innerHTML = q.content || '';
+                if (q.stemImages && q.stemImages.length) {
+                    q.stemImages.forEach(function(src) {
+                        var img = document.createElement('img');
+                        img.src = src;
+                        img.style.maxWidth = '100%';
+                        stemEl.appendChild(img);
+                    });
+                }
+            }
+            ['A', 'B', 'C', 'D'].forEach(function(label, idx) {
+                var opt = q.options[idx];
+                if (opt) {
+                    var optEl = document.getElementById('adminSingleOpt' + label);
+                    if (optEl) {
+                        optEl.innerHTML = opt.text || '';
+                        if (opt.images && opt.images.length) {
+                            opt.images.forEach(function(src) {
+                                var img = document.createElement('img');
+                                img.src = src;
+                                img.style.maxWidth = '100%';
+                                optEl.appendChild(img);
+                            });
+                        }
+                    }
+                }
+            });
+            document.getElementById('adminSingleAnswer').value = q.answer || 'A';
+            var expEl = document.getElementById('adminSingleExplanation');
+            if (expEl) expEl.innerHTML = q.explanation || '';
+            // 删除原题目
+            adminStore.removeQuestion(qid);
+            adminStore.save();
+            adminFilterSetList();
+            // 滚动到单题录入区域
+            document.getElementById('tab-admin').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(function() {
+                document.getElementById('adminSingleStem').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+            showMsg('adminSingleStatus', '题目数据已填充到单题录入区域，请修改后保存', 'info');
+        }
+        
+        /**
+         * 将管理员题库数据同步到GitHub（支持合并和覆盖模式）
+         */
+        function adminSyncToGitHub() {
+            if (!GITHUB_CONFIG.token) {
+                return Promise.reject(new Error('GitHub Token 未配置'));
+            }
+            if (!window.fetch) {
+                return Promise.reject(new Error('浏览器不支持 fetch'));
+            }
+            var mode = (document.querySelector('input[name="adminSyncMode"]:checked') || {}).value || 'merge';
+            showMsg('adminSyncStatus', '正在同步到 GitHub...', 'info');
+            
+            // 准备要上传的数据
+            var adminData = {
+                sets: adminStore.sets,
+                questions: adminStore.questions,
+                exportTime: new Date().toISOString()
+            };
+            
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + GITHUB_CONFIG.path;
+            var headers = {
+                'Authorization': 'token ' + GITHUB_CONFIG.token,
+                'Accept': 'application/vnd.github.v3+json'
+            };
+            
+            // 先获取现有文件
+            return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, {
+                method: 'GET',
+                headers: headers
+            })
+            .then(function(resp) {
+                if (resp.status === 404) {
+                    // 文件不存在，直接创建
+                    return null;
+                }
+                if (!resp.ok) {
+                    throw new Error('获取文件信息失败: ' + resp.status);
+                }
+                return resp.json();
+            })
+            .then(function(fileInfo) {
+                var finalData;
+                if (mode === 'overwrite') {
+                    // 覆盖模式：直接使用管理员数据
+                    finalData = adminData;
+                } else {
+                    // 合并模式：合并现有数据和管理员数据
+                    if (fileInfo && fileInfo.content) {
+                        try {
+                            var existingContent = atob(fileInfo.content.replace(/\s/g, ''));
+                            var existingData = JSON.parse(existingContent);
+                            // 合并sets
+                            var mergedSets = [];
+                            var setIdMap = {}; // 映射旧ID到新ID
+                            (existingData.sets || []).forEach(function(s) {
+                                var existing = adminStore.sets.find(function(as) { return (as.name || '').trim() === (s.name || '').trim(); });
+                                if (existing) {
+                                    setIdMap[s.id] = existing.id;
+                                    mergedSets.push(existing);
+                                } else {
+                                    setIdMap[s.id] = s.id;
+                                    mergedSets.push(s);
+                                }
+                            });
+                            adminStore.sets.forEach(function(s) {
+                                if (!mergedSets.find(function(ms) { return ms.id === s.id; })) {
+                                    mergedSets.push(s);
+                                }
+                            });
+                            // 合并questions
+                            var mergedQuestions = {};
+                            Object.keys(existingData.questions || {}).forEach(function(qid) {
+                                var q = existingData.questions[qid];
+                                if (q.setId && setIdMap[q.setId]) {
+                                    q.setId = setIdMap[q.setId];
+                                    mergedQuestions[qid] = q;
+                                }
+                            });
+                            Object.keys(adminStore.questions).forEach(function(qid) {
+                                mergedQuestions[qid] = adminStore.questions[qid];
+                            });
+                            finalData = { sets: mergedSets, questions: mergedQuestions, exportTime: new Date().toISOString() };
+                        } catch (e) {
+                            // 解析失败，使用覆盖模式
+                            finalData = adminData;
+                        }
+                    } else {
+                        finalData = adminData;
+                    }
+                }
+                
+                var content = JSON.stringify(finalData, null, 2);
+                var encodedContent = btoa(unescape(encodeURIComponent(content)));
+                
+                var commitData = {
+                    message: '管理员同步题库数据 - ' + new Date().toLocaleString('zh-CN') + ' (' + mode + ')',
+                    content: encodedContent,
+                    branch: GITHUB_CONFIG.branch
+                };
+                
+                if (fileInfo && fileInfo.sha) {
+                    commitData.sha = fileInfo.sha;
+                }
+                
+                return fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify(commitData)
+                });
+            })
+            .then(function(resp) {
+                if (!resp.ok) {
+                    return resp.json().then(function(err) {
+                        throw new Error('同步到 GitHub 失败: ' + (err.message || resp.status));
+                    });
+                }
+                return resp.json();
+            })
+            .then(function(result) {
+                showMsg('adminSyncStatus', '成功同步到 GitHub: ' + (result.commit.html_url || ''), 'success');
+                return result;
+            })
+            .catch(function(err) {
+                showMsg('adminSyncStatus', '同步失败：' + (err.message || '未知错误'), 'error');
+                throw err;
+            });
+        }
+        
+        /**
+         * 重置GitHub数据（需要三次确认）
+         */
+        var adminResetConfirmCount = 0;
+        function adminResetGitHubData() {
+            adminResetConfirmCount++;
+            if (adminResetConfirmCount === 1) {
+                var confirm1 = prompt('危险操作！这将删除GitHub仓库中的所有题目和数据。\n\n请输入"确认"继续（第1次确认）：');
+                if (confirm1 !== '确认') {
+                    adminResetConfirmCount = 0;
+                    showMsg('adminResetStatus', '已取消重置操作', 'info');
+                    return;
+                }
+                showMsg('adminResetStatus', '第1次确认通过，还需要2次确认', 'info');
+            } else if (adminResetConfirmCount === 2) {
+                var confirm2 = prompt('第2次确认：请输入"确认"继续：');
+                if (confirm2 !== '确认') {
+                    adminResetConfirmCount = 0;
+                    showMsg('adminResetStatus', '已取消重置操作', 'info');
+                    return;
+                }
+                showMsg('adminResetStatus', '第2次确认通过，还需要1次确认', 'info');
+            } else if (adminResetConfirmCount === 3) {
+                var confirm3 = prompt('最后一次确认：请输入"确认"以删除GitHub仓库中的所有数据：');
+                if (confirm3 !== '确认') {
+                    adminResetConfirmCount = 0;
+                    showMsg('adminResetStatus', '已取消重置操作', 'info');
+                    return;
+                }
+                adminResetConfirmCount = 0;
+                // 执行重置
+                adminResetGitHubDataExecute();
+            }
+        }
+        
+        function adminResetGitHubDataExecute() {
+            if (!GITHUB_CONFIG.token) {
+                showMsg('adminResetStatus', 'GitHub Token 未配置', 'error');
+                return;
+            }
+            if (!window.fetch) {
+                showMsg('adminResetStatus', '浏览器不支持 fetch', 'error');
+                return;
+            }
+            showMsg('adminResetStatus', '正在重置GitHub数据...', 'info');
+            
+            var emptyData = {
+                sets: [],
+                questions: {},
+                exportTime: new Date().toISOString()
+            };
+            var content = JSON.stringify(emptyData, null, 2);
+            var encodedContent = btoa(unescape(encodeURIComponent(content)));
+            
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + GITHUB_CONFIG.path;
+            var headers = {
+                'Authorization': 'token ' + GITHUB_CONFIG.token,
+                'Accept': 'application/vnd.github.v3+json'
+            };
+            
+            // 先获取文件SHA
+            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, {
+                method: 'GET',
+                headers: headers
+            })
+            .then(function(resp) {
+                if (resp.status === 404) {
+                    throw new Error('GitHub仓库中不存在该文件');
+                }
+                if (!resp.ok) {
+                    throw new Error('获取文件信息失败: ' + resp.status);
+                }
+                return resp.json();
+            })
+            .then(function(fileInfo) {
+                var commitData = {
+                    message: '管理员重置：删除所有题目和数据 - ' + new Date().toLocaleString('zh-CN'),
+                    content: encodedContent,
+                    sha: fileInfo.sha,
+                    branch: GITHUB_CONFIG.branch
+                };
+                
+                return fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify(commitData)
+                });
+            })
+            .then(function(resp) {
+                if (!resp.ok) {
+                    return resp.json().then(function(err) {
+                        throw new Error('重置失败: ' + (err.message || resp.status));
+                    });
+                }
+                return resp.json();
+            })
+            .then(function(result) {
+                showMsg('adminResetStatus', 'GitHub数据已重置（所有题目和数据已删除）', 'success');
+            })
+            .catch(function(err) {
+                showMsg('adminResetStatus', '重置失败：' + (err.message || '未知错误'), 'error');
+            });
         }
         
         function updateAdminSingleSub() {
@@ -4021,6 +4633,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 opt.textContent = s;
                 subEl.appendChild(opt);
             });
+            setAdminSingleOptionDefaults();
         }
         
         function onAdminBatchTxtFileChange() {
@@ -4051,7 +4664,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (countEl) countEl.textContent = list.length;
             wrap.style.display = 'block';
             renderLaTeXInElement(listEl);
-            showMsg('adminImportStatus', '已解析 ' + list.length + ' 题，公式已渲染；确认无误可点击「导入并同步到 GitHub」', 'success');
+            showMsg('adminImportStatus', '已解析 ' + list.length + ' 题，公式已渲染；确认无误可点击「导入」', 'success');
         }
         
         function adminBatchImport() {
@@ -4064,17 +4677,20 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var added = 0;
             list.forEach(function(q) {
                 var section = q.category;
-                if (store.getSet(setId)[section]) { store.addQuestion(setId, section, Object.assign({}, q)); added++; }
+                if (adminStore.getSet(setId)[section]) { adminStore.addQuestion(setId, section, Object.assign({}, q)); added++; }
             });
-            store.save();
-            renderTree();
+            adminStore.save();
             fillAdminSetSelects();
-            rebuildSubcategoriesFromStore();
+            adminFilterSetList();
+            // 如果当前正在查看该套卷的详情页，刷新详情页
+            if (adminCurrentViewSetId === setId) {
+                adminViewSetDetails(setId);
+            }
             document.getElementById('adminInputText').value = '';
             document.getElementById('adminBatchTxtFile').value = '';
             document.getElementById('adminBatchPreviewWrap').style.display = 'none';
             showMsg('adminImportStatus', '成功导入 ' + added + ' 题，正在同步到 GitHub...', 'info');
-            saveToGitHub().then(function() {
+            adminSyncToGitHub().then(function() {
                 showMsg('adminImportStatus', '成功导入 ' + added + ' 题并已同步到 GitHub', 'success');
             }).catch(function(err) {
                 showMsg('adminImportStatus', '成功导入 ' + added + ' 题，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
@@ -4162,15 +4778,19 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     var answerEl = document.getElementById(qId + '_Answer');
                     var expEl = document.getElementById(qId + '_Explanation');
                     var q = { category: '资料分析', subcategory: subcategory, source: source, content: stemData.text, stemImages: stemData.images, material: materialData.text, materialImages: materialData.images, options: options, answer: answerEl ? answerEl.value : 'A', explanation: (expEl && expEl.value || '').trim(), knowledgePoints: knowledgePoints, ziliaoBlockId: ziliaoBlockId, ziliaoSubIndex: idx };
-                    store.addQuestion(setId, '资料分析', q);
+                    adminStore.addQuestion(setId, '资料分析', q);
                     added++;
                 });
                 if (added === 0) { showMsg('adminSingleStatus', '请至少填写一道小题的题干', 'error'); return; }
-                store.save();
-                renderTree();
+                adminStore.save();
                 fillAdminSetSelects();
+                adminFilterSetList();
+                // 如果当前正在查看该套卷的详情页，刷新详情页
+                if (adminCurrentViewSetId === setId) {
+                    adminViewSetDetails(setId);
+                }
                 showMsg('adminSingleStatus', '已保存 ' + added + ' 道小题，正在同步到 GitHub...', 'info');
-                saveToGitHub().then(function() {
+                adminSyncToGitHub().then(function() {
                     showMsg('adminSingleStatus', '已保存 ' + added + ' 道小题并已同步到 GitHub', 'success');
                 }).catch(function(err) {
                     showMsg('adminSingleStatus', '已保存 ' + added + ' 道小题，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
@@ -4200,12 +4820,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 ];
                 var explanationStr = getExplanationWithInlineImages('adminSingleExplanation') || '';
                 var question = { category: section, subcategory: subcategory, source: source, content: stemData.text, stemImages: stemData.images, material: materialData.text, materialImages: materialData.images, options: options, answer: document.getElementById('adminSingleAnswer').value, explanation: explanationStr };
-                store.addQuestion(setId, section, question);
-                store.save();
-                renderTree();
+                adminStore.addQuestion(setId, section, question);
+                adminStore.save();
                 fillAdminSetSelects();
+                adminFilterSetList();
                 showMsg('adminSingleStatus', '题目已保存，正在同步到 GitHub...', 'info');
-                saveToGitHub().then(function() {
+                adminSyncToGitHub().then(function() {
                     showMsg('adminSingleStatus', '题目已保存并已同步到 GitHub', 'success');
                 }).catch(function(err) {
                     showMsg('adminSingleStatus', '题目已保存，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
@@ -4213,7 +4833,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 var expEl = document.getElementById('adminSingleExplanation');
                 if (expEl) expEl.innerHTML = '';
                 ['adminSingleMaterial', 'adminSingleStem'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
-                ['adminSingleOptA', 'adminSingleOptB', 'adminSingleOptC', 'adminSingleOptD'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
+                // 重置默认值：判断推理、图形推理、A/B/C/D
+                document.getElementById('adminSingleSection').value = '判断推理';
+                updateAdminSingleSub();
+                document.getElementById('adminSingleSubcategory').value = '图形推理';
+                setAdminSingleOptionDefaults();
             }
         }
         
