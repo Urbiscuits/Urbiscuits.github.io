@@ -796,6 +796,7 @@
                 <button class="nav-item" data-tab="points"><i class="fas fa-tag"></i> 考点</button>
                 <button class="nav-item" data-tab="export"><i class="fas fa-file-pdf"></i> 导出PDF</button>
                 <button class="nav-item" data-tab="profile"><i class="fas fa-user"></i> 个人中心</button>
+                <button class="nav-item" data-tab="admin" style="border-top: 2px solid var(--primary-color); margin-top: 8px; padding-top: 12px;"><i class="fas fa-shield-alt"></i> 管理员题库管理</button>
             </nav>
         </aside>
         
@@ -1192,24 +1193,6 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div id="favoritesList"></div>
                         </div>
                         <div class="profile-section">
-                            <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fab fa-github"></i> GitHub 同步配置</h4>
-                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">配置 GitHub Personal Access Token 后，批量录入、单题录入、编辑题目等操作将自动同步到 GitHub 仓库的 data/store.json 文件。</p>
-                            <div class="control-group" style="margin-bottom:12px;">
-                                <label style="display:block; margin-bottom:6px;">GitHub Personal Access Token：</label>
-                                <input type="password" id="githubTokenInput" placeholder="输入 Token（需要 repo 权限）" style="width:100%; max-width:500px; padding:8px; border:1px solid var(--border-color); border-radius:var(--border-radius); font-family:monospace; font-size:0.9rem;">
-                                <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:6px;">
-                                    <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--primary-color);">创建 Token</a> | 
-                                    当前状态：<span id="githubTokenStatus" style="color:var(--text-secondary);">未配置</span>
-                                </p>
-                            </div>
-                            <div class="control-group" style="margin-bottom:12px;">
-                                <button class="btn btn-primary btn-sm" onclick="saveGitHubToken()"><i class="fas fa-save"></i> 保存 Token</button>
-                                <button class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color); margin-left:8px;" onclick="testGitHubConnection()"><i class="fas fa-check-circle"></i> 测试连接</button>
-                                <button class="btn btn-sm" style="background:#dc3545; color:#fff; border-color:#dc3545; margin-left:8px;" onclick="clearGitHubToken()"><i class="fas fa-trash"></i> 清除 Token</button>
-                            </div>
-                            <div id="githubStatus" class="status-message" style="display:none;"></div>
-                        </div>
-                        <div class="profile-section">
                             <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-database"></i> 数据</h4>
                             <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">导出可备份或迁移；导入默认合并，可选覆盖。导入后题目统计与套卷列表将自动刷新。</p>
                             <div class="control-group" style="margin-bottom:10px;">
@@ -1260,6 +1243,136 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 管理员题库管理 -->
+                <div id="tab-admin" class="tab-content">
+                    <div id="adminLogin" style="max-width: 400px; margin: 100px auto;">
+                        <div class="card">
+                            <h2 style="margin-bottom: 20px; color: var(--primary-color); text-align: center;"><i class="fas fa-shield-alt"></i> 管理员登录</h2>
+                            <div class="control-group" style="margin-bottom: 16px;">
+                                <label>管理员密码：</label>
+                                <input type="password" id="adminPassword" placeholder="请输入管理员密码" style="width:100%; padding:12px; margin-top:8px; border:2px solid var(--border-color); border-radius:var(--border-radius); font-size:1rem;">
+                            </div>
+                            <button class="btn btn-primary" onclick="adminLogin()" style="width:100%; padding:12px;"><i class="fas fa-sign-in-alt"></i> 登录</button>
+                            <div id="adminLoginStatus" class="status-message" style="margin-top:12px;"></div>
+                        </div>
+                    </div>
+                    <div id="adminContent" style="display:none;">
+                        <!-- GitHub 同步配置 -->
+                        <div class="card" style="margin-bottom: 20px;">
+                            <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fab fa-github"></i> GitHub 同步配置</h2>
+                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">配置 GitHub Personal Access Token 后，管理员在此页面进行的所有操作（套卷管理、批量导入、单题录入）将自动同步到 GitHub 仓库的 data/store.json 文件。</p>
+                            <div class="control-group" style="margin-bottom:12px;">
+                                <label style="display:block; margin-bottom:6px;">GitHub Personal Access Token：</label>
+                                <input type="password" id="adminGithubTokenInput" placeholder="输入 Token（需要 repo 权限）" style="width:100%; max-width:600px; padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius); font-family:monospace; font-size:0.9rem;">
+                                <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:8px;">
+                                    <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--primary-color);">创建 Token</a> | 
+                                    当前状态：<span id="adminGithubTokenStatus" style="color:var(--text-secondary);">未配置</span>
+                                </p>
+                            </div>
+                            <div class="control-group" style="margin-bottom:12px;">
+                                <button class="btn btn-primary" onclick="adminSaveGitHubToken()"><i class="fas fa-save"></i> 保存 Token</button>
+                                <button class="btn" style="background:var(--light-bg); border:1px solid var(--border-color); margin-left:8px;" onclick="adminTestGitHubConnection()"><i class="fas fa-check-circle"></i> 测试连接</button>
+                                <button class="btn" style="background:#dc3545; color:#fff; border-color:#dc3545; margin-left:8px;" onclick="adminClearGitHubToken()"><i class="fas fa-trash"></i> 清除 Token</button>
+                            </div>
+                            <div id="adminGithubStatus" class="status-message" style="display:none;"></div>
+                        </div>
+                        
+                        <!-- 套卷管理 -->
+                        <div class="card" style="margin-bottom: 20px;">
+                            <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-folder-open"></i> 套卷管理</h2>
+                            
+                            <!-- 套卷分类管理 -->
+                            <div style="margin-bottom: 20px; padding: 16px; background: var(--light-bg); border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                                <h4 style="margin-bottom: 12px; color: var(--primary-color); font-size: 1rem;"><i class="fas fa-tags"></i> 套卷分类管理</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">可自定义试卷分类，新建套卷时可选择。分类管理操作将同步到 GitHub。</p>
+                                <div id="adminCategoryList" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; min-height: 40px;"></div>
+                                <div class="filter-controls" style="margin-bottom: 0;">
+                                    <div style="flex: 1;"><input type="text" id="adminNewCategoryName" placeholder="新分类名称" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: var(--border-radius);"></div>
+                                    <button class="btn btn-primary" onclick="adminAddCategory()"><i class="fas fa-plus"></i> 新增分类</button>
+                                </div>
+                                <div id="adminCategoryStatus" class="status-message" style="margin-top: 8px;"></div>
+                            </div>
+                            
+                            <div class="filter-controls" style="margin-bottom: 16px;">
+                                <div><label>新套卷名称</label><input type="text" id="adminNewSetName" placeholder="如：2025年国考行测" style="width:100%; padding:10px; margin-top:5px;"></div>
+                                <div><label>分类</label><select id="adminNewSetCategory" style="width:100%; padding:10px; margin-top:5px;"></select></div>
+                                <div style="align-self: flex-end;"><button class="btn btn-primary" onclick="adminAddSet()"><i class="fas fa-plus"></i> 新建套卷</button></div>
+                            </div>
+                            <div class="filter-controls" style="margin-bottom: 12px;">
+                                <div><label>筛查分类</label><select id="adminSetFilterCategory" onchange="adminFilterSetList()" style="width:100%; padding:10px; margin-top:5px;"></select></div>
+                                <div style="flex:1; min-width: 180px;"><label>筛查名称</label><input type="text" id="adminSetFilterName" placeholder="输入套卷名称筛选…" oninput="adminFilterSetList()" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
+                            </div>
+                            <div id="adminSetList" style="margin-top: 16px;"></div>
+                            <div id="adminSetStatus" class="status-message"></div>
+                        </div>
+
+                        <!-- 批量导入 -->
+                        <div class="card" style="margin-bottom: 20px;">
+                            <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-file-import"></i> 批量导入（将同步到 GitHub）</h2>
+                            <div class="format-example">
+                                <p><strong>格式：</strong>题与题之间以单独一行的 <code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 区分，来源可要可不要。同一道题内可任意换行。</p>
+                                <p>支持 <code>考点：xxx</code> 或 <code>考点：a、b、c</code> 多考点。言语理解、判断推理等同上。资料分析：<code>[资料分析-文字类](2026国考)</code> 材料+题目1/2/3… 智能识别。</p>
+                            </div>
+                            <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="adminBatchSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
+                            <div class="control-group" style="margin-bottom: 12px;">
+                                <label>从 TXT 导入：</label>
+                                <input type="file" id="adminBatchTxtFile" accept=".txt,text/plain" onchange="onAdminBatchTxtFileChange()" style="margin-right: 12px;">
+                                <span style="color:#6c757d;">选择 TXT 后内容会填入下方框，可编辑后点击「预览」或「导入」</span>
+                            </div>
+                            <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT 填入（支持 <code>考点：xxx</code> 导入）</label>
+                            <textarea id="adminInputText" rows="14" placeholder="粘贴题目内容，或选择上方 TXT 文件填入..."></textarea>
+                            <div style="margin-top: 16px; display: flex; gap: 12px;">
+                                <button class="btn btn-primary" onclick="adminBatchImport()"><i class="fas fa-upload"></i> 导入并同步到 GitHub</button>
+                                <button class="btn btn-info" onclick="adminBatchPreview()"><i class="fas fa-eye"></i> 预览（公式渲染）</button>
+                                <button class="btn" onclick="document.getElementById('adminInputText').value=''; document.getElementById('adminBatchTxtFile').value=''; document.getElementById('adminBatchPreviewWrap').style.display='none';" style="background:#eaeaea;">清空</button>
+                            </div>
+                            <div id="adminImportStatus" class="status-message"></div>
+                            <div id="adminBatchPreviewWrap" style="display:none; margin-top:20px; padding:16px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color);">
+                                <h4 style="margin-bottom:12px; color:var(--primary-color);">解析预览（共 <span id="adminBatchPreviewCount">0</span> 题，$$ 已按公式显示）</h4>
+                                <p style="margin-bottom:12px; color:#6c757d;">请确认解析无误后再点击上方「导入并同步到 GitHub」按钮。</p>
+                                <div id="adminBatchPreviewList" class="question-list batch-preview-scroll"></div>
+                            </div>
+                        </div>
+
+                        <!-- 单题录入 -->
+                        <div class="card">
+                            <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-edit"></i> 单题录入（将同步到 GitHub）</h2>
+                            <p style="margin-bottom: 12px; color: var(--text-secondary); font-size: 0.9rem;">材料/题干/选项可 Ctrl+V 粘贴图片，支持 LaTeX。</p>
+                            <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="adminSingleSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
+                            <div style="margin-bottom:12px;">
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                    <input type="checkbox" id="adminSingleZiliaoMode">
+                                    开启资料分析（一材料多题）
+                                </label>
+                            </div>
+                            <div class="filter-controls">
+                                <div><label>大类</label><select id="adminSingleSection" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
+                                <div><label>小类</label><select id="adminSingleSubcategory" style="width:100%; padding:10px; margin-top:5px;"></select></div>
+                                <div style="flex:1;"><label>来源</label><input type="text" id="adminSingleSource" placeholder="如：2025年5月11日重庆A类" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
+                            </div>
+                            <div id="adminSingleNormalFields">
+                                <div style="margin-bottom: 12px;"><label>材料（可粘贴图片，支持LaTeX公式）</label><div id="adminSingleMaterial" class="editable-area" contenteditable="true"></div></div>
+                                <div style="margin-bottom: 12px;"><label>题干（可粘贴图片，支持LaTeX公式）</label><div id="adminSingleStem" class="editable-area" contenteditable="true"></div></div>
+                                <div style="margin-bottom: 12px;"><label>选项 A（可粘贴图片，支持LaTeX公式）</label><div id="adminSingleOptA" class="editable-area" contenteditable="true"></div></div>
+                                <div style="margin-bottom: 12px;"><label>选项 B（可粘贴图片，支持LaTeX公式）</label><div id="adminSingleOptB" class="editable-area" contenteditable="true"></div></div>
+                                <div style="margin-bottom: 12px;"><label>选项 C（可粘贴图片，支持LaTeX公式）</label><div id="adminSingleOptC" class="editable-area" contenteditable="true"></div></div>
+                                <div style="margin-bottom: 12px;"><label>选项 D（可粘贴图片，支持LaTeX公式）</label><div id="adminSingleOptD" class="editable-area" contenteditable="true"></div></div>
+                            </div>
+                            <div id="adminSingleZiliaoFields" style="display:none;">
+                                <div style="margin-bottom: 12px;"><label>材料（共用，可粘贴图片）</label><div id="adminSingleMaterialZiliao" class="editable-area" contenteditable="true"></div></div>
+                                <div id="adminSingleZiliaoQuestions"></div>
+                                <button type="button" class="btn btn-sm" style="background:var(--light-bg); margin-bottom:12px;" onclick="addAdminSingleZiliaoQuestion()"><i class="fas fa-plus"></i> 添加小题</button>
+                            </div>
+                            <div id="adminSingleAnswerRow" class="filter-controls">
+                                <div><label>答案</label><select id="adminSingleAnswer" style="width:100%; padding:10px; margin-top:5px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
+                                <div style="flex:2;"><label>解析（可粘贴图片，支持 LaTeX 公式）</label><div id="adminSingleExplanation" class="editable-area" contenteditable="true" style="min-height:80px; margin-top:5px;"></div></div>
+                            </div>
+                            <button class="btn btn-success" onclick="adminSingleSave()" style="margin-top: 12px;"><i class="fas fa-save"></i> 保存并同步到 GitHub</button>
+                            <div id="adminSingleStatus" class="status-message"></div>
                         </div>
                     </div>
                 </div>
@@ -1746,6 +1859,17 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 renderExportSetList();
                 toggleExportSetList();
             }
+            if (tabName === 'admin') {
+                // 切换到管理员页面时，如果未登录则显示登录界面
+                if (!adminAuthenticated) {
+                    document.getElementById('adminLogin').style.display = 'block';
+                    document.getElementById('adminContent').style.display = 'none';
+                } else {
+                    document.getElementById('adminLogin').style.display = 'none';
+                    document.getElementById('adminContent').style.display = 'block';
+                    initAdminPage();
+                }
+            }
         }
         function renderProfileTab() {
             var el = document.getElementById('profilePoints');
@@ -1760,62 +1884,47 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 var cls = x.amount >= 0 ? 'color:var(--success-color)' : 'color:#dc3545';
                 return '<div style="padding:8px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>' + d + ' ' + (x.desc || '') + '</span><span style="' + cls + '">' + amt + '</span></div>';
             }).join('');
-            
-            // 更新 GitHub Token 状态显示
-            var tokenStatusEl = document.getElementById('githubTokenStatus');
-            var tokenInputEl = document.getElementById('githubTokenInput');
-            if (tokenStatusEl) {
-                var token = GITHUB_CONFIG.token || '';
-                if (token) {
-                    tokenStatusEl.textContent = '已配置 (' + token.substring(0, 8) + '...)';
-                    tokenStatusEl.style.color = 'var(--success-color)';
-                    if (tokenInputEl) tokenInputEl.value = token;
-                } else {
-                    tokenStatusEl.textContent = '未配置';
-                    tokenStatusEl.style.color = 'var(--text-secondary)';
-                    if (tokenInputEl) tokenInputEl.value = '';
-                }
-            }
         }
         
-        function saveGitHubToken() {
-            var input = document.getElementById('githubTokenInput');
+        // 管理员版本的 GitHub Token 管理函数
+        function adminSaveGitHubToken() {
+            var input = document.getElementById('adminGithubTokenInput');
             if (!input) return;
             var token = (input.value || '').trim();
             if (!token) {
-                showMsg('githubStatus', '请输入 Token', 'error');
+                showMsg('adminGithubStatus', '请输入 Token', 'error');
                 return;
             }
             try {
                 localStorage.setItem('github_token', token);
                 GITHUB_CONFIG.token = token;
-                showMsg('githubStatus', 'Token 已保存', 'success');
-                renderProfileTab();
+                showMsg('adminGithubStatus', 'Token 已保存', 'success');
+                updateAdminGithubTokenStatus();
             } catch (e) {
-                showMsg('githubStatus', '保存失败：' + (e.message || '未知错误'), 'error');
+                showMsg('adminGithubStatus', '保存失败：' + (e.message || '未知错误'), 'error');
             }
         }
         
-        function clearGitHubToken() {
+        function adminClearGitHubToken() {
             if (!confirm('确定要清除 GitHub Token 吗？清除后将无法自动同步到 GitHub。')) return;
             try {
                 localStorage.removeItem('github_token');
                 GITHUB_CONFIG.token = '';
-                var input = document.getElementById('githubTokenInput');
+                var input = document.getElementById('adminGithubTokenInput');
                 if (input) input.value = '';
-                showMsg('githubStatus', 'Token 已清除', 'success');
-                renderProfileTab();
+                showMsg('adminGithubStatus', 'Token 已清除', 'success');
+                updateAdminGithubTokenStatus();
             } catch (e) {
-                showMsg('githubStatus', '清除失败：' + (e.message || '未知错误'), 'error');
+                showMsg('adminGithubStatus', '清除失败：' + (e.message || '未知错误'), 'error');
             }
         }
         
-        function testGitHubConnection() {
+        function adminTestGitHubConnection() {
             if (!GITHUB_CONFIG.token) {
-                showMsg('githubStatus', '请先配置 Token', 'error');
+                showMsg('adminGithubStatus', '请先配置 Token', 'error');
                 return;
             }
-            showMsg('githubStatus', '正在测试连接...', 'info');
+            showMsg('adminGithubStatus', '正在测试连接...', 'info');
             var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo;
             fetch(apiUrl, {
                 headers: {
@@ -1836,11 +1945,28 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 return resp.json();
             })
             .then(function(data) {
-                showMsg('githubStatus', '连接成功！仓库：' + (data.full_name || GITHUB_CONFIG.repo), 'success');
+                showMsg('adminGithubStatus', '连接成功！仓库：' + (data.full_name || GITHUB_CONFIG.repo), 'success');
             })
             .catch(function(err) {
-                showMsg('githubStatus', '连接失败：' + (err.message || '未知错误'), 'error');
+                showMsg('adminGithubStatus', '连接失败：' + (err.message || '未知错误'), 'error');
             });
+        }
+        
+        function updateAdminGithubTokenStatus() {
+            var tokenStatusEl = document.getElementById('adminGithubTokenStatus');
+            var tokenInputEl = document.getElementById('adminGithubTokenInput');
+            if (tokenStatusEl) {
+                var token = GITHUB_CONFIG.token || '';
+                if (token) {
+                    tokenStatusEl.textContent = '已配置 (' + token.substring(0, 8) + '...)';
+                    tokenStatusEl.style.color = 'var(--success-color)';
+                    if (tokenInputEl) tokenInputEl.value = token;
+                } else {
+                    tokenStatusEl.textContent = '未配置';
+                    tokenStatusEl.style.color = 'var(--text-secondary)';
+                    if (tokenInputEl) tokenInputEl.value = '';
+                }
+            }
         }
         function toggleExportSetList() {
             var scope = (document.querySelector('input[name="exportScope"]:checked') || {}).value || 'all';
@@ -2057,8 +2183,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (detailQid === editQid) showQuestionDetail(detailQid);
             filterManage();
             if (document.getElementById('tab-single') && document.getElementById('tab-single').classList.contains('active')) renderSingleHistory();
-            showMsg('setStatus', '题目已更新', 'success');
-            saveToGitHub();
+            showMsg('setStatus', '题目已更新（已保存到本地）', 'success');
+            // 注意：首页的编辑题目不同步到 GitHub，只保存到本地
         }
         function renderHistoryList() {
             var list = getHistory();
@@ -2637,14 +2763,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             checkExportState();
             document.getElementById('inputText').value = '';
             document.getElementById('batchPreviewWrap').style.display = 'none';
-            showMsg('importStatus', '成功导入 ' + added + ' 题', 'success');
-            
-            // 同步到 GitHub（如果配置了 Token）
-            saveToGitHub().then(function() {
-                // 同步成功，可选提示
-            }).catch(function() {
-                // 同步失败已在 saveToGitHub 中处理，这里不做额外处理
-            });
+            showMsg('importStatus', '成功导入 ' + added + ' 题（已保存到本地）', 'success');
+            // 注意：首页的批量导入不同步到 GitHub，只保存到本地
         }
 
         /**
@@ -2896,9 +3016,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 if (added === 0) { showMsg('singleStatus', '请至少填写一道小题的题干', 'error'); return; }
                 store.save();
                 renderTree();
-                showMsg('singleStatus', '已保存 ' + added + ' 道小题（一材料多题）', 'success');
-                saveToGitHub();
+                showMsg('singleStatus', '已保存 ' + added + ' 道小题（一材料多题，已保存到本地）', 'success');
                 renderSingleHistory();
+                // 注意：首页的单题录入不同步到 GitHub，只保存到本地
                 document.getElementById('singleMaterialZiliao').innerHTML = '';
                 cards.forEach(function(card) {
                     var qId = card.getAttribute('data-zq-id');
@@ -2924,9 +3044,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 store.addQuestion(setId, section, question);
                 store.save();
                 renderTree();
-                showMsg('singleStatus', '题目已保存', 'success');
-                saveToGitHub();
+                showMsg('singleStatus', '题目已保存（已保存到本地）', 'success');
                 renderSingleHistory();
+                // 注意：首页的单题录入不同步到 GitHub，只保存到本地
                 var expEl = document.getElementById('singleExplanation');
                 if (expEl) expEl.innerHTML = '';
                 ['singleMaterial', 'singleStem'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
@@ -2979,7 +3099,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             fillSetSelects();
             filterManage();
             checkExportState();
-            saveToGitHub();
+            // 注意：首页的删除题目不同步到 GitHub，只保存到本地
         }
 
         var practiceQuestions = [], practiceIndex = 0, practiceUserSelections = {}, practiceStartTime = 0, practiceMode = 'practice', practiceTimerInterval = null;
@@ -3654,6 +3774,451 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             box.scrollIntoView({ behavior: 'smooth' });
         }
 
+        // ==================== 管理员题库管理功能 ====================
+        var ADMIN_PASSWORD = '0710';
+        var adminAuthenticated = false;
+        
+        function adminLogin() {
+            var password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                adminAuthenticated = true;
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                initAdminPage();
+                showMsg('adminLoginStatus', '登录成功', 'success');
+            } else {
+                adminAuthenticated = false;
+                showMsg('adminLoginStatus', '密码错误', 'error');
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+        
+        function initAdminPage() {
+            if (!adminAuthenticated) return;
+            updateAdminGithubTokenStatus();
+            fillAdminSetSelects();
+            fillAdminCategorySelects();
+            renderAdminCategoryList();
+            adminFilterSetList();
+            updateAdminSingleSub();
+            var adminZiliaoCb = document.getElementById('adminSingleZiliaoMode');
+            if (adminZiliaoCb) {
+                adminZiliaoCb.addEventListener('change', function() {
+                    var on = adminZiliaoCb.checked;
+                    document.getElementById('adminSingleNormalFields').style.display = on ? 'none' : 'block';
+                    document.getElementById('adminSingleAnswerRow').style.display = on ? 'none' : 'flex';
+                    var zf = document.getElementById('adminSingleZiliaoFields');
+                    zf.style.display = on ? 'block' : 'none';
+                    if (on) {
+                        document.getElementById('adminSingleSection').value = '资料分析';
+                        updateAdminSingleSub();
+                        document.getElementById('adminSingleZiliaoQuestions').innerHTML = '';
+                        adminSingleZiliaoQIndex = 0;
+                        for (var i = 0; i < 5; i++) addAdminSingleZiliaoQuestion();
+                    } else {
+                        document.getElementById('adminSingleSection').value = '判断推理';
+                        updateAdminSingleSub();
+                    }
+                });
+            }
+            document.getElementById('adminSingleSection').addEventListener('change', updateAdminSingleSub);
+        }
+        
+        function fillAdminSetSelects() {
+            var selects = ['adminBatchSetId', 'adminSingleSetId'];
+            selects.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = '<option value="">请选择套卷</option>';
+                store.sets.forEach(function(s) {
+                    var opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name || '未命名';
+                    el.appendChild(opt);
+                });
+            });
+        }
+        
+        function fillAdminCategorySelects() {
+            var el = document.getElementById('adminNewSetCategory');
+            if (!el) return;
+            var cats = getSetCategories();
+            el.innerHTML = '<option value="">不分类</option>';
+            cats.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                el.appendChild(opt);
+            });
+            var filterEl = document.getElementById('adminSetFilterCategory');
+            if (filterEl) {
+                filterEl.innerHTML = '<option value="">全部</option>';
+                cats.forEach(function(c) {
+                    var opt = document.createElement('option');
+                    opt.value = c;
+                    opt.textContent = c;
+                    filterEl.appendChild(opt);
+                });
+            }
+        }
+        
+        function renderAdminCategoryList() {
+            var container = document.getElementById('adminCategoryList');
+            if (!container) return;
+            var cats = getSetCategories().filter(function(c) { return c; });
+            if (!cats.length) {
+                container.innerHTML = '<span style="color: var(--text-secondary);">暂无分类</span>';
+                return;
+            }
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            container.innerHTML = cats.map(function(c) {
+                return '<span class="set-item" style="padding:8px 12px; display:inline-flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border-color); border-radius:var(--border-radius);">' +
+                    '<span>' + esc(c) + '</span>' +
+                    '<button class="btn" style="padding:4px 8px; font-size:0.85rem; background:#eaeaea;" onclick="adminRenameCategory(\'' + (c.replace(/'/g,"\\'")) + '\')" title="重命名"><i class="fas fa-edit"></i></button>' +
+                    '<button class="btn" style="padding:4px 8px; font-size:0.85rem; background:#f8d7da; color:#721c24;" onclick="adminDeleteCategory(\'' + (c.replace(/'/g,"\\'")) + '\')" title="删除"><i class="fas fa-trash"></i></button>' +
+                    '</span>';
+            }).join('');
+        }
+        
+        function adminAddCategory() {
+            var name = (document.getElementById('adminNewCategoryName').value || '').trim();
+            if (!name) {
+                showMsg('adminCategoryStatus', '请输入分类名称', 'error');
+                return;
+            }
+            var cats = getSetCategories();
+            if (cats.indexOf(name) >= 0) {
+                showMsg('adminCategoryStatus', '该分类已存在', 'error');
+                return;
+            }
+            cats.push(name);
+            cats.sort(function(a,b) { return (a||'').localeCompare(b||''); });
+            saveSetCategories(cats);
+            document.getElementById('adminNewCategoryName').value = '';
+            fillAdminCategorySelects();
+            renderAdminCategoryList();
+            adminFilterSetList();
+            showMsg('adminCategoryStatus', '已添加分类：' + name + '，正在同步到 GitHub...', 'info');
+            // 同步到GitHub（分类信息会包含在store.json中）
+            saveToGitHub().then(function() {
+                showMsg('adminCategoryStatus', '已添加分类：' + name + ' 并已同步到 GitHub', 'success');
+            }).catch(function(err) {
+                showMsg('adminCategoryStatus', '已添加分类：' + name + '，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
+            });
+        }
+        
+        function adminDeleteCategory(name) {
+            var cats = getSetCategories();
+            var idx = cats.indexOf(name);
+            if (idx < 0) return;
+            var used = store.sets.some(function(s) { return (s.category||'') === name; });
+            if (used && !confirm('有套卷使用该分类，删除后这些套卷将变为「不分类」。确定删除？')) return;
+            store.sets.forEach(function(s) { if ((s.category||'') === name) s.category = ''; });
+            store.save();
+            cats.splice(idx, 1);
+            saveSetCategories(cats);
+            fillAdminCategorySelects();
+            renderAdminCategoryList();
+            adminFilterSetList();
+            showMsg('adminCategoryStatus', '已删除分类，正在同步到 GitHub...', 'info');
+            saveToGitHub().then(function() {
+                showMsg('adminCategoryStatus', '已删除分类并已同步到 GitHub', 'success');
+            }).catch(function(err) {
+                showMsg('adminCategoryStatus', '已删除分类，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
+            });
+        }
+        
+        function adminRenameCategory(oldName) {
+            var newName = prompt('请输入新的分类名称：', oldName);
+            if (newName == null || (newName = newName.trim()) === '') return;
+            var cats = getSetCategories();
+            if (cats.indexOf(newName) >= 0 && newName !== oldName) {
+                alert('该分类名已存在');
+                return;
+            }
+            var idx = cats.indexOf(oldName);
+            if (idx >= 0) cats[idx] = newName;
+            store.sets.forEach(function(s) { if ((s.category||'') === oldName) s.category = newName; });
+            store.save();
+            saveSetCategories(cats);
+            fillAdminCategorySelects();
+            renderAdminCategoryList();
+            adminFilterSetList();
+            showMsg('adminCategoryStatus', '已重命名分类，正在同步到 GitHub...', 'info');
+            saveToGitHub().then(function() {
+                showMsg('adminCategoryStatus', '已重命名分类并已同步到 GitHub', 'success');
+            }).catch(function(err) {
+                showMsg('adminCategoryStatus', '已重命名分类，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
+            });
+        }
+        
+        function adminAddSet() {
+            var name = (document.getElementById('adminNewSetName').value || '').trim() || '未命名套卷';
+            var category = (document.getElementById('adminNewSetCategory').value || '').trim();
+            var id = store.addSet(name, category);
+            if (id == null) {
+                showMsg('adminSetStatus', '套卷名称已存在，不可重复', 'error');
+                return;
+            }
+            store.save();
+            saveToGitHub().then(function() {
+                showMsg('adminSetStatus', '套卷已创建并同步到 GitHub', 'success');
+            }).catch(function() {
+                showMsg('adminSetStatus', '套卷已创建，但同步到 GitHub 失败', 'error');
+            });
+            document.getElementById('adminNewSetName').value = '';
+            document.getElementById('adminNewSetCategory').value = '';
+            fillAdminSetSelects();
+            adminFilterSetList();
+        }
+        
+        function adminFilterSetList() {
+            var category = document.getElementById('adminSetFilterCategory').value;
+            var nameFilter = (document.getElementById('adminSetFilterName').value || '').trim().toLowerCase();
+            var filtered = store.sets.filter(function(s) {
+                if (category && s.category !== category) return false;
+                if (nameFilter && !(s.name || '').toLowerCase().includes(nameFilter)) return false;
+                return true;
+            });
+            var container = document.getElementById('adminSetList');
+            if (!container) return;
+            if (!filtered.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>暂无套卷</p></div>';
+                return;
+            }
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            container.innerHTML = filtered.map(function(s) {
+                var total = (s['言语理解']||[]).length + (s['数量关系']||[]).length + (s['判断推理']||[]).length + (s['资料分析']||[]).length;
+                return '<div class="set-item" style="padding:12px; border:1px solid var(--border-color); border-radius:var(--border-radius); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;"><div><strong>' + esc(s.name) + '</strong> <span style="color:#6c757d; margin-left:8px;">' + esc(s.category || '不分类') + '</span> <span style="color:#6c757d; margin-left:8px;">共 ' + total + ' 题</span></div><button class="btn btn-sm" style="background:#dc3545; color:#fff;" onclick="adminDeleteSet(\'' + s.id + '\')"><i class="fas fa-trash"></i> 删除</button></div>';
+            }).join('');
+        }
+        
+        function adminDeleteSet(setId) {
+            var set = store.getSet(setId);
+            if (!set) return;
+            var total = (set['言语理解']||[]).length + (set['数量关系']||[]).length + (set['判断推理']||[]).length + (set['资料分析']||[]).length;
+            if (!confirm('确定删除套卷「' + (set.name || '') + '」吗？将同时删除该套卷下 ' + total + ' 道题目，且不可恢复。')) return;
+            store.deleteSet(setId);
+            store.save();
+            saveToGitHub().then(function() {
+                showMsg('adminSetStatus', '套卷已删除并同步到 GitHub', 'success');
+            }).catch(function() {
+                showMsg('adminSetStatus', '套卷已删除，但同步到 GitHub 失败', 'error');
+            });
+            fillAdminSetSelects();
+            adminFilterSetList();
+        }
+        
+        function updateAdminSingleSub() {
+            var section = document.getElementById('adminSingleSection').value;
+            var subEl = document.getElementById('adminSingleSubcategory');
+            if (!subEl) return;
+            var subs = SUBCATEGORIES[section] || [];
+            subEl.innerHTML = '';
+            subs.forEach(function(s) {
+                var opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                subEl.appendChild(opt);
+            });
+        }
+        
+        function onAdminBatchTxtFileChange() {
+            var input = document.getElementById('adminBatchTxtFile');
+            if (!input.files || !input.files.length) return;
+            var file = input.files[0];
+            var reader = new FileReader();
+            reader.onload = function() {
+                document.getElementById('adminInputText').value = reader.result;
+            };
+            reader.readAsText(file);
+        }
+        
+        function adminBatchPreview() {
+            var text = (document.getElementById('adminInputText').value || '').trim();
+            var wrap = document.getElementById('adminBatchPreviewWrap');
+            var listEl = document.getElementById('adminBatchPreviewList');
+            var countEl = document.getElementById('adminBatchPreviewCount');
+            if (!text) { showMsg('adminImportStatus', '请先填入题目内容', 'error'); return; }
+            var list = parseBatchText(text);
+            if (!list.length) { showMsg('adminImportStatus', '未解析到有效题目，请检查格式与分类', 'error'); wrap.style.display = 'none'; return; }
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            listEl.innerHTML = list.map(function(q, i) {
+                var optHtml = (q.options || []).map(function(o) { return '<div class="option"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + '</div>'; }).join('');
+                var kp = (q.knowledgePoints && q.knowledgePoints.length) ? ('考点：' + q.knowledgePoints.join('、')) : '';
+                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.category) + ' - ' + esc(q.subcategory) + '</span> <span style="color:#6c757d;">' + (i+1) + '.</span>' + (kp ? ' <span style="font-size:0.9rem; color:var(--primary-color);">' + esc(kp) + '</span>' : '') + '</div><div class="question-content">' + esc(q.content || '') + '</div><div class="options-grid">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') + '</div>';
+            }).join('');
+            if (countEl) countEl.textContent = list.length;
+            wrap.style.display = 'block';
+            renderLaTeXInElement(listEl);
+            showMsg('adminImportStatus', '已解析 ' + list.length + ' 题，公式已渲染；确认无误可点击「导入并同步到 GitHub」', 'success');
+        }
+        
+        function adminBatchImport() {
+            var setId = document.getElementById('adminBatchSetId').value;
+            if (!setId) { showMsg('adminImportStatus', '请先选择或新建套卷', 'error'); return; }
+            var text = (document.getElementById('adminInputText').value || '').trim();
+            if (!text) { showMsg('adminImportStatus', '请输入题目内容', 'error'); return; }
+            var list = parseBatchText(text);
+            if (!list.length) { showMsg('adminImportStatus', '未解析到有效题目，请检查格式与分类', 'error'); return; }
+            var added = 0;
+            list.forEach(function(q) {
+                var section = q.category;
+                if (store.getSet(setId)[section]) { store.addQuestion(setId, section, Object.assign({}, q)); added++; }
+            });
+            store.save();
+            renderTree();
+            fillAdminSetSelects();
+            rebuildSubcategoriesFromStore();
+            document.getElementById('adminInputText').value = '';
+            document.getElementById('adminBatchTxtFile').value = '';
+            document.getElementById('adminBatchPreviewWrap').style.display = 'none';
+            showMsg('adminImportStatus', '成功导入 ' + added + ' 题，正在同步到 GitHub...', 'info');
+            saveToGitHub().then(function() {
+                showMsg('adminImportStatus', '成功导入 ' + added + ' 题并已同步到 GitHub', 'success');
+            }).catch(function(err) {
+                showMsg('adminImportStatus', '成功导入 ' + added + ' 题，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
+            });
+        }
+        
+        var adminSingleZiliaoQIndex = 0;
+        function addAdminSingleZiliaoQuestion() {
+            var idx = adminSingleZiliaoQIndex++;
+            var container = document.getElementById('adminSingleZiliaoQuestions');
+            if (!container) return;
+            var qId = 'admin_zq_' + idx;
+            var card = document.createElement('div');
+            card.className = 'ziliao-question-card';
+            card.setAttribute('data-zq-id', qId);
+            card.innerHTML = '<div style="border:1px solid var(--border-color); border-radius:var(--border-radius); padding:12px; margin-bottom:12px; background:var(--light-bg);"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><strong>小题 ' + (idx + 1) + '</strong><button class="btn btn-sm" style="background:#dc3545; color:#fff; padding:4px 8px;" onclick="removeAdminZiliaoQuestion(\'' + qId + '\')"><i class="fas fa-times"></i></button></div>' +
+                '<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:6px;"><label>小类</label><select id="' + qId + '_Subcategory" style="flex:1; padding:6px 10px;"></select></div>' +
+                '<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:6px;"><label>来源</label><input type="text" id="' + qId + '_Source" placeholder="可选" style="flex:1; padding:6px 10px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>' +
+                '<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:6px;"><label>题干</label><input type="text" id="' + qId + '_Points" placeholder="考点，多个用逗号分隔" style="flex:1; max-width:220px; padding:6px 10px; border:1px solid var(--border-color); border-radius:var(--border-radius); font-size:0.9rem;"></div>' +
+                '<div style="margin-bottom:8px;"><div id="' + qId + '_Stem" class="editable-area" contenteditable="true" style="min-height:50px;"></div></div>' +
+                '<div style="margin-bottom:6px;"><label>选项 A</label><div id="' + qId + '_OptA" class="editable-area" contenteditable="true" style="min-height:36px;"></div></div>' +
+                '<div style="margin-bottom:6px;"><label>选项 B</label><div id="' + qId + '_OptB" class="editable-area" contenteditable="true" style="min-height:36px;"></div></div>' +
+                '<div style="margin-bottom:6px;"><label>选项 C</label><div id="' + qId + '_OptC" class="editable-area" contenteditable="true" style="min-height:36px;"></div></div>' +
+                '<div style="margin-bottom:6px;"><label>选项 D</label><div id="' + qId + '_OptD" class="editable-area" contenteditable="true" style="min-height:36px;"></div></div>' +
+                '<div class="filter-controls" style="margin-top:8px;"><div><label>答案</label><select id="' + qId + '_Answer" style="padding:8px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>' +
+                '<div style="flex:2;"><label>解析</label><textarea id="' + qId + '_Explanation" rows="2" style="width:100%; padding:8px; border:1px solid var(--border-color); border-radius:var(--border-radius);" placeholder="可选"></textarea></div></div>';
+            container.appendChild(card);
+            var subEl = document.getElementById(qId + '_Subcategory');
+            if (subEl) {
+                var subs = SUBCATEGORIES['资料分析'] || [];
+                subs.forEach(function(s) {
+                    var opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    subEl.appendChild(opt);
+                });
+            }
+            [qId + '_Stem', qId + '_OptA', qId + '_OptB', qId + '_OptC', qId + '_OptD'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                if (!el.dataset.pasteBound) {
+                    el.dataset.pasteBound = '1';
+                    el.addEventListener('paste', function(e) {
+                        handleImagePaste(e, el);
+                    });
+                }
+            });
+        }
+        
+        function removeAdminZiliaoQuestion(qId) {
+            var card = document.querySelector('[data-zq-id="' + qId + '"]');
+            if (card) card.remove();
+        }
+        
+        function adminSingleSave() {
+            if (!adminAuthenticated) {
+                showMsg('adminSingleStatus', '请先登录管理员', 'error');
+                return;
+            }
+            var setId = document.getElementById('adminSingleSetId').value;
+            if (!setId) { showMsg('adminSingleStatus', '请先选择或新建套卷', 'error'); return; }
+            var ziliaoMode = document.getElementById('adminSingleZiliaoMode') && document.getElementById('adminSingleZiliaoMode').checked;
+            if (ziliaoMode) {
+                var materialData = getEditableContent('adminSingleMaterialZiliao');
+                var cards = document.querySelectorAll('#adminSingleZiliaoQuestions [data-zq-id]');
+                if (!cards.length) { showMsg('adminSingleStatus', '请至少添加一道小题', 'error'); return; }
+                var ziliaoBlockId = genId();
+                var added = 0;
+                cards.forEach(function(card, idx) {
+                    var qId = card.getAttribute('data-zq-id');
+                    var stemData = getEditableContent(qId + '_Stem');
+                    if (!stemData.text && !stemData.images.length) return;
+                    var optA = getEditableContent(qId + '_OptA'), optB = getEditableContent(qId + '_OptB'), optC = getEditableContent(qId + '_OptC'), optD = getEditableContent(qId + '_OptD');
+                    var subcategory = document.getElementById(qId + '_Subcategory').value || '资料分析';
+                    var source = (document.getElementById(qId + '_Source') && document.getElementById(qId + '_Source').value || '').trim();
+                    var pointsEl = document.getElementById(qId + '_Points');
+                    var kpStr = (pointsEl && pointsEl.value || '').trim();
+                    var knowledgePoints = kpStr ? kpStr.split(/[,，、\s]+/).map(function(s) { return s.trim(); }).filter(Boolean) : [];
+                    var options = [
+                        { label: 'A', text: optA.text, images: optA.images },
+                        { label: 'B', text: optB.text, images: optB.images },
+                        { label: 'C', text: optC.text, images: optC.images },
+                        { label: 'D', text: optD.text, images: optD.images }
+                    ];
+                    var answerEl = document.getElementById(qId + '_Answer');
+                    var expEl = document.getElementById(qId + '_Explanation');
+                    var q = { category: '资料分析', subcategory: subcategory, source: source, content: stemData.text, stemImages: stemData.images, material: materialData.text, materialImages: materialData.images, options: options, answer: answerEl ? answerEl.value : 'A', explanation: (expEl && expEl.value || '').trim(), knowledgePoints: knowledgePoints, ziliaoBlockId: ziliaoBlockId, ziliaoSubIndex: idx };
+                    store.addQuestion(setId, '资料分析', q);
+                    added++;
+                });
+                if (added === 0) { showMsg('adminSingleStatus', '请至少填写一道小题的题干', 'error'); return; }
+                store.save();
+                renderTree();
+                fillAdminSetSelects();
+                showMsg('adminSingleStatus', '已保存 ' + added + ' 道小题，正在同步到 GitHub...', 'info');
+                saveToGitHub().then(function() {
+                    showMsg('adminSingleStatus', '已保存 ' + added + ' 道小题并已同步到 GitHub', 'success');
+                }).catch(function(err) {
+                    showMsg('adminSingleStatus', '已保存 ' + added + ' 道小题，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
+                });
+                document.getElementById('adminSingleMaterialZiliao').innerHTML = '';
+                cards.forEach(function(card) {
+                    var qId = card.getAttribute('data-zq-id');
+                    [qId + '_Stem', qId + '_OptA', qId + '_OptB', qId + '_OptC', qId + '_OptD'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
+                    var e = document.getElementById(qId + '_Explanation'); if (e) e.value = '';
+                });
+                document.getElementById('adminSingleZiliaoQuestions').innerHTML = '';
+                adminSingleZiliaoQIndex = 0;
+                addAdminSingleZiliaoQuestion();
+            } else {
+                var stemData = getEditableContent('adminSingleStem');
+                var materialData = getEditableContent('adminSingleMaterial');
+                var optA = getEditableContent('adminSingleOptA'), optB = getEditableContent('adminSingleOptB'), optC = getEditableContent('adminSingleOptC'), optD = getEditableContent('adminSingleOptD');
+                if (!stemData.text && !stemData.images.length) { showMsg('adminSingleStatus', '请填写题干', 'error'); return; }
+                var section = document.getElementById('adminSingleSection').value;
+                var subcategory = document.getElementById('adminSingleSubcategory').value;
+                var source = (document.getElementById('adminSingleSource').value || '').trim();
+                var options = [
+                    { label: 'A', text: optA.text, images: optA.images },
+                    { label: 'B', text: optB.text, images: optB.images },
+                    { label: 'C', text: optC.text, images: optC.images },
+                    { label: 'D', text: optD.text, images: optD.images }
+                ];
+                var explanationStr = getExplanationWithInlineImages('adminSingleExplanation') || '';
+                var question = { category: section, subcategory: subcategory, source: source, content: stemData.text, stemImages: stemData.images, material: materialData.text, materialImages: materialData.images, options: options, answer: document.getElementById('adminSingleAnswer').value, explanation: explanationStr };
+                store.addQuestion(setId, section, question);
+                store.save();
+                renderTree();
+                fillAdminSetSelects();
+                showMsg('adminSingleStatus', '题目已保存，正在同步到 GitHub...', 'info');
+                saveToGitHub().then(function() {
+                    showMsg('adminSingleStatus', '题目已保存并已同步到 GitHub', 'success');
+                }).catch(function(err) {
+                    showMsg('adminSingleStatus', '题目已保存，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
+                });
+                var expEl = document.getElementById('adminSingleExplanation');
+                if (expEl) expEl.innerHTML = '';
+                ['adminSingleMaterial', 'adminSingleStem'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
+                ['adminSingleOptA', 'adminSingleOptB', 'adminSingleOptC', 'adminSingleOptD'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
+            }
+        }
+        
+        // ==================== 管理员题库管理功能结束 ====================
+        
         document.addEventListener('DOMContentLoaded', function() {
             store.load();
             rebuildSubcategoriesFromStore();
