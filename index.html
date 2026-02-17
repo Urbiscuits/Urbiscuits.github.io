@@ -4144,6 +4144,19 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (batchCard) batchCard.style.display = 'none';
             if (singleCard) singleCard.style.display = 'none';
             adminCurrentImportType = null;
+
+            // 若从 admin-set-manage.html 跳回，自动预选套卷并打开录入区
+            try {
+                if (window.__adminAddToSetId) {
+                    var setId = window.__adminAddToSetId;
+                    var t = window.__adminImportType || 'single';
+                    window.__adminAddToSetId = null;
+                    window.__adminImportType = null;
+                    if (t === 'batch') adminBatchImportToSet(setId);
+                    else adminSingleImportToSet(setId);
+                }
+            } catch (e) {}
+
             var adminZiliaoCb = document.getElementById('adminSingleZiliaoMode');
             if (adminZiliaoCb) {
                 adminZiliaoCb.addEventListener('change', function() {
@@ -4381,7 +4394,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
                     '<div><strong>' + esc(s.name) + '</strong> <span style="color:#6c757d; margin-left:8px;">' + esc(s.category || '不分类') + '</span> <span style="color:#6c757d; margin-left:8px;">共 ' + total + ' 题</span></div>' +
                     '<div style="display:flex; gap:8px; flex-wrap:wrap;">' +
-                    '<button class="btn btn-sm btn-info" onclick="adminViewSetDetails(\'' + s.id + '\')" title="查看题目"><i class="fas fa-list"></i> 查看题目</button>' +
+                    '<button class="btn btn-sm btn-info" onclick="window.open(\'admin-set-manage.html?setId=' + s.id + '\', \'_blank\')" title="查看题目"><i class="fas fa-list"></i> 查看题目</button>' +
                     '<button class="btn btn-sm btn-primary" onclick="adminBatchImportToSet(\'' + s.id + '\')" title="批量导入到此套卷"><i class="fas fa-file-import"></i> 批量导入</button>' +
                     '<button class="btn btn-sm btn-success" onclick="adminSingleImportToSet(\'' + s.id + '\')" title="单题导入到此套卷"><i class="fas fa-edit"></i> 单题导入</button>' +
                     '<button class="btn btn-sm" style="background:#eaeaea;" onclick="adminEditSet(\'' + s.id + '\')" title="编辑"><i class="fas fa-edit"></i> 编辑</button>' +
@@ -5444,8 +5457,18 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 document.getElementById('batchSetId').value = addToSetId;
                 try { localStorage.removeItem('xingce_add_to_set_id'); sessionStorage.removeItem('xingce_add_to_set_id'); } catch (e) {}
             }
+            // 管理员：从套卷题目管理页跳回时，预选套卷并打开录入区
+            var adminAddToSetId = (function() { var m = /[?&]adminAddToSetId=([^&]+)/.exec(location.search); return m ? decodeURIComponent(m[1]) : null; })();
+            var adminImportType = (function() { var m = /[?&]adminImportType=([^&]+)/.exec(location.search); return m ? decodeURIComponent(m[1]) : null; })();
+            if (!adminAddToSetId) { try { adminAddToSetId = localStorage.getItem('xingce_admin_add_to_set_id') || sessionStorage.getItem('xingce_admin_add_to_set_id'); } catch (e) {} }
+            if (adminAddToSetId) {
+                window.__adminAddToSetId = adminAddToSetId;
+                window.__adminImportType = adminImportType || 'single';
+                try { localStorage.removeItem('xingce_admin_add_to_set_id'); sessionStorage.removeItem('xingce_admin_add_to_set_id'); } catch (e) {}
+            }
             if (location.hash === '#single') switchTab('single');
             else if (location.hash === '#batch') switchTab('batch');
+            else if (location.hash === '#admin') switchTab('admin');
             document.getElementById('singleSection').value = '判断推理';
             updateSingleSub();
             document.getElementById('singleSubcategory').value = '图形推理';

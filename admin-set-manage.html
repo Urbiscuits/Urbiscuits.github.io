@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员套卷题目管理</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary-color: #4a6baf; --success-color: #28a745; --border-radius: 8px; --box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: #fff; border-radius: var(--border-radius); box-shadow: var(--box-shadow); padding: 24px; margin-bottom: 20px; }
+        .btn { padding: 10px 20px; border: none; border-radius: var(--border-radius); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--primary-color); color: #fff; }
+        .btn-success { background: var(--success-color); color: #fff; }
+        .btn-default { background: #eaeaea; color: #333; }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-info { background: #17a2b8; color: #fff; }
+        .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+        .question-item { border: 2px solid #eaeaea; border-radius: var(--border-radius); padding: 14px; margin: 8px 0 8px 16px; background: #fff; }
+        .question-category { background: var(--primary-color); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; margin-right: 8px; }
+        .option { padding: 10px; border-radius: var(--border-radius); background: #f8f9fa; border-left: 4px solid #ddd; margin: 6px 0; }
+        .option.correct { border-left-color: var(--success-color); background: #d4edda; }
+        .answer-block { margin-top: 12px; padding: 12px; background: #f0f5ff; border-left: 4px solid var(--primary-color); border-radius: var(--border-radius); }
+        .empty-state { text-align: center; padding: 48px 24px; color: #6c757d; }
+        .overlay { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9998; overflow: auto; }
+        .overlay-inner { max-width: 800px; margin: 24px auto; background: #fff; border-radius: var(--border-radius); padding: 24px; box-shadow: var(--box-shadow); }
+        .editable-area { outline: none; }
+        .editable-area:focus { border-color: var(--primary-color) !important; }
+        .editable-area img { max-width: 100%; margin: 6px 0; display: block; }
+        .muted { color:#6c757d; font-size:0.95rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="noSet" class="card empty-state" style="display:none;">
+            <p>未指定套卷，请从管理员页面点击「查看题目」进入。</p>
+            <p style="margin-top:12px;"><a href="index.html#admin">返回管理员后台</a></p>
+        </div>
+        <div id="mainBlock" style="display:none;">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                    <h2 style="color:var(--primary-color);" id="setTitle"></h2>
+                    <div>
+                        <a href="index.html#admin" class="btn btn-default">返回管理员后台</a>
+                        <button type="button" class="btn btn-primary" id="btnAddQuestion">在此套卷添加题目</button>
+                    </div>
+                </div>
+                <p class="muted" style="margin-top:10px;">说明：此页面仅管理本地管理员题库（`localStorage`），需要同步到 GitHub 请回到管理员后台操作。</p>
+                <div id="questionList" style="margin-top:20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 题目详情弹层 -->
+    <div id="detailOverlay" class="overlay" style="display:none;">
+        <div class="overlay-inner">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="color:var(--primary-color);">题目详情</h3>
+                <div>
+                    <button type="button" class="btn btn-primary" id="btnEditFromDetail" style="margin-right:8px;">编辑</button>
+                    <button type="button" class="btn btn-default" onclick="closeDetail()">关闭</button>
+                </div>
+            </div>
+            <div id="detailBody"></div>
+        </div>
+    </div>
+
+    <!-- 编辑题目弹层 -->
+    <div id="editOverlay" class="overlay" style="display:none;">
+        <div class="overlay-inner" style="max-width:900px;">
+            <h3 style="margin-bottom:16px; color:var(--primary-color);">编辑题目</h3>
+            <div style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <label style="font-weight:500;">题干（支持LaTeX公式：$公式$ 或 $$公式$$，支持Ctrl+V粘贴图片）</label>
+                    <button type="button" class="btn btn-sm btn-info" onclick="insertImageToEditor('editContent')">插入图片</button>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;">
+                    <div>
+                        <div style="font-size:0.85rem; color:#666; margin-bottom:4px;">编辑区</div>
+                        <div id="editContent" contenteditable="true" class="editable-area" style="min-height:200px; max-height:400px; overflow-y:auto; padding:10px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#fff; white-space:pre-wrap; word-wrap:break-word;"></div>
+                        <div style="margin-top:8px; font-size:0.8rem; color:#666;">
+                            <div>• LaTeX公式：$x^2$ 或 $$\\frac{a}{b}$$</div>
+                            <div>• 图片：Ctrl+V 粘贴或点击"插入图片"按钮上传</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.85rem; color:#666; margin-bottom:4px;">预览</div>
+                        <div id="editContentPreview" style="width:100%; min-height:200px; padding:10px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#f9f9f9; overflow:auto; max-height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:16px;">
+                <label style="font-weight:500;">选项 A（支持Ctrl+V粘贴图片）</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;">
+                    <div>
+                        <div id="editA" contenteditable="true" class="editable-area" style="min-height:60px; max-height:150px; overflow-y:auto; padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#fff; white-space:pre-wrap; word-wrap:break-word;"></div>
+                        <button type="button" class="btn btn-sm btn-info" style="margin-top:4px;" onclick="insertImageToEditor('editA')">插入图片</button>
+                    </div>
+                    <div id="editAPreview" style="padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#f9f9f9; min-height:60px; overflow:auto;"></div>
+                </div>
+            </div>
+            <div style="margin-top:12px;">
+                <label style="font-weight:500;">选项 B（支持Ctrl+V粘贴图片）</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;">
+                    <div>
+                        <div id="editB" contenteditable="true" class="editable-area" style="min-height:60px; max-height:150px; overflow-y:auto; padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#fff; white-space:pre-wrap; word-wrap:break-word;"></div>
+                        <button type="button" class="btn btn-sm btn-info" style="margin-top:4px;" onclick="insertImageToEditor('editB')">插入图片</button>
+                    </div>
+                    <div id="editBPreview" style="padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#f9f9f9; min-height:60px; overflow:auto;"></div>
+                </div>
+            </div>
+            <div style="margin-top:12px;">
+                <label style="font-weight:500;">选项 C（支持Ctrl+V粘贴图片）</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;">
+                    <div>
+                        <div id="editC" contenteditable="true" class="editable-area" style="min-height:60px; max-height:150px; overflow-y:auto; padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#fff; white-space:pre-wrap; word-wrap:break-word;"></div>
+                        <button type="button" class="btn btn-sm btn-info" style="margin-top:4px;" onclick="insertImageToEditor('editC')">插入图片</button>
+                    </div>
+                    <div id="editCPreview" style="padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#f9f9f9; min-height:60px; overflow:auto;"></div>
+                </div>
+            </div>
+            <div style="margin-top:12px;">
+                <label style="font-weight:500;">选项 D（支持Ctrl+V粘贴图片）</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;">
+                    <div>
+                        <div id="editD" contenteditable="true" class="editable-area" style="min-height:60px; max-height:150px; overflow-y:auto; padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#fff; white-space:pre-wrap; word-wrap:break-word;"></div>
+                        <button type="button" class="btn btn-sm btn-info" style="margin-top:4px;" onclick="insertImageToEditor('editD')">插入图片</button>
+                    </div>
+                    <div id="editDPreview" style="padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#f9f9f9; min-height:60px; overflow:auto;"></div>
+                </div>
+            </div>
+            <div style="margin-top:12px;">
+                <label style="font-weight:500;">答案</label>
+                <select id="editAnswer" style="padding:8px; margin-top:4px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
+            </div>
+            <div style="margin-top:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <label style="font-weight:500;">解析（支持LaTeX和Ctrl+V粘贴图片）</label>
+                    <button type="button" class="btn btn-sm btn-info" onclick="insertImageToEditor('editExplanation')">插入图片</button>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;">
+                    <div>
+                        <div id="editExplanation" contenteditable="true" class="editable-area" style="min-height:80px; max-height:200px; overflow-y:auto; padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#fff; white-space:pre-wrap; word-wrap:break-word;"></div>
+                    </div>
+                    <div id="editExplanationPreview" style="padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#f9f9f9; min-height:80px; overflow:auto;"></div>
+                </div>
+            </div>
+            <div style="margin-top:16px;"><button type="button" class="btn btn-success" onclick="saveEdit()">保存</button> <button type="button" class="btn btn-default" onclick="closeEdit()">取消</button></div>
+            <input type="file" id="imageUploadInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+        </div>
+    </div>
+
+    <script>
+        var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析'];
+        var currentSetId = null;
+        var currentSet = null;
+        var editQid = null;
+        var detailQid = null;
+        var currentImageUploadTarget = null;
+
+        function getSetIdFromUrl() {
+            var m = /[?&]setId=([^&]+)/.exec(location.search);
+            return m ? decodeURIComponent(m[1]) : null;
+        }
+
+        function loadStore() {
+            try {
+                var s = localStorage.getItem('xingce_admin_sets');
+                var q = localStorage.getItem('xingce_admin_questions');
+                return { sets: s ? JSON.parse(s) : [], questions: q ? JSON.parse(q) : {} };
+            } catch (e) { return { sets: [], questions: {} }; }
+        }
+        function saveStore(data) {
+            try {
+                localStorage.setItem('xingce_admin_sets', JSON.stringify(data.sets));
+                localStorage.setItem('xingce_admin_questions', JSON.stringify(data.questions));
+            } catch (e) {}
+        }
+        function getSet(setId) {
+            var data = loadStore();
+            return data.sets.filter(function(s) { return s.id === setId; })[0] || null;
+        }
+        function getQuestion(qid) {
+            return loadStore().questions[qid] || null;
+        }
+
+        function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />'; }
+        function renderLaTeX(el) {
+            if (!el || !window.renderMathInElement) return;
+            try { renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }, { left: '$', right: '$', display: false }], throwOnError: false }); } catch (e) {}
+        }
+
+        function renderList() {
+            if (!currentSetId || !currentSet) return;
+            var data = loadStore();
+            var bySection = {};
+            MAIN_SECTIONS.forEach(function(sec) {
+                (currentSet[sec] || []).forEach(function(qid) {
+                    var q = data.questions[qid];
+                    if (q) {
+                        var sub = q.subcategory || sec;
+                        if (!bySection[sec]) bySection[sec] = {};
+                        if (!bySection[sec][sub]) bySection[sec][sub] = [];
+                        bySection[sec][sub].push(q);
+                    }
+                });
+            });
+            var html = '';
+            MAIN_SECTIONS.forEach(function(sec) {
+                if (!bySection[sec]) return;
+                html += '<div style="margin-bottom:16px;"><strong style="color:var(--primary-color);">' + esc(sec) + '</strong>';
+                Object.keys(bySection[sec]).sort().forEach(function(sub) {
+                    bySection[sec][sub].forEach(function(q) {
+                        html += '<div class="question-item"><span class="question-category">' + esc(sub) + '</span> ' + esc((q.content||'').slice(0, 80)) + '… <button type="button" class="btn btn-info btn-sm" onclick="showDetail(\\'' + q.id + '\\')">查看</button> <button type="button" class="btn btn-default btn-sm" onclick="openEdit(\\'' + q.id + '\\')">编辑</button> <button type="button" class="btn btn-danger btn-sm" onclick="doDelete(\\'' + q.id + '\\')">删除</button></div>';
+                    });
+                });
+                html += '</div>';
+            });
+            document.getElementById('questionList').innerHTML = html || '<p style="color:#6c757d;">该套卷下暂无题目</p>';
+        }
+
+        function showDetail(qid) {
+            detailQid = qid;
+            var q = getQuestion(qid);
+            if (!q) return;
+            var hist = (q.totalAttempts || 0) > 0 ? ((q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)') : '暂无';
+            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(imgTag).join('');
+            var optHtml = (q.options || []).map(function(o) {
+                var c = o.label === q.answer ? 'correct' : '';
+                return '<div class="option ' + c + '"><span>' + o.label + '.</span> ' + esc(o.text) + (o.images || []).map(imgTag).join('') + '</div>';
+            }).join('');
+            document.getElementById('detailBody').innerHTML =
+                '<p style="margin-bottom:8px;"><strong>历史正确率：</strong>' + hist + '</p>' +
+                '<div style="font-size:0.95rem; color:var(--primary-color); margin-bottom:8px;">【' + esc(q.section) + '-' + esc(q.subcategory||q.section) + '】</div>' +
+                (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') +
+                '<div class="question-content" style="line-height:1.7;">' + stemHtml + '</div>' +
+                '<div style="margin-top:12px;">' + optHtml + '</div>' +
+                (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：' + esc(q.explanation) + '</div>' : '');
+            renderLaTeX(document.getElementById('detailBody'));
+            document.getElementById('btnEditFromDetail').onclick = function() {
+                closeDetail();
+                openEdit(qid);
+            };
+            document.getElementById('detailOverlay').style.display = 'block';
+        }
+        function closeDetail() {
+            document.getElementById('detailOverlay').style.display = 'none';
+            detailQid = null;
+        }
+
+        function getEditableContent(id) {
+            var el = document.getElementById(id);
+            if (!el) return { text: '', images: [] };
+            var images = [];
+            function walk(node) {
+                if (node.nodeName === 'IMG' && node.src) {
+                    images.push(node.src);
+                    return '';
+                }
+                if (node.nodeType === 3) return node.textContent || '';
+                if (node.nodeType === 1) {
+                    if (node.nodeName === 'BR') return '\n';
+                    return [].map.call(node.childNodes, walk).join('');
+                }
+                return '';
+            }
+            return { text: walk(el).trim(), images: images };
+        }
+        function setEditableContent(id, text, images) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var html = (text || '').replace(/\n/g, '<br>');
+            if (images && images.length) {
+                html += images.map(function(src) {
+                    return '<img src="' + esc(src) + '" style="max-width:100%; margin:8px 0;" />';
+                }).join('');
+            }
+            el.innerHTML = html;
+        }
+        function renderPreviewFromEditable(fieldId, targetEl) {
+            if (!targetEl) return;
+            var content = getEditableContent(fieldId);
+            var html = esc(content.text || '').replace(/\n/g, '<br>');
+            if (content.images && content.images.length) {
+                html += content.images.map(function(src) {
+                    return '<img src="' + esc(src) + '" style="max-width:100%; margin:6px 0;" />';
+                }).join('');
+            }
+            targetEl.innerHTML = html;
+            renderLaTeX(targetEl);
+        }
+        function updatePreview(fieldId) {
+            var previewMap = {
+                'editContent': 'editContentPreview',
+                'editA': 'editAPreview',
+                'editB': 'editBPreview',
+                'editC': 'editCPreview',
+                'editD': 'editDPreview',
+                'editExplanation': 'editExplanationPreview'
+            };
+            var previewId = previewMap[fieldId];
+            if (previewId) renderPreviewFromEditable(fieldId, document.getElementById(previewId));
+        }
+
+        function insertImageToEditor(targetId) {
+            currentImageUploadTarget = targetId;
+            document.getElementById('imageUploadInput').click();
+        }
+        function handleImageUpload(event) {
+            var file = event.target.files[0];
+            if (!file || !file.type.startsWith('image/')) {
+                alert('请选择图片文件');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var dataUrl = e.target.result;
+                var targetEl = document.getElementById(currentImageUploadTarget);
+                if (targetEl) {
+                    var img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.style.maxWidth = '100%';
+                    img.style.margin = '6px 0';
+                    img.style.display = 'block';
+                    var selection = window.getSelection();
+                    var range = selection.getRangeAt(0);
+                    range.deleteContents();
+                    range.insertNode(img);
+                    range.setStartAfter(img);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    targetEl.focus();
+                    updatePreview(currentImageUploadTarget);
+                }
+                currentImageUploadTarget = null;
+                event.target.value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+        function bindEditablePaste() {
+            ['editContent', 'editA', 'editB', 'editC', 'editD', 'editExplanation'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('paste', function(e) {
+                    var items = e.clipboardData && e.clipboardData.items;
+                    if (!items) return;
+                    for (var i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            e.preventDefault();
+                            var file = items[i].getAsFile();
+                            var reader = new FileReader();
+                            reader.onload = function() {
+                                var img = document.createElement('img');
+                                img.src = reader.result;
+                                img.style.maxWidth = '100%';
+                                img.style.margin = '6px 0';
+                                img.style.display = 'block';
+                                var selection = window.getSelection();
+                                if (selection.rangeCount > 0) {
+                                    var range = selection.getRangeAt(0);
+                                    range.deleteContents();
+                                    range.insertNode(img);
+                                    range.setStartAfter(img);
+                                    selection.removeAllRanges();
+                                    selection.addRange(range);
+                                } else {
+                                    el.appendChild(img);
+                                }
+                                updatePreview(id);
+                            };
+                            reader.readAsDataURL(file);
+                            break;
+                        }
+                    }
+                });
+            });
+        }
+
+        function openEdit(qid) {
+            editQid = qid;
+            var q = getQuestion(qid);
+            if (!q) return;
+            setEditableContent('editContent', q.content || '', q.stemImages || []);
+            var opts = q.options || [];
+            setEditableContent('editA', (opts[0] && opts[0].text) || '', (opts[0] && opts[0].images) || []);
+            setEditableContent('editB', (opts[1] && opts[1].text) || '', (opts[1] && opts[1].images) || []);
+            setEditableContent('editC', (opts[2] && opts[2].text) || '', (opts[2] && opts[2].images) || []);
+            setEditableContent('editD', (opts[3] && opts[3].text) || '', (opts[3] && opts[3].images) || []);
+            document.getElementById('editAnswer').value = q.answer || 'A';
+            setEditableContent('editExplanation', q.explanation || '', []);
+            document.getElementById('editOverlay').style.display = 'block';
+            setTimeout(function() {
+                updatePreview('editContent');
+                updatePreview('editA');
+                updatePreview('editB');
+                updatePreview('editC');
+                updatePreview('editD');
+                updatePreview('editExplanation');
+            }, 100);
+        }
+        function closeEdit() {
+            document.getElementById('editOverlay').style.display = 'none';
+            editQid = null;
+            currentImageUploadTarget = null;
+        }
+        function saveEdit() {
+            if (!editQid) return;
+            var data = loadStore();
+            var q = data.questions[editQid];
+            if (!q) return;
+            var contentData = getEditableContent('editContent');
+            q.content = contentData.text;
+            q.stemImages = contentData.images;
+            var optA = getEditableContent('editA');
+            var optB = getEditableContent('editB');
+            var optC = getEditableContent('editC');
+            var optD = getEditableContent('editD');
+            q.options = [
+                { label: 'A', text: optA.text, images: optA.images },
+                { label: 'B', text: optB.text, images: optB.images },
+                { label: 'C', text: optC.text, images: optC.images },
+                { label: 'D', text: optD.text, images: optD.images }
+            ];
+            q.answer = document.getElementById('editAnswer').value || 'A';
+            var explanationData = getEditableContent('editExplanation');
+            q.explanation = explanationData.text;
+            saveStore(data);
+            closeEdit();
+            currentSet = getSet(currentSetId);
+            renderList();
+        }
+
+        function doDelete(qid) {
+            if (!confirm('确定删除此题？')) return;
+            var data = loadStore();
+            var q = data.questions[qid];
+            if (!q || !q.setId) return;
+            var set = data.sets.filter(function(s) { return s.id === q.setId; })[0];
+            if (set && set[q.section]) set[q.section] = set[q.section].filter(function(id) { return id !== qid; });
+            delete data.questions[qid];
+            saveStore(data);
+            currentSet = getSet(currentSetId);
+            renderList();
+        }
+
+        function goAddQuestion() {
+            try { sessionStorage.setItem('xingce_admin_add_to_set_id', currentSetId); } catch (e) {}
+            window.location.href = 'index.html?adminAddToSetId=' + encodeURIComponent(currentSetId) + '&adminImportType=single#admin';
+        }
+
+        window.onload = function() {
+            currentSetId = getSetIdFromUrl();
+            if (!currentSetId) {
+                document.getElementById('noSet').style.display = 'block';
+                return;
+            }
+            currentSet = getSet(currentSetId);
+            if (!currentSet) {
+                document.getElementById('noSet').style.display = 'block';
+                document.querySelector('#noSet p').textContent = '套卷不存在或已删除。';
+                return;
+            }
+            document.getElementById('mainBlock').style.display = 'block';
+            document.getElementById('setTitle').textContent = (currentSet.name || '未命名套卷') + '（管理员题库）';
+            document.getElementById('btnAddQuestion').onclick = goAddQuestion;
+            renderList();
+            ['editContent', 'editA', 'editB', 'editC', 'editD', 'editExplanation'].forEach(function(fieldId) {
+                var el = document.getElementById(fieldId);
+                if (el) el.addEventListener('input', function() { updatePreview(fieldId); });
+            });
+            bindEditablePaste();
+        };
+    </script>
+</body>
+</html>
+
