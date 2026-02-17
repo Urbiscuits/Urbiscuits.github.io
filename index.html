@@ -18,89 +18,160 @@
         }
 
         :root {
-            --primary-color: #4a6baf;
-            --secondary-color: #6c8cd5;
-            --accent-color: #ff6b6b;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
+            --primary-color: #5c6bc0;
+            --primary-hover: #7986cb;
+            --secondary-color: #78909c;
+            --accent-color: #e57373;
+            --light-bg: #fafafa;
+            --surface: #ffffff;
+            --border-color: #e0e0e0;
+            --text-primary: #424242;
+            --text-secondary: #757575;
+            --success-color: #66bb6a;
+            --warning-color: #ffa726;
+            --info-color: #42a5f5;
+            --border-radius: 6px;
+            --nav-width: 220px;
+            --transition: all 0.2s ease;
         }
 
         body {
-            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+            background: var(--light-bg);
             min-height: 100vh;
-            padding: 20px;
-            color: var(--dark-color);
+            color: var(--text-primary);
             line-height: 1.6;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            overflow: hidden;
-        }
-
-        header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 25px 30px;
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+            min-height: 100vh;
         }
 
-        header p {
-            opacity: 0.9;
+        /* 左侧固定导航栏 */
+        .nav-sidebar {
+            width: var(--nav-width);
+            min-width: var(--nav-width);
+            background: var(--surface);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .nav-header {
+            padding: 20px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-header h1 {
             font-size: 1.1rem;
-        }
-
-        .app-content {
-            display: flex;
-            min-height: 700px;
-        }
-
-        .sidebar {
-            width: 300px;
-            background: #f8f9fa;
-            padding: 25px;
-            border-right: 1px solid #eaeaea;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 25px;
-        }
-
-        .stats-card {
-            background: white;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-bottom: 25px;
-        }
-
-        .stats-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        .nav-header h1 i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .nav-header p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            margin-left: 26px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            margin: 2px 12px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            background: none;
+            width: calc(100% - 24px);
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+            color: var(--primary-color);
+        }
+
+        .nav-item.active {
+            background: rgba(92, 107, 192, 0.08);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        /* 右侧内容区 */
+        .main-area {
+            flex: 1;
+            margin-left: var(--nav-width);
+            padding: 24px 32px 40px;
+            min-height: 100vh;
+        }
+
+        .main-area .page-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .app-content {
+            display: block;
+        }
+
+        .main-content {
+            width: 100%;
+        }
+
+        .stats-card {
+            background: var(--surface);
+            padding: 16px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .stats-card h3 {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .stat-item {
@@ -119,11 +190,11 @@
         }
 
         .stat-value {
-            background: var(--primary-color);
-            color: white;
+            background: rgba(92, 107, 192, 0.12);
+            color: var(--primary-color);
             padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
         }
 
         /* 树形题目统计 */
@@ -139,36 +210,37 @@
             font-weight: 500;
             user-select: none;
         }
-        .tree-toggle:hover { background: #eaeaea; }
+        .tree-toggle:hover { background: var(--light-bg); }
         .tree-node.collapsed .tree-toggle .fa-chevron-down { display: none; }
         .tree-node.collapsed .tree-toggle .fa-chevron-right { display: inline-block; }
         .tree-node:not(.collapsed) .tree-toggle .fa-chevron-right { display: none; }
         .tree-node:not(.collapsed) .tree-toggle .fa-chevron-down { display: inline-block; }
         .tree-toggle .fa-chevron-right, .tree-toggle .fa-chevron-down { width: 14px; color: var(--primary-color); }
+        .nav-sidebar .stats-card { margin: 12px; border: 1px solid var(--border-color); }
         .tree-count { margin-left: auto; background: var(--primary-color); color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 0.85rem; }
         .tree-children { display: none; }
         .tree-node > .tree-children { display: none; }
         .tree-node:not(.collapsed) > .tree-children { display: block; }
         .tree-leaf { padding: 6px 10px 6px 28px; display: flex; align-items: center; gap: 8px; border-radius: 6px; font-size: 0.95rem; }
-        .tree-leaf:hover { background: #f0f0f0; }
+        .tree-leaf:hover { background: var(--light-bg); }
         .tree-leaf .tree-count { background: var(--secondary-color); }
 
-        .editable-area { min-height: 60px; padding: 12px; border: 2px solid #eaeaea; border-radius: var(--border-radius); background: #fff; }
+        .editable-area { min-height: 60px; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); background: var(--surface); }
         .editable-area:focus { outline: none; border-color: var(--primary-color); }
         .editable-area img { max-width: 100%; height: auto; }
         .set-list { margin-bottom: 20px; }
-        .set-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 1px solid #eaeaea; border-radius: var(--border-radius); margin-bottom: 8px; background: #fff; }
+        .set-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: var(--border-radius); margin-bottom: 8px; background: var(--surface); }
         .set-item:hover { border-color: var(--primary-color); }
         .set-item .set-meta { font-size: 0.9rem; color: #6c757d; margin-top: 4px; }
         .set-item .set-category-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; background: #e9ecef; color: #495057; font-size: 0.85rem; margin-right: 8px; }
-        .set-item-edit { display: none; padding: 12px; background: #f8f9fa; border-radius: var(--border-radius); margin-top: 8px; }
+        .set-item-edit { display: none; padding: 12px; background: var(--light-bg); border-radius: var(--border-radius); margin-top: 8px; }
         .set-item-edit.show { display: block; }
         .set-item-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .practice-card { border: 2px solid #eaeaea; border-radius: var(--border-radius); padding: 24px; margin-bottom: 20px; background: #fff; }
+        .practice-card { border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 24px; margin-bottom: 20px; background: var(--surface); }
         .practice-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid #eaeaea; flex-wrap: wrap; gap: 10px; }
-        .answer-block { margin-top: 16px; padding: 14px; background: #f0f5ff; border-radius: var(--border-radius); border-left: 4px solid var(--primary-color); }
+        .answer-block { margin-top: 16px; padding: 14px; background: rgba(92, 107, 192, 0.06); border-radius: var(--border-radius); border-left: 4px solid var(--primary-color); }
         .practice-toolbar { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
-        .practice-mode-toggle { display: flex; background: #f0f0f0; border-radius: var(--border-radius); overflow: hidden; }
+        .practice-mode-toggle { display: flex; background: var(--light-bg); border-radius: var(--border-radius); overflow: hidden; border: 1px solid var(--border-color); }
         .practice-mode-toggle span { padding: 8px 16px; cursor: pointer; }
         .practice-mode-toggle span.active { background: var(--primary-color); color: #fff; }
         .practice-timer { color: #6c757d; font-size: 0.95rem; }
@@ -183,60 +255,76 @@
         .practice-done-msg { text-align: center; padding: 24px; color: var(--success-color); font-weight: bold; }
         .practice-show-answer-btn { margin-top: 12px; }
 
-        .tabs {
-            display: flex;
-            flex-wrap: wrap;
-            border-bottom: 2px solid #eaeaea;
-            margin-bottom: 25px;
-            gap: 4px;
-        }
-
-        .tab {
-            padding: 15px 25px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: var(--transition);
-            border-bottom: 3px solid transparent;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .tab:hover {
-            background: #f8f9fa;
-        }
-
-        .tab.active {
-            border-bottom-color: var(--primary-color);
-            color: var(--primary-color);
-            background: #f0f5ff;
-        }
-
+        .tabs { display: none; }
+        .tab { display: none; }
         .tab-content {
             display: none;
         }
-
         .tab-content.active {
             display: block;
         }
 
         .card {
-            background: white;
-            padding: 25px;
+            background: var(--surface);
+            padding: 24px;
             border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
         }
+        .single-entry-layout {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+        .single-entry-form {
+            flex: 1;
+            min-width: 0;
+        }
+        .single-entry-history {
+            width: 300px;
+            flex-shrink: 0;
+        }
+        .single-entry-history .card {
+            margin-bottom: 0;
+        }
+        .single-history-item {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 8px;
+            background: var(--surface);
+            font-size: 0.9rem;
+        }
+        .single-history-item:hover {
+            border-color: var(--primary-color);
+        }
+        .single-history-item .hist-meta {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+        .single-history-item .hist-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+        .profile-section {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .profile-section:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
 
         textarea {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #eaeaea;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
             border-radius: var(--border-radius);
             font-family: inherit;
             font-size: 14px;
             resize: vertical;
             transition: var(--transition);
+            background: var(--surface);
         }
 
         textarea:focus {
@@ -245,8 +333,8 @@
         }
 
         .btn {
-            padding: 12px 25px;
-            border: none;
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
             border-radius: var(--border-radius);
             font-weight: 500;
             cursor: pointer;
@@ -254,32 +342,48 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
         }
 
         .btn-primary {
             background: var(--primary-color);
             color: white;
+            border-color: var(--primary-color);
         }
 
         .btn-primary:hover {
-            background: var(--secondary-color);
-            transform: translateY(-2px);
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+            color: white;
         }
 
         .btn-success {
             background: var(--success-color);
             color: white;
+            border-color: var(--success-color);
         }
+        .btn-success:hover { background: #81c784; border-color: #81c784; color: white; }
 
         .btn-warning {
             background: var(--warning-color);
-            color: var(--dark-color);
+            color: white;
+            border-color: var(--warning-color);
         }
+        .btn-warning:hover { background: #ffb74d; border-color: #ffb74d; color: white; }
 
         .btn-info {
             background: var(--info-color);
             color: white;
+            border-color: var(--info-color);
         }
+        .btn-info:hover { background: #64b5f6; border-color: #64b5f6; color: white; }
 
         .btn:disabled {
             opacity: 0.6;
@@ -287,8 +391,8 @@
         }
 
         .question-item {
-            background: white;
-            border: 2px solid #eaeaea;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
             border-radius: var(--border-radius);
             padding: 20px;
             margin-bottom: 20px;
@@ -297,7 +401,6 @@
 
         .question-item:hover {
             border-color: var(--primary-color);
-            box-shadow: 0 6px 15px rgba(74, 107, 175, 0.1);
         }
 
         .question-header {
@@ -333,10 +436,10 @@
         }
 
         .option {
-            background: #f8f9fa;
+            background: var(--light-bg);
             padding: 12px;
             border-radius: var(--border-radius);
-            border-left: 4px solid #ddd;
+            border-left: 4px solid var(--border-color);
         }
 
         .option.correct {
@@ -362,17 +465,18 @@
         }
 
         select {
-            padding: 10px 15px;
-            border: 2px solid #eaeaea;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
             border-radius: var(--border-radius);
-            background: white;
+            background: var(--surface);
             min-width: 200px;
         }
 
         .export-controls {
-            background: #f0f5ff;
+            background: rgba(92, 107, 192, 0.06);
             padding: 20px;
             border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
             margin-bottom: 25px;
         }
 
@@ -390,7 +494,7 @@
         }
 
         .format-example {
-            background: #f8f9fa;
+            background: var(--light-bg);
             padding: 20px;
             border-radius: var(--border-radius);
             margin-top: 20px;
@@ -451,8 +555,8 @@
 
         .empty-state {
             text-align: center;
-            padding: 50px 20px;
-            color: #6c757d;
+            padding: 40px 20px;
+            color: var(--text-secondary);
         }
 
         .empty-state i {
@@ -460,6 +564,40 @@
             margin-bottom: 20px;
             color: #dee2e6;
         }
+
+        /* 批量导入预览框：固定高度、框内滚动 */
+        .batch-preview-scroll {
+            max-height: 320px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* 在此套卷添加题目 - 下拉 */
+        .add-to-set-wrap { position: relative; display: inline-block; }
+        .add-to-set-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            min-width: 140px;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            z-index: 100;
+            padding: 6px 0;
+        }
+        .add-to-set-menu.show { display: block; }
+        .add-to-set-menu a {
+            display: block;
+            padding: 8px 14px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .add-to-set-menu a:hover { background: var(--light-bg); color: var(--primary-color); }
 
         /* 图片预览区域 */
         .image-preview-container {
@@ -607,20 +745,15 @@
         }
 
         @media (max-width: 992px) {
-            .app-content {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid #eaeaea;
-            }
+            .nav-sidebar { width: 180px; min-width: 180px; }
+            .main-area { margin-left: 180px; padding: 16px; }
+            .single-entry-layout { flex-direction: column; }
+            .single-entry-history { width: 100%; }
         }
 
         .practice-question-source { font-size: 0.95rem; }
-        .practice-result-wrap { background: #fff; border-radius: var(--border-radius); padding: 24px; margin-top: 20px; box-shadow: var(--box-shadow); }
-        .practice-result-item { border: 1px solid #eaeaea; border-radius: var(--border-radius); padding: 16px; margin-bottom: 12px; }
+        .practice-result-wrap { background: var(--surface); border-radius: var(--border-radius); padding: 24px; margin-top: 20px; border: 1px solid var(--border-color); }
+        .practice-result-item { border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 16px; margin-bottom: 12px; }
         .practice-result-item.correct { border-left: 4px solid var(--success-color); background: #f0fff4; }
         .practice-result-item.wrong { border-left: 4px solid #dc3545; background: #fff5f5; }
         .practice-question-nav .nav-btn, .practice-result-wrap .nav-btn { min-width:36px; height:36px; padding:0 8px; border:1px solid #dee2e6; border-radius:6px; background:#fff; cursor:pointer; font-size:0.9rem; transition:all 0.2s; }
@@ -636,92 +769,46 @@
         .btn-sm { padding: 8px 16px; font-size: 0.9rem; }
 
         @media (max-width: 768px) {
-            .filter-controls {
-                flex-direction: column;
-            }
-            
-            .control-group {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            select {
-                width: 100%;
-            }
-            
-            .options-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            header h1 {
-                font-size: 1.8rem;
-            }
+            .nav-sidebar { position: relative; width: 100%; }
+            .main-area { margin-left: 0; }
+            .filter-controls { flex-direction: column; }
+            .control-group { flex-direction: column; align-items: flex-start; }
+            select { width: 100%; }
+            .options-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>
-                <i class="fas fa-book-open"></i>
-                行测题目管理系统
-            </h1>
-            <p>套卷管理 · 批量/单题导入 · 题目统计 · 练习/背题 · PDF导出</p>
-        </header>
+        <aside class="nav-sidebar">
+            <div class="nav-header">
+                <h1><i class="fas fa-book-open"></i> 行测题库</h1>
+                <p>题目管理 · 练习 · 导出</p>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="home"><i class="fas fa-home"></i> 首页</button>
+                <button class="nav-item" data-tab="batch"><i class="fas fa-file-import"></i> 批量导入</button>
+                <button class="nav-item" data-tab="single"><i class="fas fa-edit"></i> 单题录入</button>
+                <button class="nav-item" data-tab="manage"><i class="fas fa-list"></i> 题目管理</button>
+                <button class="nav-item" data-tab="practice"><i class="fas fa-pen-fancy"></i> 刷题</button>
+                <button class="nav-item" data-tab="challenge"><i class="fas fa-flag-checkered"></i> 闯关</button>
+                <button class="nav-item" data-tab="history"><i class="fas fa-history"></i> 历史记录</button>
+                <button class="nav-item" data-tab="points"><i class="fas fa-tag"></i> 考点</button>
+                <button class="nav-item" data-tab="export"><i class="fas fa-file-pdf"></i> 导出PDF</button>
+                <button class="nav-item" data-tab="profile"><i class="fas fa-user"></i> 个人中心</button>
+            </nav>
+        </aside>
         
-        <div class="app-content">
-            <aside class="sidebar">
-                <div class="stats-card">
-                    <h3><i class="fas fa-chart-bar"></i> 题目统计</h3>
-                    <div id="statsContent">
-                        <div class="empty-state">
-                            <i class="fas fa-chart-pie"></i>
-                            <p>暂无统计数据</p>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-            
-            <main class="main-content">
-                <div class="tabs">
-                    <div class="tab active" data-tab="sets"><i class="fas fa-folder-open"></i> 套卷管理</div>
-                    <div class="tab" data-tab="batch"><i class="fas fa-file-import"></i> 批量导入</div>
-                    <div class="tab" data-tab="single"><i class="fas fa-edit"></i> 单题录入</div>
-                    <div class="tab" data-tab="manage"><i class="fas fa-list"></i> 题目管理</div>
-                    <div class="tab" data-tab="practice"><i class="fas fa-pen-fancy"></i> 刷题</div>
-                    <div class="tab" data-tab="history"><i class="fas fa-history"></i> 历史记录</div>
-                    <div class="tab" data-tab="wrong"><i class="fas fa-book"></i> 错题本</div>
-                    <div class="tab" data-tab="points"><i class="fas fa-tag"></i> 考点</div>
-                    <div class="tab" data-tab="export"><i class="fas fa-file-pdf"></i> 导出PDF</div>
-                    <div class="tab" data-tab="data"><i class="fas fa-database"></i> 数据</div>
-                </div>
+        <div class="main-area">
+            <div class="app-content">
+                <main class="main-content">
 
-                <!-- 套卷管理 -->
-                <div id="tab-sets" class="tab-content active">
+                <!-- 首页 -->
+                <div id="tab-home" class="tab-content active">
                     <div class="card">
-                        <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-folder-open"></i> 套卷管理</h2>
-                        <p style="margin-bottom: 12px; color: #6c757d;">支持按分类、名称筛查，编辑套卷名称/分类，删除套卷（将同时删除该套卷下全部题目）。</p>
-                        <div class="filter-controls" style="margin-bottom: 16px;">
-                            <div><label style="display:block; margin-bottom:5px;">新套卷名称</label><input type="text" id="newSetName" placeholder="如：2025年国考行测" style="padding:10px 15px; border:2px solid #eaeaea; border-radius: var(--border-radius); width: 100%;"></div>
-                            <div><label style="display:block; margin-bottom:5px;">分类</label><select id="newSetCategory" style="width:100%; padding:10px 15px; border:2px solid #eaeaea; border-radius: var(--border-radius);"></select></div>
-                            <div style="align-self: flex-end;"><button class="btn btn-primary" onclick="addSet()"><i class="fas fa-plus"></i> 新建套卷</button></div>
-                        </div>
-                        <div class="filter-controls" style="margin-bottom: 12px;">
-                            <div><label style="display:block; margin-bottom:5px;">筛查分类</label><select id="setFilterCategory" onchange="filterSetList()" style="width:100%; padding:10px; border:2px solid #eaeaea; border-radius: var(--border-radius);"></select></div>
-                            <div style="flex:1; min-width: 180px;"><label style="display:block; margin-bottom:5px;">筛查名称</label><input type="text" id="setFilterName" placeholder="输入套卷名称筛选…" oninput="filterSetList()" style="width:100%; padding:10px; border:2px solid #eaeaea; border-radius: var(--border-radius);"></div>
-                        </div>
-                        <div class="card" style="margin-bottom:20px; padding:16px; background:#f8f9fa;">
-                            <h4 style="margin-bottom:12px; color:var(--primary-color);"><i class="fas fa-tags"></i> 试卷分类管理</h4>
-                            <p style="margin-bottom:12px; color:#6c757d; font-size:0.95rem;">可自定义试卷分类，新建套卷时可选择。修改分类名称后，使用该分类的套卷会自动更新。</p>
-                            <div id="categoryList" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
-                            <div class="filter-controls">
-                                <div><input type="text" id="newCategoryName" placeholder="新分类名称" style="padding:8px 12px; border:2px solid #eaeaea; border-radius: var(--border-radius); width:140px;"></div>
-                                <button class="btn btn-primary" onclick="addCategory()"><i class="fas fa-plus"></i> 新增分类</button>
-                            </div>
-                            <div id="categoryStatus" class="status-message" style="margin-top:8px;"></div>
-                        </div>
-                        <div class="set-list" id="setList"><div class="empty-state"><i class="fas fa-folder"></i><p>暂无套卷</p></div></div>
-                        <div id="setStatus" class="status-message"></div>
+                        <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-home"></i> 首页</h2>
+                        <p style="margin-bottom: 20px; color: #6c757d;">欢迎使用行测题目管理系统。套卷管理已移至独立页面。</p>
+                        <a href="sets.html" class="btn btn-primary" target="_blank"><i class="fas fa-folder-open"></i> 套卷管理</a>
                     </div>
                 </div>
 
@@ -737,56 +824,86 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
 
 [言语理解-片段阅读](26CG超大杯刷题)
 题号30： 下一道题…</code></p>
-                            <p>言语理解：逻辑填空、中心理解、细节判断、标题填入、语句排序、接语选择、<strong>片段阅读</strong>。判断推理：类比推理、加强题型、削弱题型、真假推理、翻译推理、定义判断、图形推理。</p>
+                            <p>支持 <code>考点：xxx</code> 或 <code>考点：a、b、c</code> 多考点。言语理解、判断推理等同上。资料分析：<code>[资料分析-文字类](2026国考)</code> 材料+题目1/2/3… 智能识别。</p>
                         </div>
                         <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="batchSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
-                        <p style="margin-bottom:12px; color:#6c757d;">每道题必须以 <code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 开头；题干与选项中 <code>$$...$$</code> 或 <code>\( \)</code> 会自动识别为公式。</p>
+                        <p style="margin-bottom:12px; color:#6c757d;">智能识别：<code>[资料分析-文字类]</code> 等块自动按「材料+多小题」解析；遇到 <code>[言语理解-xx]</code> 等其他题型则结束资料分析、按单题解析。每道题必须以 <code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 开头；题干与选项中 <code>$$...$$</code> 或 <code>\( \)</code> 会自动识别为公式。<strong>支持图片</strong>：在题干或选项中使用 <code>![](data:image/png;base64,...)</code> 或 <code>[IMG:data:image/xxx;base64,...]</code> 插入图片。</p>
                         <div class="control-group" style="margin-bottom: 12px;">
                             <label>从 TXT 导入：</label>
                             <input type="file" id="batchTxtFile" accept=".txt,text/plain" onchange="onBatchTxtFileChange()" style="margin-right: 12px;">
                             <span style="color:#6c757d;">选择 TXT 后内容会填入下方框，可编辑后点击「预览」或「导入」</span>
                         </div>
-                        <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT 填入</label>
+                        <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT 填入（支持 <code>考点：xxx</code> 导入）</label>
                         <textarea id="inputText" rows="14" placeholder="粘贴题目内容，或选择上方 TXT 文件填入..."></textarea>
+                        <div id="batchLivePreviewWrap" style="margin-top:12px; padding:12px; background:var(--light-bg); border:1px solid var(--border-color); border-radius:var(--border-radius);">
+                            <h4 style="margin-bottom:8px; font-size:0.9rem; color:var(--primary-color);">实时预览（图片与公式将在此渲染）</h4>
+                            <div id="batchLivePreview" class="preview-area batch-preview-scroll" style="min-height:60px; padding:12px; background:var(--surface); border-radius:var(--border-radius); white-space:pre-wrap; line-height:1.6;"></div>
+                        </div>
                         <div style="margin-top: 16px; display: flex; gap: 12px;">
                             <button class="btn btn-primary" onclick="batchImport()"><i class="fas fa-upload"></i> 导入</button>
                             <button class="btn btn-info" onclick="batchPreview()"><i class="fas fa-eye"></i> 预览（公式渲染）</button>
-                            <button class="btn" onclick="document.getElementById('inputText').value=''; document.getElementById('batchTxtFile').value=''; document.getElementById('batchPreviewWrap').style.display='none';" style="background:#eaeaea;">清空</button>
+                            <button class="btn" onclick="document.getElementById('inputText').value=''; document.getElementById('batchTxtFile').value=''; document.getElementById('batchPreviewWrap').style.display='none'; updateBatchLivePreview();" style="background:#eaeaea;">清空</button>
                         </div>
                         <div id="importStatus" class="status-message"></div>
-                        <div id="batchPreviewWrap" style="display:none; margin-top:20px; padding:16px; background:#f8f9fa; border-radius:var(--border-radius);">
+                        <div id="batchPreviewWrap" style="display:none; margin-top:20px; padding:16px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color);">
                             <h4 style="margin-bottom:12px; color:var(--primary-color);">解析预览（共 <span id="batchPreviewCount">0</span> 题，$$ 已按公式显示）</h4>
-                            <div id="batchPreviewList" class="question-list"></div>
+                            <p style="margin-bottom:12px; color:#6c757d;">请确认解析无误后再点击上方「导入」按钮。</p>
+                            <div id="batchPreviewList" class="question-list batch-preview-scroll"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 单题录入 -->
                 <div id="tab-single" class="tab-content">
+                    <div class="single-entry-layout">
+                        <div class="single-entry-form">
                     <div class="card">
                         <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-edit"></i> 单题录入</h2>
-                        <p style="margin-bottom: 12px; color: #6c757d;">材料/题干/选项可 Ctrl+V 粘贴图片，选项支持 LaTeX。</p>
-                        <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="singleSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
+                        <p style="margin-bottom: 12px; color: var(--text-secondary); font-size: 0.9rem;">材料/题干/选项可 Ctrl+V 粘贴图片，支持 LaTeX。</p>
+                        <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="singleSetId" onchange="renderSingleHistory()" style="width:100%; padding:10px; margin-top:5px;"></select></div>
+                        <div style="margin-bottom:12px;">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                <input type="checkbox" id="singleZiliaoMode">
+                                开启资料分析（一材料多题）
+                            </label>
+                            <p style="font-size:0.85rem; color:#6c757d; margin-top:4px; margin-left:24px;">勾选后：材料共用，可连续录入多道小题，每题单独题干/选项/答案/解析</p>
+                        </div>
                         <div class="filter-controls">
                             <div><label>大类</label><select id="singleSection" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
                             <div><label>小类</label><select id="singleSubcategory" style="width:100%; padding:10px; margin-top:5px;"></select></div>
-                            <div style="flex:1;"><label>来源</label><input type="text" id="singleSource" placeholder="如：2025年5月11日重庆A类" style="width:100%; padding:10px; margin-top:5px; border:2px solid #eaeaea; border-radius: var(--border-radius);"></div>
+                            <div style="flex:1;"><label>来源</label><input type="text" id="singleSource" placeholder="如：2025年5月11日重庆A类" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
                         </div>
-                        <div style="margin-bottom: 12px;"><label>材料（可粘贴图片，支持LaTeX公式）</label><div id="singleMaterial" class="editable-area" contenteditable="true"></div></div>
-                        <div style="margin-bottom: 12px;"><label>题干（可粘贴图片，支持LaTeX公式）</label><div id="singleStem" class="editable-area" contenteditable="true"></div></div>
-                        <div style="margin-bottom: 12px;"><label>选项 A（可粘贴图片，支持LaTeX公式）</label><div id="singleOptA" class="editable-area" contenteditable="true"></div></div>
-                        <div style="margin-bottom: 12px;"><label>选项 B（可粘贴图片，支持LaTeX公式）</label><div id="singleOptB" class="editable-area" contenteditable="true"></div></div>
-                        <div style="margin-bottom: 12px;"><label>选项 C（可粘贴图片，支持LaTeX公式）</label><div id="singleOptC" class="editable-area" contenteditable="true"></div></div>
-                        <div style="margin-bottom: 12px;"><label>选项 D（可粘贴图片，支持LaTeX公式）</label><div id="singleOptD" class="editable-area" contenteditable="true"></div></div>
-                        <div class="filter-controls">
+                        <div id="singleNormalFields">
+                            <div style="margin-bottom: 12px;"><label>材料（可粘贴图片，支持LaTeX公式）</label><div id="singleMaterial" class="editable-area" contenteditable="true"></div></div>
+                            <div style="margin-bottom: 12px;"><label>题干（可粘贴图片，支持LaTeX公式）</label><div id="singleStem" class="editable-area" contenteditable="true"></div></div>
+                            <div style="margin-bottom: 12px;"><label>选项 A（可粘贴图片，支持LaTeX公式）</label><div id="singleOptA" class="editable-area" contenteditable="true"></div></div>
+                            <div style="margin-bottom: 12px;"><label>选项 B（可粘贴图片，支持LaTeX公式）</label><div id="singleOptB" class="editable-area" contenteditable="true"></div></div>
+                            <div style="margin-bottom: 12px;"><label>选项 C（可粘贴图片，支持LaTeX公式）</label><div id="singleOptC" class="editable-area" contenteditable="true"></div></div>
+                            <div style="margin-bottom: 12px;"><label>选项 D（可粘贴图片，支持LaTeX公式）</label><div id="singleOptD" class="editable-area" contenteditable="true"></div></div>
+                        </div>
+                        <div id="singleZiliaoFields" style="display:none;">
+                            <div style="margin-bottom: 12px;"><label>材料（共用，可粘贴图片）</label><div id="singleMaterialZiliao" class="editable-area" contenteditable="true"></div></div>
+                            <div id="singleZiliaoQuestions"></div>
+                            <button type="button" class="btn btn-sm" style="background:var(--light-bg); margin-bottom:12px;" onclick="addSingleZiliaoQuestion()"><i class="fas fa-plus"></i> 添加小题</button>
+                        </div>
+                        <div id="singleAnswerRow" class="filter-controls">
                             <div><label>答案</label><select id="singleAnswer" style="width:100%; padding:10px; margin-top:5px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
-                            <div style="flex:2;"><label>解析</label><textarea id="singleExplanation" rows="3" style="width:100%; padding:10px; margin-top:5px; border:2px solid #eaeaea; border-radius: var(--border-radius);" placeholder="可选"></textarea></div>
+                            <div style="flex:2;"><label>解析（可粘贴图片，支持 LaTeX 公式）</label><div id="singleExplanation" class="editable-area" contenteditable="true" style="min-height:80px; margin-top:5px;"></div></div>
                         </div>
                         <button class="btn btn-success" onclick="singleSave()" style="margin-top: 12px;"><i class="fas fa-save"></i> 保存题目</button>
                         <div id="singleStatus" class="status-message"></div>
-                        <div id="singlePreviewWrap" style="margin-top:24px; padding:20px; background:#f8f9fa; border-radius:var(--border-radius); border:1px solid #eaeaea;">
+                        <div id="singlePreviewWrap" style="margin-top:24px; padding:20px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color);">
                             <h4 style="margin-bottom:12px; color:var(--primary-color);">下方预览（公式与图片实时渲染）</h4>
-                            <div id="singlePreview" class="preview-area" style="min-height:80px; padding:16px; background:#fff; border-radius:var(--border-radius);"></div>
+                            <div id="singlePreview" class="preview-area" style="min-height:80px; padding:16px; background:var(--surface); border-radius:var(--border-radius);"></div>
+                        </div>
+                    </div>
+                        </div>
+                        <div class="single-entry-history">
+                            <div class="card">
+                                <h3 style="margin-bottom: 12px; font-size: 1rem; color: var(--text-primary);"><i class="fas fa-history"></i> 历史记录</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">当前套卷下已录题目，点击可查看或修改。</p>
+                                <div id="singleHistoryList" style="max-height: 70vh; overflow-y: auto;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -799,7 +916,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div><label>套卷</label><select id="manageSetId" onchange="filterManage()" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option></select></div>
                             <div><label>大类</label><select id="manageSection" onchange="updateManageSub(); filterManage();" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
                             <div><label>小类</label><select id="manageSubcategory" onchange="filterManage()" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option></select></div>
-                            <div style="flex:1; min-width: 160px;"><label>搜索</label><input type="text" id="searchInput" placeholder="搜索题干…" oninput="filterManage()" style="width:100%; padding:10px; margin-top:5px; border:2px solid #eaeaea; border-radius: var(--border-radius);"></div>
+                            <div style="flex:1; min-width: 160px;"><label>搜索</label><input type="text" id="searchInput" placeholder="搜索题干…" oninput="filterManage()" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
                             <label style="display: flex; align-items: center; gap: 8px; margin-top: 24px;"><input type="checkbox" id="manageShowAnswer" onchange="filterManage()"> 显示答案与解析</label>
                         </div>
                         <div id="questionsList">
@@ -849,6 +966,31 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     </div>
                 </div>
 
+                <!-- 闯关模式 -->
+                <div id="tab-challenge" class="tab-content">
+                    <div class="card">
+                        <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-flag-checkered"></i> 闯关模式</h2>
+                        <p style="margin-bottom: 16px; color: #6c757d;">每日凌晨自动刷新题库。完成一关后解锁下一关。使用积分可提前刷新当日题库（1 积分/次）。</p>
+                        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:20px; padding:16px; background:linear-gradient(135deg,#f0f5ff,#e8f4fd); border-radius:var(--border-radius);">
+                            <div><strong>当前积分：</strong><span id="challengePoints">0</span></div>
+                            <button class="btn btn-success btn-sm" id="btnSignIn" onclick="doSignIn()">每日签到 +5 积分</button>
+                            <button class="btn btn-info btn-sm" id="btnRefreshChallenge" onclick="doRefreshChallenge()">1 积分提前刷新闯关</button>
+                            <span id="challengeRefreshHint" style="font-size:0.9rem; color:#6c757d;"></span>
+                        </div>
+                        <div style="margin-bottom:16px;">
+                            <label>第四关题量：</label>
+                            <label style="margin-right:16px;"><input type="radio" name="challengeL4Count" value="10" checked> 10 题</label>
+                            <label><input type="radio" name="challengeL4Count" value="15"> 15 题</label>
+                        </div>
+                        <div style="margin-bottom:16px;">
+                            <label>第五关题量：</label>
+                            <label style="margin-right:16px;"><input type="radio" name="challengeL5Count" value="5" checked> 5 题</label>
+                            <label><input type="radio" name="challengeL5Count" value="10"> 10 题</label>
+                        </div>
+                        <div id="challengeLevelList" style="display:flex; flex-direction:column; gap:12px;"></div>
+                    </div>
+                </div>
+
                 <!-- 历史记录 -->
                 <div id="tab-history" class="tab-content">
                     <div class="card">
@@ -862,20 +1004,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     </div>
                 </div>
 
-                <!-- 错题本 -->
-                <div id="tab-wrong" class="tab-content">
-                    <div class="card">
-                        <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-book"></i> 错题本</h2>
-                        <p style="margin-bottom:12px; color:#6c757d;">以下为曾做错过的题目，可点击查看题目详情或按考点刷题。</p>
-                        <div id="wrongList"></div>
-                    </div>
-                </div>
-
                 <!-- 考点 -->
                 <div id="tab-points" class="tab-content">
                     <div class="card">
                         <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-tag"></i> 考点</h2>
                         <p style="margin-bottom:12px; color:#6c757d;">点击考点可查看该考点下所有题目；可多选考点进行自定义数量刷题。题目详情与做题结果中可编辑考点。</p>
+                        <div style="margin-bottom:12px;"><button class="btn btn-success" onclick="exportPointsToPDF()">导出考点题目 PDF</button></div>
                         <div id="pointsList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
                         <div id="pointsQuestions" style="display:none; margin-top:16px;">
                             <h4 id="pointsQuestionsTitle" style="margin-bottom:12px;"></h4>
@@ -891,6 +1025,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                             <h3 style="color:var(--primary-color);">题目详情</h3>
                             <div>
+                                <button class="btn btn-warning" id="btnFavoriteFromDetail" style="margin-right:8px;" onclick="toggleFavoriteFromDetail()"><i class="fas fa-star"></i> <span id="btnFavoriteText">收藏</span></button>
                                 <button class="btn btn-primary" id="btnEditFromDetail" style="margin-right:8px;">编辑</button>
                                 <button class="btn btn-default" onclick="closeQuestionDetail()">关闭</button>
                             </div>
@@ -920,7 +1055,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <div style="margin-bottom:12px;"><label>选项 C（可粘贴图片，支持LaTeX公式）</label><div id="editOptC" class="editable-area" contenteditable="true"></div></div>
                         <div style="margin-bottom:12px;"><label>选项 D（可粘贴图片，支持LaTeX公式）</label><div id="editOptD" class="editable-area" contenteditable="true"></div></div>
                         <div style="margin-top:12px;"><label>答案</label><select id="editAnswer" style="padding:8px; margin-top:4px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
-                        <div style="margin-top:12px;"><label>解析</label><textarea id="editExplanation" rows="3" style="width:100%; padding:8px; margin-top:4px; border:2px solid #eaeaea; border-radius:var(--border-radius);"></textarea></div>
+                        <div style="margin-top:12px;"><label>解析（可粘贴图片，支持 LaTeX）</label><div id="editExplanation" class="editable-area" contenteditable="true" style="min-height:60px; padding:8px; margin-top:4px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div></div>
                         <div id="editPreviewWrap" style="margin-top:16px; padding:16px; background:#f8f9fa; border-radius:var(--border-radius); border:1px solid #eaeaea;">
                             <h4 style="margin-bottom:8px; font-size:0.9rem; color:var(--primary-color);">预览（公式与图片实时渲染）</h4>
                             <div id="editPreview" class="preview-area" style="min-height:60px; padding:12px; background:#fff; border-radius:var(--border-radius);"></div>
@@ -1032,51 +1167,90 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     </div>
                 </div>
 
-                <!-- 数据导出/导入 -->
-                <div id="tab-data" class="tab-content">
+                <!-- 个人中心 -->
+                <div id="tab-profile" class="tab-content">
                     <div class="card">
-                        <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-database"></i> 数据导出 / 导入</h2>
-                        <p style="margin-bottom: 16px; color: #6c757d;">导出数据可备份或迁移；<strong>导出包含 LaTeX、图片（base64）、考点</strong>。导入默认<strong>合并</strong>（套卷名称相同视为同一套卷直接覆盖，不删除原有数据）；可选<strong>覆盖</strong>（清空后导入）。</p>
-                        <div class="control-group" style="margin-bottom: 12px;">
-                            <label>导出范围：</label>
-                            <label style="margin-right:16px;"><input type="radio" name="exportScope" value="all" checked onchange="toggleExportSetList()"> 全部套卷</label>
-                            <label><input type="radio" name="exportScope" value="selected" onchange="toggleExportSetList()"> 选择套卷</label>
+                        <h2 style="margin-bottom: 20px; color: var(--text-primary); font-size: 1.25rem;"><i class="fas fa-user"></i> 个人中心</h2>
+                        <div class="profile-section" style="display:flex; align-items:center; gap:20px; padding:16px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color);">
+                            <div><strong>当前积分：</strong><span id="profilePoints" style="font-size:1.5rem; color:var(--primary-color);">0</span></div>
+                            <button class="btn btn-success btn-sm" onclick="doSignIn(); renderProfileTab();">每日签到 +5</button>
                         </div>
-                        <div id="exportSetListWrap" style="display:none; margin-bottom: 16px; padding: 12px; background: #f8f9fa; border-radius: var(--border-radius); max-height: 200px; overflow-y: auto;">
-                            <div style="margin-bottom: 8px;"><button type="button" class="btn btn-sm" style="background:#eaeaea;" onclick="exportSelectAllSets(true)">全选</button> <button type="button" class="btn btn-sm" style="background:#eaeaea;" onclick="exportSelectAllSets(false)">取消全选</button></div>
-                            <div id="exportSetList" style="display:flex; flex-wrap: wrap; gap: 8px;"></div>
+                        <div class="profile-section">
+                            <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;">积分使用记录</h4>
+                            <div id="profilePointsLog" style="max-height:200px; overflow-y:auto; font-size:0.9rem;"></div>
                         </div>
-                        <div class="control-group" style="margin-bottom: 20px;">
-                            <button class="btn btn-success" onclick="exportData()"><i class="fas fa-download"></i> 导出数据</button>
-                            <span style="margin-left: 12px; color: #6c757d;">下载 JSON，含套卷、题目、考点</span>
+                        <div class="profile-section">
+                            <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-book"></i> 错题本</h4>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">曾做错过的题目，可查看详情或从错题本刷题。</p>
+                            <div style="margin-bottom:10px;"><button class="btn btn-success btn-sm" onclick="exportWrongToPDF()">导出错题 PDF</button></div>
+                            <div id="wrongList"></div>
                         </div>
-                        <div class="control-group" style="margin-bottom: 12px;">
-                            <label>导入方式：</label>
-                            <label style="margin-right:16px;"><input type="radio" name="importMode" value="merge" checked> 合并（同名套卷覆盖，不删原有）</label>
-                            <label><input type="radio" name="importMode" value="overwrite"> 覆盖（清空当前后导入）</label>
+                        <div class="profile-section">
+                            <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-star"></i> 收藏</h4>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">收藏的题目可在此查看并导出 PDF。</p>
+                            <div style="margin-bottom:10px;"><button class="btn btn-success btn-sm" onclick="exportFavoritesToPDF()">导出收藏 PDF</button></div>
+                            <div id="favoritesList"></div>
                         </div>
-                        <div class="control-group">
-                            <label>导入数据：</label>
-                            <input type="file" id="importDataFile" accept=".json,.txt,application/json,text/plain" style="margin-right: 12px;">
-                            <button class="btn btn-primary" onclick="importData()"><i class="fas fa-upload"></i> 导入</button>
+                        <div class="profile-section">
+                            <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-database"></i> 数据</h4>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">导出可备份或迁移；导入默认合并，可选覆盖。导入后题目统计与套卷列表将自动刷新。</p>
+                            <div class="control-group" style="margin-bottom:10px;">
+                                <label>导出范围：</label>
+                                <label style="margin-right:12px;"><input type="radio" name="exportScope" value="all" checked onchange="toggleExportSetList()"> 全部套卷</label>
+                                <label><input type="radio" name="exportScope" value="selected" onchange="toggleExportSetList()"> 选择套卷</label>
+                            </div>
+                            <div id="exportSetListWrap" style="display:none; margin-bottom:12px; padding:12px; background:var(--light-bg); border-radius:var(--border-radius); max-height:160px; overflow-y:auto; border:1px solid var(--border-color);">
+                                <div style="margin-bottom:6px;"><button type="button" class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="exportSelectAllSets(true)">全选</button> <button type="button" class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="exportSelectAllSets(false)">取消全选</button></div>
+                                <div id="exportSetList" style="display:flex; flex-wrap: wrap; gap: 6px;"></div>
+                            </div>
+                            <div class="control-group" style="margin-bottom:12px;">
+                                <button class="btn btn-success btn-sm" onclick="exportData()"><i class="fas fa-download"></i> 导出数据</button>
+                                <span style="margin-left:8px; font-size:0.85rem; color:var(--text-secondary);">JSON，含套卷、题目、考点</span>
+                            </div>
+                            <div class="control-group" style="margin-bottom:10px;">
+                                <label>导入方式：</label>
+                                <label style="margin-right:12px;"><input type="radio" name="importMode" value="merge" checked> 合并</label>
+                                <label><input type="radio" name="importMode" value="overwrite"> 覆盖</label>
+                            </div>
+                            <div class="control-group" style="margin-bottom:12px;">
+                                <label>导入：</label>
+                                <input type="file" id="importDataFile" accept=".json,.txt,application/json,text/plain" style="margin-right:8px;">
+                                <button class="btn btn-primary btn-sm" onclick="importData()"><i class="fas fa-upload"></i> 导入</button>
+                            </div>
+                            <div class="control-group" style="margin-bottom:10px;">
+                                <button class="btn btn-info btn-sm" onclick="refreshFromRemoteStore()"><i class="fas fa-sync-alt"></i> 刷新题库</button>
+                                <span style="margin-left:8px; font-size:0.85rem; color:var(--text-secondary);">导入 data 目录下 TXT/JSON</span>
+                            </div>
+                            <div class="control-group" style="margin-bottom:10px;">
+                                <button class="btn btn-warning btn-sm" onclick="clearAllCache()"><i class="fas fa-eraser"></i> 清除缓存</button>
+                                <span style="margin-left:8px; font-size:0.85rem; color:var(--text-secondary);">重置正确率与做题记录</span>
+                            </div>
+                            <div class="control-group" style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border-color);">
+                                <span style="font-size:0.85rem; color:#721c24;">重置（危险）：</span>
+                                <input type="text" id="resetConfirmInput" placeholder="输入「确认」" style="width:140px; padding:6px 10px; margin:0 8px; border:1px solid var(--border-color); border-radius:var(--border-radius);">
+                                <button class="btn btn-sm" type="button" style="background:#dc3545; color:#fff; border-color:#dc3545;" onclick="resetAllDataAndCache()"><i class="fas fa-trash-alt"></i> 重置</button>
+                            </div>
+                            <div id="dataStatus" class="status-message"></div>
                         </div>
-                        <div class="control-group" style="margin-top: 16px;">
-                            <button class="btn btn-info" onclick="refreshFromRemoteStore()"><i class="fas fa-sync-alt"></i> 刷新题库</button>
-                            <span style="margin-left: 12px; color: #6c757d;">一次性导入 data 目录下所有 TXT（批量导入格式）与 JSON（导出格式）文件</span>
+                        <div class="profile-section">
+                            <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-chart-bar"></i> 题目统计</h4>
+                            <div class="stats-card" style="margin-bottom:0; border:1px solid var(--border-color);">
+                                <div id="statsContent">
+                                    <div class="empty-state">
+                                        <i class="fas fa-chart-pie"></i>
+                                        <p>暂无统计数据</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="control-group" style="margin-top: 24px;">
-                            <button class="btn btn-warning" onclick="clearAllCache()"><i class="fas fa-eraser"></i> 清除所有缓存</button>
-                            <span style="margin-left: 12px; color: #6c757d;">重置所有题目正确率、做题次数及历史做题记录</span>
-                        </div>
-                        <div id="dataStatus" class="status-message"></div>
                     </div>
                 </div>
             </main>
-        </div>
-        
-        <footer style="text-align: center; padding: 20px; color: #6c757d; border-top: 1px solid #eaeaea;">
+            </div>
+            <footer style="text-align: center; padding: 20px; color: var(--text-secondary); border-top: 1px solid var(--border-color); font-size: 0.9rem;">
             <p>行测题目批量导入系统 © 2024 | 支持言语理解、判断推理等分类题目管理</p>
-        </footer>
+            </footer>
+        </div>
     </div>
 
     <!-- 临时容器，用于生成图片 -->
@@ -1098,6 +1272,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (!PARSER_SUB[category]) PARSER_SUB[category] = [];
             if (PARSER_SUB[category].indexOf(subcategory) === -1) PARSER_SUB[category].push(subcategory);
         }
+    </script>
+    <script src="js/parser.js"></script>
+    <script src="js/store.js"></script>
+    <script>
         // 从已存题目中重建/补齐小分类，确保批量导入/数据导入后筛选项立即可见
         function rebuildSubcategoriesFromStore() {
             try {
@@ -1300,272 +1478,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     showMsg('dataStatus', '刷新题库失败：' + (err && err.message ? err.message : '网络或跨域错误'), 'error');
                 });
         }
-        var store = {
-            sets: [],
-            questions: {},
-            setExistsByName: function(name, excludeSetId) {
-                var n = (name || '').trim();
-                return this.sets.some(function(s) { return (s.name || '').trim() === n && s.id !== excludeSetId; });
-            },
-            addSet: function(name, category) {
-                var n = (name || '未命名套卷').trim();
-                if (this.setExistsByName(n, null)) return null;
-                var id = genId();
-                this.sets.push({ id: id, name: n || '未命名套卷', category: category || '', '言语理解': [], '数量关系': [], '判断推理': [], '资料分析': [] });
-                return id;
-            },
-            getSet: function(setId) { return this.sets.find(function(s) { return s.id === setId; }); },
-            updateSet: function(setId, obj) {
-                var set = this.getSet(setId);
-                if (!set) return;
-                if (obj.name !== undefined && this.setExistsByName(obj.name, setId)) return false;
-                if (obj.name !== undefined) set.name = (obj.name || '').trim() || set.name;
-                if (obj.category !== undefined) set.category = obj.category;
-                return true;
-            },
-            deleteSet: function(setId) {
-                var set = this.getSet(setId);
-                if (!set) return;
-                var self = this;
-                MAIN_SECTIONS.forEach(function(section) {
-                    (set[section] || []).forEach(function(qid) { delete self.questions[qid]; });
-                });
-                this.sets = this.sets.filter(function(s) { return s.id !== setId; });
-            },
-            addQuestion: function(setId, section, q) {
-                if (!q.id) q.id = genId();
-                q.setId = setId;
-                q.section = section;
-                q.done = q.done || false;
-                q.correctCount = q.correctCount != null ? q.correctCount : 0;
-                q.totalAttempts = q.totalAttempts != null ? q.totalAttempts : 0;
-                q.knowledgePoints = Array.isArray(q.knowledgePoints) ? q.knowledgePoints : (q.knowledgePoint ? [q.knowledgePoint] : []);
-                this.questions[q.id] = q;
-                var set = this.getSet(setId);
-                if (set && set[section]) set[section].push(q.id);
-                return q.id;
-            },
-            recordAnswer: function(qid, selected, correct) {
-                var q = this.questions[qid];
-                if (!q) return;
-                q.totalAttempts = (q.totalAttempts || 0) + 1;
-                q.correctCount = (q.correctCount || 0) + (correct ? 1 : 0);
-                q.done = true;
-            },
-            removeQuestion: function(qid) {
-                var q = this.questions[qid];
-                if (!q || !q.setId) return;
-                var set = this.getSet(q.setId);
-                if (set && set[q.section]) set[q.section] = set[q.section].filter(function(id) { return id !== qid; });
-                delete this.questions[qid];
-            },
-            setQuestionDone: function(qid, done) { if (this.questions[qid]) this.questions[qid].done = !!done; },
-            getMergedStats: function() {
-                var tree = {};
-                MAIN_SECTIONS.forEach(function(s) { tree[s] = {}; });
-                var self = this;
-                this.sets.forEach(function(set) {
-                    MAIN_SECTIONS.forEach(function(section) {
-                        (set[section] || []).forEach(function(qid) {
-                            var q = self.questions[qid];
-                            if (!q) return;
-                            var sub = q.subcategory || q.section || section;
-                            tree[section][sub] = (tree[section][sub] || 0) + 1;
-                        });
-                    });
-                });
-                return tree;
-            },
-            getAllQuestionIds: function() {
-                var ids = new Set();
-                this.sets.forEach(function(set) {
-                    MAIN_SECTIONS.forEach(function(s) { (set[s] || []).forEach(function(qid) { ids.add(qid); }); });
-                });
-                return Array.from(ids);
-            },
-            getQuestionIdsByCategory: function(category, subcategory) {
-                var ids = [];
-                var self = this;
-                this.sets.forEach(function(set) {
-                    (set[category] || []).forEach(function(qid) {
-                        var q = self.questions[qid];
-                        if (!q) return;
-                        if (!subcategory || subcategory === 'all' || q.subcategory === subcategory) ids.push(qid);
-                    });
-                });
-                return ids;
-            },
-            getRandomQuestions: function(category, subcategory, count) {
-                var ids = category ? this.getQuestionIdsByCategory(category, subcategory) : this.getAllQuestionIds();
-                var undone = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) === 0; });
-                var done = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) > 0; });
-                for (var i = undone.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = undone[i]; undone[i] = undone[j]; undone[j] = t; }
-                done.sort(function(a, b) {
-                    var qa = store.questions[a], qb = store.questions[b];
-                    var ra = (qa.totalAttempts && qa.totalAttempts > 0) ? (qa.correctCount || 0) / qa.totalAttempts : 0;
-                    var rb = (qb.totalAttempts && qb.totalAttempts > 0) ? (qb.correctCount || 0) / qb.totalAttempts : 0;
-                    return ra - rb;
-                });
-                ids = undone.concat(done);
-                return ids.slice(0, count).map(function(qid) { return store.questions[qid]; }).filter(Boolean);
-            },
-            getQuestionsBySet: function(setId) {
-                var set = this.getSet(setId);
-                if (!set) return [];
-                var ids = MAIN_SECTIONS.reduce(function(a, s) { return a.concat(set[s] || []); }, []);
-                var undone = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) === 0; });
-                var done = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) > 0; });
-                for (var i = undone.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = undone[i]; undone[i] = undone[j]; undone[j] = t; }
-                done.sort(function(a, b) {
-                    var qa = store.questions[a], qb = store.questions[b];
-                    var ra = (qa.totalAttempts && qa.totalAttempts > 0) ? (qa.correctCount || 0) / qa.totalAttempts : 0;
-                    var rb = (qb.totalAttempts && qb.totalAttempts > 0) ? (qb.correctCount || 0) / qb.totalAttempts : 0;
-                    return ra - rb;
-                });
-                ids = undone.concat(done);
-                return ids.map(function(qid) { return store.questions[qid]; }).filter(Boolean);
-            },
-            getRandomQuestionsBySections: function(sections, subcategory, count) {
-                var subs = (!subcategory || subcategory === 'all') ? [] : [subcategory];
-                return this.getRandomQuestionsBySectionsAndSubs(sections, subs, count);
-            },
-            getRandomQuestionsBySectionsAndSubs: function(sections, subcategories, count) {
-                if (!sections || !sections.length) return this.getRandomQuestions(null, null, count);
-                var ids = [];
-                var self = this;
-                var subSet = (subcategories && subcategories.length) ? {} : null;
-                if (subSet) subcategories.forEach(function(s) { subSet[s] = true; });
-                this.sets.forEach(function(set) {
-                    (sections || []).forEach(function(section) {
-                        (set[section] || []).forEach(function(qid) {
-                            var q = self.questions[qid];
-                            if (!q) return;
-                            if (!subSet || subSet[q.subcategory]) ids.push(qid);
-                        });
-                    });
-                });
-                ids = Array.from(new Set(ids));
-                var undone = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) === 0; });
-                var done = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) > 0; });
-                for (var i = undone.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = undone[i]; undone[i] = undone[j]; undone[j] = t; }
-                done.sort(function(a, b) {
-                    var qa = store.questions[a], qb = store.questions[b];
-                    var ra = (qa.totalAttempts && qa.totalAttempts > 0) ? (qa.correctCount || 0) / qa.totalAttempts : 0;
-                    var rb = (qb.totalAttempts && qb.totalAttempts > 0) ? (qb.correctCount || 0) / qb.totalAttempts : 0;
-                    return ra - rb;
-                });
-                ids = undone.concat(done);
-                return ids.slice(0, count).map(function(qid) { return store.questions[qid]; }).filter(Boolean);
-            },
-            getQuestionIdsByKnowledgePoints: function(kps) {
-                if (!kps || !kps.length) return this.getAllQuestionIds();
-                var kpSet = kps.length ? (typeof kps === 'string' ? [kps] : kps) : [];
-                var ids = [];
-                var self = this;
-                this.sets.forEach(function(set) {
-                    MAIN_SECTIONS.forEach(function(s) {
-                        (set[s] || []).forEach(function(qid) {
-                            var q = self.questions[qid];
-                            if (!q) return;
-                            var arr = q.knowledgePoints || q.knowledgePoint ? [q.knowledgePoint] : [];
-                            if (kpSet.some(function(kp) { return arr.indexOf(kp) !== -1; })) ids.push(qid);
-                        });
-                    });
-                });
-                return Array.from(new Set(ids));
-            },
-            getRandomQuestionsByKnowledgePoints: function(kps, count) {
-                var ids = this.getQuestionIdsByKnowledgePoints(kps);
-                var undone = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) === 0; });
-                var done = ids.filter(function(qid) { var q = store.questions[qid]; return q && (q.totalAttempts || 0) > 0; });
-                for (var i = undone.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = undone[i]; undone[i] = undone[j]; undone[j] = t; }
-                done.sort(function(a, b) {
-                    var qa = store.questions[a], qb = store.questions[b];
-                    var ra = (qa.totalAttempts && qa.totalAttempts > 0) ? (qa.correctCount || 0) / qa.totalAttempts : 0;
-                    var rb = (qb.totalAttempts && qb.totalAttempts > 0) ? (qb.correctCount || 0) / qb.totalAttempts : 0;
-                    return ra - rb;
-                });
-                ids = undone.concat(done);
-                return ids.slice(0, count).map(function(qid) { return store.questions[qid]; }).filter(Boolean);
-            },
-            getAllKnowledgePoints: function() {
-                var set = {};
-                var self = this;
-                this.sets.forEach(function(s) {
-                    MAIN_SECTIONS.forEach(function(sec) {
-                        (s[sec] || []).forEach(function(qid) {
-                            var q = self.questions[qid];
-                            if (q && (q.knowledgePoints || []).length) (q.knowledgePoints || []).forEach(function(kp) { if (kp) set[kp] = true; });
-                        });
-                    });
-                });
-                return Object.keys(set).sort();
-            },
-            getWrongQuestionIds: function() {
-                var ids = [];
-                var self = this;
-                this.sets.forEach(function(set) {
-                    MAIN_SECTIONS.forEach(function(s) {
-                        (set[s] || []).forEach(function(qid) {
-                            var q = self.questions[qid];
-                            if (q && (q.totalAttempts || 0) > 0 && (q.correctCount || 0) < q.totalAttempts) ids.push(qid);
-                        });
-                    });
-                });
-                return ids;
-            },
-            getQuestion: function(qid) { return this.questions[qid]; },
-            save: function() { localStorage.setItem('xingce_sets', JSON.stringify(this.sets)); localStorage.setItem('xingce_questions', JSON.stringify(this.questions)); },
-            load: function() { try { var s = localStorage.getItem('xingce_sets'); var q = localStorage.getItem('xingce_questions'); if (s) this.sets = JSON.parse(s); if (q) this.questions = JSON.parse(q); } catch (e) {} }
-        };
         function getHistory() { try { var h = localStorage.getItem('xingce_history'); return h ? JSON.parse(h) : []; } catch (e) { return []; } }
         function saveHistory(arr) { try { localStorage.setItem('xingce_history', JSON.stringify(arr)); } catch (e) {} }
-
-        function parseBatchText(text) {
-            var results = [];
-            var lines = text.split('\n');
-            var headerRegex = /^\s*\[[^\]]+-[^\]]+\](?:\([^)]*\))?/;
-            var blocks = [];
-            var currentStart = -1;
-            for (var i = 0; i < lines.length; i++) {
-                if (headerRegex.test(lines[i])) {
-                    if (currentStart >= 0) blocks.push(lines.slice(currentStart, i).join('\n').trim());
-                    currentStart = i;
-                }
-            }
-            if (currentStart >= 0) blocks.push(lines.slice(currentStart).join('\n').trim());
-            for (var i = 0; i < blocks.length; i++) {
-                var q = parseOne(blocks[i]);
-                if (q) results.push(q);
-            }
-            return results;
-        }
-        function parseOne(text) {
-            var lines = text.split('\n').map(function(s) { return s.trim(); }).filter(Boolean);
-            if (lines.length < 3) return null;
-            var m = lines[0].match(/\[([^\]]+)-([^\]]+)\](?:\(([^)]*)\))?\s*(.*)/);
-            var category, subcategory, source, startIdx, contentPrefix;
-            if (m) {
-                category = m[1].trim();
-                subcategory = m[2].trim();
-                source = (m[3] || '').trim();
-                contentPrefix = (m[4] || '').trim();
-                if (!MAIN_SECTIONS.includes(category)) return null;
-                ensureSubcategory(category, subcategory);
-                startIdx = 1;
-            } else return null;
-            var content = contentPrefix, options = [], answer = '', explanation = '', inContent = true;
-            for (var i = startIdx; i < lines.length; i++) {
-                var line = lines[i], om = line.match(/^([A-D])[\.:：、]\s*(.+)$/);
-                if (om && options.length < 4) { options.push({ label: om[1], text: om[2].trim() }); inContent = false; continue; }
-                if (line.indexOf('答案') === 0 && (line.indexOf(':') !== -1 || line.indexOf('：') !== -1)) { var am = line.match(/答案[：:]\s*([A-D])/); if (am) answer = am[1]; continue; }
-                if (line.indexOf('解析') === 0 && (line.indexOf(':') !== -1 || line.indexOf('：') !== -1)) { explanation = line.replace(/^解析[：:]\s*/, '').trim(); continue; }
-                if (inContent && line.match(/^\[[^\]]+-[^\]]+\](?:\([^)]*\))?\s*$/)) continue;
-                if (inContent) content += (content ? ' ' : '') + line;
-            }
-            if (!content.trim() || options.length === 0) return null;
-            return { category: category, subcategory: subcategory, source: source, content: content.trim(), options: options, answer: answer, explanation: explanation, material: '', materialImages: [], stemImages: [], optionImages: [], knowledgePoints: [] };
-        }
 
         /** 对容器内题目/选项实时渲染 LaTeX：支持 $$ 块级公式、\\( \\) 行内公式，以及分数 \\frac、根号 \\sqrt 等 */
         function renderLaTeXInElement(el) {
@@ -1582,26 +1496,226 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             } catch (e) {}
         }
 
+        /* ========== 积分与闯关 ========== */
+        function getTodayStr() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+        function getPoints() { try { var p = localStorage.getItem('xingce_points'); var n = parseInt(p, 10); return (n === n && n >= 0) ? n : 0; } catch (e) { return 0; } }
+        function setPoints(n) { try { localStorage.setItem('xingce_points', String(Math.max(0, n))); } catch (e) {} }
+        function logPointsUsage(type, amount, desc) { try { var log = []; var s = localStorage.getItem('xingce_points_log'); log = s ? JSON.parse(s) : []; log.unshift({ t: type, amount: amount, desc: desc || '', date: new Date().toISOString() }); log = log.slice(0, 200); localStorage.setItem('xingce_points_log', JSON.stringify(log)); } catch (e) {} }
+        function getSignInDate() { try { return localStorage.getItem('xingce_signin_date') || ''; } catch (e) { return ''; } }
+        function setSignInDate(s) { try { localStorage.setItem('xingce_signin_date', s); } catch (e) {} }
+        function getChallengeDate() { try { return localStorage.getItem('xingce_challenge_date') || ''; } catch (e) { return ''; } }
+        function setChallengeDate(s) { try { localStorage.setItem('xingce_challenge_date', s); } catch (e) {} }
+        function getChallengeCache() { try { var c = localStorage.getItem('xingce_challenge_cache'); return c ? JSON.parse(c) : {}; } catch (e) { return {}; } }
+        function setChallengeCache(obj) { try { localStorage.setItem('xingce_challenge_cache', JSON.stringify(obj)); } catch (e) {} }
+        function getChallengePassedLevels() { try { var c = localStorage.getItem('xingce_challenge_passed'); return c ? JSON.parse(c) : []; } catch (e) { return []; } }
+        function setChallengePassedLevels(arr) { try { localStorage.setItem('xingce_challenge_passed', JSON.stringify(arr)); } catch (e) {} }
+        function getUnlockedByPoints() { try { var c = localStorage.getItem('xingce_challenge_unlocked'); return c ? JSON.parse(c) : []; } catch (e) { return []; } }
+        function setUnlockedByPoints(arr) { try { localStorage.setItem('xingce_challenge_unlocked', JSON.stringify(arr)); } catch (e) {} }
+        function isChallengeLevelUnlocked(L) {
+            var passed = getChallengePassedLevels(), unlocked = getUnlockedByPoints();
+            if (L === 1) return true;
+            return passed.indexOf(L - 1) !== -1 || unlocked.indexOf(L) !== -1;
+        }
+        function getNextChallengeUnlockLevel() {
+            var passed = getChallengePassedLevels(), unlocked = getUnlockedByPoints();
+            for (var L = 1; L <= 6; L++) { if (!isChallengeLevelUnlocked(L)) return L; }
+            return null;
+        }
+        function getFavorites() { try { var f = localStorage.getItem('xingce_favorites'); return f ? JSON.parse(f) : []; } catch (e) { return []; } }
+        function setFavorites(arr) { try { localStorage.setItem('xingce_favorites', JSON.stringify(arr)); } catch (e) {} }
+        function isFavorite(qid) { return (getFavorites() || []).indexOf(qid) !== -1; }
+        function addFavorite(qid) { var f = getFavorites(); if (f.indexOf(qid) === -1) { f.push(qid); setFavorites(f); } }
+        function removeFavorite(qid) { var f = getFavorites().filter(function(id) { return id !== qid; }); setFavorites(f); }
+        function toggleFavorite(qid) { if (isFavorite(qid)) removeFavorite(qid); else addFavorite(qid); }
+        function seededRandom(seed) { var x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+        function seededShuffle(arr, seed) {
+            var a = arr.slice();
+            for (var i = a.length - 1; i > 0; i--) {
+                seed = (seed * 9301 + 49297) % 233280;
+                var j = Math.floor(seededRandom(seed) * (i + 1));
+                var t = a[i]; a[i] = a[j]; a[j] = t;
+            }
+            return a;
+        }
+        function generateChallengeQuestions(level, opts) {
+            opts = opts || {};
+            var l4Count = parseInt((opts.l4Count || 10), 10) || 10;
+            var l5Count = parseInt((opts.l5Count || 5), 10) || 5;
+            var seed = (opts.dateStr || getTodayStr()).split('').reduce(function(a, c) { return a + c.charCodeAt(0); }, 0) + level * 1000;
+            var result = [];
+            if (level === 1) {
+                var ids = store.getQuestionIdsByCategory('言语理解', '逻辑填空');
+                ids = seededShuffle(ids, seed);
+                result = ids.slice(0, 15).map(function(qid) { return store.questions[qid]; }).filter(Boolean);
+            } else if (level === 2) {
+                var ids = store.getQuestionIdsByCategory('言语理解', '片段阅读');
+                ids = seededShuffle(ids, seed);
+                result = ids.slice(0, 10).map(function(qid) { return store.questions[qid]; }).filter(Boolean);
+            } else if (level === 3) {
+                var subs = [{ sub: '语句排序', n: 3 }, { sub: '接语选择', n: 2 }, { sub: '标题填入', n: 2 }, { sub: '细节判断', n: 3 }];
+                subs.forEach(function(s, idx) {
+                    var ids = store.getQuestionIdsByCategory('言语理解', s.sub);
+                    ids = seededShuffle(ids, seed + idx);
+                    result = result.concat(ids.slice(0, s.n).map(function(qid) { return store.questions[qid]; }).filter(Boolean));
+                });
+            } else if (level === 4) {
+                var kps = ['经济利润', '排列组合', '行程问题', '和差倍比', '概率问题', '工程问题', '几何问题', '不定方程'];
+                var per = Math.ceil(l4Count / kps.length);
+                var used = {};
+                kps.forEach(function(kp, idx) {
+                    var ids = store.getQuestionIdsByKnowledgePoints([kp]);
+                    ids = seededShuffle(ids, seed + idx);
+                    ids.slice(0, per).forEach(function(qid) { if (!used[qid]) { used[qid] = true; result.push(store.questions[qid]); } });
+                });
+                if (result.length < l4Count) {
+                    var allIds = store.getQuestionIdsByCategory('数量关系', '数量关系');
+                    allIds = seededShuffle(allIds, seed + 99);
+                    for (var i = 0; result.length < l4Count && i < allIds.length; i++) {
+                        if (!used[allIds[i]]) { used[allIds[i]] = true; var q = store.questions[allIds[i]]; if (q) result.push(q); }
+                    }
+                }
+                result = result.slice(0, l4Count);
+            } else if (level === 5) {
+                var ids = store.getQuestionIdsByCategory('判断推理', '图形推理');
+                ids = seededShuffle(ids, seed);
+                result = ids.slice(0, l5Count).map(function(qid) { return store.questions[qid]; }).filter(Boolean);
+            } else if (level === 6) {
+                var subs = [{ sub: '定义判断', n: 8 }, { sub: '翻译推理', n: 5 }, { sub: '类比推理', n: 5 }, { sub: '加强题型', n: 3 }, { sub: '削弱题型', n: 3 }, { sub: '真假推理', n: 1 }];
+                subs.forEach(function(s, idx) {
+                    var ids = store.getQuestionIdsByCategory('判断推理', s.sub);
+                    ids = seededShuffle(ids, seed + idx);
+                    result = result.concat(ids.slice(0, s.n).map(function(qid) { return store.questions[qid]; }).filter(Boolean));
+                });
+            }
+            return result;
+        }
+        function ensureChallengeCache() {
+            var today = getTodayStr();
+            var cached = getChallengeCache();
+            var cachedDate = getChallengeDate();
+            if (cachedDate !== today || !cached['1']) {
+                var l4 = (document.querySelector('input[name="challengeL4Count"]:checked') || {}).value || '10';
+                var l5 = (document.querySelector('input[name="challengeL5Count"]:checked') || {}).value || '5';
+                cached = {};
+                for (var L = 1; L <= 6; L++) {
+                    var qs = generateChallengeQuestions(L, { dateStr: today, l4Count: l4, l5Count: l5 });
+                    cached[String(L)] = qs.map(function(q) { return q.id; });
+                }
+                setChallengeCache(cached);
+                setChallengeDate(today);
+            }
+            return cached;
+        }
+        function doSignIn() {
+            var today = getTodayStr();
+            if (getSignInDate() === today) { alert('今日已签到'); return; }
+            setSignInDate(today);
+            setPoints(getPoints() + 5);
+            logPointsUsage('signin', 5, '每日签到');
+            renderChallengeTab();
+        }
+        function doRefreshChallenge() {
+            var pts = getPoints();
+            if (pts < 1) { alert('积分不足，无法提前刷新。每日签到可得 5 积分。'); return; }
+            if (!confirm('确定消耗 1 积分提前刷新今日闯关题库？')) return;
+            setPoints(pts - 1);
+            logPointsUsage('refresh', -1, '提前刷新闯关');
+            setChallengeDate('');
+            setChallengeCache({});
+            ensureChallengeCache();
+            renderChallengeTab();
+        }
+        function unlockChallengeWithPoints(level) {
+            var pts = getPoints();
+            if (pts < 1) { alert('积分不足'); return; }
+            var nextUnlock = getNextChallengeUnlockLevel();
+            if (nextUnlock !== level) { alert('请按顺序解锁，先完成第' + (level - 1) + '关'); return; }
+            if (!confirm('确定消耗 1 积分开启第 ' + level + ' 关？解锁后可重复练习。')) return;
+            setPoints(pts - 1);
+            logPointsUsage('unlock', -1, '解锁第' + level + '关');
+            var unlocked = getUnlockedByPoints();
+            if (unlocked.indexOf(level) === -1) { unlocked.push(level); unlocked.sort(function(a,b){ return a-b; }); setUnlockedByPoints(unlocked); }
+            renderChallengeTab();
+        }
+        function startChallengeLevel(level) {
+            var cache = ensureChallengeCache();
+            var qids = cache[String(level)] || [];
+            var questions = qids.map(function(qid) { return store.questions[qid]; }).filter(Boolean);
+            if (!questions.length) { alert('该关暂无题目，请先导入对应分类的题目。'); return; }
+            var setNames = {};
+            store.sets.forEach(function(s) { setNames[s.id] = s.name || ''; });
+            try {
+                sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames, practiceMode: 'practice', challengeLevel: level }));
+            } catch (e) { alert('无法保存'); return; }
+            window.open('practice.html', '_blank');
+        }
+        function renderChallengeTab() {
+            document.getElementById('challengePoints').textContent = (getPoints() || 0);
+            var today = getTodayStr();
+            document.getElementById('btnSignIn').disabled = getSignInDate() === today;
+            document.getElementById('btnRefreshChallenge').disabled = getPoints() < 1;
+            document.getElementById('challengeRefreshHint').textContent = '闯关题库每日 ' + today + ' 更新';
+            var cache = ensureChallengeCache();
+            var passed = getChallengePassedLevels();
+            var nextUnlock = getNextChallengeUnlockLevel();
+            var levelNames = ['', '第一关：逻辑填空 15题', '第二关：片段阅读 10题', '第三关：语句排序/接语/标题/细节 10题', '第四关：数量关系（选10或15题）', '第五关：图形推理（选5或10题）', '第六关：定义/逻辑/类比/加强/削弱/真假 25题'];
+            var container = document.getElementById('challengeLevelList');
+            var html = '';
+            for (var L = 1; L <= 6; L++) {
+                var qids = cache[String(L)] || [];
+                var count = qids.length;
+                var isUnlock = isChallengeLevelUnlocked(L);
+                var canUnlockWithPoints = (nextUnlock === L) && !isUnlock && getPoints() >= 1;
+                html += '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:' + (isUnlock ? '#fff' : '#f5f5f5') + '; border-radius:8px; border:1px solid #eee;">';
+                html += '<span>' + levelNames[L] + '（' + count + ' 题）</span>';
+                if (passed.indexOf(L) !== -1) html += '<span style="color:var(--success-color);">✓ 已完成</span>';
+                else if (isUnlock) html += '<button class="btn btn-primary btn-sm" onclick="startChallengeLevel(' + L + ')">开始</button>';
+                else if (canUnlockWithPoints) html += '<button class="btn btn-info btn-sm" onclick="unlockChallengeWithPoints(' + L + ')">1 积分解锁</button>';
+                else html += '<span style="color:#6c757d; font-size:0.85rem;">请先完成第' + (L - 1) + '关</span>';
+                html += '</div>';
+            }
+            container.innerHTML = html || '<p style="color:#6c757d;">暂无闯关题目</p>';
+        }
+
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.nav-item').forEach(function(t) { t.classList.remove('active'); });
             var content = document.getElementById('tab-' + tabName);
             if (content) content.classList.add('active');
-            document.querySelectorAll('.tab').forEach(function(t) { if (t.getAttribute('data-tab') === tabName) t.classList.add('active'); });
-            if (tabName === 'sets') { fillCategorySelects(); renderCategoryList(); }
+            document.querySelectorAll('.nav-item').forEach(function(t) { if (t.getAttribute('data-tab') === tabName) t.classList.add('active'); });
             if (tabName === 'manage') filterManage();
-            if (tabName === 'single') { updateSinglePreview(); }
+            if (tabName === 'single') { updateSinglePreview(); renderSingleHistory(); }
             if (tabName === 'practice') { updatePracticeSub(); onPracticeTypeChange(); }
+            if (tabName === 'challenge') { renderChallengeTab(); }
             if (tabName === 'history') { renderHistoryList(); }
-            if (tabName === 'wrong') { renderWrongList(); }
             if (tabName === 'points') { renderPointsList(); }
             if (tabName === 'export') { checkExportState(); onExportScopeChange(); }
-            if (tabName === 'data') {
-                document.getElementById('importDataFile').value = '';
-                document.getElementById('dataStatus').style.display = 'none';
+            if (tabName === 'profile') {
+                renderProfileTab();
+                renderTree();
+                renderWrongList();
+                renderFavoritesTab();
+                var importEl = document.getElementById('importDataFile');
+                if (importEl) importEl.value = '';
+                var dataStatusEl = document.getElementById('dataStatus');
+                if (dataStatusEl) dataStatusEl.style.display = 'none';
                 renderExportSetList();
                 toggleExportSetList();
             }
+        }
+        function renderProfileTab() {
+            var el = document.getElementById('profilePoints');
+            if (el) el.textContent = getPoints();
+            var log = []; try { var s = localStorage.getItem('xingce_points_log'); log = s ? JSON.parse(s) : []; } catch (e) {}
+            var container = document.getElementById('profilePointsLog');
+            if (!container) return;
+            if (!log.length) { container.innerHTML = '<p style="color:#6c757d;">暂无记录</p>'; return; }
+            container.innerHTML = log.slice(0, 100).map(function(x) {
+                var d = x.date ? new Date(x.date).toLocaleString('zh-CN') : '';
+                var amt = x.amount >= 0 ? '+' + x.amount : x.amount;
+                var cls = x.amount >= 0 ? 'color:var(--success-color)' : 'color:#dc3545';
+                return '<div style="padding:8px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>' + d + ' ' + (x.desc || '') + '</span><span style="' + cls + '">' + amt + '</span></div>';
+            }).join('');
         }
         function toggleExportSetList() {
             var scope = (document.querySelector('input[name="exportScope"]:checked') || {}).value || 'all';
@@ -1626,21 +1740,48 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (!q) return;
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
             function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />'; }
-            var hist = (q.totalAttempts || 0) > 0 ? ((q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)') : '暂无';
-            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
-            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(imgTag).join('');
-            var optHtml = (q.options || []).map(function(o) {
-                var c = o.label === q.answer ? 'correct' : '';
-                return '<div class="option ' + c + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + (o.images || []).map(imgTag).join('') + '</div>';
-            }).join('');
-            document.getElementById('questionDetailBody').innerHTML = '<p style="margin-bottom:8px;"><strong>历史正确率：</strong>' + hist + '</p><div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div><div class="options-grid" style="margin-top:12px;">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：' + esc(q.explanation) + '</div>' : '');
+            var blockId = q.ziliaoBlockId;
+            var blockQs = blockId ? store.getQuestionsByZiliaoBlockId(blockId) : null;
+            var isZiliaoBlock = blockQs && blockQs.length > 1;
+            var html = '';
+            if (isZiliaoBlock) {
+                var first = blockQs[0];
+                var hist = (first.totalAttempts || 0) > 0 ? ((first.correctCount || 0) + '/' + first.totalAttempts + ' (' + Math.round(100 * (first.correctCount || 0) / first.totalAttempts) + '%)') : '暂无';
+                html += '<p style="margin-bottom:8px;"><strong>资料分析 · 一材料多题（共' + blockQs.length + '小题）</strong></p>';
+                html += '<div class="page-question-header">【' + esc(first.section) + '-' + esc(first.subcategory || first.section) + '】 ' + esc(first.source || first.timeRegion || '') + '</div>';
+                var matHtml = (first.material ? '<p>' + esc(first.material) + '</p>' : '') + (first.materialImages || []).map(imgTag).join('');
+                if (matHtml) html += '<div style="margin-bottom:16px; padding:12px; background:#f8f9fa; border-radius:8px; border-left:4px solid var(--primary-color);"><strong>材料：</strong>' + matHtml + '</div>';
+                blockQs.forEach(function(sq, idx) {
+                    html += '<div class="ziliao-sub-question" style="margin-bottom:20px; padding:16px; border:1px solid #eaeaea; border-radius:8px;">';
+                    html += '<div style="margin-bottom:8px; font-weight:600; color:var(--primary-color);">第' + (idx + 1) + '题</div>';
+                    html += '<div class="question-content">' + esc(sq.content || '') + (sq.stemImages || []).map(imgTag).join('') + '</div>';
+                    html += '<div class="options-grid" style="margin-top:12px;">' + (sq.options || []).map(function(o) {
+                        var c = o.label === sq.answer ? 'correct' : '';
+                        return '<div class="option ' + c + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + (o.images || []).map(imgTag).join('') + '</div>';
+                    }).join('') + '</div>';
+                    if (sq.explanation) html += '<div class="answer-block" style="margin-top:12px;">解析：<div class="explanation-body">' + explanationToHtml(sq.explanation) + '</div></div>';
+                    html += '</div>';
+                });
+            } else {
+                var hist = (q.totalAttempts || 0) > 0 ? ((q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)') : '暂无';
+                var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+                var stemHtml = esc(q.content || '') + (q.stemImages || []).map(imgTag).join('');
+                var optHtml = (q.options || []).map(function(o) {
+                    var c = o.label === q.answer ? 'correct' : '';
+                    return '<div class="option ' + c + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + (o.images || []).map(imgTag).join('') + '</div>';
+                }).join('');
+                html = '<p style="margin-bottom:8px;"><strong>历史正确率：</strong>' + hist + '</p><div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div><div class="options-grid" style="margin-top:12px;">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '');
+            }
+            document.getElementById('questionDetailBody').innerHTML = html;
             renderLaTeXInElement(document.getElementById('questionDetailBody'));
-            var pts = (q.knowledgePoints || []).join('、');
+            var ptsQ = isZiliaoBlock && blockQs.length ? blockQs[0] : q;
+            var pts = (ptsQ && (ptsQ.knowledgePoints || [])) ? (ptsQ.knowledgePoints || []).join('、') : (q.knowledgePoints || []).join('、');
             document.getElementById('questionDetailPoints').textContent = pts || '暂无';
             document.getElementById('questionDetailPointsEdit').style.display = 'none';
             document.getElementById('btnEditFromDetail').onclick = function() {
                 openEditQuestion(qid);
             };
+            updateFavoriteButtonState();
             document.getElementById('questionDetailOverlay').style.display = 'block';
         }
         function closeQuestionDetail() { document.getElementById('questionDetailOverlay').style.display = 'none'; detailQid = null; }
@@ -1718,30 +1859,27 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             setEditableContent('editOptD', (opts[3] && opts[3].text) || '', (opts[3] && opts[3].images) || []);
             document.getElementById('editAnswer').value = q.answer || 'A';
             var expEl = document.getElementById('editExplanation');
-            if (expEl) expEl.value = q.explanation || '';
+            if (expEl) expEl.innerHTML = explanationToHtml(q.explanation || '');
             document.getElementById('questionEditOverlay').style.display = 'block';
             updateEditPreview();
-            ['editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD'].forEach(function(id) {
+            ['editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD', 'editExplanation'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (el) {
                     el.addEventListener('input', updateEditPreview);
                     el.addEventListener('paste', editPreviewOnPaste);
                 }
             });
-            if (expEl) expEl.addEventListener('input', updateEditPreview);
         }
         function closeEditQuestion() {
             document.getElementById('questionEditOverlay').style.display = 'none';
             editQid = null;
-            ['editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD'].forEach(function(id) {
+            ['editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD', 'editExplanation'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (el) {
                     el.removeEventListener('input', updateEditPreview);
                     el.removeEventListener('paste', editPreviewOnPaste);
                 }
             });
-            var expEl = document.getElementById('editExplanation');
-            if (expEl) expEl.removeEventListener('input', updateEditPreview);
         }
         var _editPreviewTimer = null;
         function updateEditPreview() {
@@ -1764,8 +1902,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     var imgs = (o.images || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:4px 0;" />'; }).join('');
                     html += '<div style="margin-bottom:8px;"><strong>选项' + lbl + '</strong> ' + esc(o.text) + imgs + '</div>';
                 });
-                var exp = (document.getElementById('editExplanation') && document.getElementById('editExplanation').value) || '';
-                if (exp) html += '<div style="margin-top:12px;"><strong>解析</strong><div>' + esc(exp) + '</div></div>';
+                var exp = getExplanationWithInlineImages('editExplanation') || '';
+                if (exp) html += '<div style="margin-top:12px;"><strong>解析</strong><div class="explanation-preview">' + explanationToHtml(exp) + '</div></div>';
                 wrap.innerHTML = html || '<span style="color:#6c757d;">输入题干或选项后此处显示预览</span>';
                 renderLaTeXInElement(wrap);
             }, 200);
@@ -1788,11 +1926,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 { label: 'D', text: optD.text, images: optD.images }
             ];
             q.answer = document.getElementById('editAnswer').value || 'A';
-            q.explanation = (document.getElementById('editExplanation').value || '').trim();
+            q.explanation = getExplanationWithInlineImages('editExplanation') || '';
             store.save();
             closeEditQuestion();
             if (detailQid === editQid) showQuestionDetail(detailQid);
             filterManage();
+            if (document.getElementById('tab-single') && document.getElementById('tab-single').classList.contains('active')) renderSingleHistory();
             showMsg('setStatus', '题目已更新', 'success');
         }
         function renderHistoryList() {
@@ -1850,6 +1989,37 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             try { sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames, practiceMode: practiceMode })); } catch (e) { alert('无法保存'); return; }
             window.open('practice.html', '_blank');
         }
+        function toggleFavoriteFromDetail() {
+            if (!detailQid) return;
+            toggleFavorite(detailQid);
+            updateFavoriteButtonState();
+            renderFavoritesTab();
+        }
+        function updateFavoriteButtonState() {
+            var btn = document.getElementById('btnFavoriteFromDetail');
+            if (btn) {
+                var fav = detailQid && isFavorite(detailQid);
+                btn.innerHTML = '<i class="fas fa-star' + (fav ? '' : '-o') + '"></i> <span id="btnFavoriteText">' + (fav ? '取消收藏' : '收藏') + '</span>';
+            }
+        }
+        function renderFavoritesTab() {
+            var ids = getFavorites();
+            var container = document.getElementById('favoritesList');
+            if (!container) return;
+            var list = ids.map(function(qid) { return store.getQuestion(qid); }).filter(Boolean);
+            if (!list.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-star"></i><p>暂无收藏题目</p></div>'; return; }
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            container.innerHTML = list.map(function(q) {
+                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.section) + '-' + esc(q.subcategory||q.section) + '</span> <button class="btn btn-info btn-sm" onclick="showQuestionDetail(\'' + q.id + '\')">题目详情</button> <button class="btn btn-default btn-sm" onclick="removeFavorite(\'' + q.id + '\'); renderFavoritesTab();">取消收藏</button></div><div class="question-content">' + esc((q.content||'').slice(0, 120)) + '…</div></div>';
+            }).join('');
+        }
+        async function exportFavoritesToPDF() {
+            var ids = getFavorites();
+            var questions = ids.map(function(qid) { return store.getQuestion(qid); }).filter(Boolean);
+            if (!questions.length) { alert('暂无收藏题目'); return; }
+            await exportQuestionsToPDFInternal(questions, '收藏');
+            showMsg('setStatus', '已下载：收藏.pdf、收藏_答案.pdf', 'success');
+        }
         function renderPointsList() {
             var points = store.getAllKnowledgePoints();
             var container = document.getElementById('pointsList');
@@ -1893,6 +2063,47 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             saveHistory([]);
             renderTree(); renderHistoryList(); renderWrongList();
             showMsg('dataStatus', '已清除所有缓存', 'success');
+        }
+        function resetAllDataAndCache() {
+            var input = document.getElementById('resetConfirmInput');
+            var val = (input && input.value || '').trim();
+            if (val !== '确认') {
+                showMsg('dataStatus', '请输入「确认」二字后再点击重置', 'error');
+                return;
+            }
+            var keysToRemove = [];
+            try {
+                for (var i = 0; i < localStorage.length; i++) {
+                    var k = localStorage.key(i);
+                    if (k && k.indexOf('xingce_') === 0) keysToRemove.push(k);
+                }
+                keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+                keysToRemove = [];
+                for (var j = 0; j < sessionStorage.length; j++) {
+                    var k = sessionStorage.key(j);
+                    if (k && k.indexOf('xingce_') === 0) keysToRemove.push(k);
+                }
+                keysToRemove.forEach(function(k) { sessionStorage.removeItem(k); });
+            } catch (e) {}
+            store.sets = [];
+            store.questions = {};
+            store.save();
+            if (input) input.value = '';
+            rebuildSubcategoriesFromStore();
+            renderTree();
+            fillSetSelects();
+            fillCategorySelects();
+            renderCategoryList();
+            filterSetList();
+            updateManageSub();
+            updatePracticeSub();
+            renderPracticePointsCheckboxes();
+            checkExportState();
+            renderWrongList();
+            renderFavoritesTab();
+            renderHistoryList();
+            if (document.getElementById('tab-profile').classList.contains('active')) renderProfileTab();
+            showMsg('dataStatus', '已重置：所有题目、套卷及浏览器缓存已删除', 'success');
         }
 
         function renderTree() {
@@ -2041,7 +2252,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             showMsg('categoryStatus', '已重命名', 'success');
         }
         function addSet() {
-            var name = (document.getElementById('newSetName').value || '').trim() || '未命名套卷';
+            var name = (document.getElementById('newSetName').value || '').trim();
+            if (!name) { showMsg('setStatus', '套卷名称不能为空', 'error'); return; }
             var category = (document.getElementById('newSetCategory').value || '').trim();
             var id = store.addSet(name, category);
             if (id == null) { showMsg('setStatus', '套卷名称已存在，不可重复', 'error'); return; }
@@ -2055,6 +2267,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         }
         function filterSetList() {
             var container = document.getElementById('setList');
+            if (!container) return;
             if (!store.sets.length) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-folder"></i><p>暂无套卷</p></div>';
                 return;
@@ -2082,8 +2295,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     '<span><strong>' + (s.name||'').replace(/</g,'&lt;') + '</strong> ' + catTag + '<span style="color:#6c757d;">(' + total + ' 题)</span></span>' +
                     '<div class="set-meta">' + meta + '</div>' +
                     '<div class="set-item-actions">' +
-                    '<button class="btn btn-info" style="padding:6px 12px;" onclick="batchImportToSet(\'' + s.id + '\')">多题导入</button> ' +
-                    '<button class="btn" style="padding:6px 12px; background:#eaeaea;" onclick="singleImportToSet(\'' + s.id + '\')">单题录入</button> ' +
+                    '<div class="add-to-set-wrap"><button type="button" class="btn btn-primary" style="padding:6px 12px;" onclick="toggleAddToSetMenu(\'' + s.id + '\'); event.stopPropagation();"><i class="fas fa-plus"></i> 在此套卷添加题目</button>' +
+                    '<div id="add-to-set-menu-' + s.id + '" class="add-to-set-menu" onclick="event.stopPropagation();">' +
+                    '<a href="javascript:void(0)" onclick="closeAddToSetMenus(); batchImportToSet(\'' + s.id + '\');">批量导入</a>' +
+                    '<a href="javascript:void(0)" onclick="closeAddToSetMenus(); singleImportToSet(\'' + s.id + '\');">单题录入</a>' +
+                    '</div></div> ' +
                     '<button class="btn btn-default set-toggle-manage" style="padding:6px 12px;" onclick="toggleSetManage(\'' + s.id + '\')"><i class="fas fa-cog"></i> 管理</button> ' +
                     '<button class="btn btn-info btn-sm" style="padding:6px 12px;" onclick="window.open(\'set-manage.html?setId=' + s.id + '\', \'_blank\')"><i class="fas fa-list"></i> 管理题目</button> ' +
                     '<span class="set-manage-btns" id="set-manage-btns-' + s.id + '" style="display:none;">' +
@@ -2140,6 +2356,16 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var el = document.getElementById('set-manage-btns-' + setId);
             if (el) el.style.display = el.style.display === 'none' ? 'inline' : 'none';
         }
+        function toggleAddToSetMenu(setId) {
+            var menu = document.getElementById('add-to-set-menu-' + setId);
+            var open = menu && menu.classList.contains('show');
+            closeAddToSetMenus();
+            if (!open && menu) menu.classList.add('show');
+        }
+        function closeAddToSetMenus() {
+            document.querySelectorAll('.add-to-set-menu.show').forEach(function(el) { el.classList.remove('show'); });
+        }
+        document.addEventListener('click', function() { closeAddToSetMenus(); });
         function batchImportToSet(setId) { document.getElementById('batchSetId').value = setId; switchTab('batch'); }
         function singleImportToSet(setId) { document.getElementById('singleSetId').value = setId; switchTab('single'); }
         function batchPreview() {
@@ -2153,7 +2379,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
             listEl.innerHTML = list.map(function(q, i) {
                 var optHtml = (q.options || []).map(function(o) { return '<div class="option"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + '</div>'; }).join('');
-                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.category) + ' - ' + esc(q.subcategory) + '</span> <span style="color:#6c757d;">' + (i+1) + '.</span></div><div class="question-content">' + esc(q.content || '') + '</div><div class="options-grid">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block">解析：' + esc(q.explanation) + '</div>' : '') + '</div>';
+                var kp = (q.knowledgePoints && q.knowledgePoints.length) ? ('考点：' + q.knowledgePoints.join('、')) : '';
+                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.category) + ' - ' + esc(q.subcategory) + '</span> <span style="color:#6c757d;">' + (i+1) + '.</span>' + (kp ? ' <span style="font-size:0.9rem; color:var(--primary-color);">' + esc(kp) + '</span>' : '') + '</div><div class="question-content">' + esc(q.content || '') + '</div><div class="options-grid">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') + '</div>';
             }).join('');
             if (countEl) countEl.textContent = list.length;
             wrap.style.display = 'block';
@@ -2217,13 +2444,95 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             });
         }
 
+        var singleZiliaoQIndex = 0;
+        function addSingleZiliaoQuestion() {
+            var idx = singleZiliaoQIndex++;
+            var container = document.getElementById('singleZiliaoQuestions');
+            if (!container) return;
+            var qId = 'zq' + idx;
+            var card = document.createElement('div');
+            card.className = 'single-ziliao-q';
+            card.setAttribute('data-zq-id', qId);
+            card.style.cssText = 'margin-bottom:20px; padding:16px; border:1px solid var(--border-color); border-radius:var(--border-radius); background:var(--light-bg);';
+            card.innerHTML =
+                '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><strong>小题 ' + (container.querySelectorAll(".single-ziliao-q").length + 1) + '</strong> <button type="button" class="btn btn-sm" style="background:#f8d7da; color:#721c24;" onclick="removeSingleZiliaoQuestion(\'' + qId + '\')"><i class="fas fa-trash"></i> 删除</button></div>' +
+                '<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:6px;"><label>题干</label><input type="text" id="' + qId + '_Points" placeholder="考点，多个用逗号分隔" style="flex:1; max-width:220px; padding:6px 10px; border:1px solid var(--border-color); border-radius:var(--border-radius); font-size:0.9rem;"></div>' +
+                '<div style="margin-bottom:8px;"><div id="' + qId + '_Stem" class="editable-area" contenteditable="true" style="min-height:50px;"></div></div>' +
+                '<div style="margin-bottom:6px;"><label>选项 A</label><div id="' + qId + '_OptA" class="editable-area" contenteditable="true" style="min-height:36px;"></div></div>' +
+                '<div style="margin-bottom:6px;"><label>选项 B</label><div id="' + qId + '_OptB" class="editable-area" contenteditable="true" style="min-height:36px;"></div></div>' +
+                '<div style="margin-bottom:6px;"><label>选项 C</label><div id="' + qId + '_OptC" class="editable-area" contenteditable="true" style="min-height:36px;"></div></div>' +
+                '<div style="margin-bottom:6px;"><label>选项 D</label><div id="' + qId + '_OptD" class="editable-area" contenteditable="true" style="min-height:36px;"></div></div>' +
+                '<div class="filter-controls" style="margin-top:8px;"><div><label>答案</label><select id="' + qId + '_Answer" style="padding:8px;"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>' +
+                '<div style="flex:2;"><label>解析</label><textarea id="' + qId + '_Explanation" rows="2" style="width:100%; padding:8px; border:1px solid var(--border-color); border-radius:var(--border-radius);" placeholder="可选"></textarea></div></div>';
+            container.appendChild(card);
+            [qId + '_Stem', qId + '_OptA', qId + '_OptB', qId + '_OptC', qId + '_OptD'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                if (!el.dataset.pasteBound) {
+                    el.dataset.pasteBound = '1';
+                    el.addEventListener('paste', function(e) {
+                        var items = e.clipboardData && e.clipboardData.items;
+                        if (!items) return;
+                        for (var i = 0; i < items.length; i++) {
+                            if (items[i].type.indexOf('image') !== -1) {
+                                e.preventDefault();
+                                var file = items[i].getAsFile();
+                                var reader = new FileReader();
+                                reader.onload = function() {
+                                    var img = document.createElement('img');
+                                    img.src = reader.result;
+                                    img.style.maxWidth = '100%';
+                                    document.execCommand('insertHTML', false, img.outerHTML);
+                                };
+                                reader.readAsDataURL(file);
+                                break;
+                            }
+                        }
+                    });
+                }
+                el.addEventListener('input', updateSinglePreview);
+                el.addEventListener('paste', function() { setTimeout(updateSinglePreview, 100); });
+            });
+        }
+        function removeSingleZiliaoQuestion(qId) {
+            var card = document.querySelector('.single-ziliao-q[data-zq-id="' + qId + '"]');
+            if (card) card.remove();
+        }
         function updateSingleSub() {
             var section = document.getElementById('singleSection').value;
             var sub = document.getElementById('singleSubcategory');
             sub.innerHTML = (SUBCATEGORIES[section] || []).map(function(s) { return '<option value="' + s + '">' + s + '</option>'; }).join('');
+            setSingleOptionDefaults();
+        }
+        function setSingleOptionDefaults() {
+            var sub = document.getElementById('singleSubcategory');
+            if (!sub) return;
+            var isGraph = sub.value === '图形推理';
+            var def = isGraph ? ['A', 'B', 'C', 'D'] : ['', '', '', ''];
+            ['singleOptA', 'singleOptB', 'singleOptC', 'singleOptD'].forEach(function(id, i) {
+                var el = document.getElementById(id);
+                if (el) el.innerHTML = def[i];
+            });
+        }
+        function renderSingleHistory() {
+            var container = document.getElementById('singleHistoryList');
+            if (!container) return;
+            var setId = document.getElementById('singleSetId') && document.getElementById('singleSetId').value;
+            if (!setId) { container.innerHTML = '<p style="color:var(--text-secondary); font-size:0.9rem;">请先选择套卷</p>'; return; }
+            var set = store.getSet(setId);
+            if (!set) { container.innerHTML = '<p style="color:var(--text-secondary); font-size:0.9rem;">套卷不存在</p>'; return; }
+            var ids = [];
+            MAIN_SECTIONS.forEach(function(sec) { (set[sec] || []).forEach(function(qid) { ids.push(qid); }); });
+            if (!ids.length) { container.innerHTML = '<p style="color:var(--text-secondary); font-size:0.9rem;">当前套卷暂无题目</p>'; return; }
+            var list = ids.slice(-50).reverse().map(function(qid) { return store.getQuestion(qid); }).filter(Boolean);
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            container.innerHTML = list.map(function(q) {
+                var preview = (q.content || '').slice(0, 60) + ((q.content || '').length > 60 ? '…' : '');
+                return '<div class="single-history-item"><div class="hist-meta">' + esc(q.section) + ' - ' + esc(q.subcategory || '') + '</div><div>' + esc(preview) + '</div><div class="hist-actions"><button type="button" class="btn btn-sm btn-info" onclick="showQuestionDetail(\'' + q.id + '\')">查看</button><button type="button" class="btn btn-sm" style="background:var(--light-bg);" onclick="openEditQuestion(\'' + q.id + '\')">修改</button></div></div>';
+            }).join('');
         }
         function bindEditablePaste() {
-            ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD', 'editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD'].forEach(function(id) {
+            ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD', 'singleExplanation', 'singleMaterialZiliao', 'editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD', 'editExplanation'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (!el) return;
                 el.addEventListener('paste', function(e) {
@@ -2259,6 +2568,38 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }
             return { text: walk(el).trim(), images: images };
         }
+        function getExplanationWithInlineImages(id) {
+            var el = document.getElementById(id);
+            if (!el) return '';
+            var parts = [];
+            function walk(node) {
+                if (node.nodeName === 'IMG' && node.src) { parts.push({ type: 'img', src: node.src }); return; }
+                if (node.nodeType === 3) { parts.push({ type: 'text', value: node.textContent }); return; }
+                if (node.nodeType === 1) {
+                    if (node.tagName === 'BR') parts.push({ type: 'text', value: '\n' });
+                    else [].forEach.call(node.childNodes, walk);
+                }
+            }
+            walk(el);
+            var s = '';
+            parts.forEach(function(p) { if (p.type === 'text') s += p.value; else s += '[IMG:' + p.src + ']'; });
+            return s.trim();
+        }
+        function explanationToHtml(explanation) {
+            if (!explanation) return '';
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            var re = /\[IMG:(data:[^\]]+)\]/gi;
+            var html = '';
+            var last = 0;
+            var match;
+            while ((match = re.exec(explanation)) !== null) {
+                html += esc(explanation.slice(last, match.index));
+                html += '<img src="' + match[1].replace(/"/g, '&quot;') + '" style="max-width:100%; margin:6px 0;" />';
+                last = re.lastIndex;
+            }
+            html += esc(explanation.slice(last));
+            return html.replace(/\n/g, '<br>');
+        }
         var _singlePreviewTimer = null;
         function updateSinglePreview() {
             if (_singlePreviewTimer) clearTimeout(_singlePreviewTimer);
@@ -2280,8 +2621,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     var imgs = (o.images || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:4px 0;" />'; }).join('');
                     html += '<div style="margin-bottom:8px;"><strong>选项' + lbl + '</strong> ' + esc(o.text) + imgs + '</div>';
                 });
-                var exp = (document.getElementById('singleExplanation') && document.getElementById('singleExplanation').value) || '';
-                if (exp) html += '<div style="margin-top:12px;"><strong>解析</strong><div>' + esc(exp) + '</div></div>';
+                var exp = getExplanationWithInlineImages('singleExplanation') || '';
+                if (exp) html += '<div style="margin-top:12px;"><strong>解析</strong><div class="explanation-preview">' + explanationToHtml(exp) + '</div></div>';
                 wrap.innerHTML = html || '<span style="color:#6c757d;">输入题干或选项后此处显示预览</span>';
                 renderLaTeXInElement(wrap);
             }, 200);
@@ -2292,24 +2633,71 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var section = document.getElementById('singleSection').value;
             var subcategory = document.getElementById('singleSubcategory').value;
             var source = (document.getElementById('singleSource').value || '').trim();
-            var stemData = getEditableContent('singleStem');
-            var materialData = getEditableContent('singleMaterial');
-            var optA = getEditableContent('singleOptA'), optB = getEditableContent('singleOptB'), optC = getEditableContent('singleOptC'), optD = getEditableContent('singleOptD');
-            if (!stemData.text && !stemData.images.length) { showMsg('singleStatus', '请填写题干', 'error'); return; }
-            var options = [
-                { label: 'A', text: optA.text, images: optA.images },
-                { label: 'B', text: optB.text, images: optB.images },
-                { label: 'C', text: optC.text, images: optC.images },
-                { label: 'D', text: optD.text, images: optD.images }
-            ];
-            var question = { category: section, subcategory: subcategory, source: source, content: stemData.text, stemImages: stemData.images, material: materialData.text, materialImages: materialData.images, options: options, answer: document.getElementById('singleAnswer').value, explanation: (document.getElementById('singleExplanation').value || '').trim() };
-            store.addQuestion(setId, section, question);
-            store.save();
-            renderTree();
-            showMsg('singleStatus', '题目已保存', 'success');
-            document.getElementById('singleExplanation').value = '';
-            ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
-            updateSinglePreview();
+            var ziliaoMode = document.getElementById('singleZiliaoMode') && document.getElementById('singleZiliaoMode').checked;
+            if (ziliaoMode) {
+                var materialData = getEditableContent('singleMaterialZiliao');
+                var cards = document.querySelectorAll('.single-ziliao-q');
+                if (!cards.length) { showMsg('singleStatus', '请至少添加一道小题', 'error'); return; }
+                var ziliaoBlockId = genId();
+                var added = 0;
+                cards.forEach(function(card, subIdx) {
+                    var qId = card.getAttribute('data-zq-id');
+                    var stemData = getEditableContent(qId + '_Stem');
+                    var optA = getEditableContent(qId + '_OptA'), optB = getEditableContent(qId + '_OptB'), optC = getEditableContent(qId + '_OptC'), optD = getEditableContent(qId + '_OptD');
+                    if (!stemData.text && !stemData.images.length) return;
+                    var options = [
+                        { label: 'A', text: optA.text, images: optA.images },
+                        { label: 'B', text: optB.text, images: optB.images },
+                        { label: 'C', text: optC.text, images: optC.images },
+                        { label: 'D', text: optD.text, images: optD.images }
+                    ];
+                    var answerEl = document.getElementById(qId + '_Answer');
+                    var expEl = document.getElementById(qId + '_Explanation');
+                    var pointsEl = document.getElementById(qId + '_Points');
+                    var kpStr = (pointsEl && pointsEl.value || '').trim();
+                    var knowledgePoints = kpStr ? kpStr.split(/[,，、\s]+/).map(function(s) { return s.trim(); }).filter(Boolean) : [];
+                    var q = { category: '资料分析', subcategory: subcategory, source: source, content: stemData.text, stemImages: stemData.images, material: materialData.text, materialImages: materialData.images, options: options, answer: answerEl ? answerEl.value : 'A', explanation: (expEl && expEl.value || '').trim(), knowledgePoints: knowledgePoints, ziliaoBlockId: ziliaoBlockId, ziliaoSubIndex: subIdx };
+                    store.addQuestion(setId, '资料分析', q);
+                    added++;
+                });
+                if (added === 0) { showMsg('singleStatus', '请至少填写一道小题的题干', 'error'); return; }
+                store.save();
+                renderTree();
+                showMsg('singleStatus', '已保存 ' + added + ' 道小题（一材料多题）', 'success');
+                renderSingleHistory();
+                document.getElementById('singleMaterialZiliao').innerHTML = '';
+                cards.forEach(function(card) {
+                    var qId = card.getAttribute('data-zq-id');
+                    [qId + '_Stem', qId + '_OptA', qId + '_OptB', qId + '_OptC', qId + '_OptD'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
+                    var e = document.getElementById(qId + '_Explanation'); if (e) e.value = '';
+                });
+                document.getElementById('singleZiliaoQuestions').innerHTML = '';
+                singleZiliaoQIndex = 0;
+                addSingleZiliaoQuestion();
+            } else {
+                var stemData = getEditableContent('singleStem');
+                var materialData = getEditableContent('singleMaterial');
+                var optA = getEditableContent('singleOptA'), optB = getEditableContent('singleOptB'), optC = getEditableContent('singleOptC'), optD = getEditableContent('singleOptD');
+                if (!stemData.text && !stemData.images.length) { showMsg('singleStatus', '请填写题干', 'error'); return; }
+                var options = [
+                    { label: 'A', text: optA.text, images: optA.images },
+                    { label: 'B', text: optB.text, images: optB.images },
+                    { label: 'C', text: optC.text, images: optC.images },
+                    { label: 'D', text: optD.text, images: optD.images }
+                ];
+                var explanationStr = getExplanationWithInlineImages('singleExplanation') || '';
+                var question = { category: section, subcategory: subcategory, source: source, content: stemData.text, stemImages: stemData.images, material: materialData.text, materialImages: materialData.images, options: options, answer: document.getElementById('singleAnswer').value, explanation: explanationStr };
+                store.addQuestion(setId, section, question);
+                store.save();
+                renderTree();
+                showMsg('singleStatus', '题目已保存', 'success');
+                renderSingleHistory();
+                var expEl = document.getElementById('singleExplanation');
+                if (expEl) expEl.innerHTML = '';
+                ['singleMaterial', 'singleStem'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
+                setSingleOptionDefaults();
+                updateSinglePreview();
+            }
         }
 
         function updateManageSub() {
@@ -2343,7 +2731,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     var optImgs = (o.images || []).map(imgTag).join('');
                     return '<div class="option ' + (showAnswer && o.label === q.answer ? 'correct' : '') + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + optImgs + '</div>';
                 }).join('');
-                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.section) + ' - ' + esc(q.subcategory || q.section) + '</span> <span style="color:#6c757d;">' + esc(q.source || q.timeRegion || '') + '</span> <span style="font-size:0.9rem;">历史正确率 ' + histRate + '</span> 考点：' + esc(pts) + ' <button class="btn btn-info btn-sm" onclick="showQuestionDetail(\'' + q.id + '\')">题目详情</button> <button class="btn" style="padding:4px 10px; background:#f8d7da;" onclick="deleteQuestion(\'' + q.id + '\')"><i class="fas fa-trash"></i></button></div>' + (materialHtml ? '<div class="question-content" style="margin-bottom:8px;">材料：' + materialHtml + '</div>' : '') + '<div class="question-content">' + (i+1) + '. ' + stemHtml + '</div><div class="options-grid">' + optHtml + '</div>' + (showAnswer && q.explanation ? '<div class="answer-block">解析：' + esc(q.explanation) + '</div>' : '') + (showAnswer ? '<div class="answer-block">答案：' + esc(q.answer) + '</div>' : '') + '</div>';
+                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.section) + ' - ' + esc(q.subcategory || q.section) + '</span> <span style="color:#6c757d;">' + esc(q.source || q.timeRegion || '') + '</span> <span style="font-size:0.9rem;">历史正确率 ' + histRate + '</span> 考点：' + esc(pts) + ' <button class="btn btn-info btn-sm" onclick="showQuestionDetail(\'' + q.id + '\')">题目详情</button> <button class="btn" style="padding:4px 10px; background:#f8d7da;" onclick="deleteQuestion(\'' + q.id + '\')"><i class="fas fa-trash"></i></button></div>' + (materialHtml ? '<div class="question-content" style="margin-bottom:8px;">材料：' + materialHtml + '</div>' : '') + '<div class="question-content">' + (i+1) + '. ' + stemHtml + '</div><div class="options-grid">' + optHtml + '</div>' + (showAnswer && q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') + (showAnswer ? '<div class="answer-block">答案：' + esc(q.answer) + '</div>' : '') + '</div>';
             }).join('');
             renderLaTeXInElement(container);
         }
@@ -2377,6 +2765,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         }
         function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
         function setSetupPracticeMode(mode) {
+            practiceMode = mode;  // 必须更新全局变量，startPractice 会把它传给 practice.html
             var elPractice = document.getElementById('setupModePractice');
             var elMemorize = document.getElementById('setupModeMemorize');
             var hint = document.getElementById('setupModeHint');
@@ -2523,7 +2912,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 '<div class="' + (correct ? 'correct' : 'wrong') + '" style="padding:12px; border-radius:8px; margin-bottom:12px;">' +
                 '你的答案：' + sel + ' | 正确答案：' + q.answer + (correct ? ' <span style="color:var(--success-color);">✓</span>' : ' <span style="color:#dc3545;">✗</span>') +
                 '</div>' +
-                (q.explanation ? '<p><strong>解析：</strong>' + esc(q.explanation) + '</p>' : '');
+                (q.explanation ? '<p><strong>解析：</strong></p><div class="explanation-body">' + explanationToHtml(q.explanation) + '</div>' : '');
             renderLaTeXInElement(resultAnswerEl);
             document.getElementById('practiceResultProgress').textContent = (practiceResultIndex + 1) + ' / ' + practiceQuestions.length;
             document.getElementById('btnResultPrev').disabled = practiceResultIndex === 0;
@@ -2813,9 +3202,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     var expHtml = '';
                     if (incExp && q.explanation) {
                         expHtml =
-                            '<div class="page-answer" style="font-size:' + fsSmall + ';"><strong>解析：</strong>' +
-                                esc(q.explanation) +
-                            '</div>';
+                            '<div class="page-answer" style="font-size:' + fsSmall + ';"><strong>解析：</strong><div class="explanation-body">' +
+                                explanationToHtml(q.explanation) +
+                            '</div></div>';
                     }
                     html +=
                         '<div class="page-question">' +
@@ -2840,7 +3229,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var html = '<div class="page-content" style="font-size:' + fs + ';"><div class="page-title">参考答案及解析 - 第' + pageIndex + '页</div>';
             questions.forEach(function(q, idx) {
                 var num = (globalStartNum !== undefined ? globalStartNum + idx : (pageIndex - 1) * questions.length + idx + 1);
-                html += '<div class="page-question"><div class="page-answer" style="font-size:' + fsSmall + ';"><strong>' + num + '. 答案：' + q.answer + '</strong>' + (incExp && q.explanation ? '<br><strong>解析：</strong>' + esc(q.explanation) : '') + '</div></div>';
+                html += '<div class="page-question"><div class="page-answer" style="font-size:' + fsSmall + ';"><strong>' + num + '. 答案：' + q.answer + '</strong>' + (incExp && q.explanation ? '<br><strong>解析：</strong><div class="explanation-body">' + explanationToHtml(q.explanation) + '</div>' : '') + '</div></div>';
             });
             return html + '</div>';
         }
@@ -2894,6 +3283,63 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     }).catch(function(err) { temp.innerHTML = ''; temp.style.visibility = 'hidden'; reject(err); });
                 }, 150);
             });
+        }
+        async function exportQuestionsToPDFInternal(questions, namePrefix) {
+            if (!questions || !questions.length) return;
+            namePrefix = namePrefix || '';
+            var fontSize = 11;
+            var includeSource = true;
+            var quality = 0.6;
+            var btn = document.getElementById('exportBtn');
+            var progressEl = document.getElementById('progressContainer');
+            var fillEl = document.getElementById('progressFill');
+            var textEl = progressEl ? progressEl.querySelector('.progress-text') : null;
+            if (btn) { btn.disabled = true; }
+            if (progressEl) { progressEl.style.display = 'block'; }
+            try {
+                var questionPages = splitQuestionsIntoPages(questions, 'practice', fontSize, includeSource, 10);
+                var answerPages = splitQuestionsIntoPages(questions, 'answer', fontSize, includeSource, 20);
+                var totalSteps = questionPages.length + answerPages.length;
+                var step = 0;
+                var jsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : window.jspdf;
+                var pdfQuestions = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+                for (var i = 0; i < questionPages.length; i++) {
+                    var p = questionPages[i];
+                    if (fillEl) fillEl.style.width = Math.round((++step / totalSteps) * 100) + '%';
+                    if (textEl) textEl.textContent = '正在生成题目 ' + step + '/' + totalSteps;
+                    var dataUrl = await htmlToImage(generatePageHTML(p.questions, 'practice', p.pageIndex, p.globalStartNum, fontSize, includeSource), quality);
+                    if (i > 0) pdfQuestions.addPage();
+                    pdfQuestions.addImage(dataUrl, 'JPEG', 0, 0, 210, 297);
+                }
+                pdfQuestions.save((namePrefix || '题目') + '.pdf');
+                var pdfAnswers = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+                for (var i = 0; i < answerPages.length; i++) {
+                    var p = answerPages[i];
+                    if (fillEl) fillEl.style.width = Math.round((++step / totalSteps) * 100) + '%';
+                    if (textEl) textEl.textContent = '正在生成答案 ' + step + '/' + totalSteps;
+                    var dataUrl = await htmlToImage(generateAnswerPageHTML(p.questions, p.pageIndex, p.globalStartNum, fontSize), quality);
+                    if (i > 0) pdfAnswers.addPage();
+                    pdfAnswers.addImage(dataUrl, 'JPEG', 0, 0, 210, 297);
+                }
+                pdfAnswers.save((namePrefix ? namePrefix + '_' : '') + '答案.pdf');
+            } catch (e) { alert('导出失败：' + (e && e.message)); }
+            if (btn) btn.disabled = false;
+            if (progressEl) { progressEl.style.display = 'none'; }
+            if (fillEl) fillEl.style.width = '0%';
+        }
+        async function exportWrongToPDF() {
+            var ids = store.getWrongQuestionIds();
+            var questions = ids.map(function(qid) { return store.getQuestion(qid); }).filter(Boolean);
+            if (!questions.length) { alert('错题本暂无题目'); return; }
+            await exportQuestionsToPDFInternal(questions, '错题');
+            showMsg('setStatus', '已下载：错题.pdf、错题_答案.pdf', 'success');
+        }
+        async function exportPointsToPDF() {
+            var ids = store.getAllQuestionIds();
+            var questions = ids.map(function(qid) { return store.getQuestion(qid); }).filter(function(q) { return q && (q.knowledgePoints || []).length; });
+            if (!questions.length) { alert('暂无带考点的题目'); return; }
+            await exportQuestionsToPDFInternal(questions, '考点题目');
+            showMsg('setStatus', '已下载：考点题目.pdf、考点题目_答案.pdf', 'success');
         }
         async function exportToPDF() {
             var questions = getExportQuestions();
@@ -2976,42 +3422,116 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             store.load();
             rebuildSubcategoriesFromStore();
             if (!store.sets.length) { store.addSet('默认套卷'); store.save(); }
-            document.querySelectorAll('.tab').forEach(function(t) {
+            document.querySelectorAll('.nav-item').forEach(function(t) {
                 t.addEventListener('click', function() { switchTab(t.getAttribute('data-tab')); });
             });
-            document.querySelector('.tab[data-tab="sets"]').classList.add('active');
-            document.getElementById('tab-sets').classList.add('active');
+            document.getElementById('tab-home').classList.add('active');
             renderTree();
             fillCategorySelects();
-            renderCategoryList();
             fillSetSelects();
-            renderSetList();
-            if (location.hash === '#single') {
-                var addToSetId = (function() { var m = /[?&]addToSetId=([^&]+)/.exec(location.search); return m ? decodeURIComponent(m[1]) : null; })();
-                if (!addToSetId) { try { addToSetId = sessionStorage.getItem('xingce_add_to_set_id'); } catch (e) {} }
-                if (addToSetId) {
-                    document.getElementById('singleSetId').value = addToSetId;
-                    try { sessionStorage.removeItem('xingce_add_to_set_id'); } catch (e) {}
-                }
-                switchTab('single');
+            var addToSetId = (function() { var m = /[?&]addToSetId=([^&]+)/.exec(location.search); return m ? decodeURIComponent(m[1]) : null; })();
+            if (!addToSetId) { try { addToSetId = localStorage.getItem('xingce_add_to_set_id') || sessionStorage.getItem('xingce_add_to_set_id'); } catch (e) {} }
+            if (addToSetId) {
+                document.getElementById('singleSetId').value = addToSetId;
+                document.getElementById('batchSetId').value = addToSetId;
+                try { localStorage.removeItem('xingce_add_to_set_id'); sessionStorage.removeItem('xingce_add_to_set_id'); } catch (e) {}
             }
+            if (location.hash === '#single') switchTab('single');
+            else if (location.hash === '#batch') switchTab('batch');
+            document.getElementById('singleSection').value = '判断推理';
             updateSingleSub();
+            document.getElementById('singleSubcategory').value = '图形推理';
             document.getElementById('singleSection').addEventListener('change', updateSingleSub);
+            var ziliaoCb = document.getElementById('singleZiliaoMode');
+            if (ziliaoCb) ziliaoCb.addEventListener('change', function() {
+                var on = ziliaoCb.checked;
+                document.getElementById('singleNormalFields').style.display = on ? 'none' : 'block';
+                document.getElementById('singleAnswerRow').style.display = on ? 'none' : 'flex';
+                var zf = document.getElementById('singleZiliaoFields');
+                zf.style.display = on ? 'block' : 'none';
+                if (on) {
+                    document.getElementById('singleSection').value = '资料分析';
+                    updateSingleSub();
+                    document.getElementById('singleZiliaoQuestions').innerHTML = '';
+                    singleZiliaoQIndex = 0;
+                    for (var i = 0; i < 5; i++) addSingleZiliaoQuestion();
+                } else {
+                    document.getElementById('singleSection').value = '判断推理';
+                    updateSingleSub();
+                    document.getElementById('singleSubcategory').value = '图形推理';
+                    setSingleOptionDefaults();
+                }
+            });
             bindEditablePaste();
-            ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD'].forEach(function(id) {
+            ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD', 'singleExplanation'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (el) { el.addEventListener('input', updateSinglePreview); el.addEventListener('paste', function() { setTimeout(updateSinglePreview, 100); }); }
             });
-            var expEl = document.getElementById('singleExplanation');
-            if (expEl) expEl.addEventListener('input', updateSinglePreview);
             updateManageSub();
             updatePracticeSub();
             var practiceSectionsWrap = document.getElementById('practiceSectionsWrap');
             if (practiceSectionsWrap) practiceSectionsWrap.addEventListener('change', function(e) { if (e.target.name === 'practiceSection') updatePracticeSub(); });
             checkExportState();
+            bindBatchInputPaste();
             // 页面初始化后，尝试从 GitHub 上拉取最新题库（data/store.json）
             loadRemoteStore();
         });
+        var _batchLivePreviewTimer = null;
+        function updateBatchLivePreview() {
+            var ta = document.getElementById('inputText');
+            var wrap = document.getElementById('batchLivePreview');
+            if (!ta || !wrap) return;
+            var raw = (ta.value || '');
+            if (!raw.trim()) { wrap.innerHTML = '<span style="color:var(--text-secondary);">输入内容后将在此实时显示图片与公式</span>'; return; }
+            var html = raw
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/\[IMG:(data:[^\]]+)\]/gi, function(_, src) { return '<img src="' + src + '" style="max-width:100%; height:auto; margin:4px 0; vertical-align:middle;" />'; })
+                .replace(/\[IMG:([A-Za-z0-9+/=]+)\]/g, function(_, b64) { return '<img src="data:image/png;base64,' + b64 + '" style="max-width:100%; height:auto; margin:4px 0; vertical-align:middle;" />'; })
+                .replace(/!\[[^\]]*\]\((data:[^)]+)\)/g, function(_, src) { return '<img src="' + src + '" style="max-width:100%; height:auto; margin:4px 0; vertical-align:middle;" />'; });
+            wrap.innerHTML = html.replace(/\n/g, '<br>');
+            if (typeof renderLaTeXInElement === 'function') renderLaTeXInElement(wrap);
+        }
+        function scheduleBatchLivePreview() {
+            if (_batchLivePreviewTimer) clearTimeout(_batchLivePreviewTimer);
+            _batchLivePreviewTimer = setTimeout(function() { _batchLivePreviewTimer = null; updateBatchLivePreview(); }, 150);
+        }
+        function bindBatchInputPaste() {
+            var ta = document.getElementById('inputText');
+            if (!ta) return;
+            ta.addEventListener('input', scheduleBatchLivePreview);
+            ta.addEventListener('paste', function(e) {
+                var items = e.clipboardData && e.clipboardData.items;
+                if (!items) return;
+                var imageFiles = [];
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) imageFiles.push(items[i].getAsFile());
+                }
+                if (!imageFiles.length) return;
+                e.preventDefault();
+                var start = ta.selectionStart, end = ta.selectionEnd;
+                var text = ta.value;
+                var inserted = 0;
+                function insertNext(idx) {
+                    if (idx >= imageFiles.length) {
+                        ta.selectionStart = ta.selectionEnd = start + inserted;
+                        ta.focus();
+                        return;
+                    }
+                    var file = imageFiles[idx];
+                    var reader = new FileReader();
+                    reader.onload = function() {
+                        var token = '[IMG:' + reader.result + ']';
+                        text = text.slice(0, start + inserted) + token + text.slice(start + inserted);
+                        inserted += token.length;
+                        ta.value = text;
+                        insertNext(idx + 1);
+                    };
+                    reader.readAsDataURL(file);
+                }
+                insertNext(0);
+            });
+            ta.addEventListener('paste', function() { scheduleBatchLivePreview(); });
+        }
     </script>
 </body>
 </html>

@@ -1,6 +1,4 @@
 {
   "txt": ["batch-example.txt"],
-  "json": ["store.json"],
-  "json": ["one.json"]
-
+  "json": ["store.json"]
 }
