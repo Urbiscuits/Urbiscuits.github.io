@@ -1462,7 +1462,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 GITHUB_CONFIG.token = savedToken;
             } else {
                 // 如果没有保存的 Token，使用默认值（首次使用时）
-                var defaultToken = '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';
+                var defaultToken = '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';
                 if (defaultToken) {
                     localStorage.setItem('github_token', defaultToken);
                     GITHUB_CONFIG.token = defaultToken;
@@ -4389,10 +4389,15 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
             container.innerHTML = filtered.map(function(s) {
-                var total = (s['言语理解']||[]).length + (s['数量关系']||[]).length + (s['判断推理']||[]).length + (s['资料分析']||[]).length;
+                var y = (s['言语理解']||[]).length;
+                var n = (s['数量关系']||[]).length;
+                var p = (s['判断推理']||[]).length;
+                var z = (s['资料分析']||[]).length;
+                var total = y + n + p + z;
+                var meta = '言语理解 ' + y + ' · 数量关系 ' + n + ' · 判断推理 ' + p + ' · 资料分析 ' + z;
                 return '<div class="set-item" style="padding:12px; border:1px solid var(--border-color); border-radius:var(--border-radius); margin-bottom:8px;">' +
                     '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
-                    '<div><strong>' + esc(s.name) + '</strong> <span style="color:#6c757d; margin-left:8px;">' + esc(s.category || '不分类') + '</span> <span style="color:#6c757d; margin-left:8px;">共 ' + total + ' 题</span></div>' +
+                    '<div><strong>' + esc(s.name) + '</strong> <span style="color:#6c757d; margin-left:8px;">' + esc(s.category || '不分类') + '</span> <span style="color:#6c757d; margin-left:8px;">共 ' + total + ' 题</span><div style="margin-top:4px; font-size:0.85rem; color:#6c757d;">' + meta + '</div></div>' +
                     '<div style="display:flex; gap:8px; flex-wrap:wrap;">' +
                     '<button class="btn btn-sm btn-info" onclick="window.open(\'admin-set-manage.html?setId=' + s.id + '&t=' + Date.now() + '\', \'_blank\')" title="查看题目"><i class="fas fa-list"></i> 查看题目</button>' +
                     '<button class="btn btn-sm btn-primary" onclick="adminBatchImportToSet(\'' + s.id + '\')" title="批量导入到此套卷"><i class="fas fa-file-import"></i> 批量导入</button>' +
