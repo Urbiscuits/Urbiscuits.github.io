@@ -217,7 +217,12 @@
                 html += '<div style="margin-bottom:16px;"><strong style="color:var(--primary-color);">' + esc(sec) + '</strong>';
                 Object.keys(bySection[sec]).sort().forEach(function(sub) {
                     bySection[sec][sub].forEach(function(q) {
-                        html += '<div class="question-item"><span class="question-category">' + esc(sub) + '</span> ' + esc((q.content||'').slice(0, 80)) + '… <button type="button" class="btn btn-info btn-sm" onclick="showDetail(\\'' + q.id + '\\')">查看</button> <button type="button" class="btn btn-default btn-sm" onclick="openEdit(\\'' + q.id + '\\')">编辑</button> <button type="button" class="btn btn-danger btn-sm" onclick="doDelete(\\'' + q.id + '\\')">删除</button></div>';
+                        var qid = String(q.id || '').replace(/'/g, "\\'");
+                        html += '<div class="question-item"><span class="question-category">' + esc(sub) + '</span> ' + esc((q.content||'').slice(0, 80)) + '… ' +
+                            '<button type="button" class="btn btn-info btn-sm" onclick="showDetail(\'' + qid + '\')">查看</button> ' +
+                            '<button type="button" class="btn btn-default btn-sm" onclick="openEdit(\'' + qid + '\')">编辑</button> ' +
+                            '<button type="button" class="btn btn-danger btn-sm" onclick="doDelete(\'' + qid + '\')">删除</button>' +
+                            '</div>';
                     });
                 });
                 html += '</div>';
