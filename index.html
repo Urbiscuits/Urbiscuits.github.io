@@ -831,7 +831,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <p style="margin-bottom:12px; color:#6c757d;">智能识别：<code>[资料分析-文字类]</code> 等块自动按「材料+多小题」解析；遇到 <code>[言语理解-xx]</code> 等其他题型则结束资料分析、按单题解析。每道题必须以 <code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 开头；题干与选项中 <code>$$...$$</code> 或 <code>\( \)</code> 会自动识别为公式。<strong>支持图片</strong>：在题干或选项中使用 <code>![](data:image/png;base64,...)</code> 或 <code>[IMG:data:image/xxx;base64,...]</code> 插入图片。</p>
                         <div class="control-group" style="margin-bottom: 12px;">
                             <label>从 TXT 导入：</label>
-                            <input type="file" id="batchTxtFile" accept=".txt,text/plain" onchange="onBatchTxtFileChange()" style="margin-right: 12px;">
+                            <input type="file" id="batchTxtFile" accept=".txt,text/plain" multiple onchange="onBatchTxtFileChange()" style="margin-right: 12px;">
                             <span style="color:#6c757d;">选择 TXT 后内容会填入下方框，可编辑后点击「预览」或「导入」</span>
                         </div>
                         <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT 填入（支持 <code>考点：xxx</code> 导入）</label>
@@ -1368,7 +1368,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="adminBatchSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                             <div class="control-group" style="margin-bottom: 12px;">
                                 <label>从 TXT 导入：</label>
-                                <input type="file" id="adminBatchTxtFile" accept=".txt,text/plain" onchange="onAdminBatchTxtFileChange()" style="margin-right: 12px;">
+                                <input type="file" id="adminBatchTxtFile" accept=".txt,text/plain" multiple onchange="onAdminBatchTxtFileChange()" style="margin-right: 12px;">
                                 <span style="color:#6c757d;">选择 TXT 后内容会填入下方框，可编辑后点击「预览」或「导入」</span>
                             </div>
                             <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT 填入（支持 <code>考点：xxx</code> 导入）</label>
@@ -1469,6 +1469,51 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 }
             }
         } catch(e) {}
+
+        // GitHub Contents API 的 content 为 Base64（底层是 UTF-8 字节序列）。
+        // 不能直接 atob(...) 后 JSON.parse(...)，否则中文会变成乱码（mojibake）。
+        function base64ToUtf8(b64) {
+            b64 = (b64 || '').replace(/\s/g, '');
+            if (!b64) return '';
+            try {
+                var binary = atob(b64); // 字节串（0-255），不是 UTF-8 文本
+                if (typeof TextDecoder !== 'undefined') {
+                    var bytes = new Uint8Array(binary.length);
+                    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                    return new TextDecoder('utf-8').decode(bytes);
+                }
+                // 兼容旧浏览器
+                return decodeURIComponent(escape(binary));
+            } catch (e) {
+                try { return atob(b64); } catch (e2) { return ''; }
+            }
+        }
+        function utf8ToBase64(str) {
+            try { return btoa(unescape(encodeURIComponent(str))); } catch (e) { return btoa(String(str || '')); }
+        }
+        // 将类似 “æå¥” 这类 UTF-8 被当成 Latin-1 的乱码尽量修复回中文。
+        // 仅在“修复后包含中文”时才替换，避免误伤正常文本。
+        function repairMojibakeString(s) {
+            if (typeof s !== 'string' || !s) return s;
+            // 典型乱码字符集合（UTF-8 字节被错误映射成 Unicode 后常出现）
+            if (!/[ÃÂâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ]/.test(s)) return s;
+            try {
+                var fixed = decodeURIComponent(escape(s));
+                if (fixed && /[\u4e00-\u9fff]/.test(fixed)) return fixed;
+            } catch (e) {}
+            return s;
+        }
+        function deepRepairMojibake(v) {
+            if (Array.isArray(v)) return v.map(deepRepairMojibake);
+            if (v && typeof v === 'object') {
+                var out = {};
+                Object.keys(v).forEach(function(k) {
+                    out[repairMojibakeString(k)] = deepRepairMojibake(v[k]);
+                });
+                return out;
+            }
+            return (typeof v === 'string') ? repairMojibakeString(v) : v;
+        }
 
         function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9); }
         function ensureSubcategory(category, subcategory) {
@@ -1696,6 +1741,21 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         });
                         // 按“合并”模式导入所有 JSON
                         if (mergedSets.length || Object.keys(mergedQuestions).length) {
+                            // 反向索引：通过 sets 中的题号列表推断每题所属套卷/大类
+                            // 用于修复某些同步场景下 questions.setId 缺失/不匹配导致“套卷有题但显示 0 题”
+                            var qToSetId = {};
+                            var qToSection = {};
+                            mergedSets.forEach(function(s) {
+                                if (!s || !s.id) return;
+                                MAIN_SECTIONS.forEach(function(sec) {
+                                    (s[sec] || []).forEach(function(qid) {
+                                        if (!qid) return;
+                                        qToSetId[qid] = s.id;
+                                        qToSection[qid] = sec;
+                                    });
+                                });
+                            });
+
                             var setIds = {};
                             mergedSets.forEach(function(s) {
                                 var name = (s.name || '').trim();
@@ -1724,8 +1784,16 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             });
                             Object.keys(mergedQuestions).forEach(function(qid) {
                                 var q = mergedQuestions[qid];
-                                if (q && setIds[q.setId]) {
-                                    q.setId = setIds[q.setId];
+                                if (!q) return;
+                                // 优先使用 q.setId；若缺失/不匹配，则用反向索引推断
+                                var srcSetId = q.setId;
+                                if (!srcSetId || !setIds[srcSetId]) {
+                                    srcSetId = qToSetId[qid];
+                                }
+                                if (srcSetId && setIds[srcSetId]) {
+                                    q.setId = setIds[srcSetId];
+                                    // 补齐 section（避免 UI 侧分类统计异常）
+                                    if (!q.section && qToSection[qid]) q.section = qToSection[qid];
                                     q.knowledgePoints = q.knowledgePoints || (q.knowledgePoint ? [q.knowledgePoint] : []);
                                     store.questions[qid] = q;
                                 }
@@ -2561,13 +2629,22 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function onBatchTxtFileChange() {
             var input = document.getElementById('batchTxtFile');
             if (!input.files || !input.files.length) return;
-            var file = input.files[0];
-            var reader = new FileReader();
-            reader.onload = function() {
-                document.getElementById('inputText').value = reader.result;
-                showMsg('importStatus', '已填入 TXT 内容，可编辑后点击「导入」', 'success');
-            };
-            reader.readAsText(file, 'UTF-8');
+            var files = Array.prototype.slice.call(input.files || []);
+            var ps = files.map(function(file) {
+                return new Promise(function(resolve, reject) {
+                    var reader = new FileReader();
+                    reader.onload = function() { resolve(String(reader.result || '')); };
+                    reader.onerror = function() { reject(new Error('读取失败：' + (file && file.name ? file.name : 'TXT'))); };
+                    reader.readAsText(file, 'UTF-8');
+                });
+            });
+            Promise.all(ps).then(function(texts) {
+                var merged = texts.map(function(t) { return (t || '').trim(); }).filter(Boolean).join('\n\n');
+                document.getElementById('inputText').value = merged;
+                showMsg('importStatus', '已填入 ' + files.length + ' 个 TXT 内容（已合并），可编辑后点击「预览」或「导入」', 'success');
+            }).catch(function(err) {
+                showMsg('importStatus', '读取 TXT 失败：' + (err && err.message || '未知错误'), 'error');
+            });
         }
         function onPracticeTypeChange() {
             var type = document.getElementById('practiceType').value;
@@ -4671,8 +4748,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 if (fileInfo && mode === 'merge') {
                     // 合并模式：合并现有数据和管理员数据
                     try {
-                        var existingContent = atob(fileInfo.content.replace(/\s/g, ''));
-                        var existingData = JSON.parse(existingContent);
+                        var existingContent = base64ToUtf8(fileInfo.content);
+                        var existingData = deepRepairMojibake(JSON.parse(existingContent));
                         // 合并sets
                         var mergedSets = [];
                         var setIdMap = {};
@@ -4711,7 +4788,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 }
                 
                 var content = JSON.stringify(finalData, null, 2);
-                var encodedContent = btoa(unescape(encodeURIComponent(content)));
+                var encodedContent = utf8ToBase64(content);
                 
                 var commitData = {
                     message: '管理员保存数据到新文件: ' + filePath + ' - ' + new Date().toLocaleString('zh-CN') + ' (' + mode + ')',
@@ -4794,7 +4871,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     manifest = { json: ['store.json', jsonFileName] };
                 } else {
                     try {
-                        var existingContent = atob(fileInfo.content.replace(/\s/g, ''));
+                        var existingContent = base64ToUtf8(fileInfo.content);
                         manifest = JSON.parse(existingContent);
                     } catch (e) {
                         // 解析失败时，重新生成一个安全的清单
@@ -4822,7 +4899,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 }
                 
                 var newContent = JSON.stringify(manifest, null, 2);
-                var encodedContent = btoa(unescape(encodeURIComponent(newContent)));
+                var encodedContent = utf8ToBase64(newContent);
                 var commitData = {
                     message: '管理员更新 files.json，加入 ' + jsonFileName + ' - ' + new Date().toLocaleString('zh-CN'),
                     content: encodedContent,
@@ -4898,8 +4975,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     // 合并模式：合并现有数据和管理员数据
                     if (fileInfo && fileInfo.content) {
                         try {
-                            var existingContent = atob(fileInfo.content.replace(/\s/g, ''));
-                            var existingData = JSON.parse(existingContent);
+                            var existingContent = base64ToUtf8(fileInfo.content);
+                            var existingData = deepRepairMojibake(JSON.parse(existingContent));
                             // 合并sets
                             var mergedSets = [];
                             var setIdMap = {}; // 映射旧ID到新ID
@@ -4941,7 +5018,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 }
                 
                 var content = JSON.stringify(finalData, null, 2);
-                var encodedContent = btoa(unescape(encodeURIComponent(content)));
+                var encodedContent = utf8ToBase64(content);
                 
                 var commitData = {
                     message: '管理员同步题库数据 - ' + new Date().toLocaleString('zh-CN') + ' (' + mode + ')',
@@ -4952,11 +5029,38 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 if (fileInfo && fileInfo.sha) {
                     commitData.sha = fileInfo.sha;
                 }
-                
-                return fetch(apiUrl, {
-                    method: 'PUT',
-                    headers: headers,
-                    body: JSON.stringify(commitData)
+
+                // PUT：若遇到 sha 不匹配冲突，自动重新获取 sha 并重试一次
+                function doPutWithSha(sha) {
+                    var data = Object.assign({}, commitData);
+                    if (sha) data.sha = sha;
+                    return fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify(data)
+                    });
+                }
+                return doPutWithSha(commitData.sha).then(function(resp) {
+                    if (resp.ok) return resp;
+                    return resp.json().then(function(err) {
+                        var msg = (err && err.message) ? err.message : String(resp.status || '');
+                        var isShaMismatch = resp.status === 409 || /does not match/i.test(msg) || /sha/i.test(msg);
+                        if (!isShaMismatch) throw new Error('同步到 GitHub 失败: ' + msg);
+                        // 重新 GET 一次拿到最新 sha，再重试
+                        return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                            .then(function(r2) {
+                                if (!r2.ok) throw new Error('同步冲突后重新获取文件信息失败: ' + r2.status);
+                                return r2.json();
+                            })
+                            .then(function(latest) {
+                                return doPutWithSha(latest && latest.sha).then(function(r3) {
+                                    if (r3.ok) return r3;
+                                    return r3.json().then(function(err2) {
+                                        throw new Error('同步到 GitHub 失败: ' + ((err2 && err2.message) || r3.status));
+                                    });
+                                });
+                            });
+                    });
                 });
             })
             .then(function(resp) {
@@ -4969,6 +5073,13 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             })
             .then(function(result) {
                 showMsg('adminSyncStatus', '成功同步到 GitHub（' + targetPath + '）: ' + (result.commit.html_url || ''), 'success');
+                // 若同步目标不是默认 store.json，也确保写入 files.json 清单，避免“个人中心刷新题库读不到”
+                try {
+                    if (targetPath && /^data\/[^\/]+\.json$/i.test(targetPath) && targetPath !== 'data/files.json') {
+                        var base = targetPath.replace(/^data\//, '');
+                        adminEnsureFileInManifest(base).catch(function() { /* 不阻塞主流程 */ });
+                    }
+                } catch (e) {}
                 return result;
             })
             .catch(function(err) {
@@ -5101,12 +5212,22 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function onAdminBatchTxtFileChange() {
             var input = document.getElementById('adminBatchTxtFile');
             if (!input.files || !input.files.length) return;
-            var file = input.files[0];
-            var reader = new FileReader();
-            reader.onload = function() {
-                document.getElementById('adminInputText').value = reader.result;
-            };
-            reader.readAsText(file);
+            var files = Array.prototype.slice.call(input.files || []);
+            var ps = files.map(function(file) {
+                return new Promise(function(resolve, reject) {
+                    var reader = new FileReader();
+                    reader.onload = function() { resolve(String(reader.result || '')); };
+                    reader.onerror = function() { reject(new Error('读取失败：' + (file && file.name ? file.name : 'TXT'))); };
+                    reader.readAsText(file, 'UTF-8');
+                });
+            });
+            Promise.all(ps).then(function(texts) {
+                var merged = texts.map(function(t) { return (t || '').trim(); }).filter(Boolean).join('\n\n');
+                document.getElementById('adminInputText').value = merged;
+                showMsg('adminImportStatus', '已填入 ' + files.length + ' 个 TXT 内容（已合并），可点击「预览」或「导入」', 'success');
+            }).catch(function(err) {
+                showMsg('adminImportStatus', '读取 TXT 失败：' + (err && err.message || '未知错误'), 'error');
+            });
         }
         
         function adminBatchPreview() {
