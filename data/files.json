@@ -1,4 +1,7 @@
 {
-  "json": ["store.json"],
-"json": ["shuju2.json"]
+  "json": [
+    "store.json",
+    "shuju2.json"
+  ],
+  "txt": []
 }
