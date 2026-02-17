@@ -1,0 +1,40 @@
+{
+  "exportTime": "2025-01-01T00:00:00.000Z",
+  "sets": [
+    {
+      "id": "demo_set_1",
+      "name": "示例套卷：行测基础题",
+      "category": "示例分类",
+      "言语理解": ["demo_q_1"],
+      "数量关系": [],
+      "判断推理": [],
+      "资料分析": []
+    }
+  ],
+  "questions": {
+    "demo_q_1": {
+      "id": "demo_q_1",
+      "setId": "demo_set_1",
+      "section": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "示例来源",
+      "content": "下列选项中，最合适填入横线处的是：1+1=\\(\\,?\\,\\)。",
+      "stemImages": [],
+      "material": "这是一个示例题，用于演示从 GitHub 上加载题库数据。",
+      "materialImages": [],
+      "options": [
+        { "label": "A", "text": "1", "images": [] },
+        { "label": "B", "text": "2", "images": [] },
+        { "label": "C", "text": "3", "images": [] },
+        { "label": "D", "text": "4", "images": [] }
+      ],
+      "answer": "B",
+      "explanation": "本题仅为示例，展示题干/选项/解析等结构。",
+      "knowledgePoints": ["示例考点"],
+      "totalAttempts": 0,
+      "correctCount": 0,
+      "done": false
+    }
+  }
+}
+
