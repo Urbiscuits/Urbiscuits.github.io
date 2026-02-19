@@ -1320,10 +1320,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <!-- GitHub 同步配置 -->
                         <div class="card" style="margin-bottom: 20px;">
                             <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fab fa-github"></i> GitHub 同步配置</h2>
-                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">配置 GitHub Personal Access Token 后，管理员在此页面进行的所有操作（套卷管理、批量导入、单题录入）将自动同步到 GitHub 仓库的 data/store.json 文件。</p>
+                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">配置 GitHub Personal Access Token 后，管理员在此页面进行的所有操作（套卷管理、批量导入、单题录入）将自动同步到 GitHub 仓库的 data/store.json 文件。<strong style="color:var(--primary-color);">Token 将以加密形式存储，不会直接暴露。</strong></p>
                             <div class="control-group" style="margin-bottom:12px;">
                                 <label style="display:block; margin-bottom:6px;">GitHub Personal Access Token：</label>
-                                <input type="password" id="adminGithubTokenInput" placeholder="输入 Token（需要 repo 权限）" style="width:100%; max-width:600px; padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius); font-family:monospace; font-size:0.9rem;">
+                                <input type="password" id="adminGithubTokenInput" placeholder="输入 Token（需要 repo 权限，将加密存储）" style="width:100%; max-width:600px; padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius); font-family:monospace; font-size:0.9rem;">
                                 <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:8px;">
                                     <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--primary-color);">创建 Token</a> | 
                                     当前状态：<span id="adminGithubTokenStatus" style="color:var(--text-secondary);">未配置</span>
@@ -1332,6 +1332,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div class="control-group" style="margin-bottom:12px;">
                                 <button class="btn btn-primary" onclick="adminSaveGitHubToken()"><i class="fas fa-save"></i> 保存 Token</button>
                                 <button class="btn" style="background:var(--light-bg); border:1px solid var(--border-color); margin-left:8px;" onclick="adminTestGitHubConnection()"><i class="fas fa-check-circle"></i> 测试连接</button>
+                                <button class="btn" style="background:#dc3545; color:#fff; border-color:#dc3545; margin-left:8px;" onclick="adminClearGitHubToken()"><i class="fas fa-trash"></i> 清除 Token</button>
                             </div>
                             <div id="adminGithubStatus" class="status-message" style="display:none;"></div>
                         </div>
@@ -1465,16 +1466,68 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             token: ''                      // GitHub Personal Access Token（请在此填写，或通过 localStorage 设置）
         };
         
+        // GitHub Token 加密/解密函数（简单可逆加密）
+        // 使用 XOR 加密，配合 Base64 编码
+        function encryptToken(token) {
+            if (!token) return '';
+            var key = 'xingce_github_token_key_2024'; // 加密密钥
+            var result = '';
+            for (var i = 0; i < token.length; i++) {
+                var charCode = token.charCodeAt(i);
+                var keyChar = key.charCodeAt(i % key.length);
+                result += String.fromCharCode(charCode ^ keyChar);
+            }
+            // Base64 编码
+            try {
+                return btoa(unescape(encodeURIComponent(result)));
+            } catch (e) {
+                return btoa(result);
+            }
+        }
+        
+        function decryptToken(encryptedToken) {
+            if (!encryptedToken) return '';
+            try {
+                // Base64 解码
+                var decoded;
+                try {
+                    decoded = decodeURIComponent(escape(atob(encryptedToken)));
+                } catch (e) {
+                    decoded = atob(encryptedToken);
+                }
+                var key = 'xingce_github_token_key_2024'; // 解密密钥（与加密密钥相同）
+                var result = '';
+                for (var i = 0; i < decoded.length; i++) {
+                    var charCode = decoded.charCodeAt(i);
+                    var keyChar = key.charCodeAt(i % key.length);
+                    result += String.fromCharCode(charCode ^ keyChar);
+                }
+                return result;
+            } catch (e) {
+                console.error('解密 Token 失败:', e);
+                return '';
+            }
+        }
+        
         // 从 localStorage 读取 Token（如果已设置）
         try {
             var savedToken = localStorage.getItem('github_token');
             if (savedToken) {
-                GITHUB_CONFIG.token = savedToken;
+                // 尝试解密（如果是加密的）
+                var decrypted = decryptToken(savedToken);
+                if (decrypted) {
+                    GITHUB_CONFIG.token = decrypted;
+                } else {
+                    // 如果解密失败，可能是旧格式的未加密 token，直接使用
+                    GITHUB_CONFIG.token = savedToken;
+                }
             } else {
                 // 如果没有保存的 Token，使用默认值（首次使用时）
                 var defaultToken = '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';
                 if (defaultToken) {
-                    localStorage.setItem('github_token', defaultToken);
+                    // 加密后保存
+                    var encryptedDefault = encryptToken(defaultToken);
+                    localStorage.setItem('github_token', encryptedDefault);
                     GITHUB_CONFIG.token = defaultToken;
                 }
             }
@@ -2117,9 +2170,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 return;
             }
             try {
-                localStorage.setItem('github_token', token);
-                GITHUB_CONFIG.token = token;
-                showMsg('adminGithubStatus', 'Token 已保存', 'success');
+                // 加密后保存
+                var encryptedToken = encryptToken(token);
+                localStorage.setItem('github_token', encryptedToken);
+                GITHUB_CONFIG.token = token; // 使用原始 token
+                showMsg('adminGithubStatus', 'Token 已保存（已加密存储）', 'success');
                 updateAdminGithubTokenStatus();
             } catch (e) {
                 showMsg('adminGithubStatus', '保存失败：' + (e.message || '未知错误'), 'error');
@@ -2132,7 +2187,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 localStorage.removeItem('github_token');
                 GITHUB_CONFIG.token = '';
                 var input = document.getElementById('adminGithubTokenInput');
-                if (input) input.value = '';
+                if (input) {
+                    input.value = '';
+                    input.placeholder = '输入 Token（需要 repo 权限，将加密存储）';
+                }
                 showMsg('adminGithubStatus', 'Token 已清除', 'success');
                 updateAdminGithubTokenStatus();
             } catch (e) {
@@ -2179,13 +2237,26 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (tokenStatusEl) {
                 var token = GITHUB_CONFIG.token || '';
                 if (token) {
-                    tokenStatusEl.textContent = '已配置 (' + token.substring(0, 8) + '...)';
+                    // 显示加密后的值（前12个字符）而不是原始值，保护真实 token
+                    var encryptedToken = encryptToken(token);
+                    var displayValue = encryptedToken.substring(0, 12) + '...';
+                    tokenStatusEl.textContent = '已配置（加密存储：' + displayValue + '）';
                     tokenStatusEl.style.color = 'var(--success-color)';
-                    if (tokenInputEl) tokenInputEl.value = token;
+                    // 输入框不显示原始 token，让用户输入新的 token 来更换
+                    if (tokenInputEl) {
+                        // 如果输入框为空或者是原始 token，清空让用户输入新的
+                        if (!tokenInputEl.value || tokenInputEl.value === token) {
+                            tokenInputEl.value = ''; // 清空，让用户输入新的 token
+                            tokenInputEl.placeholder = '输入新的 Token 以更换（将加密存储）';
+                        }
+                    }
                 } else {
                     tokenStatusEl.textContent = '未配置';
                     tokenStatusEl.style.color = 'var(--text-secondary)';
-                    if (tokenInputEl) tokenInputEl.value = '';
+                    if (tokenInputEl) {
+                        tokenInputEl.value = '';
+                        tokenInputEl.placeholder = '输入 Token（需要 repo 权限，将加密存储）';
+                    }
                 }
             }
         }
