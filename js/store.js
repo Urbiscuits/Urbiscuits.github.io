@@ -67,15 +67,79 @@
             delete this.questions[qid];
         },
         setQuestionDone: function(qid, done) { if (this.questions[qid]) this.questions[qid].done = !!done; },
+        getQuestionFingerprint: function(q) {
+            if (!q) return '';
+            var mat = String(q.material || '').trim();
+            var matImg = (q.materialImages || []).map(function(i) { return i || ''; }).join('\n');
+            var cont = String(q.content || '').trim();
+            var stemImg = (q.stemImages || []).map(function(i) { return i || ''; }).join('\n');
+            var opts = (q.options || []).slice().sort(function(a, b) { return (a.label || '').localeCompare(b.label || ''); });
+            var optStr = opts.map(function(o) { return (o.label || '') + ':' + (o.text || '') + ((o.images || []).map(function(i) { return i || ''; }).join(',')); }).join('|');
+            return mat + '\n' + matImg + '\n|||\n' + cont + '\n' + stemImg + '\n|||\n' + optStr;
+        },
+        getDuplicateGroups: function() {
+            var self = this;
+            var fpToItems = {};
+            this.sets.forEach(function(set) {
+                MAIN_SECTIONS.forEach(function(sec) {
+                    (set[sec] || []).forEach(function(qid) {
+                        var q = self.questions[qid];
+                        if (!q) return;
+                        var fp = self.getQuestionFingerprint(q);
+                        if (!fp) return;
+                        if (!fpToItems[fp]) fpToItems[fp] = [];
+                        fpToItems[fp].push({ qid: qid, setId: set.id, setName: set.name || '未命名', section: sec, subcategory: q.subcategory || '' });
+                    });
+                });
+            });
+            var groups = {};
+            Object.keys(fpToItems).forEach(function(fp) { if (fpToItems[fp].length > 1) groups[fp] = fpToItems[fp]; });
+            return groups;
+        },
+        getUniqueQuestionIdsByCategory: function(category, subcategory) {
+            var self = this;
+            var fpToIds = {};
+            var ids = [];
+            this.sets.forEach(function(set) {
+                (set[category] || []).forEach(function(qid) {
+                    var q = self.questions[qid];
+                    if (!q) return;
+                    if (!subcategory || subcategory === 'all' || q.subcategory === subcategory) {
+                        var fp = self.getQuestionFingerprint(q);
+                        if (!fpToIds[fp]) { fpToIds[fp] = qid; ids.push(qid); }
+                    }
+                });
+            });
+            return ids;
+        },
+        getUniqueAllQuestionIds: function() {
+            var self = this;
+            var fpToId = {};
+            this.sets.forEach(function(set) {
+                MAIN_SECTIONS.forEach(function(sec) {
+                    (set[sec] || []).forEach(function(qid) {
+                        var q = self.questions[qid];
+                        if (!q) return;
+                        var fp = self.getQuestionFingerprint(q);
+                        if (!fpToId[fp]) fpToId[fp] = qid;
+                    });
+                });
+            });
+            return Object.keys(fpToId).map(function(fp) { return fpToId[fp]; });
+        },
         getMergedStats: function() {
+            var self = this;
             var tree = {};
             MAIN_SECTIONS.forEach(function(s) { tree[s] = {}; });
-            var self = this;
+            var fpSeen = {};
             this.sets.forEach(function(set) {
                 MAIN_SECTIONS.forEach(function(section) {
                     (set[section] || []).forEach(function(qid) {
                         var q = self.questions[qid];
                         if (!q) return;
+                        var fp = self.getQuestionFingerprint(q);
+                        if (fpSeen[fp]) return;
+                        fpSeen[fp] = true;
                         var sub = q.subcategory || q.section || section;
                         tree[section][sub] = (tree[section][sub] || 0) + 1;
                     });
@@ -103,7 +167,9 @@
             return ids;
         },
         getRandomQuestions: function(category, subcategory, count) {
-            var ids = category ? this.getQuestionIdsByCategory(category, subcategory) : this.getAllQuestionIds();
+            var ids = category
+                ? (this.getUniqueQuestionIdsByCategory ? this.getUniqueQuestionIdsByCategory(category, subcategory) : this.getQuestionIdsByCategory(category, subcategory))
+                : (this.getUniqueAllQuestionIds ? this.getUniqueAllQuestionIds() : this.getAllQuestionIds());
             var self = this;
             var undone = ids.filter(function(qid) { var q = self.questions[qid]; return q && (q.totalAttempts || 0) === 0; });
             var done = ids.filter(function(qid) { var q = self.questions[qid]; return q && (q.totalAttempts || 0) > 0; });

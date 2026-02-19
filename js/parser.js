@@ -12,7 +12,8 @@
             .replace(/!\[[^\]]*\]\((data:[^)]+)\)/g, function(_, src) { images.push(src); return ' '; })
             .replace(/\[IMG:(data:[^\]]+)\]/gi, function(_, src) { images.push(src); return ' '; })
             .replace(/\[IMG:([A-Za-z0-9+/=]+)\]/g, function(_, b64) { images.push('data:image/png;base64,' + b64); return ' '; });
-        return { text: text.replace(/\s+/g, ' ').trim(), images: images };
+        var normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/[ \t]+/g, ' ').replace(/\n+/g, '\n').trim();
+        return { text: normalized, images: images };
     }
 
     function parseOne(text) {
@@ -49,7 +50,7 @@
                 continue;
             }
             if (inContent && line.match(/^\[[^\]]+-[^\]]+\](?:\([^)]*\))?\s*$/)) continue;
-            if (inContent) content += (content ? ' ' : '') + line;
+            if (inContent) content += (content ? '\n' : '') + line;
         }
         var stemRes = extract(content.trim());
         if (!stemRes.text && stemRes.images.length === 0) return null;
@@ -102,7 +103,7 @@
                     }
                     if (/^\s*\[[^\]]+-[^\]]+\]/.test(l)) break;
                     if (/^题目\d*[：:]/.test(l)) break;
-                    content += (content ? ' ' : '') + l.trim();
+                    content += (content ? '\n' : '') + l.trim();
                     i++;
                 }
                 var stemRes = extract(content);

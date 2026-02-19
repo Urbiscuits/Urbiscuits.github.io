@@ -23,9 +23,9 @@
         .btn-primary { background: var(--primary-color); color: #fff; }
         .btn-success { background: var(--success-color); color: #fff; }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .question-content { line-height: 1.7; margin: 12px 0; }
+        .question-content { line-height: 1.7; margin: 12px 0; white-space: pre-wrap; }
         .page-question-header { font-size: 0.95rem; color: var(--primary-color); margin-bottom: 8px; }
-        .option-clickable { cursor: pointer; padding: 12px 14px; border-radius: var(--border-radius); border: 2px solid transparent; margin-bottom: 8px; transition: background 0.2s, border-color 0.2s; }
+        .option-clickable { cursor: pointer; padding: 12px 14px; border-radius: var(--border-radius); border: 2px solid transparent; margin-bottom: 8px; transition: background 0.2s, border-color 0.2s; white-space: pre-wrap; }
         .option-clickable:hover { background: #f5f5f5; }
         .option-clickable.selected { background: #E6F7FF; border-color: #1890FF; }
         .option-clickable .option-check { float: right; display: none; }
@@ -42,13 +42,17 @@
         .option.correct { background: #d4edda; border-left: 4px solid var(--success-color); }
         .option.wrong { background: #f8d7da; border-left: 4px solid #dc3545; }
         .options-grid { display: grid; gap: 8px; }
-        .option { padding: 12px; border-radius: var(--border-radius); background: #f8f9fa; border-left: 4px solid #ddd; }
+        .option { padding: 12px; border-radius: var(--border-radius); background: #f8f9fa; border-left: 4px solid #ddd; white-space: pre-wrap; }
         .option-label { font-weight: bold; margin-right: 8px; color: var(--primary-color); }
         .empty-state { text-align: center; padding: 48px 24px; color: #6c757d; }
         .empty-state a { color: var(--primary-color); }
         .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
         .mode-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 8px; }
         .mode-badge.memorize { background: #fff3cd; color: #856404; }
+        .practice-card-font-1 .question-content { font-size: 1.1rem; }
+        .practice-card-font-1 .option-clickable { font-size: 1.05rem; }
+        .practice-card-font-2 .question-content { font-size: 1.25rem; }
+        .practice-card-font-2 .option-clickable { font-size: 1.15rem; }
         /* 草稿：底层题目 + 上层全屏透明画布，无边框 */
         .draft-overlay { position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: 9999; overflow: auto; background: #fff; -webkit-overflow-scrolling: touch; }
         .draft-layer-wrap { position: relative; min-height: 100%; }
@@ -75,6 +79,7 @@
                     <button class="btn" id="btnPrev" onclick="prevQuestion()">上一题</button>
                     <span id="practiceProgress">1/10</span>
                     <button class="btn" id="btnNext" onclick="nextQuestion()">下一题</button>
+                    <button type="button" class="btn btn-sm" id="btnFontSize" style="background:#eaeaea;" onclick="togglePracticeFontSize()">字号</button>
                     <button type="button" class="btn btn-sm" style="background:#eaeaea;" onclick="openDraftOverlay()">草稿</button>
                     <button type="button" class="btn btn-sm" id="btnFavoritePractice" style="background:#fff3cd;" onclick="toggleFavoriteInPractice()"><i class="fas fa-star-o"></i> 收藏</button>
                 </div>
@@ -172,6 +177,16 @@
         function toggleFavoriteInPractice() { var q = practiceQuestions[practiceIndex]; if (!q) return; if (isFavorite(q.id)) { removeFavorite(q.id); } else { addFavorite(q.id); } updateFavoriteButtonInPractice(); }
         function toggleFavoriteInResult(qid) { if (isFavorite(qid)) { removeFavorite(qid); } else { addFavorite(qid); } renderResultQuestion(); }
         function updateFavoriteButtonInPractice() { var btn = document.getElementById('btnFavoritePractice'); if (!btn) return; var q = practiceQuestions[practiceIndex]; var fav = q && isFavorite(q.id); btn.innerHTML = '<i class="fas fa-star' + (fav ? '' : '-o') + '"></i> ' + (fav ? '取消收藏' : '收藏'); }
+        var practiceFontSize = 0;
+        function togglePracticeFontSize() {
+            practiceFontSize = (practiceFontSize + 1) % 3;
+            var card = document.getElementById('practiceCard');
+            if (!card) return;
+            card.classList.remove('practice-card-font-1', 'practice-card-font-2');
+            if (practiceFontSize > 0) card.classList.add('practice-card-font-' + practiceFontSize);
+            var btn = document.getElementById('btnFontSize');
+            if (btn) btn.textContent = ['字号', '大', '更大'][practiceFontSize];
+        }
         function setPoints(n) { try { localStorage.setItem('xingce_points', String(Math.max(0, n))); } catch (e) {} }
         function logPointsUsage(type, amount, desc) { try { var log = []; var s = localStorage.getItem('xingce_points_log'); log = s ? JSON.parse(s) : []; log.unshift({ t: type, amount: amount, desc: desc || '', date: new Date().toISOString() }); log = log.slice(0, 200); localStorage.setItem('xingce_points_log', JSON.stringify(log)); } catch (e) {} }
 

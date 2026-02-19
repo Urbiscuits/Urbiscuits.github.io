@@ -426,6 +426,7 @@
         .question-content {
             margin-bottom: 20px;
             line-height: 1.8;
+            white-space: pre-wrap;
         }
 
         .options-grid {
@@ -440,6 +441,7 @@
             padding: 12px;
             border-radius: var(--border-radius);
             border-left: 4px solid var(--border-color);
+            white-space: pre-wrap;
         }
 
         .option.correct {
@@ -1244,6 +1246,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 </div>
                             </div>
                         </div>
+                        <div class="profile-section">
+                            <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-copy"></i> 题目重复检查</h4>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">材料、题目、选项完全一致的题目视为重复。套卷内可重复，统计与专项练习中只计一次。</p>
+                            <div id="duplicatesContent"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1333,7 +1340,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <div class="card" style="margin-bottom: 20px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <h2 style="margin: 0; color: var(--primary-color);"><i class="fas fa-folder-open"></i> 套卷管理</h2>
-                                <button class="btn btn-info" onclick="adminRefreshSetList()"><i class="fas fa-sync-alt"></i> 刷新</button>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-info" onclick="adminRefreshSetList()"><i class="fas fa-sync-alt"></i> 刷新</button>
+                                    <button class="btn btn-success" onclick="adminLoadFromData()"><i class="fas fa-download"></i> 从 data 加载</button>
+                                </div>
                             </div>
                             
                             <!-- 套卷分类管理 -->
@@ -2582,7 +2592,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
 
         function renderTree() {
             var stats = store.getMergedStats();
-            var total = store.getAllQuestionIds().length;
+            var total = (store.getUniqueAllQuestionIds ? store.getUniqueAllQuestionIds() : store.getAllQuestionIds()).length;
             var container = document.getElementById('statsContent');
             if (total === 0) { container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-pie"></i><p>暂无统计数据</p></div>'; return; }
             var html = '<ul class="tree-node">';
@@ -2595,9 +2605,33 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 subs.forEach(function(sub) { html += '<li class="tree-leaf"><span>' + sub + '</span><span class="tree-count">' + subCounts[sub] + '</span></li>'; });
                 html += '</ul></li>';
             });
-            html += '<li class="tree-leaf" style="margin-top:8px; font-weight:bold;"><span>题目总数</span><span class="tree-count" style="background: var(--accent-color);">' + total + '</span></li></ul>';
+            html += '<li class="tree-leaf" style="margin-top:8px; font-weight:bold;"><span>题目总数（去重后）</span><span class="tree-count" style="background: var(--accent-color);">' + total + '</span></li></ul>';
             container.innerHTML = html;
             bindTreeToggles();
+            renderDuplicates();
+        }
+        function renderDuplicates() {
+            var container = document.getElementById('duplicatesContent');
+            if (!container) return;
+            var groups = store.getDuplicateGroups ? store.getDuplicateGroups() : {};
+            var keys = Object.keys(groups);
+            if (!keys.length) { container.innerHTML = '<p style="color:var(--text-secondary);">暂无重复题目</p>'; return; }
+            var html = '<div style="margin-bottom:8px;"><strong>共 ' + keys.length + ' 组重复</strong></div><ul style="list-style:none; padding:0;">';
+            keys.forEach(function(fp, idx) {
+                var items = groups[fp];
+                html += '<li style="margin-bottom:16px; padding:12px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color);">';
+                html += '<div style="font-weight:600; margin-bottom:8px; color:var(--primary-color);">重复组 ' + (idx + 1) + '（' + items.length + ' 题）</div>';
+                items.forEach(function(x) {
+                    var q = store.getQuestion(x.qid);
+                    var brief = q ? ((q.content || '').slice(0, 60) + ((q.content || '').length > 60 ? '…' : '')) : '';
+                    html += '<div style="margin-left:12px; margin-bottom:8px; cursor:pointer;" onclick="showQuestionDetail(\'' + x.qid + '\')" title="点击查看题目详情">';
+                    html += '<span style="font-size:0.85rem; color:var(--text-secondary);">' + (x.setName || '').replace(/</g, '&lt;') + ' · ' + (x.section || '') + (x.subcategory ? '-' + x.subcategory : '') + '</span><br>';
+                    html += '<span style="font-size:0.9rem;">' + (brief || '').replace(/</g, '&lt;') + '</span></div>';
+                });
+                html += '</li>';
+            });
+            html += '</ul>';
+            container.innerHTML = html;
         }
         function bindTreeToggles() {
             var container = document.getElementById('statsContent');
@@ -4371,6 +4405,49 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             fillAdminSetSelects();
             adminFilterSetList();
             showMsg('adminSetStatus', '已刷新套卷列表', 'success');
+        }
+
+        function adminLoadFromData() {
+            if (!window.fetch) {
+                showMsg('adminSetStatus', '当前浏览器不支持 fetch', 'error');
+                return;
+            }
+            var base = window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/');
+            var manifestUrl = base + 'data/files.json?t=' + Date.now();
+            showMsg('adminSetStatus', '正在从 data 加载…', 'success');
+            fetch(manifestUrl)
+                .then(function(resp) {
+                    if (!resp.ok) throw new Error('files.json 未找到');
+                    return resp.json();
+                })
+                .then(function(manifest) {
+                    var jsonList = Array.isArray(manifest.json) ? manifest.json : (manifest.json ? [manifest.json] : ['store.json']);
+                    var urls = jsonList.map(function(name) { return base + 'data/' + (name.replace(/^data\//, '')) + '?t=' + Date.now(); });
+                    return Promise.all(urls.map(function(url) { return fetch(url).then(function(r) { return r.ok ? r.json() : null; }); }));
+                })
+                .then(function(results) {
+                    var mergedSets = [];
+                    var mergedQuestions = {};
+                    results.forEach(function(data) {
+                        if (!data || !data.sets) return;
+                        (data.sets || []).forEach(function(s) {
+                            if (s && s.id) mergedSets.push(s);
+                        });
+                        var qs = data.questions || {};
+                        Object.keys(qs).forEach(function(qid) {
+                            if (qs[qid]) mergedQuestions[qid] = qs[qid];
+                        });
+                    });
+                    adminStore.sets = mergedSets;
+                    adminStore.questions = mergedQuestions;
+                    adminStore.save();
+                    fillAdminSetSelects();
+                    adminFilterSetList();
+                    showMsg('adminSetStatus', '已从 data 加载 ' + mergedSets.length + ' 个套卷，' + Object.keys(mergedQuestions).length + ' 道题目', 'success');
+                })
+                .catch(function(err) {
+                    showMsg('adminSetStatus', '加载失败：' + (err && err.message || '未知错误') + '。请确保通过 HTTP 服务访问（非 file://）', 'error');
+                });
         }
         
         function adminFilterSetList() {
