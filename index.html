@@ -1307,6 +1307,31 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 <div id="adminNewFileStatus" class="status-message" style="margin-top: 12px;"></div>
                             </div>
                             
+                            <!-- 选择套卷同步到指定 JSON -->
+                            <div style="margin-bottom: 20px; padding: 16px; background: var(--light-bg); border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                                <h4 style="margin-bottom: 12px; color: var(--primary-color); font-size: 1rem;"><i class="fas fa-check-square"></i> 选择套卷同步到指定 JSON</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">勾选要同步的套卷，选择目标 JSON 文件，将选中套卷及其题目上传到该文件。</p>
+                                <div class="control-group" style="margin-bottom: 12px; align-items: center;">
+                                    <label style="min-width: 90px;">目标文件：</label>
+                                    <select id="adminSelectedSetsTargetJson" style="flex: 1; max-width: 420px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius);">
+                                        <option value="data/store.json">data/store.json</option>
+                                    </select>
+                                    <button class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color); margin-left:8px;" onclick="adminRefreshSelectedSetsJsonList()"><i class="fas fa-sync-alt"></i> 刷新</button>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <button type="button" class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color); margin-right:8px;" onclick="adminSelectAllSetsForSync(true)">全选</button>
+                                    <button type="button" class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminSelectAllSetsForSync(false)">取消全选</button>
+                                </div>
+                                <div id="adminSelectedSetsList" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 12px; margin-bottom: 12px; background: var(--surface);"></div>
+                                <div class="control-group" style="margin-bottom: 12px;">
+                                    <label>同步模式：</label>
+                                    <label style="margin-right: 16px;"><input type="radio" name="adminSelectedSetsSyncMode" value="merge" checked> 合并（保留目标文件现有数据，添加新数据）</label>
+                                    <label><input type="radio" name="adminSelectedSetsSyncMode" value="overwrite"> 覆盖（完全替换目标文件数据）</label>
+                                </div>
+                                <button class="btn btn-success" onclick="adminSyncSelectedSetsToJson()" style="padding: 10px 20px;"><i class="fas fa-cloud-upload-alt"></i> 同步选中套卷到指定 JSON</button>
+                                <div id="adminSelectedSetsSyncStatus" class="status-message" style="margin-top: 12px;"></div>
+                            </div>
+                            
                             <!-- 同步/重置：可选择 data 目录下的 JSON 文件 -->
                             <div style="margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
                                 <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">选择 data 目录下某个 JSON 文件作为目标，然后执行同步、重置或删除。这样可以分片存储，避免单个 JSON 过大。</p>
@@ -4589,6 +4614,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             updateAdminGithubTokenStatus();
             // 读取 data 目录下的 JSON 文件列表（用于选择同步/重置目标）
             try { adminRefreshDataJsonFileList(); } catch (e) {}
+            try { adminRefreshSelectedSetsJsonList(); } catch (e) {}
+            if (typeof adminRenderSelectedSetsList === 'function') adminRenderSelectedSetsList();
             fillAdminSetSelects();
             fillAdminCategorySelects();
             renderAdminCategoryList();
@@ -4834,6 +4861,151 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 .then(function() { showMsg('adminUserStatus', '已同步用户列表到 data/users.json', 'success'); })
                 .catch(function(err) { showMsg('adminUserStatus', '同步失败：' + (err.message || '未知错误'), 'error'); });
         }
+        function adminRefreshSelectedSetsJsonList() {
+            var sel = document.getElementById('adminSelectedSetsTargetJson');
+            if (!sel) return Promise.resolve([]);
+            if (!GITHUB_CONFIG.token) {
+                sel.innerHTML = '<option value="data/store.json">data/store.json</option>';
+                sel.value = 'data/store.json';
+                return Promise.resolve(['data/store.json']);
+            }
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data?ref=' + GITHUB_CONFIG.branch;
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+            return fetch(apiUrl, { method: 'GET', headers: headers })
+                .then(function(r) { if (!r.ok) throw new Error('获取失败'); return r.json(); })
+                .then(function(items) {
+                    var jsonPaths = [];
+                    items.forEach(function(it) {
+                        if (!it || it.type !== 'file' || !it.path) return;
+                        if (!/\.json$/i.test(it.path)) return;
+                        if (it.path === 'data/files.json' || it.path === 'data/users.json') return;
+                        jsonPaths.push(it.path);
+                    });
+                    if (jsonPaths.indexOf('data/store.json') === -1) jsonPaths.unshift('data/store.json');
+                    jsonPaths.sort(function(a, b) { return a.localeCompare(b); });
+                    sel.innerHTML = jsonPaths.map(function(p) { return '<option value="' + p + '">' + p + '</option>'; }).join('');
+                    sel.value = (jsonPaths.indexOf(sel.value) >= 0) ? sel.value : 'data/store.json';
+                    return jsonPaths;
+                })
+                .catch(function() {
+                    sel.innerHTML = '<option value="data/store.json">data/store.json</option>';
+                    sel.value = 'data/store.json';
+                    return ['data/store.json'];
+                });
+        }
+        function adminRenderSelectedSetsList() {
+            var listEl = document.getElementById('adminSelectedSetsList');
+            if (!listEl || !adminStore || !adminStore.sets) return;
+            var sets = adminStore.sets;
+            if (!sets.length) {
+                listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-secondary);">暂无套卷</div>';
+                return;
+            }
+            var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析'];
+            listEl.innerHTML = sets.map(function(s) {
+                var count = 0;
+                MAIN_SECTIONS.forEach(function(sec) { count += (s[sec] || []).length; });
+                return '<label style="display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid var(--border-color); cursor:pointer;"><input type="checkbox" class="admin-selected-set-cb" value="' + (s.id || '') + '" data-set-id="' + (s.id || '') + '"> <span><strong>' + (s.name || '未命名') + '</strong> <span style="color:var(--text-secondary); font-size:0.85rem;">（' + count + ' 题' + (s.category ? '，' + s.category : '') + '）</span></span></label>';
+            }).join('');
+        }
+        function adminSelectAllSetsForSync(checked) {
+            document.querySelectorAll('.admin-selected-set-cb').forEach(function(cb) { cb.checked = checked; });
+        }
+        function adminSyncSelectedSetsToJson() {
+            if (!GITHUB_CONFIG.token) {
+                showMsg('adminSelectedSetsSyncStatus', '请先配置 GitHub Token', 'error');
+                return;
+            }
+            var selected = [];
+            document.querySelectorAll('.admin-selected-set-cb:checked').forEach(function(cb) { selected.push(cb.dataset.setId); });
+            if (!selected.length) {
+                showMsg('adminSelectedSetsSyncStatus', '请至少勾选一个套卷', 'error');
+                return;
+            }
+            var targetPath = document.getElementById('adminSelectedSetsTargetJson').value || 'data/store.json';
+            var mode = (document.querySelector('input[name="adminSelectedSetsSyncMode"]:checked') || {}).value || 'merge';
+            showMsg('adminSelectedSetsSyncStatus', '正在同步选中套卷到 ' + targetPath + ' ...', 'info');
+            var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析'];
+            var selectedSets = adminStore.sets.filter(function(s) { return selected.indexOf(s.id) !== -1; });
+            var selectedQuestionIds = {};
+            selectedSets.forEach(function(s) {
+                MAIN_SECTIONS.forEach(function(sec) {
+                    (s[sec] || []).forEach(function(qid) { selectedQuestionIds[qid] = true; });
+                });
+            });
+            var selectedQuestions = {};
+            Object.keys(selectedQuestionIds).forEach(function(qid) {
+                if (adminStore.questions[qid]) selectedQuestions[qid] = adminStore.questions[qid];
+            });
+            var exportData = { sets: selectedSets, questions: selectedQuestions, exportTime: new Date().toISOString() };
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                .then(function(resp) {
+                    if (resp.status === 404) return null;
+                    if (!resp.ok) throw new Error('获取文件信息失败: ' + resp.status);
+                    return resp.json();
+                })
+                .then(function(fileInfo) {
+                    var finalData;
+                    if (mode === 'overwrite') {
+                        finalData = exportData;
+                    } else {
+                        if (fileInfo && fileInfo.content) {
+                            try {
+                                var existingContent = base64ToUtf8(fileInfo.content);
+                                var existingData = deepRepairMojibake(JSON.parse(existingContent));
+                                var mergedSets = [];
+                                var setIdMap = {};
+                                (existingData.sets || []).forEach(function(s) {
+                                    var existing = selectedSets.find(function(ss) { return (ss.name || '').trim() === (s.name || '').trim(); });
+                                    if (existing) {
+                                        setIdMap[s.id] = existing.id;
+                                        mergedSets.push(existing);
+                                    } else {
+                                        setIdMap[s.id] = s.id;
+                                        mergedSets.push(s);
+                                    }
+                                });
+                                selectedSets.forEach(function(s) {
+                                    if (!mergedSets.find(function(ms) { return ms.id === s.id; })) mergedSets.push(s);
+                                });
+                                var mergedQuestions = {};
+                                Object.keys(existingData.questions || {}).forEach(function(qid) {
+                                    var q = existingData.questions[qid];
+                                    if (q.setId && setIdMap[q.setId]) {
+                                        q.setId = setIdMap[q.setId];
+                                        mergedQuestions[qid] = q;
+                                    }
+                                });
+                                Object.keys(selectedQuestions).forEach(function(qid) {
+                                    mergedQuestions[qid] = selectedQuestions[qid];
+                                });
+                                finalData = { sets: mergedSets, questions: mergedQuestions, exportTime: new Date().toISOString() };
+                            } catch (e) {
+                                finalData = exportData;
+                            }
+                        } else {
+                            finalData = exportData;
+                        }
+                    }
+                    var content = JSON.stringify(finalData, null, 2);
+                    var encodedContent = utf8ToBase64(content);
+                    var commitData = { message: '同步选中套卷到 ' + targetPath + ' - ' + new Date().toLocaleString('zh-CN') + ' (' + mode + ')', content: encodedContent, branch: GITHUB_CONFIG.branch };
+                    if (fileInfo && fileInfo.sha) commitData.sha = fileInfo.sha;
+                    return fetch(apiUrl, { method: 'PUT', headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }), body: JSON.stringify(commitData) });
+                })
+                .then(function(resp) {
+                    if (!resp.ok) return resp.json().then(function(err) { throw new Error(err.message || '同步失败'); });
+                    return resp.json();
+                })
+                .then(function(result) {
+                    showMsg('adminSelectedSetsSyncStatus', '成功同步 ' + selectedSets.length + ' 个套卷到 ' + targetPath + ' (' + (result.commit.html_url || '') + ')', 'success');
+                })
+                .catch(function(err) {
+                    showMsg('adminSelectedSetsSyncStatus', '同步失败：' + (err.message || '未知错误'), 'error');
+                });
+        }
         function adminAddCategory() {
             var name = (document.getElementById('adminNewCategoryName').value || '').trim();
             if (!name) {
@@ -4903,6 +5075,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             document.getElementById('adminNewSetCategory').value = '';
             fillAdminSetSelects();
             adminFilterSetList();
+            if (typeof adminRenderSelectedSetsList === 'function') adminRenderSelectedSetsList();
             showMsg('adminSetStatus', '套卷已创建（已保存到管理员题库）', 'success');
         }
         
@@ -4910,6 +5083,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             adminStore.load();
             fillAdminSetSelects();
             adminFilterSetList();
+            if (typeof adminRenderSelectedSetsList === 'function') adminRenderSelectedSetsList();
             showMsg('adminSetStatus', '已刷新套卷列表', 'success');
         }
 
@@ -5279,6 +5453,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             adminStore.save();
             fillAdminSetSelects();
             adminFilterSetList();
+            if (typeof adminRenderSelectedSetsList === 'function') adminRenderSelectedSetsList();
             showMsg('adminSetStatus', '套卷已删除', 'success');
         }
         
