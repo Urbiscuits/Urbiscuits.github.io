@@ -2,9 +2,10 @@
   "users": [
     {
       "username": "user1",
-      "passwordHash": "a3872b3b5c99e454e01ee50a2137186289cca6104ea33e06d5a1405c0d6235c4",
-      "createdAt": "2026-02-19T06:25:16.958Z"
+      "passwordHash": "56afd59571c89bde39abd1e6a8e1d6cb8e8d6b26822b977c16865166d31f2083",
+      "createdAt": "2026-02-19T06:25:16.958Z",
+      "updatedAt": "2026-02-19T14:41:35.341Z"
     }
   ],
-  "exportTime": "2026-02-19T06:25:19.004Z"
+  "exportTime": "2026-02-19T14:41:36.962Z"
 }
