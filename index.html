@@ -1292,7 +1292,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             
                             <!-- 同步/重置：可选择 data 目录下的 JSON 文件 -->
                             <div style="margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">选择 data 目录下某个 JSON 文件作为目标，然后执行同步或重置。这样可以分片存储，避免单个 JSON 过大。</p>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">选择 data 目录下某个 JSON 文件作为目标，然后执行同步、重置或删除。这样可以分片存储，避免单个 JSON 过大。</p>
                                 <div class="control-group" style="margin-bottom: 12px; align-items: center;">
                                     <label style="min-width: 90px;">目标文件：</label>
                                     <select id="adminTargetJsonSelect" style="flex: 1; max-width: 420px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius);">
@@ -1311,9 +1311,13 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             
                             <!-- 危险操作 -->
                             <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #dc3545;">
-                                <p style="font-size: 0.9rem; color: #721c24; margin-bottom: 12px;"><strong>危险操作：</strong>将所选 JSON 文件重置为空（需要三次确认）。</p>
-                                <button class="btn" style="background: #dc3545; color: #fff; border-color: #dc3545; padding: 10px 20px;" onclick="adminResetGitHubData()"><i class="fas fa-exclamation-triangle"></i> 重置所选 JSON</button>
+                                <p style="font-size: 0.9rem; color: #721c24; margin-bottom: 12px;"><strong>危险操作：</strong>将所选 JSON 文件重置为空或删除文件（需要三次确认）。</p>
+                                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                    <button class="btn" style="background: #dc3545; color: #fff; border-color: #dc3545; padding: 10px 20px;" onclick="adminResetGitHubData()"><i class="fas fa-exclamation-triangle"></i> 重置所选 JSON</button>
+                                    <button class="btn" style="background: #dc3545; color: #fff; border-color: #dc3545; padding: 10px 20px;" onclick="adminDeleteGitHubJsonFile()"><i class="fas fa-trash"></i> 删除所选 JSON</button>
+                                </div>
                                 <div id="adminResetStatus" class="status-message" style="margin-top: 12px;"></div>
+                                <div id="adminDeleteStatus" class="status-message" style="margin-top: 12px;"></div>
                             </div>
                         </div>
                         
@@ -1343,7 +1347,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 <h2 style="margin: 0; color: var(--primary-color);"><i class="fas fa-folder-open"></i> 套卷管理</h2>
                                 <div style="display: flex; gap: 8px;">
                                     <button class="btn btn-info" onclick="adminRefreshSetList()"><i class="fas fa-sync-alt"></i> 刷新</button>
-                                    <button class="btn btn-success" onclick="adminLoadFromData()"><i class="fas fa-download"></i> 从 data 加载</button>
+                                    <button class="btn btn-success" onclick="adminShowLoadFromDataModal()"><i class="fas fa-download"></i> 从 data 加载</button>
                                 </div>
                             </div>
                             
@@ -1446,6 +1450,31 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
 
     <!-- 临时容器，用于生成图片 -->
     <div id="tempContainer" class="temp-container"></div>
+
+    <!-- 从 data 加载模态框 -->
+    <div id="adminLoadFromDataModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+        <div class="card" style="max-width:600px; max-height:80vh; overflow-y:auto; margin:20px; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid var(--border-color);">
+                <h2 style="margin:0; color:var(--primary-color);"><i class="fas fa-download"></i> 从 data 加载数据</h2>
+                <button onclick="adminCloseLoadFromDataModal()" style="background:none; border:none; font-size:32px; color:var(--text-secondary); cursor:pointer; line-height:1;">×</button>
+            </div>
+            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">选择要加载的 JSON 文件（可多选），或选择"全部"加载所有文件。</p>
+            <div style="margin-bottom:16px;">
+                <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; cursor:pointer;">
+                    <input type="checkbox" id="adminLoadAllJson" onchange="adminToggleLoadAllJson()">
+                    <strong>加载全部 JSON 文件</strong>
+                </label>
+                <div id="adminLoadJsonFileList" style="max-height:400px; overflow-y:auto; border:1px solid var(--border-color); border-radius:var(--border-radius); padding:12px;">
+                    <p style="color:var(--text-secondary); text-align:center; padding:20px;">正在加载文件列表...</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color);">
+                <button class="btn" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminCloseLoadFromDataModal()">取消</button>
+                <button class="btn btn-success" onclick="adminLoadFromDataExecute()"><i class="fas fa-download"></i> 开始加载</button>
+            </div>
+            <div id="adminLoadFromDataStatus" class="status-message" style="margin-top:12px;"></div>
+        </div>
+    </div>
 
     <script>
         var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析'];
@@ -4478,47 +4507,155 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             showMsg('adminSetStatus', '已刷新套卷列表', 'success');
         }
 
-        function adminLoadFromData() {
-            if (!window.fetch) {
-                showMsg('adminSetStatus', '当前浏览器不支持 fetch', 'error');
+        // 显示从 data 加载模态框
+        function adminShowLoadFromDataModal() {
+            var modal = document.getElementById('adminLoadFromDataModal');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            document.getElementById('adminLoadAllJson').checked = false;
+            document.getElementById('adminLoadJsonFileList').innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">正在加载文件列表...</p>';
+            adminLoadJsonFileList();
+        }
+
+        // 关闭从 data 加载模态框
+        function adminCloseLoadFromDataModal() {
+            var modal = document.getElementById('adminLoadFromDataModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // 加载 JSON 文件列表
+        function adminLoadJsonFileList() {
+            if (!GITHUB_CONFIG.token) {
+                // 如果没有 Token，尝试从 files.json 读取
+                var base = window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/');
+                var manifestUrl = base + 'data/files.json?t=' + Date.now();
+                fetch(manifestUrl)
+                    .then(function(resp) {
+                        if (!resp.ok) throw new Error('files.json 未找到');
+                        return resp.json();
+                    })
+                    .then(function(manifest) {
+                        var jsonList = Array.isArray(manifest.json) ? manifest.json : (manifest.json ? [manifest.json] : ['store.json']);
+                        renderLoadJsonFileList(jsonList.map(function(name) { return 'data/' + name.replace(/^data\//, ''); }));
+                    })
+                    .catch(function(err) {
+                        document.getElementById('adminLoadJsonFileList').innerHTML = '<p style="color:#dc3545; text-align:center; padding:20px;">加载文件列表失败：' + (err.message || '未知错误') + '</p>';
+                    });
+            } else {
+                // 使用 GitHub API 获取文件列表
+                adminRefreshDataJsonFileList().then(function(jsonPaths) {
+                    renderLoadJsonFileList(jsonPaths);
+                });
+            }
+        }
+
+        // 渲染 JSON 文件列表
+        function renderLoadJsonFileList(jsonPaths) {
+            var listEl = document.getElementById('adminLoadJsonFileList');
+            if (!listEl) return;
+            if (!jsonPaths || jsonPaths.length === 0) {
+                listEl.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">没有找到 JSON 文件</p>';
                 return;
             }
+            listEl.innerHTML = jsonPaths.map(function(path) {
+                var fileName = path.replace(/^data\//, '');
+                return '<label style="display:flex; align-items:center; gap:8px; padding:8px; border-bottom:1px solid var(--border-color); cursor:pointer;"><input type="checkbox" class="admin-load-json-checkbox" value="' + path + '" onchange="adminUpdateLoadJsonSelection()"> <span>' + path + '</span></label>';
+            }).join('');
+        }
+
+        // 切换"加载全部"
+        function adminToggleLoadAllJson() {
+            var loadAll = document.getElementById('adminLoadAllJson').checked;
+            var checkboxes = document.querySelectorAll('.admin-load-json-checkbox');
+            checkboxes.forEach(function(cb) {
+                cb.checked = loadAll;
+                cb.disabled = loadAll;
+            });
+        }
+
+        // 更新选择状态
+        function adminUpdateLoadJsonSelection() {
+            var checkboxes = document.querySelectorAll('.admin-load-json-checkbox');
+            var allChecked = Array.from(checkboxes).every(function(cb) { return cb.checked || cb.disabled; });
+            document.getElementById('adminLoadAllJson').checked = allChecked;
+        }
+
+        // 执行从 data 加载
+        function adminLoadFromDataExecute() {
+            var loadAll = document.getElementById('adminLoadAllJson').checked;
+            var selectedFiles = [];
+            
+            if (loadAll) {
+                // 加载全部
+                var checkboxes = document.querySelectorAll('.admin-load-json-checkbox');
+                selectedFiles = Array.from(checkboxes).map(function(cb) { return cb.value; });
+            } else {
+                // 加载选中的
+                var checkboxes = document.querySelectorAll('.admin-load-json-checkbox:checked');
+                selectedFiles = Array.from(checkboxes).map(function(cb) { return cb.value; });
+            }
+            
+            if (selectedFiles.length === 0) {
+                showMsg('adminLoadFromDataStatus', '请至少选择一个 JSON 文件', 'error');
+                return;
+            }
+            
+            if (!window.fetch) {
+                showMsg('adminLoadFromDataStatus', '当前浏览器不支持 fetch', 'error');
+                return;
+            }
+            
             var base = window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/');
-            var manifestUrl = base + 'data/files.json?t=' + Date.now();
-            showMsg('adminSetStatus', '正在从 data 加载…', 'success');
-            fetch(manifestUrl)
-                .then(function(resp) {
-                    if (!resp.ok) throw new Error('files.json 未找到');
-                    return resp.json();
-                })
-                .then(function(manifest) {
-                    var jsonList = Array.isArray(manifest.json) ? manifest.json : (manifest.json ? [manifest.json] : ['store.json']);
-                    var urls = jsonList.map(function(name) { return base + 'data/' + (name.replace(/^data\//, '')) + '?t=' + Date.now(); });
-                    return Promise.all(urls.map(function(url) { return fetch(url).then(function(r) { return r.ok ? r.json() : null; }); }));
-                })
-                .then(function(results) {
-                    var mergedSets = [];
-                    var mergedQuestions = {};
-                    results.forEach(function(data) {
-                        if (!data || !data.sets) return;
-                        (data.sets || []).forEach(function(s) {
-                            if (s && s.id) mergedSets.push(s);
-                        });
-                        var qs = data.questions || {};
-                        Object.keys(qs).forEach(function(qid) {
-                            if (qs[qid]) mergedQuestions[qid] = qs[qid];
-                        });
-                    });
-                    adminStore.sets = mergedSets;
-                    adminStore.questions = mergedQuestions;
-                    adminStore.save();
-                    fillAdminSetSelects();
-                    adminFilterSetList();
-                    showMsg('adminSetStatus', '已从 data 加载 ' + mergedSets.length + ' 个套卷，' + Object.keys(mergedQuestions).length + ' 道题目', 'success');
-                })
-                .catch(function(err) {
-                    showMsg('adminSetStatus', '加载失败：' + (err && err.message || '未知错误') + '。请确保通过 HTTP 服务访问（非 file://）', 'error');
+            showMsg('adminLoadFromDataStatus', '正在从 ' + selectedFiles.length + ' 个文件加载数据…', 'info');
+            
+            var urls = selectedFiles.map(function(path) {
+                var fileName = path.replace(/^data\//, '');
+                return base + 'data/' + fileName + '?t=' + Date.now();
+            });
+            
+            Promise.all(urls.map(function(url) {
+                return fetch(url).then(function(r) {
+                    if (!r.ok) throw new Error('无法读取：' + url);
+                    return r.json();
                 });
+            }))
+            .then(function(results) {
+                var mergedSets = [];
+                var mergedQuestions = {};
+                var setIds = new Set();
+                results.forEach(function(data, idx) {
+                    if (!data) return;
+                    // 合并套卷（去重）
+                    (data.sets || []).forEach(function(s) {
+                        if (s && s.id && !setIds.has(s.id)) {
+                            mergedSets.push(s);
+                            setIds.add(s.id);
+                        }
+                    });
+                    // 合并题目（后面的覆盖前面的）
+                    var qs = data.questions || {};
+                    Object.keys(qs).forEach(function(qid) {
+                        if (qs[qid]) mergedQuestions[qid] = qs[qid];
+                    });
+                });
+                adminStore.sets = mergedSets;
+                adminStore.questions = mergedQuestions;
+                adminStore.save();
+                fillAdminSetSelects();
+                adminFilterSetList();
+                showMsg('adminLoadFromDataStatus', '已从 ' + selectedFiles.length + ' 个文件加载：' + mergedSets.length + ' 个套卷，' + Object.keys(mergedQuestions).length + ' 道题目', 'success');
+                setTimeout(function() {
+                    adminCloseLoadFromDataModal();
+                }, 2000);
+            })
+            .catch(function(err) {
+                showMsg('adminLoadFromDataStatus', '加载失败：' + (err && err.message || '未知错误') + '。请确保通过 HTTP 服务访问（非 file://）', 'error');
+            });
+        }
+
+        // 保留原函数名作为兼容
+        function adminLoadFromData() {
+            adminShowLoadFromDataModal();
         }
         
         function adminFilterSetList() {
@@ -5260,6 +5397,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         var adminResetConfirmCount = 0;
         function adminResetGitHubData() {
             var targetPath = getAdminSelectedGitHubJsonPath();
+            // 不允许重置 files.json
+            if (targetPath === 'data/files.json') {
+                showMsg('adminResetStatus', '不能重置 files.json 清单文件', 'error');
+                return;
+            }
             adminResetConfirmCount++;
             if (adminResetConfirmCount === 1) {
                 var confirm1 = prompt('危险操作！这将重置 GitHub 仓库中的文件：' + targetPath + '\n\n请输入"确认"继续（第1次确认）：');
@@ -5288,6 +5430,198 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 // 执行重置
                 adminResetGitHubDataExecute(targetPath);
             }
+        }
+
+        /**
+         * 删除GitHub JSON文件（需要三次确认）
+         */
+        var adminDeleteConfirmCount = 0;
+        function adminDeleteGitHubJsonFile() {
+            var targetPath = getAdminSelectedGitHubJsonPath();
+            // 不允许删除 files.json 和 store.json
+            if (targetPath === 'data/files.json') {
+                showMsg('adminDeleteStatus', '不能删除 files.json 清单文件', 'error');
+                return;
+            }
+            if (targetPath === 'data/store.json') {
+                showMsg('adminDeleteStatus', '不能删除默认的 store.json 文件', 'error');
+                return;
+            }
+            adminDeleteConfirmCount++;
+            if (adminDeleteConfirmCount === 1) {
+                var confirm1 = prompt('危险操作！这将删除 GitHub 仓库中的文件：' + targetPath + '\n\n请输入"确认"继续（第1次确认）：');
+                if (confirm1 !== '确认') {
+                    adminDeleteConfirmCount = 0;
+                    showMsg('adminDeleteStatus', '已取消删除操作', 'info');
+                    return;
+                }
+                showMsg('adminDeleteStatus', '第1次确认通过，还需要2次确认', 'info');
+            } else if (adminDeleteConfirmCount === 2) {
+                var confirm2 = prompt('第2次确认：将删除 ' + targetPath + '，请输入"确认"继续：');
+                if (confirm2 !== '确认') {
+                    adminDeleteConfirmCount = 0;
+                    showMsg('adminDeleteStatus', '已取消删除操作', 'info');
+                    return;
+                }
+                showMsg('adminDeleteStatus', '第2次确认通过，还需要1次确认', 'info');
+            } else if (adminDeleteConfirmCount === 3) {
+                var confirm3 = prompt('最后一次确认：请输入"确认"以删除 ' + targetPath + '：');
+                if (confirm3 !== '确认') {
+                    adminDeleteConfirmCount = 0;
+                    showMsg('adminDeleteStatus', '已取消删除操作', 'info');
+                    return;
+                }
+                adminDeleteConfirmCount = 0;
+                // 执行删除
+                adminDeleteGitHubJsonFileExecute(targetPath);
+            }
+        }
+
+        /**
+         * 执行删除 GitHub JSON 文件
+         */
+        function adminDeleteGitHubJsonFileExecute(targetPath) {
+            if (!GITHUB_CONFIG.token) {
+                showMsg('adminDeleteStatus', 'GitHub Token 未配置', 'error');
+                return;
+            }
+            if (!window.fetch) {
+                showMsg('adminDeleteStatus', '浏览器不支持 fetch', 'error');
+                return;
+            }
+            targetPath = targetPath || getAdminSelectedGitHubJsonPath();
+            showMsg('adminDeleteStatus', '正在删除 GitHub 文件：' + targetPath + ' ...', 'info');
+            
+            // 先获取文件信息以获取 SHA
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
+            var headers = {
+                'Authorization': 'token ' + GITHUB_CONFIG.token,
+                'Accept': 'application/vnd.github.v3+json'
+            };
+            
+            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, {
+                method: 'GET',
+                headers: headers
+            })
+            .then(function(resp) {
+                if (resp.status === 404) {
+                    throw new Error('文件不存在：' + targetPath);
+                }
+                if (!resp.ok) {
+                    return resp.json().then(function(err) {
+                        throw new Error('获取文件信息失败: ' + (err.message || resp.status));
+                    });
+                }
+                return resp.json();
+            })
+            .then(function(fileInfo) {
+                // 删除文件（需要 SHA）
+                return fetch(apiUrl, {
+                    method: 'DELETE',
+                    headers: headers,
+                    body: JSON.stringify({
+                        message: '删除文件：' + targetPath,
+                        sha: fileInfo.sha,
+                        branch: GITHUB_CONFIG.branch
+                    })
+                });
+            })
+            .then(function(resp) {
+                if (!resp.ok) {
+                    return resp.json().then(function(err) {
+                        throw new Error('删除文件失败: ' + (err.message || resp.status));
+                    });
+                }
+                return resp.json();
+            })
+            .then(function(result) {
+                showMsg('adminDeleteStatus', '成功删除文件：' + targetPath + ' ' + (result.commit ? ('(' + result.commit.html_url + ')') : ''), 'success');
+                // 刷新文件列表
+                adminRefreshDataJsonFileList();
+                // 从 files.json 中移除该文件（如果存在）
+                var fileName = targetPath.replace(/^data\//, '');
+                adminRemoveFileFromManifest(fileName).catch(function() { /* 不阻塞主流程 */ });
+            })
+            .catch(function(err) {
+                showMsg('adminDeleteStatus', '删除失败：' + (err.message || '未知错误'), 'error');
+            });
+        }
+
+        /**
+         * 从 files.json 中移除指定文件
+         */
+        function adminRemoveFileFromManifest(jsonFileName) {
+            if (!GITHUB_CONFIG.token || !window.fetch) {
+                return Promise.reject(new Error('配置不完整'));
+            }
+            var manifestPath = 'data/files.json';
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + manifestPath;
+            var headers = {
+                'Authorization': 'token ' + GITHUB_CONFIG.token,
+                'Accept': 'application/vnd.github.v3+json'
+            };
+            
+            return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, {
+                method: 'GET',
+                headers: headers
+            })
+            .then(function(resp) {
+                if (resp.status === 404) {
+                    return null; // files.json 不存在，无需更新
+                }
+                if (!resp.ok) {
+                    throw new Error('获取 files.json 失败: ' + resp.status);
+                }
+                return resp.json();
+            })
+            .then(function(fileInfo) {
+                if (!fileInfo) return null; // files.json 不存在
+                var existingContent = base64ToUtf8(fileInfo.content);
+                var manifest = JSON.parse(existingContent);
+                var updated = false;
+                
+                // 从 json 数组中移除
+                if (Array.isArray(manifest.json)) {
+                    var idx = manifest.json.indexOf(jsonFileName);
+                    if (idx >= 0) {
+                        manifest.json.splice(idx, 1);
+                        updated = true;
+                    }
+                } else if (manifest.json && typeof manifest.json === 'object') {
+                    // 如果是对象格式，也尝试处理
+                    if (Array.isArray(manifest.json.list)) {
+                        var idx = manifest.json.list.indexOf(jsonFileName);
+                        if (idx >= 0) {
+                            manifest.json.list.splice(idx, 1);
+                            updated = true;
+                        }
+                    }
+                }
+                
+                if (!updated) return null; // 文件不在清单中
+                
+                var newContent = JSON.stringify(manifest, null, 2);
+                var encodedContent = utf8ToBase64(newContent);
+                
+                return fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify({
+                        message: '从 files.json 移除：' + jsonFileName,
+                        content: encodedContent,
+                        sha: fileInfo.sha,
+                        branch: GITHUB_CONFIG.branch
+                    })
+                });
+            })
+            .then(function(resp) {
+                if (resp && !resp.ok) {
+                    return resp.json().then(function(err) {
+                        throw new Error('更新 files.json 失败: ' + (err.message || resp.status));
+                    });
+                }
+                return resp ? resp.json() : null;
+            });
         }
         
         function adminResetGitHubDataExecute(targetPath) {
