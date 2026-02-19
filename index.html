@@ -1244,7 +1244,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             </div>
                             <div class="control-group" style="margin-bottom:10px;">
                                 <button class="btn btn-info btn-sm" onclick="refreshFromRemoteStore()"><i class="fas fa-sync-alt"></i> 刷新题库</button>
-                                <span style="margin-left:8px; font-size:0.85rem; color:var(--text-secondary);">导入 data 目录下 TXT/JSON</span>
+                                <span style="margin-left:8px; font-size:0.85rem; color:var(--text-secondary);">从 data 目录加载 JSON（可选全部/部分）</span>
                             </div>
                             <div class="control-group" style="margin-bottom:10px;">
                                 <button class="btn btn-warning btn-sm" onclick="clearAllCache()"><i class="fas fa-eraser"></i> 清除缓存</button>
@@ -1297,7 +1297,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <!-- 保存到指定JSON文件 -->
                             <div style="margin-bottom: 20px; padding: 16px; background: var(--light-bg); border-radius: var(--border-radius); border: 1px solid var(--border-color);">
                                 <h4 style="margin-bottom: 12px; color: var(--primary-color); font-size: 1rem;"><i class="fas fa-file-code"></i> 保存到新JSON文件</h4>
-                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">可以将数据保存到 data 目录下的新JSON文件中，避免单个文件过大被GitHub限制。</p>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">创建 data 目录下的新 JSON 文件，并自动写入 <code>data/files.json</code> 清单（仅建文件，不保存题库数据）。</p>
                                 <div class="control-group" style="margin-bottom: 12px;">
                                     <label style="display:block; margin-bottom:6px;">文件名（不含扩展名）：</label>
                                     <input type="text" id="adminNewJsonFileName" placeholder="例如：store_part2" style="width:100%; max-width:400px; padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius);">
@@ -1616,6 +1616,31 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 <button class="btn btn-success" onclick="adminLoadFromDataExecute()"><i class="fas fa-download"></i> 开始加载</button>
             </div>
             <div id="adminLoadFromDataStatus" class="status-message" style="margin-top:12px;"></div>
+        </div>
+    </div>
+
+    <!-- 个人中心：从 data 加载题库（选择 JSON）模态框 -->
+    <div id="profileLoadFromDataModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+        <div class="card" style="max-width:600px; max-height:80vh; overflow-y:auto; margin:20px; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid var(--border-color);">
+                <h2 style="margin:0; color:var(--primary-color);"><i class="fas fa-download"></i> 从 data 加载题库</h2>
+                <button onclick="profileCloseLoadFromDataModal()" style="background:none; border:none; font-size:32px; color:var(--text-secondary); cursor:pointer; line-height:1;">×</button>
+            </div>
+            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">选择要加载的 JSON 文件（可多选），或选择"全部"加载所有文件。</p>
+            <div style="margin-bottom:16px;">
+                <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; cursor:pointer;">
+                    <input type="checkbox" id="profileLoadAllJson" onchange="profileToggleLoadAllJson()">
+                    <strong>加载全部 JSON 文件</strong>
+                </label>
+                <div id="profileLoadJsonFileList" style="max-height:400px; overflow-y:auto; border:1px solid var(--border-color); border-radius:var(--border-radius); padding:12px;">
+                    <p style="color:var(--text-secondary); text-align:center; padding:20px;">正在加载文件列表...</p>
+                </div>
+            </div>
+            <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color);">
+                <button class="btn" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="profileCloseLoadFromDataModal()">取消</button>
+                <button class="btn btn-success" onclick="profileLoadFromDataExecute()"><i class="fas fa-download"></i> 开始加载</button>
+            </div>
+            <div id="profileLoadFromDataStatus" class="status-message" style="margin-top:12px;"></div>
         </div>
     </div>
 
@@ -1952,6 +1977,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
          * 或简单数组：["batch1.txt", "store.json"]
          */
         function refreshFromRemoteStore() {
+            // 个人中心：改为与管理员「从 data 加载」一致的选择式加载（全部/部分 JSON）
+            if (typeof profileShowLoadFromDataModal === 'function') {
+                profileShowLoadFromDataModal();
+                return;
+            }
+
             if (!window.fetch) {
                 showMsg('dataStatus', '当前浏览器不支持在线刷新题库（缺少 fetch）。', 'error');
                 return;
@@ -5498,6 +5529,221 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             showMsg('adminSetStatus', '已刷新套卷列表', 'success');
         }
 
+        // 个人中心：显示/关闭/执行「从 data 加载」（选择 JSON）
+        function profileShowLoadFromDataModal() {
+            var modal = document.getElementById('profileLoadFromDataModal');
+            if (!modal) return;
+            if (!window.fetch) {
+                showMsg('dataStatus', '当前浏览器不支持在线刷新题库（缺少 fetch）。', 'error');
+                return;
+            }
+            if (location && location.protocol === 'file:') {
+                showMsg(
+                    'dataStatus',
+                    '从 data 加载失败：当前通过 file:// 打开页面，浏览器禁止 fetch 读取本地 data 文件。请使用本地 HTTP 服务打开（如 VSCode Live Server / http-server / python http.server），或访问已部署的网站。',
+                    'error'
+                );
+                return;
+            }
+            modal.style.display = 'flex';
+            var allEl = document.getElementById('profileLoadAllJson');
+            if (allEl) allEl.checked = false;
+            var listEl = document.getElementById('profileLoadJsonFileList');
+            if (listEl) listEl.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">正在加载文件列表...</p>';
+            var st = document.getElementById('profileLoadFromDataStatus');
+            if (st) st.style.display = 'none';
+            profileLoadJsonFileList();
+        }
+        function profileCloseLoadFromDataModal() {
+            var modal = document.getElementById('profileLoadFromDataModal');
+            if (modal) modal.style.display = 'none';
+        }
+        function profileRenderLoadJsonFileList(jsonNames) {
+            var listEl = document.getElementById('profileLoadJsonFileList');
+            if (!listEl) return;
+            if (!jsonNames || !jsonNames.length) {
+                listEl.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">没有找到 JSON 文件</p>';
+                return;
+            }
+            listEl.innerHTML = jsonNames.map(function(name) {
+                var safe = String(name || '').replace(/^data\//, '').trim();
+                var display = 'data/' + safe;
+                return '<label style="display:flex; align-items:center; gap:8px; padding:8px; border-bottom:1px solid var(--border-color); cursor:pointer;">' +
+                    '<input type="checkbox" class="profile-load-json-checkbox" value="' + safe.replace(/"/g, '&quot;') + '" onchange="profileUpdateLoadJsonSelection()">' +
+                    '<span>' + display.replace(/</g, '&lt;') + '</span></label>';
+            }).join('');
+        }
+        function profileLoadJsonFileList() {
+            var manifestUrl = getDataFileUrl('files.json') + '?t=' + Date.now();
+            fetch(manifestUrl)
+                .then(function(resp) {
+                    if (!resp.ok) throw new Error('files.json 未找到');
+                    return resp.json();
+                })
+                .then(function(manifest) {
+                    var jsonList = Array.isArray(manifest && manifest.json) ? manifest.json : (manifest && manifest.json ? [manifest.json] : ['store.json']);
+                    jsonList = (jsonList || []).map(function(n) { return String(n || '').replace(/^data\\//, '').trim(); }).filter(Boolean);
+                    if (!jsonList.length) jsonList = ['store.json'];
+                    profileRenderLoadJsonFileList(jsonList);
+                })
+                .catch(function(err) {
+                    var listEl = document.getElementById('profileLoadJsonFileList');
+                    if (listEl) {
+                        // 兜底：files.json 不可用时，至少允许加载 store.json
+                        listEl.innerHTML =
+                            '<p style="color:#dc3545; text-align:center; padding:12px;">加载文件列表失败：' + ((err && err.message) ? err.message : '未知错误') + '；已兜底为 store.json</p>' +
+                            '<label style="display:flex; align-items:center; gap:8px; padding:8px; border-top:1px solid var(--border-color); cursor:pointer;">' +
+                            '<input type="checkbox" class="profile-load-json-checkbox" value="store.json" onchange="profileUpdateLoadJsonSelection()">' +
+                            '<span>data/store.json</span></label>';
+                    }
+                });
+        }
+        function profileToggleLoadAllJson() {
+            var loadAll = document.getElementById('profileLoadAllJson') && document.getElementById('profileLoadAllJson').checked;
+            var checkboxes = document.querySelectorAll('.profile-load-json-checkbox');
+            checkboxes.forEach(function(cb) {
+                cb.checked = !!loadAll;
+                cb.disabled = !!loadAll;
+            });
+        }
+        function profileUpdateLoadJsonSelection() {
+            var checkboxes = document.querySelectorAll('.profile-load-json-checkbox');
+            var allChecked = Array.from(checkboxes).length > 0 && Array.from(checkboxes).every(function(cb) { return cb.checked || cb.disabled; });
+            var allEl = document.getElementById('profileLoadAllJson');
+            if (allEl) allEl.checked = allChecked;
+        }
+        function profileApplyJsonPayloadsToStore(payloads) {
+            var mergedSets = [];
+            var mergedQuestions = {};
+            var incomingSetIds = new Set();
+            (payloads || []).forEach(function(data) {
+                if (!data) return;
+                (data.sets || []).forEach(function(s) {
+                    if (s && s.id && !incomingSetIds.has(s.id)) {
+                        mergedSets.push(s);
+                        incomingSetIds.add(s.id);
+                    }
+                });
+                var qs = data.questions || {};
+                if (qs && typeof qs === 'object') {
+                    Object.keys(qs).forEach(function(qid) { if (qs[qid]) mergedQuestions[qid] = qs[qid]; });
+                }
+            });
+
+            if (mergedSets.length || Object.keys(mergedQuestions).length) {
+                // 反向索引：通过 sets 中的题号列表推断每题所属套卷/大类
+                var qToSetId = {};
+                var qToSection = {};
+                mergedSets.forEach(function(s) {
+                    if (!s || !s.id) return;
+                    MAIN_SECTIONS.forEach(function(sec) {
+                        (s[sec] || []).forEach(function(qid) {
+                            if (!qid) return;
+                            qToSetId[qid] = s.id;
+                            qToSection[qid] = sec;
+                        });
+                    });
+                });
+
+                // 按套卷名称合并
+                var setIdMap = {};
+                mergedSets.forEach(function(s) {
+                    var name = (s.name || '').trim();
+                    var existing = store.sets.find(function(x) { return (x.name || '').trim() === name; });
+                    if (existing) {
+                        setIdMap[s.id] = existing.id;
+                        MAIN_SECTIONS.forEach(function(sec) {
+                            (s[sec] || []).forEach(function(qid) {
+                                if (mergedQuestions[qid] && existing[sec].indexOf(qid) === -1) existing[sec].push(qid);
+                            });
+                        });
+                    } else {
+                        var id = genId();
+                        setIdMap[s.id] = id;
+                        store.sets.push({
+                            id: id,
+                            name: name || '未命名',
+                            category: s.category || '',
+                            '言语理解': s['言语理解'] || [],
+                            '数量关系': s['数量关系'] || [],
+                            '判断推理': s['判断推理'] || [],
+                            '资料分析': s['资料分析'] || []
+                        });
+                    }
+                });
+
+                // 题目按 qid 覆盖，并修复 setId/section
+                Object.keys(mergedQuestions).forEach(function(qid) {
+                    var q = mergedQuestions[qid];
+                    if (!q) return;
+                    var srcSetId = q.setId;
+                    if (!srcSetId || !setIdMap[srcSetId]) srcSetId = qToSetId[qid];
+                    if (srcSetId && setIdMap[srcSetId]) {
+                        q.setId = setIdMap[srcSetId];
+                        if (!q.section && qToSection[qid]) q.section = qToSection[qid];
+                        q.knowledgePoints = q.knowledgePoints || (q.knowledgePoint ? [q.knowledgePoint] : []);
+                        store.questions[qid] = q;
+                    }
+                });
+            }
+
+            // 刷新分类、统计和界面
+            var cats = getSetCategories();
+            var beforeLen = cats.length;
+            store.sets.forEach(function(s) { if (s.category && cats.indexOf(s.category) < 0) cats.push(s.category); });
+            if (cats.length > beforeLen) saveSetCategories(cats);
+            store.save();
+            rebuildSubcategoriesFromStore();
+            renderTree();
+            fillCategorySelects();
+            renderCategoryList();
+            fillSetSelects();
+            if (typeof filterSetList === 'function') filterSetList();
+            if (typeof updateManageSub === 'function') updateManageSub();
+            if (typeof updatePracticeSub === 'function') updatePracticeSub();
+            if (typeof renderPracticePointsCheckboxes === 'function') renderPracticePointsCheckboxes();
+            if (typeof checkExportState === 'function') checkExportState();
+        }
+        function profileLoadFromDataExecute() {
+            var loadAll = document.getElementById('profileLoadAllJson') && document.getElementById('profileLoadAllJson').checked;
+            var selectedFiles = [];
+            if (loadAll) {
+                selectedFiles = Array.from(document.querySelectorAll('.profile-load-json-checkbox')).map(function(cb) { return cb.value; });
+            } else {
+                selectedFiles = Array.from(document.querySelectorAll('.profile-load-json-checkbox:checked')).map(function(cb) { return cb.value; });
+            }
+            if (!selectedFiles.length) {
+                showMsg('profileLoadFromDataStatus', '请至少选择一个 JSON 文件', 'error');
+                return;
+            }
+            if (!window.fetch) {
+                showMsg('profileLoadFromDataStatus', '当前浏览器不支持 fetch', 'error');
+                return;
+            }
+            if (location && location.protocol === 'file:') {
+                showMsg('profileLoadFromDataStatus', '请通过 HTTP 服务访问（非 file://）', 'error');
+                return;
+            }
+
+            showMsg('profileLoadFromDataStatus', '正在从 ' + selectedFiles.length + ' 个文件加载题库…', 'info');
+            var urls = selectedFiles.map(function(name) { return getDataFileUrl(name) + '?t=' + Date.now(); });
+            Promise.all(urls.map(function(url) {
+                return fetch(url).then(function(r) {
+                    if (!r.ok) throw new Error('无法读取：' + url);
+                    return r.json();
+                });
+            }))
+            .then(function(results) {
+                profileApplyJsonPayloadsToStore(results);
+                showMsg('profileLoadFromDataStatus', '加载成功：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
+                showMsg('dataStatus', '已加载题库：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
+                setTimeout(function() { profileCloseLoadFromDataModal(); }, 900);
+            })
+            .catch(function(err) {
+                showMsg('profileLoadFromDataStatus', '加载失败：' + (err && err.message || '未知错误') + '。请确保通过 HTTP 服务访问（非 file://）', 'error');
+            });
+        }
+
         // 显示从 data 加载模态框
         function adminShowLoadFromDataModal() {
             var modal = document.getElementById('adminLoadFromDataModal');
@@ -6007,126 +6253,68 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 return;
             }
             var filePath = 'data/' + fileName + '.json';
-            var mode = (document.querySelector('input[name="adminNewFileSyncMode"]:checked') || {}).value || 'merge';
-            showMsg('adminNewFileStatus', '正在保存到 ' + filePath + '...', 'info');
-            
-            // 准备要上传的数据
-            var adminData = {
-                sets: adminStore.sets,
-                questions: adminStore.questions,
-                exportTime: new Date().toISOString()
-            };
-            
+            showMsg('adminNewFileStatus', '正在新建文件 ' + filePath + ' 并写入 files.json...', 'info');
+
             var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + filePath;
             var headers = {
                 'Authorization': 'token ' + GITHUB_CONFIG.token,
                 'Accept': 'application/vnd.github.v3+json'
             };
-            
-            // 先检查文件是否存在
-            return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, {
-                method: 'GET',
-                headers: headers
-            })
-            .then(function(resp) {
-                if (resp.status === 404) {
-                    // 文件不存在，直接创建
-                    return null;
-                }
-                if (!resp.ok) {
-                    throw new Error('检查文件状态失败: ' + resp.status);
-                }
-                return resp.json();
-            })
-            .then(function(fileInfo) {
-                var finalData = adminData;
-                if (fileInfo && mode === 'merge') {
-                    // 合并模式：合并现有数据和管理员数据
-                    try {
-                        var existingContent = base64ToUtf8(fileInfo.content);
-                        var existingData = deepRepairMojibake(JSON.parse(existingContent));
-                        // 合并sets
-                        var mergedSets = [];
-                        var setIdMap = {};
-                        (existingData.sets || []).forEach(function(s) {
-                            var existing = adminStore.sets.find(function(as) { return (as.name || '').trim() === (s.name || '').trim(); });
-                            if (existing) {
-                                setIdMap[s.id] = existing.id;
-                                mergedSets.push(existing);
-                            } else {
-                                setIdMap[s.id] = s.id;
-                                mergedSets.push(s);
-                            }
-                        });
-                        adminStore.sets.forEach(function(s) {
-                            if (!mergedSets.find(function(ms) { return ms.id === s.id; })) {
-                                mergedSets.push(s);
-                            }
-                        });
-                        // 合并questions
-                        var mergedQuestions = {};
-                        Object.keys(existingData.questions || {}).forEach(function(qid) {
-                            var q = existingData.questions[qid];
-                            if (q.setId && setIdMap[q.setId]) {
-                                q.setId = setIdMap[q.setId];
-                                mergedQuestions[qid] = q;
-                            }
-                        });
-                        Object.keys(adminStore.questions).forEach(function(qid) {
-                            mergedQuestions[qid] = adminStore.questions[qid];
-                        });
-                        finalData = { sets: mergedSets, questions: mergedQuestions, exportTime: new Date().toISOString() };
-                    } catch (e) {
-                        // 解析失败，使用覆盖模式
-                        finalData = adminData;
+
+            // 仅“新建空 JSON 文件 + 写入 files.json”，不保存任何管理员题库数据
+            var emptyPayload = { sets: [], questions: {}, exportTime: new Date().toISOString() };
+            var encodedContent = utf8ToBase64(JSON.stringify(emptyPayload, null, 2));
+
+            return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                .then(function(resp) {
+                    if (resp.status === 404) return null; // 不存在则创建
+                    if (!resp.ok) throw new Error('检查文件状态失败: ' + resp.status);
+                    return resp.json();
+                })
+                .then(function(fileInfo) {
+                    if (fileInfo && fileInfo.sha) {
+                        // 已存在：不改动内容，只确保写入 files.json
+                        return { existed: true, fileInfo: fileInfo };
                     }
-                }
-                
-                var content = JSON.stringify(finalData, null, 2);
-                var encodedContent = utf8ToBase64(content);
-                
-                var commitData = {
-                    message: '管理员保存数据到新文件: ' + filePath + ' - ' + new Date().toLocaleString('zh-CN') + ' (' + mode + ')',
-                    content: encodedContent,
-                    branch: GITHUB_CONFIG.branch
-                };
-                
-                if (fileInfo && fileInfo.sha) {
-                    commitData.sha = fileInfo.sha;
-                }
-                
-                return fetch(apiUrl, {
-                    method: 'PUT',
-                    headers: headers,
-                    body: JSON.stringify(commitData)
+                    var commitData = {
+                        message: '创建空题库文件: ' + filePath + ' - ' + new Date().toLocaleString('zh-CN'),
+                        content: encodedContent,
+                        branch: GITHUB_CONFIG.branch
+                    };
+                    return fetch(apiUrl, { method: 'PUT', headers: headers, body: JSON.stringify(commitData) })
+                        .then(function(resp) {
+                            if (!resp.ok) {
+                                return resp.json().then(function(err) {
+                                    throw new Error('创建 ' + filePath + ' 失败: ' + (err.message || resp.status));
+                                });
+                            }
+                            return resp.json().then(function(res) { return { existed: false, result: res }; });
+                        });
+                })
+                .then(function(info) {
+                    return adminEnsureFileInManifest(fileName + '.json')
+                        .then(function() {
+                            if (fileNameInput) fileNameInput.value = '';
+                            showMsg(
+                                'adminNewFileStatus',
+                                (info && info.existed ? ('文件已存在：' + filePath + '；已确保写入 files.json') : ('已创建文件：' + filePath + '；并已写入 files.json')),
+                                'success'
+                            );
+                            return info;
+                        })
+                        .catch(function(err) {
+                            showMsg(
+                                'adminNewFileStatus',
+                                '文件处理完成，但更新 files.json 失败：' + (err && err.message ? err.message : '未知错误') + '。可手动在 files.json 的 json 数组中添加：\"' + (fileName + '.json') + '\"',
+                                'error'
+                            );
+                            return info;
+                        });
+                })
+                .catch(function(err) {
+                    showMsg('adminNewFileStatus', '操作失败：' + (err && err.message ? err.message : '未知错误'), 'error');
+                    throw err;
                 });
-            })
-            .then(function(resp) {
-                if (!resp.ok) {
-                    return resp.json().then(function(err) {
-                        throw new Error('保存到 ' + filePath + ' 失败: ' + (err.message || resp.status));
-                    });
-                }
-                return resp.json();
-            })
-            .then(function(result) {
-                // 先提示文件已保存
-                showMsg('adminNewFileStatus', '成功保存到 ' + filePath + ': ' + (result.commit.html_url || '') + '，正在更新 files.json...', 'success');
-                if (fileNameInput) fileNameInput.value = '';
-                // 再异步更新 files.json，把新文件名加入 json 清单
-                return adminEnsureFileInManifest(fileName + '.json').then(function() {
-                    showMsg('adminNewFileStatus', '成功保存到 ' + filePath + '，并已更新 files.json', 'success');
-                    return result;
-                }).catch(function(err) {
-                    // files.json 更新失败不影响主文件保存，只给出提示
-                    showMsg('adminNewFileStatus', '文件已保存，但更新 files.json 失败：' + (err.message || '未知错误') + '。可手动在 files.json 的 json 数组中添加：\"' + (fileName + '.json') + '\"', 'error');
-                    return result;
-                });
-            })
-            .catch(function(err) {
-                showMsg('adminNewFileStatus', '保存失败：' + (err.message || '未知错误'), 'error');
-                throw err;
-            });
         }
         
         /**
