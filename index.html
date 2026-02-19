@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1174,6 +1175,22 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 <div id="tab-profile" class="tab-content">
                     <div class="card">
                         <h2 style="margin-bottom: 20px; color: var(--text-primary); font-size: 1.25rem;"><i class="fas fa-user"></i> 个人中心</h2>
+                        <div id="profileLoginSection" class="profile-section" style="padding:16px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color); margin-bottom:20px;">
+                            <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-sign-in-alt"></i> 账号登录</h4>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">使用管理员分配的账号登录后，做题数据将保存到云端 data/user/{用户名}.json。</p>
+                            <div id="profileLoginForm" class="filter-controls" style="margin-bottom:0;">
+                                <div><label>用户名</label><input type="text" id="profileLoginUsername" placeholder="用户名" style="width:160px; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>
+                                <div><label>密码</label><input type="password" id="profileLoginPassword" placeholder="密码" style="width:160px; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>
+                                <div style="align-self:flex-end;"><button class="btn btn-primary" onclick="profileUserLogin()"><i class="fas fa-sign-in-alt"></i> 登录</button></div>
+                            </div>
+                            <div id="profileLoggedInInfo" style="display:none; margin-top:12px;">
+                                <span style="color:var(--success-color);"><i class="fas fa-user-check"></i> 已登录：<strong id="profileLoggedInUsername"></strong></span>
+                                <button class="btn btn-sm" style="margin-left:16px; background:var(--light-bg); border:1px solid var(--border-color);" onclick="profileUserLogout()"><i class="fas fa-sign-out-alt"></i> 退出</button>
+                                <button class="btn btn-info btn-sm" style="margin-left:8px;" onclick="profileSyncUserDataToCloud()"><i class="fas fa-cloud-upload-alt"></i> 同步到云端</button>
+                                <button class="btn btn-sm" style="margin-left:8px; background:var(--light-bg); border:1px solid var(--border-color);" onclick="profileLoadUserDataFromCloud()"><i class="fas fa-cloud-download-alt"></i> 从云端加载</button>
+                            </div>
+                            <div id="profileLoginStatus" class="status-message" style="margin-top:8px;"></div>
+                        </div>
                         <div class="profile-section" style="display:flex; align-items:center; gap:20px; padding:16px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color);">
                             <div><strong>当前积分：</strong><span id="profilePoints" style="font-size:1.5rem; color:var(--primary-color);">0</span></div>
                             <button class="btn btn-success btn-sm" onclick="doSignIn(); renderProfileTab();">每日签到 +5</button>
@@ -1341,6 +1358,20 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div id="adminGithubStatus" class="status-message" style="display:none;"></div>
                         </div>
                         
+                        <!-- 用户管理 -->
+                        <div class="card" style="margin-bottom: 20px; border: 2px solid var(--info-color);">
+                            <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-users-cog"></i> 用户管理</h2>
+                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">创建、修改、删除用户账号。用户可在个人中心使用账号密码登录，登录后做题数据将保存到 data/user/{用户名}.json。</p>
+                            <div class="filter-controls" style="margin-bottom: 16px;">
+                                <div style="flex:1;"><label>用户名</label><input type="text" id="adminNewUserName" placeholder="新用户名" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>
+                                <div style="flex:1;"><label>密码</label><input type="password" id="adminNewUserPassword" placeholder="新密码" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>
+                                <div style="align-self:flex-end;"><button class="btn btn-primary" onclick="adminAddUser()"><i class="fas fa-plus"></i> 新建用户</button></div>
+                            </div>
+                            <div id="adminUserList" style="border:1px solid var(--border-color); border-radius:var(--border-radius); overflow:hidden;"></div>
+                            <div style="margin-top:12px;"><button class="btn btn-info btn-sm" onclick="adminSyncUsersToGitHub()"><i class="fas fa-cloud-upload-alt"></i> 同步用户列表到 GitHub (data/users.json)</button></div>
+                            <div id="adminUserStatus" class="status-message" style="margin-top:8px;"></div>
+                        </div>
+                        
                         <!-- 套卷管理 -->
                         <div class="card" style="margin-bottom: 20px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -1386,8 +1417,17 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 <input type="file" id="adminBatchTxtFile" accept=".txt,text/plain" multiple onchange="onAdminBatchTxtFileChange()" style="margin-right: 12px;">
                                 <span style="color:#6c757d;">选择 TXT 后内容会填入下方框，可编辑后点击「预览」或「导入」</span>
                             </div>
-                            <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT 填入（支持 <code>考点：xxx</code> 导入）</label>
-                            <textarea id="adminInputText" rows="14" placeholder="粘贴题目内容，或选择上方 TXT 文件填入..."></textarea>
+                            <div style="margin-bottom: 16px; padding: 16px; background: var(--light-bg); border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                                <h4 style="margin-bottom: 10px; color: var(--primary-color); font-size: 0.95rem;"><i class="fas fa-file-pdf"></i> PDF 识别导入（DeepSeek）</h4>
+                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">上传 PDF（最大 100MB），系统通过 DeepSeek 自动识别为批量录入格式，识别结果填入下方文本框，可修改后导入。</p>
+                                <div class="control-group" style="margin-bottom: 10px;">
+                                    <input type="file" id="adminBatchPdfFile" accept=".pdf,application/pdf" onchange="onAdminBatchPdfFileChange()" style="margin-right: 12px;">
+                                    <button type="button" class="btn btn-info btn-sm" id="btnAdminPdfRecognize" onclick="adminStartPdfRecognize()"><i class="fas fa-robot"></i> 开始识别</button>
+                                    <span id="adminPdfRecognizeStatus" style="margin-left: 10px; font-size: 0.9rem; color: var(--text-secondary);"></span>
+                                </div>
+                            </div>
+                            <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT/PDF 填入（支持 <code>考点：xxx</code> 导入）</label>
+                            <textarea id="adminInputText" rows="14" placeholder="粘贴题目内容，或选择上方 TXT/PDF 文件填入..."></textarea>
                             <div style="margin-top: 16px; display: flex; gap: 12px;">
                                 <button class="btn btn-primary" onclick="adminBatchImport()"><i class="fas fa-upload"></i> 导入</button>
                                 <button class="btn btn-info" onclick="adminBatchPreview()"><i class="fas fa-eye"></i> 预览（公式渲染）</button>
@@ -1476,10 +1516,33 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         </div>
     </div>
 
+    <!-- 选择部分套卷导入模态框 -->
+    <div id="importSelectSetsModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+        <div class="card" style="max-width:560px; max-height:85vh; overflow:hidden; display:flex; flex-direction:column; margin:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:12px; border-bottom:2px solid var(--border-color);">
+                <h2 style="margin:0; color:var(--primary-color); font-size:1.1rem;"><i class="fas fa-list-check"></i> 选择要导入的套卷</h2>
+                <button onclick="closeImportSelectSetsModal()" style="background:none; border:none; font-size:24px; color:var(--text-secondary); cursor:pointer; line-height:1;">×</button>
+            </div>
+            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">勾选要导入的套卷，取消勾选的不导入。</p>
+            <div style="margin-bottom:8px;">
+                <button type="button" class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color); margin-right:8px;" onclick="importSelectAllSets(true)">全选</button>
+                <button type="button" class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="importSelectAllSets(false)">取消全选</button>
+            </div>
+            <div id="importSelectSetsList" style="flex:1; overflow-y:auto; max-height:360px; border:1px solid var(--border-color); border-radius:var(--border-radius); padding:12px; margin-bottom:16px;"></div>
+            <div style="display:flex; gap:12px; justify-content:flex-end; padding-top:12px; border-top:1px solid var(--border-color);">
+                <button class="btn" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="closeImportSelectSetsModal()">取消</button>
+                <button class="btn btn-primary" onclick="executeImportSelectedSets()"><i class="fas fa-upload"></i> 导入选中套卷</button>
+            </div>
+            <div id="importSelectSetsStatus" class="status-message" style="margin-top:8px;"></div>
+        </div>
+    </div>
+
     <script>
         var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析'];
-        var SUBCATEGORIES = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择', '片段阅读'], '数量关系': ['数量关系'], '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断', '图形推理'], '资料分析': ['资料分析'] };
-        var PARSER_SUB = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择', '片段阅读'], '数量关系': ['数量关系'], '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断', '图形推理'], '资料分析': ['资料分析'] };
+        // 言语理解仅限：逻辑填空、中心理解、细节判断、标题填入、语句排序、接语选择
+        // 判断推理仅限：类比推理、加强题型、削弱题型、真假推理、翻译推理、定义判断
+        var SUBCATEGORIES = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择'], '数量关系': ['数量关系'], '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断'], '资料分析': ['资料分析'] };
+        var PARSER_SUB = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择'], '数量关系': ['数量关系'], '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断'], '资料分析': ['资料分析'] };
         // GitHub 上托管的在线题库（JSON），默认 data/store.json，可按需修改
         var ENABLE_REMOTE_STORE = true;
         var REMOTE_STORE_URL = './data/store.json';
@@ -1938,8 +2001,31 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         });
                 });
         }
-        function getHistory() { try { var h = localStorage.getItem('xingce_history'); return h ? JSON.parse(h) : []; } catch (e) { return []; } }
-        function saveHistory(arr) { try { localStorage.setItem('xingce_history', JSON.stringify(arr)); } catch (e) {} }
+        function getCurrentUser() { try { return localStorage.getItem('xingce_current_user') || ''; } catch (e) { return ''; } }
+        function setCurrentUser(username) { try { if (username) localStorage.setItem('xingce_current_user', username); else localStorage.removeItem('xingce_current_user'); } catch (e) {} }
+        function getUserData() {
+            var u = getCurrentUser();
+            if (!u) return null;
+            try {
+                var raw = localStorage.getItem('xingce_userdata_' + u);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) { return {}; }
+        }
+        function saveUserData(data) {
+            var u = getCurrentUser();
+            if (!u) return;
+            try { localStorage.setItem('xingce_userdata_' + u, JSON.stringify(data)); } catch (e) {}
+        }
+        function getHistory() {
+            var d = getUserData();
+            if (d && d.history !== undefined) return Array.isArray(d.history) ? d.history : [];
+            try { var h = localStorage.getItem('xingce_history'); return h ? JSON.parse(h) : []; } catch (e) { return []; }
+        }
+        function saveHistory(arr) {
+            var d = getUserData();
+            if (d !== null) { d.history = arr; saveUserData(d); return; }
+            try { localStorage.setItem('xingce_history', JSON.stringify(arr)); } catch (e) {}
+        }
 
         /** 对容器内题目/选项实时渲染 LaTeX：支持 $$ 块级公式、\\( \\) 行内公式，以及分数 \\frac、根号 \\sqrt 等 */
         function renderLaTeXInElement(el) {
@@ -1958,19 +2044,146 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
 
         /* ========== 积分与闯关 ========== */
         function getTodayStr() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
-        function getPoints() { try { var p = localStorage.getItem('xingce_points'); var n = parseInt(p, 10); return (n === n && n >= 0) ? n : 0; } catch (e) { return 0; } }
-        function setPoints(n) { try { localStorage.setItem('xingce_points', String(Math.max(0, n))); } catch (e) {} }
-        function logPointsUsage(type, amount, desc) { try { var log = []; var s = localStorage.getItem('xingce_points_log'); log = s ? JSON.parse(s) : []; log.unshift({ t: type, amount: amount, desc: desc || '', date: new Date().toISOString() }); log = log.slice(0, 200); localStorage.setItem('xingce_points_log', JSON.stringify(log)); } catch (e) {} }
-        function getSignInDate() { try { return localStorage.getItem('xingce_signin_date') || ''; } catch (e) { return ''; } }
-        function setSignInDate(s) { try { localStorage.setItem('xingce_signin_date', s); } catch (e) {} }
-        function getChallengeDate() { try { return localStorage.getItem('xingce_challenge_date') || ''; } catch (e) { return ''; } }
-        function setChallengeDate(s) { try { localStorage.setItem('xingce_challenge_date', s); } catch (e) {} }
-        function getChallengeCache() { try { var c = localStorage.getItem('xingce_challenge_cache'); return c ? JSON.parse(c) : {}; } catch (e) { return {}; } }
-        function setChallengeCache(obj) { try { localStorage.setItem('xingce_challenge_cache', JSON.stringify(obj)); } catch (e) {} }
-        function getChallengePassedLevels() { try { var c = localStorage.getItem('xingce_challenge_passed'); return c ? JSON.parse(c) : []; } catch (e) { return []; } }
-        function setChallengePassedLevels(arr) { try { localStorage.setItem('xingce_challenge_passed', JSON.stringify(arr)); } catch (e) {} }
-        function getUnlockedByPoints() { try { var c = localStorage.getItem('xingce_challenge_unlocked'); return c ? JSON.parse(c) : []; } catch (e) { return []; } }
-        function setUnlockedByPoints(arr) { try { localStorage.setItem('xingce_challenge_unlocked', JSON.stringify(arr)); } catch (e) {} }
+        function getPoints() {
+            var d = getUserData();
+            if (d !== null && d.points !== undefined) { var n = parseInt(d.points, 10); return (n === n && n >= 0) ? n : 0; }
+            try { var p = localStorage.getItem('xingce_points'); var n = parseInt(p, 10); return (n === n && n >= 0) ? n : 0; } catch (e) { return 0; }
+        }
+        function setPoints(n) {
+            var d = getUserData();
+            if (d !== null) { d.points = Math.max(0, n); saveUserData(d); return; }
+            try { localStorage.setItem('xingce_points', String(Math.max(0, n))); } catch (e) {}
+        }
+        function logPointsUsage(type, amount, desc) {
+            var d = getUserData();
+            if (d !== null) { d.pointsLog = d.pointsLog || []; d.pointsLog.unshift({ t: type, amount: amount, desc: desc || '', date: new Date().toISOString() }); d.pointsLog = d.pointsLog.slice(0, 200); saveUserData(d); return; }
+            try { var log = []; var s = localStorage.getItem('xingce_points_log'); log = s ? JSON.parse(s) : []; log.unshift({ t: type, amount: amount, desc: desc || '', date: new Date().toISOString() }); log = log.slice(0, 200); localStorage.setItem('xingce_points_log', JSON.stringify(log)); } catch (e) {}
+        }
+        function getSignInDate() { var d = getUserData(); if (d !== null && d.signInDate !== undefined) return d.signInDate; try { return localStorage.getItem('xingce_signin_date') || ''; } catch (e) { return ''; } }
+        function setSignInDate(s) { var d = getUserData(); if (d !== null) { d.signInDate = s; saveUserData(d); return; } try { localStorage.setItem('xingce_signin_date', s); } catch (e) {} }
+        function getChallengeDate() { var d = getUserData(); if (d !== null && d.challengeDate !== undefined) return d.challengeDate; try { return localStorage.getItem('xingce_challenge_date') || ''; } catch (e) { return ''; } }
+        function setChallengeDate(s) { var d = getUserData(); if (d !== null) { d.challengeDate = s; saveUserData(d); return; } try { localStorage.setItem('xingce_challenge_date', s); } catch (e) {} }
+        function getChallengeCache() { var d = getUserData(); if (d !== null && d.challengeCache !== undefined) return d.challengeCache || {}; try { var c = localStorage.getItem('xingce_challenge_cache'); return c ? JSON.parse(c) : {}; } catch (e) { return {}; } }
+        function setChallengeCache(obj) { var d = getUserData(); if (d !== null) { d.challengeCache = obj; saveUserData(d); return; } try { localStorage.setItem('xingce_challenge_cache', JSON.stringify(obj)); } catch (e) {} }
+        function getChallengePassedLevels() { var d = getUserData(); if (d !== null && d.challengePassed !== undefined) return Array.isArray(d.challengePassed) ? d.challengePassed : []; try { var c = localStorage.getItem('xingce_challenge_passed'); return c ? JSON.parse(c) : []; } catch (e) { return []; } }
+        function setChallengePassedLevels(arr) { var d = getUserData(); if (d !== null) { d.challengePassed = arr; saveUserData(d); return; } try { localStorage.setItem('xingce_challenge_passed', JSON.stringify(arr)); } catch (e) {} }
+        function getUnlockedByPoints() { var d = getUserData(); if (d !== null && d.challengeUnlocked !== undefined) return Array.isArray(d.challengeUnlocked) ? d.challengeUnlocked : []; try { var c = localStorage.getItem('xingce_challenge_unlocked'); return c ? JSON.parse(c) : []; } catch (e) { return []; } }
+        function setUnlockedByPoints(arr) { var d = getUserData(); if (d !== null) { d.challengeUnlocked = arr; saveUserData(d); return; } try { localStorage.setItem('xingce_challenge_unlocked', JSON.stringify(arr)); } catch (e) {} }
+        function extractQuestionStatsFromStore() {
+            var stats = {};
+            if (!store || !store.questions) return stats;
+            Object.keys(store.questions).forEach(function(qid) {
+                var q = store.questions[qid];
+                if (!q) return;
+                var ta = q.totalAttempts, cc = q.correctCount, done = q.done;
+                if ((ta && ta > 0) || cc || done) stats[qid] = { totalAttempts: ta || 0, correctCount: cc || 0, done: !!done };
+            });
+            return stats;
+        }
+        function mergeUserQuestionStatsIntoStore() {
+            var d = getUserData();
+            if (!d || !d.questionStats || !store || !store.questions) return;
+            Object.keys(d.questionStats).forEach(function(qid) {
+                var q = store.questions[qid];
+                if (!q) return;
+                var s = d.questionStats[qid];
+                if (s) { q.totalAttempts = s.totalAttempts || 0; q.correctCount = s.correctCount || 0; q.done = !!s.done; }
+            });
+        }
+        function persistUserQuestionStats() {
+            var u = getCurrentUser();
+            if (!u) return;
+            var d = getUserData();
+            d.questionStats = extractQuestionStatsFromStore();
+            saveUserData(d);
+        }
+        function verifyUserPassword(username, password, users) {
+            return hashPassword(username, password).then(function(ph) {
+                return users && users.some(function(u) { return u.username === username && u.passwordHash === ph; });
+            });
+        }
+        function profileUserLogin() {
+            var username = (document.getElementById('profileLoginUsername').value || '').trim();
+            var password = document.getElementById('profileLoginPassword').value || '';
+            if (!username || !password) { showMsg('profileLoginStatus', '请输入用户名和密码', 'error'); return; }
+            var statusEl = document.getElementById('profileLoginStatus');
+            statusEl.textContent = '正在验证…';
+            statusEl.className = 'status-message info';
+            var base = window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/');
+            fetch(base + 'data/users.json?t=' + Date.now()).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
+                .then(function(data) {
+                    var users = (data && data.users) ? data.users : getAdminUsers();
+                    return verifyUserPassword(username, password, users);
+                })
+                .then(function(ok) {
+                    if (ok) {
+                        setCurrentUser(username);
+                        mergeUserQuestionStatsIntoStore();
+                        profileUpdateLoginUI();
+                        document.getElementById('profileLoginUsername').value = '';
+                        document.getElementById('profileLoginPassword').value = '';
+                        showMsg('profileLoginStatus', '登录成功', 'success');
+                        if (typeof renderProfileTab === 'function') renderProfileTab();
+                    } else { showMsg('profileLoginStatus', '用户名或密码错误', 'error'); }
+                })
+                .catch(function() { showMsg('profileLoginStatus', '验证失败，请检查网络或联系管理员', 'error'); });
+        }
+        function profileUserLogout() {
+            setCurrentUser('');
+            profileUpdateLoginUI();
+            showMsg('profileLoginStatus', '已退出登录', 'info');
+            if (typeof renderProfileTab === 'function') renderProfileTab();
+        }
+        function profileUpdateLoginUI() {
+            var u = getCurrentUser();
+            var formEl = document.getElementById('profileLoginForm');
+            var infoEl = document.getElementById('profileLoggedInInfo');
+            var nameEl = document.getElementById('profileLoggedInUsername');
+            if (u) { if (formEl) formEl.style.display = 'none'; if (infoEl) { infoEl.style.display = 'block'; if (nameEl) nameEl.textContent = u; } }
+            else { if (formEl) formEl.style.display = 'flex'; if (infoEl) infoEl.style.display = 'none'; }
+        }
+        function profileSyncUserDataToCloud() {
+            var u = getCurrentUser();
+            if (!u) { showMsg('profileLoginStatus', '请先登录', 'error'); return; }
+            if (!GITHUB_CONFIG.token) { showMsg('profileLoginStatus', '管理员尚未配置 GitHub Token，无法同步', 'error'); return; }
+            var d = getUserData();
+            d.questionStats = extractQuestionStatsFromStore();
+            var content = JSON.stringify(d, null, 2);
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data/user/' + encodeURIComponent(u) + '.json';
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+            showMsg('profileLoginStatus', '正在同步到云端…', 'info');
+            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                .then(function(r) { if (r.status === 404) return null; if (!r.ok) throw new Error('获取失败'); return r.json(); })
+                .then(function(fileInfo) {
+                    var commitData = { message: '用户 ' + u + ' 数据同步', content: btoa(unescape(encodeURIComponent(content))), branch: GITHUB_CONFIG.branch };
+                    if (fileInfo && fileInfo.sha) commitData.sha = fileInfo.sha;
+                    return fetch(apiUrl, { method: 'PUT', headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }), body: JSON.stringify(commitData) });
+                })
+                .then(function(r) { if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || '同步失败'); }); showMsg('profileLoginStatus', '已同步到 data/user/' + u + '.json', 'success'); })
+                .catch(function(err) { showMsg('profileLoginStatus', '同步失败：' + (err.message || '未知错误'), 'error'); });
+        }
+        function profileLoadUserDataFromCloud() {
+            var u = getCurrentUser();
+            if (!u) { showMsg('profileLoginStatus', '请先登录', 'error'); return; }
+            var base = window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/');
+            var rawBase = 'https://raw.githubusercontent.com/' + (GITHUB_CONFIG.owner || '') + '/' + (GITHUB_CONFIG.repo || '') + '/' + (GITHUB_CONFIG.branch || 'main') + '/';
+            var url = rawBase + 'data/user/' + encodeURIComponent(u) + '.json';
+            showMsg('profileLoginStatus', '正在从云端加载…', 'info');
+            fetch(url).then(function(r) {
+                if (!r.ok) throw new Error('未找到云端数据');
+                return r.json();
+            }).then(function(d) {
+                saveUserData(d);
+                mergeUserQuestionStatsIntoStore();
+                showMsg('profileLoginStatus', '已从云端加载数据', 'success');
+                if (typeof renderProfileTab === 'function') renderProfileTab();
+            }).catch(function() {
+                fetch(base + 'data/user/' + encodeURIComponent(u) + '.json?t=' + Date.now()).then(function(r) { return r.ok ? r.json() : null; }).then(function(d) {
+                    if (d) { saveUserData(d); mergeUserQuestionStatsIntoStore(); showMsg('profileLoginStatus', '已从 data/user 加载', 'success'); if (typeof renderProfileTab === 'function') renderProfileTab(); }
+                    else showMsg('profileLoginStatus', '云端暂无数据', 'error');
+                }).catch(function() { showMsg('profileLoginStatus', '加载失败', 'error'); });
+            });
+        }
         function isChallengeLevelUnlocked(L) {
             var passed = getChallengePassedLevels(), unlocked = getUnlockedByPoints();
             if (L === 1) return true;
@@ -1981,8 +2194,16 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             for (var L = 1; L <= 6; L++) { if (!isChallengeLevelUnlocked(L)) return L; }
             return null;
         }
-        function getFavorites() { try { var f = localStorage.getItem('xingce_favorites'); return f ? JSON.parse(f) : []; } catch (e) { return []; } }
-        function setFavorites(arr) { try { localStorage.setItem('xingce_favorites', JSON.stringify(arr)); } catch (e) {} }
+        function getFavorites() {
+            var d = getUserData();
+            if (d !== null && d.favorites !== undefined) return Array.isArray(d.favorites) ? d.favorites : [];
+            try { var f = localStorage.getItem('xingce_favorites'); return f ? JSON.parse(f) : []; } catch (e) { return []; }
+        }
+        function setFavorites(arr) {
+            var d = getUserData();
+            if (d !== null) { d.favorites = arr; saveUserData(d); return; }
+            try { localStorage.setItem('xingce_favorites', JSON.stringify(arr)); } catch (e) {}
+        }
         function isFavorite(qid) { return (getFavorites() || []).indexOf(qid) !== -1; }
         function addFavorite(qid) { var f = getFavorites(); if (f.indexOf(qid) === -1) { f.push(qid); setFavorites(f); } }
         function removeFavorite(qid) { var f = getFavorites().filter(function(id) { return id !== qid; }); setFavorites(f); }
@@ -2779,6 +3000,77 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }).catch(function(err) {
                 showMsg('importStatus', '读取 TXT 失败：' + (err && err.message || '未知错误'), 'error');
             });
+        }
+        var _adminPendingPdfFile = null;
+        function onAdminBatchPdfFileChange() {
+            var input = document.getElementById('adminBatchPdfFile');
+            if (!input.files || !input.files.length) return;
+            var file = input.files[0];
+            var maxSize = 100 * 1024 * 1024;
+            if (file.size > maxSize) {
+                showMsg('adminImportStatus', 'PDF 文件超过 100MB 限制，请选择较小的文件', 'error');
+                input.value = '';
+                return;
+            }
+            _adminPendingPdfFile = file;
+            var statusEl = document.getElementById('adminPdfRecognizeStatus');
+            if (statusEl) statusEl.textContent = '已选择：' + file.name + '，点击「开始识别」';
+        }
+        function adminStartPdfRecognize() {
+            if (!_adminPendingPdfFile) { showMsg('adminImportStatus', '请先选择 PDF 文件', 'error'); return; }
+            var btn = document.getElementById('btnAdminPdfRecognize');
+            var statusEl = document.getElementById('adminPdfRecognizeStatus');
+            btn.disabled = true;
+            statusEl.textContent = '正在提取 PDF 文本…';
+            statusEl.style.color = 'var(--primary-color)';
+            var reader = new FileReader();
+            reader.onload = function() {
+                var arrayBuffer = reader.result;
+                if (typeof pdfjsLib !== 'undefined') {
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+                }
+                pdfjsLib.getDocument(arrayBuffer).promise.then(function(pdf) {
+                    var numPages = pdf.numPages;
+                    var pagePromises = [];
+                    for (var i = 1; i <= numPages; i++) {
+                        pagePromises.push(pdf.getPage(i).then(function(page) {
+                            return page.getTextContent().then(function(textContent) {
+                                return (textContent.items || []).map(function(item) { return item.str || ''; }).join('');
+                            });
+                        }));
+                    }
+                    return Promise.all(pagePromises);
+                }).then(function(pageTexts) {
+                    var rawText = pageTexts.join('\n\n');
+                    if (!rawText.trim()) {
+                        statusEl.textContent = '未能从 PDF 中提取到文本（可能是扫描件）';
+                        statusEl.style.color = '#dc3545';
+                        btn.disabled = false;
+                        return;
+                    }
+                    statusEl.textContent = '正在调用 DeepSeek 识别…';
+                    return rawText;
+                }).then(function(rawText) {
+                    if (!rawText) return;
+                    var prompt = '请将以下 PDF 中提取的行测题目文本，转换为本系统的批量录入格式。\n\n格式要求（必须严格遵守）：\n1. 每道题必须以单独一行的 [大类-小类] 或 [大类-小类](来源) 开头\n2. 大类仅限：言语理解、数量关系、判断推理、资料分析\n3. 言语理解的小类仅限：逻辑填空、中心理解、细节判断、标题填入、语句排序、接语选择\n4. 判断推理的小类仅限：类比推理、加强题型、削弱题型、真假推理、翻译推理、定义判断\n5. 数量关系小类为：数量关系；资料分析小类为：资料分析\n6. 题干后换行，四个选项必须各占一行，格式为：\n   A. 选项A内容\n   B. 选项B内容\n   C. 选项C内容\n   D. 选项D内容\n7. 答案单独一行，格式：答案：A（或 B、C、D 四个字母之一）\n8. 解析单独一行，格式：解析：xxx（解析以最简洁为主，一句话即可）\n9. 考点单独一行可选：考点：xxx（多个用顿号分隔）\n10. 资料分析类：用 材料： 题目： 区分材料和题目\n11. 只输出转换后的文本，不要任何其他说明\n\nPDF 原文：\n' + rawText;
+                    return fetch('https://api.deepseek.com/chat/completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (typeof DEEPSEEK_API_KEY !== 'undefined' ? DEEPSEEK_API_KEY : 'sk-0c154dd4e49a471492ffd96e8de2091e') },
+                        body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: '你是行测题目格式转换助手。输出时：每个选项必须换行；答案单独一行且仅为 A、B、C、D 之一；解析单独一行且最简洁。' }, { role: 'user', content: prompt }], stream: false })
+                    }).then(function(res) { return res.json(); }).then(function(data) {
+                        var text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? data.choices[0].message.content.trim() : (data.error ? (data.error.message || 'DeepSeek 请求失败') : '无返回内容');
+                        document.getElementById('adminInputText').value = text;
+                        statusEl.textContent = '识别完成，已填入下方文本框，请检查后可修改后导入';
+                        statusEl.style.color = 'var(--success-color)';
+                        showMsg('adminImportStatus', 'PDF 识别完成，请在下方编辑后点击「导入」', 'success');
+                    });
+                }).catch(function(err) {
+                    statusEl.textContent = '识别失败：' + (err && err.message || '未知错误');
+                    statusEl.style.color = '#dc3545';
+                    showMsg('adminImportStatus', 'PDF 识别失败：' + (err && err.message || '未知错误'), 'error');
+                }).finally(function() { btn.disabled = false; });
+            };
+            reader.readAsArrayBuffer(_adminPendingPdfFile);
         }
         function onPracticeTypeChange() {
             var type = document.getElementById('practiceType').value;
@@ -3625,6 +3917,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 if (sel != null) store.recordAnswer(q.id, sel, sel === q.answer);
             });
             store.save();
+            persistUserQuestionStats();
             practiceResultIndex = 0;
             var total = practiceQuestions.length;
             var correctCount = practiceQuestions.filter(function(q, i) { var sel = practiceUserSelections[i]; return sel != null && sel === q.answer; }).length;
@@ -3749,6 +4042,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             URL.revokeObjectURL(a.href);
             showMsg('dataStatus', '已导出 ' + setsToExport.length + ' 个套卷', 'success');
         }
+        var _pendingImportData = null;
         function importData() {
             var input = document.getElementById('importDataFile');
             if (!input.files || !input.files.length) { showMsg('dataStatus', '请选择要导入的 JSON 文件', 'error'); return; }
@@ -3760,67 +4054,99 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     var data = JSON.parse(reader.result);
                     var sets = data.sets || [];
                     var questions = data.questions || {};
-                    if (mode === 'overwrite') {
-                        store.sets = [];
-                        store.questions = {};
-                    }
-                    var setIds = {};
-                    if (mode === 'overwrite') {
-                        sets.forEach(function(s) {
-                            var id = s.id || genId();
-                            setIds[s.id] = id;
-                            store.sets.push({ id: id, name: s.name || '未命名', category: s.category || '', '言语理解': s['言语理解'] || [], '数量关系': s['数量关系'] || [], '判断推理': s['判断推理'] || [], '资料分析': s['资料分析'] || [] });
-                        });
-                        Object.keys(questions).forEach(function(qid) {
-                            var q = questions[qid];
-                            var setId = setIds[q.setId] || q.setId;
-                            if (setId) { q.setId = setId; store.questions[qid] = q; }
-                        });
-                    } else {
-                        sets.forEach(function(s) {
-                            var name = (s.name || '').trim();
-                            var existing = store.sets.find(function(x) { return (x.name || '').trim() === name; });
-                            if (existing) {
-                                setIds[s.id] = existing.id;
-                                MAIN_SECTIONS.forEach(function(sec) {
-                                    var incoming = s[sec] || [];
-                                    incoming.forEach(function(qid) {
-                                        if (questions[qid] && existing[sec].indexOf(qid) === -1) existing[sec].push(qid);
-                                    });
-                                });
-                            } else {
-                                var id = genId();
-                                setIds[s.id] = id;
-                                store.sets.push({ id: id, name: name || '未命名', category: s.category || '', '言语理解': s['言语理解'] || [], '数量关系': s['数量关系'] || [], '判断推理': s['判断推理'] || [], '资料分析': s['资料分析'] || [] });
-                            }
-                        });
-                        Object.keys(questions).forEach(function(qid) {
-                            var q = questions[qid];
-                            if (q && setIds[q.setId]) { q.setId = setIds[q.setId]; q.knowledgePoints = q.knowledgePoints || (q.knowledgePoint ? [q.knowledgePoint] : []); store.questions[qid] = q; }
-                        });
-                    }
-                    var cats = getSetCategories();
-                    var beforeLen = cats.length;
-                    store.sets.forEach(function(s) {
-                        if (s.category && cats.indexOf(s.category) < 0) cats.push(s.category);
-                    });
-                    if (cats.length > beforeLen) saveSetCategories(cats);
-                    store.save();
-                    rebuildSubcategoriesFromStore();
-                    renderTree();
-                    fillCategorySelects();
-                    renderCategoryList();
-                    fillSetSelects();
-                    filterSetList();
-                    updateManageSub();
-                    updatePracticeSub();
-                    renderPracticePointsCheckboxes();
-                    checkExportState();
-                    showMsg('dataStatus', (mode === 'overwrite' ? '已覆盖并导入 ' : '已合并 ') + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
+                    if (!sets.length) { showMsg('dataStatus', 'JSON 中无套卷数据', 'error'); return; }
+                    _pendingImportData = { sets: sets, questions: questions, mode: mode };
+                    renderImportSelectSetsList();
+                    document.getElementById('importSelectSetsModal').style.display = 'flex';
                     input.value = '';
                 } catch (e) { showMsg('dataStatus', '导入失败：' + (e && e.message), 'error'); }
             };
             reader.readAsText(file);
+        }
+        function closeImportSelectSetsModal() {
+            document.getElementById('importSelectSetsModal').style.display = 'none';
+            _pendingImportData = null;
+        }
+        function renderImportSelectSetsList() {
+            var listEl = document.getElementById('importSelectSetsList');
+            if (!listEl || !_pendingImportData) return;
+            var sets = _pendingImportData.sets;
+            var questions = _pendingImportData.questions;
+            var totalQuestions = 0;
+            sets.forEach(function(s) {
+                MAIN_SECTIONS.forEach(function(sec) {
+                    (s[sec] || []).forEach(function(qid) { if (questions[qid]) totalQuestions++; });
+                });
+            });
+            listEl.innerHTML = sets.map(function(s) {
+                var count = 0;
+                MAIN_SECTIONS.forEach(function(sec) { count += (s[sec] || []).length; });
+                return '<label style="display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid var(--border-color); cursor:pointer;"><input type="checkbox" class="import-select-set-cb" value="' + (s.id || '') + '" data-index="' + sets.indexOf(s) + '" checked> <span><strong>' + (s.name || '未命名') + '</strong> <span style="color:var(--text-secondary); font-size:0.9rem;">（' + count + ' 题）</span></span></label>';
+            }).join('');
+        }
+        function importSelectAllSets(checked) {
+            document.querySelectorAll('.import-select-set-cb').forEach(function(cb) { cb.checked = checked; });
+        }
+        function executeImportSelectedSets() {
+            if (!_pendingImportData) { showMsg('importSelectSetsStatus', '无待导入数据', 'error'); return; }
+            var selected = [];
+            document.querySelectorAll('.import-select-set-cb:checked').forEach(function(cb) { selected.push(parseInt(cb.dataset.index, 10)); });
+            if (!selected.length) { showMsg('importSelectSetsStatus', '请至少勾选一个套卷', 'error'); return; }
+            var sets = _pendingImportData.sets;
+            var questions = _pendingImportData.questions;
+            var mode = _pendingImportData.mode;
+            var setsToImport = selected.map(function(i) { return sets[i]; });
+            if (mode === 'overwrite') {
+                store.sets = [];
+                store.questions = {};
+            }
+            var setIds = {};
+            setsToImport.forEach(function(s) {
+                var name = (s.name || '').trim();
+                var existing = store.sets.find(function(x) { return (x.name || '').trim() === name; });
+                if (existing) {
+                    setIds[s.id] = existing.id;
+                    MAIN_SECTIONS.forEach(function(sec) {
+                        var incoming = s[sec] || [];
+                        incoming.forEach(function(qid) {
+                            if (questions[qid] && existing[sec].indexOf(qid) === -1) existing[sec].push(qid);
+                        });
+                    });
+                } else {
+                    var id = genId();
+                    setIds[s.id] = id;
+                    store.sets.push({ id: id, name: name || '未命名', category: s.category || '', '言语理解': s['言语理解'] || [], '数量关系': s['数量关系'] || [], '判断推理': s['判断推理'] || [], '资料分析': s['资料分析'] || [] });
+                }
+            });
+            Object.keys(questions).forEach(function(qid) {
+                var q = questions[qid];
+                if (!q) return;
+                var setId = setIds[q.setId];
+                if (setId) {
+                    q.setId = setId;
+                    q.knowledgePoints = q.knowledgePoints || (q.knowledgePoint ? [q.knowledgePoint] : []);
+                    store.questions[qid] = q;
+                }
+            });
+            var cats = getSetCategories();
+            var beforeLen = cats.length;
+            store.sets.forEach(function(s) {
+                if (s.category && cats.indexOf(s.category) < 0) cats.push(s.category);
+            });
+            if (cats.length > beforeLen) saveSetCategories(cats);
+            store.save();
+            rebuildSubcategoriesFromStore();
+            renderTree();
+            fillCategorySelects();
+            renderCategoryList();
+            fillSetSelects();
+            filterSetList();
+            updateManageSub();
+            updatePracticeSub();
+            renderPracticePointsCheckboxes();
+            checkExportState();
+            showMsg('dataStatus', '已导入 ' + setsToImport.length + ' 个套卷、共 ' + Object.keys(store.questions).length + ' 道题目', 'success');
+            closeImportSelectSetsModal();
         }
         function onExportScopeChange() {
             var scope = document.getElementById('exportScope').value;
@@ -4259,6 +4585,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function initAdminPage() {
             if (!adminAuthenticated) return;
             adminStore.load(); // 加载管理员数据
+            if (typeof adminRenderUserList === 'function') adminRenderUserList();
             updateAdminGithubTokenStatus();
             // 读取 data 目录下的 JSON 文件列表（用于选择同步/重置目标）
             try { adminRefreshDataJsonFileList(); } catch (e) {}
@@ -4428,6 +4755,85 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }).join('');
         }
         
+        function getAdminUsers() { try { var raw = localStorage.getItem('xingce_admin_users'); return raw ? JSON.parse(raw) : []; } catch (e) { return []; } }
+        function saveAdminUsers(users) { try { localStorage.setItem('xingce_admin_users', JSON.stringify(users)); } catch (e) {} }
+        function hashPassword(username, password) {
+            var str = (username || '') + ':' + (password || '');
+            return new Promise(function(resolve, reject) {
+                if (!window.crypto || !crypto.subtle) { resolve(str.split('').reduce(function(a,c){ a=((a<<5)-a)+c.charCodeAt(0); return a&a; }, 0).toString(16)); return; }
+                var enc = new TextEncoder();
+                crypto.subtle.digest('SHA-256', enc.encode(str)).then(function(buf) {
+                    var arr = Array.from(new Uint8Array(buf));
+                    resolve(arr.map(function(b) { return ('0'+b.toString(16)).slice(-2); }).join(''));
+                }).catch(reject);
+            });
+        }
+        function adminAddUser() {
+            var username = (document.getElementById('adminNewUserName').value || '').trim();
+            var password = document.getElementById('adminNewUserPassword').value || '';
+            if (!username) { showMsg('adminUserStatus', '请输入用户名', 'error'); return; }
+            if (!password) { showMsg('adminUserStatus', '请输入密码', 'error'); return; }
+            var users = getAdminUsers();
+            if (users.some(function(u) { return u.username === username; })) { showMsg('adminUserStatus', '该用户名已存在', 'error'); return; }
+            hashPassword(username, password).then(function(ph) {
+                users.push({ username: username, passwordHash: ph, createdAt: new Date().toISOString() });
+                saveAdminUsers(users);
+                document.getElementById('adminNewUserName').value = '';
+                document.getElementById('adminNewUserPassword').value = '';
+                adminRenderUserList();
+                showMsg('adminUserStatus', '已添加用户：' + username, 'success');
+            }).catch(function() { showMsg('adminUserStatus', '加密失败', 'error'); });
+        }
+        function adminEditUser(username) {
+            var newPassword = prompt('请输入新密码（留空则不修改）：');
+            if (newPassword === null) return;
+            if (!newPassword.trim()) return;
+            var users = getAdminUsers();
+            var idx = users.findIndex(function(u) { return u.username === username; });
+            if (idx < 0) return;
+            hashPassword(username, newPassword).then(function(ph) {
+                users[idx].passwordHash = ph;
+                users[idx].updatedAt = new Date().toISOString();
+                saveAdminUsers(users);
+                adminRenderUserList();
+                showMsg('adminUserStatus', '已修改用户：' + username + ' 的密码', 'success');
+            }).catch(function() { showMsg('adminUserStatus', '加密失败', 'error'); });
+        }
+        function adminDeleteUser(username) {
+            if (!confirm('确定删除用户 ' + username + '？')) return;
+            var users = getAdminUsers().filter(function(u) { return u.username !== username; });
+            saveAdminUsers(users);
+            adminRenderUserList();
+            showMsg('adminUserStatus', '已删除用户：' + username, 'success');
+        }
+        function adminRenderUserList() {
+            var listEl = document.getElementById('adminUserList');
+            if (!listEl) return;
+            var users = getAdminUsers();
+            if (!users.length) { listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-secondary);">暂无用户</div>'; return; }
+            listEl.innerHTML = users.map(function(u) {
+                return '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border-color);"><span><strong>' + (u.username || '') + '</strong> <span style="color:var(--text-secondary); font-size:0.85rem;">' + (u.createdAt ? '创建于 ' + u.createdAt.slice(0,10) : '') + '</span></span><div><button class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color); margin-right:8px;" onclick="adminEditUser(\'' + (u.username||'').replace(/'/g,"\\'") + '\')"><i class="fas fa-edit"></i> 修改密码</button><button class="btn btn-sm" style="background:#f8d7da; color:#721c24; border-color:#f5c6cb;" onclick="adminDeleteUser(\'' + (u.username||'').replace(/'/g,"\\'") + '\')"><i class="fas fa-trash"></i> 删除</button></div></div>';
+            }).join('');
+        }
+        function adminSyncUsersToGitHub() {
+            if (!GITHUB_CONFIG.token) { showMsg('adminUserStatus', '请先配置 GitHub Token', 'error'); return; }
+            var users = getAdminUsers();
+            var data = { users: users, exportTime: new Date().toISOString() };
+            var content = JSON.stringify(data, null, 2);
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data/users.json';
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+            showMsg('adminUserStatus', '正在同步用户列表到 GitHub...', 'info');
+            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                .then(function(r) { if (r.status === 404) return null; if (!r.ok) throw new Error('获取失败 ' + r.status); return r.json(); })
+                .then(function(fileInfo) {
+                    var commitData = { message: '同步用户列表 - ' + new Date().toLocaleString('zh-CN'), content: btoa(unescape(encodeURIComponent(content))), branch: GITHUB_CONFIG.branch };
+                    if (fileInfo && fileInfo.sha) commitData.sha = fileInfo.sha;
+                    return fetch(apiUrl, { method: 'PUT', headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }), body: JSON.stringify(commitData) });
+                })
+                .then(function(r) { if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || '同步失败'); }); return r.json(); })
+                .then(function() { showMsg('adminUserStatus', '已同步用户列表到 data/users.json', 'success'); })
+                .catch(function(err) { showMsg('adminUserStatus', '同步失败：' + (err.message || '未知错误'), 'error'); });
+        }
         function adminAddCategory() {
             var name = (document.getElementById('adminNewCategoryName').value || '').trim();
             if (!name) {
@@ -5928,6 +6334,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         
         document.addEventListener('DOMContentLoaded', function() {
             store.load();
+            if (typeof profileUpdateLoginUI === 'function') profileUpdateLoginUI();
+            if (getCurrentUser()) mergeUserQuestionStatsIntoStore();
             rebuildSubcategoriesFromStore();
             if (!store.sets.length) { store.addSet('默认套卷'); store.save(); }
             document.querySelectorAll('.nav-item').forEach(function(t) {

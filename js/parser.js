@@ -30,6 +30,8 @@
             source = (m[3] || '').trim();
             contentPrefix = (m[4] || '').trim();
             if (!MAIN_SECTIONS || !MAIN_SECTIONS.includes(category)) return null;
+            var allowedSubs = (window.PARSER_SUB || window.SUBCATEGORIES || {})[category];
+            if (allowedSubs && allowedSubs.indexOf(subcategory) === -1) return null;
             if (ensureSubcategory) ensureSubcategory(category, subcategory);
             startIdx = 1;
         } else return null;
