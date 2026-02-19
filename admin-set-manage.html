@@ -61,6 +61,12 @@
                             <option value="资料分析">资料分析</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="muted">按小类筛选</label>
+                        <select id="filterSubcategory" onchange="onFilterSubcategoryChange()" style="display:block; margin-top:4px; padding:6px 10px; border-radius:4px; border:1px solid #ced4da; min-width:160px;">
+                            <option value="">全部</option>
+                        </select>
+                    </div>
                     <div style="flex:1; min-width:200px;">
                         <label class="muted">关键词搜索</label>
                         <input type="text" id="filterKeyword" placeholder="按题干/材料/选项/解析搜索…" oninput="onFilterKeywordInput()" style="display:block; margin-top:4px; width:100%; padding:6px 10px; border-radius:4px; border:1px solid #ced4da;">
@@ -179,6 +185,7 @@
     <script>
         var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析'];
         var filterSection = '';
+        var filterSubcategory = '';
         var filterKeyword = '';
         var currentSetId = null;
         var currentSet = null;
@@ -236,12 +243,46 @@
         function onFilterSectionChange() {
             var el = document.getElementById('filterSection');
             filterSection = (el && el.value) || '';
+            // 切换大类后，重建小类下拉，并清空当前小类筛选
+            filterSubcategory = '';
+            renderSubcategoryOptions();
+            renderList();
+        }
+        function onFilterSubcategoryChange() {
+            var el = document.getElementById('filterSubcategory');
+            filterSubcategory = (el && el.value) || '';
             renderList();
         }
         function onFilterKeywordInput() {
             var el = document.getElementById('filterKeyword');
             filterKeyword = (el && el.value || '').trim().toLowerCase();
             renderList();
+        }
+
+        function renderSubcategoryOptions() {
+            var sel = document.getElementById('filterSubcategory');
+            if (!sel) return;
+            if (!currentSetId || !currentSet) {
+                sel.innerHTML = '<option value="">全部</option>';
+                sel.value = '';
+                return;
+            }
+            var data = loadStore();
+            var subs = {};
+            MAIN_SECTIONS.forEach(function(sec) {
+                if (filterSection && sec !== filterSection) return;
+                (currentSet[sec] || []).forEach(function(qid) {
+                    var q = data.questions[qid];
+                    if (!q) return;
+                    var sub = q.subcategory || '';
+                    if (sub) subs[sub] = true;
+                });
+            });
+            var list = Object.keys(subs).sort(function(a,b){ return String(a).localeCompare(String(b)); });
+            sel.innerHTML = '<option value="">全部</option>' + list.map(function(s) {
+                return '<option value="' + esc(s) + '">' + esc(s) + '</option>';
+            }).join('');
+            sel.value = '';
         }
 
         function renderList() {
@@ -263,6 +304,7 @@
                             if (joined.indexOf(filterKeyword) === -1) return;
                         }
                         var sub = q.subcategory || sec;
+                        if (filterSubcategory && sub !== filterSubcategory) return;
                         if (!bySection[sec]) bySection[sec] = {};
                         if (!bySection[sec][sub]) bySection[sec][sub] = [];
                         bySection[sec][sub].push(q);
@@ -499,6 +541,7 @@
             saveStore(data);
             closeEdit();
             currentSet = getSet(currentSetId);
+            renderSubcategoryOptions();
             renderList();
         }
 
@@ -512,6 +555,7 @@
             delete data.questions[qid];
             saveStore(data);
             currentSet = getSet(currentSetId);
+            renderSubcategoryOptions();
             renderList();
         }
 
@@ -541,6 +585,7 @@
                 var qCount = data.questions ? Object.keys(data.questions).length : 0;
                 showDebug('当前 setId=' + currentSetId + '；管理员套卷数=' + setCount + '；管理员题目数=' + qCount + '。若这里为 0，说明你打开此页面的域名/协议与管理员后台不一致（localStorage 不共享）。', false);
             } catch (e) {}
+            renderSubcategoryOptions();
             renderList();
 
             // 事件委托：处理查看/编辑/删除

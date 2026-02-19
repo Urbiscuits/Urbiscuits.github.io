@@ -1214,6 +1214,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <div class="profile-section">
                             <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-database"></i> 数据</h4>
                             <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">导出可备份或迁移；导入默认合并，可选覆盖。导入后题目统计与套卷列表将自动刷新。</p>
+                            <div class="control-group" style="margin-bottom:12px; align-items:center;">
+                                <label style="min-width: 110px;">题库站点地址：</label>
+                                <input type="text" id="remoteBaseInput" placeholder="留空=当前网站；如：https://你的用户名.github.io/仓库名" style="flex:1; max-width:520px; padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius);">
+                                <button class="btn btn-sm" type="button" style="background:var(--light-bg); border:1px solid var(--border-color); margin-left:8px;" onclick="saveRemoteBaseUrl()"><i class="fas fa-link"></i> 保存</button>
+                            </div>
                             <div class="control-group" style="margin-bottom:10px;">
                                 <label>导出范围：</label>
                                 <label style="margin-right:12px;"><input type="radio" name="exportScope" value="all" checked onchange="toggleExportSetList()"> 全部套卷</label>
@@ -1897,10 +1902,40 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (document.getElementById('exportCategoryFilter')) updateExportSubcategoryOptions();
             if (typeof checkExportState === 'function') checkExportState();
         }
+
+        function normalizeRemoteBaseUrl(u) {
+            u = (u || '').trim();
+            if (!u) return '';
+            u = u.replace(/\s+/g, '');
+            u = u.replace(/\/+$/, '');
+            if (!/^https?:\/\//i.test(u)) return '';
+            return u;
+        }
+        function getRemoteBaseUrl() {
+            try { return normalizeRemoteBaseUrl(localStorage.getItem('xingce_remote_base') || ''); } catch (e) { return ''; }
+        }
+        function setRemoteBaseUrl(u) {
+            var v = normalizeRemoteBaseUrl(u);
+            try { if (v) localStorage.setItem('xingce_remote_base', v); else localStorage.removeItem('xingce_remote_base'); } catch (e) {}
+            return v;
+        }
+        function getDataFileUrl(filename) {
+            filename = (filename || '').replace(/^\/+/, '');
+            var base = getRemoteBaseUrl();
+            if (base) return base + '/data/' + filename;
+            return './data/' + filename;
+        }
+        function saveRemoteBaseUrl() {
+            var input = document.getElementById('remoteBaseInput');
+            var v = setRemoteBaseUrl(input ? input.value : '');
+            if (input) input.value = v;
+            showMsg('dataStatus', v ? ('已保存题库站点地址：' + v) : '已清空题库站点地址（将使用当前网站）', 'success');
+        }
         // 从 GitHub 上拉取远程题库（store.json），用于“管理员上传即可在线更新”
         function loadRemoteStore() {
             if (!ENABLE_REMOTE_STORE || !window.fetch) return;
-            fetch(REMOTE_STORE_URL + '?t=' + Date.now())
+            var url = getDataFileUrl('store.json') + '?t=' + Date.now();
+            fetch(url)
                 .then(function(resp) { if (!resp.ok) throw new Error('remote store not found'); return resp.json(); })
                 .then(function(data) { applyRemoteStore(data); })
                 .catch(function() { /* 静默失败，保留本地题库 */ });
@@ -1931,9 +1966,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 return;
             }
             showMsg('dataStatus', '正在扫描 data 目录下的 TXT / JSON 文件，请稍候...', 'info');
-            // 约定 files.json 列出需要导入的所有文件
-            var manifestUrl = './data/files.json?t=' + Date.now();
-            var fallbackStoreUrl = './data/store.json?t=' + Date.now();
+            // 约定 files.json 列出需要导入的所有文件；支持“题库站点地址”
+            var manifestUrl = getDataFileUrl('files.json') + '?t=' + Date.now();
+            var fallbackStoreUrl = getDataFileUrl('store.json') + '?t=' + Date.now();
             fetch(manifestUrl)
                 .then(function(resp) {
                     if (!resp.ok) throw new Error('files.json 未找到，请在 data 目录下创建。');
@@ -1957,7 +1992,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         return;
                     }
                     var txtPromises = txtFiles.map(function(p) {
-                        return fetch('./data/' + p + '?t=' + Date.now())
+                        return fetch(getDataFileUrl(p) + '?t=' + Date.now())
                             .then(function(r) {
                                 if (!r.ok) throw new Error('无法读取 TXT：' + p);
                                 return r.text();
@@ -1967,7 +2002,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             });
                     });
                     var jsonPromises = jsonFiles.map(function(p) {
-                        return fetch('./data/' + p + '?t=' + Date.now())
+                        return fetch(getDataFileUrl(p) + '?t=' + Date.now())
                             .then(function(r) {
                                 if (!r.ok) throw new Error('无法读取 JSON：' + p);
                                 return r.json();
@@ -2207,7 +2242,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var statusEl = document.getElementById('profileLoginStatus');
             statusEl.textContent = '正在验证…';
             statusEl.className = 'status-message info';
-            var base = window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/');
+            var base = getRemoteBaseUrl() ? (getRemoteBaseUrl().replace(/\/+$/, '') + '/') : (window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/'));
             fetch(base + 'data/users.json?t=' + Date.now()).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; })
                 .then(function(data) {
                     var users = (data && data.users) ? data.users : getAdminUsers();
@@ -2263,8 +2298,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function profileLoadUserDataFromCloud() {
             var u = getCurrentUser();
             if (!u) { showMsg('profileLoginStatus', '请先登录', 'error'); return; }
-            var base = window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/');
             var rawBase = 'https://raw.githubusercontent.com/' + (GITHUB_CONFIG.owner || '') + '/' + (GITHUB_CONFIG.repo || '') + '/' + (GITHUB_CONFIG.branch || 'main') + '/';
+            var base = getRemoteBaseUrl() ? (getRemoteBaseUrl().replace(/\/+$/, '') + '/') : (window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/'));
             var url = rawBase + 'data/user/' + encodeURIComponent(u) + '.json';
             showMsg('profileLoginStatus', '正在从云端加载…', 'info');
             fetch(url).then(function(r) {
@@ -3171,6 +3206,25 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             });
             return Object.keys(used).filter(Boolean).sort(function(a,b){ return String(a).localeCompare(String(b)); });
         }
+        function getAdminSubcategoriesConfig() {
+            try { return JSON.parse(localStorage.getItem('xingce_admin_subcategories') || '{}') || {}; } catch (e) { return {}; }
+        }
+        function saveAdminSubcategoriesConfig(obj) {
+            try { localStorage.setItem('xingce_admin_subcategories', JSON.stringify(obj || {})); } catch (e) {}
+        }
+        function adminLoadSubcategoriesConfigIntoGlobal() {
+            var cfg = getAdminSubcategoriesConfig();
+            MAIN_SECTIONS.forEach(function(sec) {
+                if (Array.isArray(cfg[sec])) SUBCATEGORIES[sec] = cfg[sec].slice();
+            });
+        }
+        function adminPersistCurrentSubcategoriesConfig() {
+            var cfg = {};
+            MAIN_SECTIONS.forEach(function(sec) {
+                cfg[sec] = (SUBCATEGORIES[sec] || []).slice();
+            });
+            saveAdminSubcategoriesConfig(cfg);
+        }
         function adminRenderSubcategoryEditor() {
             var section = (document.getElementById('adminSubcatSection') && document.getElementById('adminSubcatSection').value) || '言语理解';
             var wrap = document.getElementById('adminSubcategoryEditor');
@@ -3196,7 +3250,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     } catch (e) {}
                     return '<div style="display:flex; gap:10px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--border-color);">' +
                         '<div style="flex:1;"><strong>' + sub + '</strong> <span style="color:var(--text-secondary); font-size:0.85rem;">（' + usedCount + ' 题）</span></div>' +
-                        '<div style="flex:1;"><input type="text" class="admin-sub-rename" data-section="' + section.replace(/"/g,'&quot;') + '" data-old="' + sub.replace(/"/g,'&quot;') + '" placeholder="如：中心填空" style="width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>' +
+                        '<div style="flex:1;"><input type="text" class="admin-sub-rename" data-section="' + section.replace(/"/g,'&quot;') + '" data-old="' + sub.replace(/"/g,'&quot;') + '" placeholder="" style="width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>' +
                         '<div style="width:120px; text-align:right;">' +
                             '<button type="button" class="btn btn-sm" style="background:#f8d7da; color:#721c24; border-color:#f5c6cb;" onclick="adminDeleteSubcategoryName(\'' + section.replace(/'/g,"\\'") + '\',\'' + sub.replace(/'/g,"\\'") + '\')">删除</button>' +
                         '</div>' +
@@ -3210,6 +3264,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (!SUBCATEGORIES[section]) SUBCATEGORIES[section] = [];
             if (SUBCATEGORIES[section].indexOf(name) === -1) SUBCATEGORIES[section].push(name);
             SUBCATEGORIES[section].sort(function(a,b){ return String(a).localeCompare(String(b)); });
+            adminPersistCurrentSubcategoriesConfig();
             document.getElementById('adminAddSubcatName').value = '';
             adminRenderSubcategoryEditor();
             showMsg('adminSubcategoryStatus', '已新增小类：' + name, 'success');
@@ -3226,6 +3281,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (usedCount > 0) { showMsg('adminSubcategoryStatus', '该小类仍有题目使用（' + usedCount + ' 题），请先通过重命名/合并处理后再删除', 'error'); return; }
             if (!confirm('确定删除小类「' + sub + '」吗？仅删除小类名称，不会删除题目。')) return;
             SUBCATEGORIES[section] = (SUBCATEGORIES[section] || []).filter(function(x){ return x !== sub; });
+            adminPersistCurrentSubcategoriesConfig();
             adminRenderSubcategoryEditor();
             showMsg('adminSubcategoryStatus', '已删除小类：' + sub, 'success');
         }
@@ -3258,10 +3314,16 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             });
             SUBCATEGORIES[section].sort(function(a,b){ return String(a).localeCompare(String(b)); });
             adminStore.save();
-            rebuildSubcategoriesFromStore(); // 兼容全局筛选项
+            adminPersistCurrentSubcategoriesConfig();
+            try { updateAdminSingleSub(); } catch (e) {}
             adminRenderSubcategoryEditor();
             renderAdminStatsTree();
-            showMsg('adminSubcategoryStatus', '已应用修改：更新 ' + changed + ' 道题目的小类（同名即合并）', 'success');
+            showMsg('adminSubcategoryStatus', '已应用修改：更新 ' + changed + ' 道题目的小类（同名即合并），正在同步到 data…', 'info');
+            adminSyncToGitHub().then(function() {
+                showMsg('adminSubcategoryStatus', '已同步：小类修改已写入目标题库 JSON', 'success');
+            }).catch(function(err) {
+                showMsg('adminSubcategoryStatus', '小类修改已保存，但同步失败：' + ((err && err.message) || '未知错误'), 'error');
+            });
         }
 
         function fillSetSelects() {
@@ -4891,6 +4953,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             renderAdminCategoryList();
             adminFilterSetList();
             adminRenderSectionAliasEditor();
+            // 加载管理员端小类配置（避免刷新后回到默认/被重建）
+            adminLoadSubcategoriesConfigIntoGlobal();
             adminRenderSubcategoryEditor();
             renderAdminStatsTree();
             updateAdminSingleSub();
@@ -6856,6 +6920,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         
         document.addEventListener('DOMContentLoaded', function() {
             store.load();
+            // 题库站点地址：初始化输入框回显
+            try {
+                var rb = document.getElementById('remoteBaseInput');
+                if (rb) rb.value = getRemoteBaseUrl() || '';
+            } catch (e) {}
             if (typeof profileUpdateLoginUI === 'function') profileUpdateLoginUI();
             if (getCurrentUser()) mergeUserQuestionStatsIntoStore();
             rebuildSubcategoriesFromStore();
