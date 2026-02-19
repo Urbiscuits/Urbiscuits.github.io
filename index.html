@@ -1422,7 +1422,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div class="filter-controls" style="margin-bottom: 16px;">
                                 <div><label>新套卷名称</label><input type="text" id="adminNewSetName" placeholder="如：2025年国考行测" style="width:100%; padding:10px; margin-top:5px;"></div>
                                 <div><label>分类</label><select id="adminNewSetCategory" style="width:100%; padding:10px; margin-top:5px;"></select></div>
-                                <div style="align-self: flex-end;"><button class="btn btn-primary" onclick="adminAddSet()"><i class="fas fa-plus"></i> 新建套卷</button></div>
+                                <div style="align-self: flex-end; display:flex; gap:8px; flex-wrap:wrap;">
+                                    <button class="btn btn-primary" onclick="adminAddSet()"><i class="fas fa-plus"></i> 新建套卷</button>
+                                    <button class="btn btn-default" type="button" onclick="adminOpenRemark()" title="记录已完成/待完成等说明"><i class="fas fa-sticky-note"></i> 记事</button>
+                                </div>
                             </div>
                             <div class="filter-controls" style="margin-bottom: 12px;">
                                 <div><label>筛查分类</label><select id="adminSetFilterCategory" onchange="adminFilterSetList()" style="width:100%; padding:10px; margin-top:5px;"></select></div>
@@ -1430,6 +1433,58 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             </div>
                             <div id="adminSetList" style="margin-top: 16px;"></div>
                             <div id="adminSetStatus" class="status-message"></div>
+                        </div>
+
+                        <!-- 题目统计（管理员题库） -->
+                        <div class="card" style="margin-bottom: 20px;">
+                            <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-chart-bar"></i> 题目统计（管理员题库）</h2>
+                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">统计口径与个人中心一致，但数据源为管理员题库（adminStore）。可在下方维护统计展示名称与小类名称（支持合并）。</p>
+
+                            <div style="margin-bottom:16px; padding:14px; border:1px solid var(--border-color); border-radius:var(--border-radius); background:var(--light-bg);">
+                                <h4 style="margin-bottom:10px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-pen"></i> 大类展示名称（仅影响统计展示）</h4>
+                                <div id="adminSectionAliasEditor" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px;"></div>
+                                <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                                    <button class="btn btn-primary btn-sm" type="button" onclick="adminSaveSectionAliases()"><i class="fas fa-save"></i> 保存展示名称</button>
+                                    <button class="btn btn-sm" type="button" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminResetSectionAliases()"><i class="fas fa-undo"></i> 还原默认</button>
+                                </div>
+                                <div id="adminSectionAliasStatus" class="status-message" style="margin-top:8px;"></div>
+                            </div>
+
+                            <div style="margin-bottom:16px; padding:14px; border:1px solid var(--border-color); border-radius:var(--border-radius); background:var(--light-bg);">
+                                <h4 style="margin-bottom:10px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-sitemap"></i> 小类名称维护/合并（会修改题目分类）</h4>
+                                <div class="filter-controls" style="margin-bottom:10px;">
+                                    <div>
+                                        <label>选择大类</label>
+                                        <select id="adminSubcatSection" onchange="adminRenderSubcategoryEditor()" style="width:100%; padding:10px; margin-top:5px;">
+                                            <option value="言语理解">言语理解</option>
+                                            <option value="数量关系">数量关系</option>
+                                            <option value="判断推理">判断推理</option>
+                                            <option value="资料分析">资料分析</option>
+                                        </select>
+                                    </div>
+                                    <div style="flex:1;">
+                                        <label>新增小类</label>
+                                        <div style="display:flex; gap:8px; align-items:center; margin-top:5px;">
+                                            <input type="text" id="adminAddSubcatName" placeholder="输入新小类名称" style="flex:1; padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius);">
+                                            <button class="btn btn-sm btn-primary" type="button" onclick="adminAddSubcategoryName()"><i class="fas fa-plus"></i> 新增</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="adminSubcategoryEditor" style="border:1px solid var(--border-color); border-radius:var(--border-radius); overflow:hidden; background:var(--surface);"></div>
+                                <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                                    <button class="btn btn-success btn-sm" type="button" onclick="adminApplySubcategoryChanges()"><i class="fas fa-check"></i> 应用修改（重命名/合并）</button>
+                                </div>
+                                <div id="adminSubcategoryStatus" class="status-message" style="margin-top:8px;"></div>
+                            </div>
+
+                            <div class="stats-card" style="margin-bottom:0; border:1px solid var(--border-color);">
+                                <div id="adminStatsContent">
+                                    <div class="empty-state">
+                                        <i class="fas fa-chart-pie"></i>
+                                        <p>暂无统计数据</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- 批量导入 -->
@@ -1515,6 +1570,24 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
 
     <!-- 临时容器，用于生成图片 -->
     <div id="tempContainer" class="temp-container"></div>
+
+    <!-- 管理员记事模态框 -->
+    <div id="adminRemarkModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.45); z-index:10000; align-items:center; justify-content:center;">
+        <div class="card" style="max-width:640px; width:90%; max-height:80vh; overflow:auto; margin:20px; position:relative;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--border-color);">
+                <h2 style="margin:0; font-size:1.1rem; color:var(--primary-color);"><i class="fas fa-sticky-note"></i> 管理员记事本</h2>
+                <button type="button" onclick="adminCloseRemark()" style="background:none; border:none; font-size:26px; line-height:1; cursor:pointer; color:var(--text-secondary);">×</button>
+            </div>
+            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:8px;">可记录如「已完成 XX」、「待完成 XX」等信息，便于管理进度。内容将保存到本地，并可同步到 GitHub 的 <code>data/remark.json</code>。</p>
+            <textarea id="adminRemarkText" rows="10" style="width:100%; padding:10px; border-radius:var(--border-radius); border:1px solid var(--border-color); font-family:inherit; line-height:1.6; resize:vertical;" placeholder="在此记录你的管理备注，例如：&#10;- 已完成：2025 国考真题导入&#10;- 待完成：2024 省考解析补充&#10;- 说明：......"></textarea>
+            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <button class="btn btn-primary btn-sm" type="button" onclick="adminSaveRemarkLocal()"><i class="fas fa-save"></i> 保存到本地</button>
+                <button class="btn btn-info btn-sm" type="button" onclick="adminSyncRemarkToGitHub()"><i class="fas fa-cloud-upload-alt"></i> 同步到 GitHub (data/remark.json)</button>
+                <span id="adminRemarkUpdatedAt" style="font-size:0.85rem; color:var(--text-secondary); margin-left:auto;"></span>
+            </div>
+            <div id="adminRemarkStatus" class="status-message" style="margin-top:8px;"></div>
+        </div>
+    </div>
 
     <!-- 从 data 加载模态框 -->
     <div id="adminLoadFromDataModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
@@ -2992,6 +3065,203 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 node.classList.toggle('collapsed');
             };
             container.addEventListener('click', window._onTreeClick);
+        }
+
+        function getAdminSectionAliases() {
+            try { return JSON.parse(localStorage.getItem('xingce_admin_section_alias') || '{}') || {}; } catch (e) { return {}; }
+        }
+        function saveAdminSectionAliases(obj) {
+            try { localStorage.setItem('xingce_admin_section_alias', JSON.stringify(obj || {})); } catch (e) {}
+        }
+        function adminRenderSectionAliasEditor() {
+            var wrap = document.getElementById('adminSectionAliasEditor');
+            if (!wrap) return;
+            var aliases = getAdminSectionAliases();
+            wrap.innerHTML = MAIN_SECTIONS.map(function(sec) {
+                var v = aliases[sec] || '';
+                return '<div style="background:var(--surface); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:10px;">' +
+                    '<div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:6px;">' + sec + '</div>' +
+                    '<input type="text" data-sec="' + sec.replace(/"/g, '&quot;') + '" value="' + (v || '') + '" placeholder="留空则使用默认名称" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius);">' +
+                '</div>';
+            }).join('');
+        }
+        function adminSaveSectionAliases() {
+            var wrap = document.getElementById('adminSectionAliasEditor');
+            if (!wrap) return;
+            var obj = {};
+            wrap.querySelectorAll('input[data-sec]').forEach(function(inp) {
+                var sec = inp.getAttribute('data-sec');
+                var val = (inp.value || '').trim();
+                if (val) obj[sec] = val;
+            });
+            saveAdminSectionAliases(obj);
+            showMsg('adminSectionAliasStatus', '已保存展示名称', 'success');
+            renderAdminStatsTree();
+        }
+        function adminResetSectionAliases() {
+            saveAdminSectionAliases({});
+            adminRenderSectionAliasEditor();
+            showMsg('adminSectionAliasStatus', '已还原默认展示名称', 'success');
+            renderAdminStatsTree();
+        }
+
+        function adminComputeStats() {
+            var tree = {};
+            MAIN_SECTIONS.forEach(function(s) { tree[s] = {}; });
+            if (!adminStore || !adminStore.sets || !adminStore.questions) return { tree: tree, total: 0 };
+            var qidSet = {};
+            adminStore.sets.forEach(function(set) {
+                MAIN_SECTIONS.forEach(function(section) {
+                    (set[section] || []).forEach(function(qid) {
+                        qidSet[qid] = true;
+                        var q = adminStore.questions[qid];
+                        if (!q) return;
+                        var sub = q.subcategory || q.section || section;
+                        tree[section][sub] = (tree[section][sub] || 0) + 1;
+                    });
+                });
+            });
+            return { tree: tree, total: Object.keys(qidSet).length };
+        }
+        function bindAdminTreeToggles() {
+            var container = document.getElementById('adminStatsContent');
+            if (!container) return;
+            if (window._onAdminTreeClick) container.removeEventListener('click', window._onAdminTreeClick);
+            window._onAdminTreeClick = function(e) {
+                var toggle = e.target.closest('.tree-toggle');
+                if (!toggle) return;
+                var node = toggle.closest('li.tree-node');
+                if (!node) return;
+                e.preventDefault();
+                node.classList.toggle('collapsed');
+            };
+            container.addEventListener('click', window._onAdminTreeClick);
+        }
+        function renderAdminStatsTree() {
+            var container = document.getElementById('adminStatsContent');
+            if (!container) return;
+            var st = adminComputeStats();
+            var stats = st.tree;
+            var total = st.total;
+            if (total === 0) { container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-pie"></i><p>暂无统计数据</p></div>'; return; }
+            var aliases = getAdminSectionAliases();
+            var html = '<ul class="tree-node">';
+            MAIN_SECTIONS.forEach(function(section) {
+                var subCounts = stats[section] || {};
+                var sectionTotal = Object.keys(subCounts).reduce(function(a, k) { return a + subCounts[k]; }, 0);
+                if (sectionTotal === 0) return;
+                var subs = Object.keys(subCounts).sort(function(a,b){ return String(a).localeCompare(String(b)); });
+                var label = aliases[section] || section;
+                html += '<li class="tree-node collapsed"><div class="tree-toggle"><i class="fas fa-chevron-right"></i><i class="fas fa-chevron-down"></i><span>' + label + '</span><span class="tree-count">' + sectionTotal + '</span></div><ul class="tree-children">';
+                subs.forEach(function(sub) { html += '<li class="tree-leaf"><span>' + sub + '</span><span class="tree-count">' + subCounts[sub] + '</span></li>'; });
+                html += '</ul></li>';
+            });
+            html += '<li class="tree-leaf" style="margin-top:8px; font-weight:bold;"><span>题目总数</span><span class="tree-count" style="background: var(--accent-color);">' + total + '</span></li></ul>';
+            container.innerHTML = html;
+            bindAdminTreeToggles();
+        }
+
+        function adminGetUsedSubcategories(section) {
+            var used = {};
+            if (!adminStore || !adminStore.questions) return [];
+            Object.keys(adminStore.questions).forEach(function(qid) {
+                var q = adminStore.questions[qid];
+                if (!q) return;
+                if (q.section === section) used[q.subcategory || ''] = true;
+            });
+            return Object.keys(used).filter(Boolean).sort(function(a,b){ return String(a).localeCompare(String(b)); });
+        }
+        function adminRenderSubcategoryEditor() {
+            var section = (document.getElementById('adminSubcatSection') && document.getElementById('adminSubcatSection').value) || '言语理解';
+            var wrap = document.getElementById('adminSubcategoryEditor');
+            if (!wrap) return;
+            var list = adminGetUsedSubcategories(section);
+            var defined = (SUBCATEGORIES[section] || []).slice().sort(function(a,b){ return String(a).localeCompare(String(b)); });
+            var all = Array.from(new Set(defined.concat(list))).filter(Boolean);
+            if (!all.length) {
+                wrap.innerHTML = '<div style="padding:16px; color:var(--text-secondary);">暂无小类</div>';
+                return;
+            }
+            wrap.innerHTML =
+                '<div style="display:flex; padding:10px 12px; background:var(--light-bg); border-bottom:1px solid var(--border-color); font-size:0.85rem; color:var(--text-secondary);">' +
+                    '<div style="flex:1;">原小类</div><div style="flex:1;">新名称（留空=不改）</div><div style="width:120px; text-align:right;">操作</div>' +
+                '</div>' +
+                all.map(function(sub) {
+                    var usedCount = 0;
+                    try {
+                        Object.keys(adminStore.questions || {}).forEach(function(qid) {
+                            var q = adminStore.questions[qid];
+                            if (q && q.section === section && (q.subcategory || '') === sub) usedCount++;
+                        });
+                    } catch (e) {}
+                    return '<div style="display:flex; gap:10px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--border-color);">' +
+                        '<div style="flex:1;"><strong>' + sub + '</strong> <span style="color:var(--text-secondary); font-size:0.85rem;">（' + usedCount + ' 题）</span></div>' +
+                        '<div style="flex:1;"><input type="text" class="admin-sub-rename" data-section="' + section.replace(/"/g,'&quot;') + '" data-old="' + sub.replace(/"/g,'&quot;') + '" placeholder="如：中心填空" style="width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>' +
+                        '<div style="width:120px; text-align:right;">' +
+                            '<button type="button" class="btn btn-sm" style="background:#f8d7da; color:#721c24; border-color:#f5c6cb;" onclick="adminDeleteSubcategoryName(\'' + section.replace(/'/g,"\\'") + '\',\'' + sub.replace(/'/g,"\\'") + '\')">删除</button>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+        }
+        function adminAddSubcategoryName() {
+            var section = (document.getElementById('adminSubcatSection') && document.getElementById('adminSubcatSection').value) || '言语理解';
+            var name = (document.getElementById('adminAddSubcatName') && document.getElementById('adminAddSubcatName').value || '').trim();
+            if (!name) { showMsg('adminSubcategoryStatus', '请输入小类名称', 'error'); return; }
+            if (!SUBCATEGORIES[section]) SUBCATEGORIES[section] = [];
+            if (SUBCATEGORIES[section].indexOf(name) === -1) SUBCATEGORIES[section].push(name);
+            SUBCATEGORIES[section].sort(function(a,b){ return String(a).localeCompare(String(b)); });
+            document.getElementById('adminAddSubcatName').value = '';
+            adminRenderSubcategoryEditor();
+            showMsg('adminSubcategoryStatus', '已新增小类：' + name, 'success');
+        }
+        function adminDeleteSubcategoryName(section, sub) {
+            section = section || '';
+            sub = sub || '';
+            if (!section || !sub) return;
+            var usedCount = 0;
+            Object.keys(adminStore.questions || {}).forEach(function(qid) {
+                var q = adminStore.questions[qid];
+                if (q && q.section === section && (q.subcategory || '') === sub) usedCount++;
+            });
+            if (usedCount > 0) { showMsg('adminSubcategoryStatus', '该小类仍有题目使用（' + usedCount + ' 题），请先通过重命名/合并处理后再删除', 'error'); return; }
+            if (!confirm('确定删除小类「' + sub + '」吗？仅删除小类名称，不会删除题目。')) return;
+            SUBCATEGORIES[section] = (SUBCATEGORIES[section] || []).filter(function(x){ return x !== sub; });
+            adminRenderSubcategoryEditor();
+            showMsg('adminSubcategoryStatus', '已删除小类：' + sub, 'success');
+        }
+        function adminApplySubcategoryChanges() {
+            var section = (document.getElementById('adminSubcatSection') && document.getElementById('adminSubcatSection').value) || '言语理解';
+            var inputs = document.querySelectorAll('input.admin-sub-rename[data-section]');
+            var map = {};
+            inputs.forEach(function(inp) {
+                if (inp.getAttribute('data-section') !== section) return;
+                var oldName = inp.getAttribute('data-old') || '';
+                var newName = (inp.value || '').trim();
+                if (newName && newName !== oldName) map[oldName] = newName;
+            });
+            var keys = Object.keys(map);
+            if (!keys.length) { showMsg('adminSubcategoryStatus', '未检测到任何改动（请在“新名称”中填写）', 'error'); return; }
+            // 执行批量更新题目 subcategory
+            var changed = 0;
+            Object.keys(adminStore.questions || {}).forEach(function(qid) {
+                var q = adminStore.questions[qid];
+                if (!q || q.section !== section) return;
+                var oldSub = q.subcategory || '';
+                if (map[oldSub]) { q.subcategory = map[oldSub]; changed++; }
+            });
+            // 更新小类列表：移除旧名，加入新名
+            if (!SUBCATEGORIES[section]) SUBCATEGORIES[section] = [];
+            keys.forEach(function(oldName) {
+                var newName = map[oldName];
+                SUBCATEGORIES[section] = SUBCATEGORIES[section].filter(function(x){ return x !== oldName; });
+                if (SUBCATEGORIES[section].indexOf(newName) === -1) SUBCATEGORIES[section].push(newName);
+            });
+            SUBCATEGORIES[section].sort(function(a,b){ return String(a).localeCompare(String(b)); });
+            adminStore.save();
+            rebuildSubcategoriesFromStore(); // 兼容全局筛选项
+            adminRenderSubcategoryEditor();
+            renderAdminStatsTree();
+            showMsg('adminSubcategoryStatus', '已应用修改：更新 ' + changed + ' 道题目的小类（同名即合并）', 'success');
         }
 
         function fillSetSelects() {
@@ -4620,6 +4890,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             fillAdminCategorySelects();
             renderAdminCategoryList();
             adminFilterSetList();
+            adminRenderSectionAliasEditor();
+            adminRenderSubcategoryEditor();
+            renderAdminStatsTree();
             updateAdminSingleSub();
             // 设置默认值：判断推理、图形推理
             document.getElementById('adminSingleSection').value = '判断推理';
@@ -4704,8 +4977,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     (items || []).forEach(function(it) {
                         if (!it || it.type !== 'file' || !it.path) return;
                         if (!/\.json$/i.test(it.path)) return;
-                        // files.json 不是题库数据文件，排除
-                        if (it.path === 'data/files.json') return;
+                        // files.json / users.json / remark.json / user.json 不是题库数据文件，排除
+                        if (it.path === 'data/files.json' || it.path === 'data/users.json' || it.path === 'data/user.json' || it.path === 'data/remark.json') return;
+                        // data/user/*.json 为用户数据，也不参与题库同步
+                        if (/^data\/user\//i.test(it.path)) return;
                         jsonPaths.push(it.path);
                     });
                     // 兜底确保包含 data/store.json
@@ -4861,6 +5136,77 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 .then(function() { showMsg('adminUserStatus', '已同步用户列表到 data/users.json', 'success'); })
                 .catch(function(err) { showMsg('adminUserStatus', '同步失败：' + (err.message || '未知错误'), 'error'); });
         }
+        function getAdminRemarkLocal() {
+            try {
+                var raw = localStorage.getItem('xingce_admin_remark');
+                return raw ? JSON.parse(raw) : { text: '', updatedAt: '' };
+            } catch (e) { return { text: '', updatedAt: '' }; }
+        }
+        function saveAdminRemarkLocal(data) {
+            try { localStorage.setItem('xingce_admin_remark', JSON.stringify(data || {})); } catch (e) {}
+        }
+        function adminOpenRemark() {
+            var modal = document.getElementById('adminRemarkModal');
+            if (!modal) return;
+            var d = getAdminRemarkLocal();
+            var ta = document.getElementById('adminRemarkText');
+            if (ta) ta.value = d.text || '';
+            var ua = document.getElementById('adminRemarkUpdatedAt');
+            if (ua) ua.textContent = d.updatedAt ? ('最近更新：' + d.updatedAt) : '';
+            var st = document.getElementById('adminRemarkStatus');
+            if (st) { st.textContent = ''; st.style.display = 'none'; }
+            modal.style.display = 'flex';
+        }
+        function adminCloseRemark() {
+            var modal = document.getElementById('adminRemarkModal');
+            if (modal) modal.style.display = 'none';
+        }
+        function adminSaveRemarkLocal() {
+            var ta = document.getElementById('adminRemarkText');
+            if (!ta) return;
+            var text = ta.value || '';
+            var now = new Date().toLocaleString('zh-CN');
+            var data = { text: text, updatedAt: now };
+            saveAdminRemarkLocal(data);
+            var ua = document.getElementById('adminRemarkUpdatedAt');
+            if (ua) ua.textContent = '最近更新：' + now;
+            showMsg('adminRemarkStatus', '已保存到本地', 'success');
+        }
+        function adminSyncRemarkToGitHub() {
+            if (!GITHUB_CONFIG.token) {
+                showMsg('adminRemarkStatus', '请先配置 GitHub Token', 'error');
+                return;
+            }
+            var ta = document.getElementById('adminRemarkText');
+            if (!ta) return;
+            var now = new Date().toLocaleString('zh-CN');
+            var payload = { text: ta.value || '', updatedAt: now, exportTime: new Date().toISOString() };
+            saveAdminRemarkLocal({ text: payload.text, updatedAt: now });
+            var ua = document.getElementById('adminRemarkUpdatedAt');
+            if (ua) ua.textContent = '最近更新：' + now;
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data/remark.json';
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+            showMsg('adminRemarkStatus', '正在同步到 GitHub (data/remark.json)...', 'info');
+            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                .then(function(r) { if (r.status === 404) return null; if (!r.ok) throw new Error('获取失败 ' + r.status); return r.json(); })
+                .then(function(fileInfo) {
+                    var content = JSON.stringify(payload, null, 2);
+                    var commitData = {
+                        message: '更新管理员备注 - ' + now,
+                        content: utf8ToBase64(content),
+                        branch: GITHUB_CONFIG.branch
+                    };
+                    if (fileInfo && fileInfo.sha) commitData.sha = fileInfo.sha;
+                    return fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }),
+                        body: JSON.stringify(commitData)
+                    });
+                })
+                .then(function(r) { if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || '同步失败'); }); return r.json(); })
+                .then(function() { showMsg('adminRemarkStatus', '已同步管理员备注到 data/remark.json', 'success'); })
+                .catch(function(err) { showMsg('adminRemarkStatus', '同步失败：' + (err.message || '未知错误'), 'error'); });
+        }
         function adminRefreshSelectedSetsJsonList() {
             var sel = document.getElementById('adminSelectedSetsTargetJson');
             if (!sel) return Promise.resolve([]);
@@ -4878,7 +5224,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     items.forEach(function(it) {
                         if (!it || it.type !== 'file' || !it.path) return;
                         if (!/\.json$/i.test(it.path)) return;
-                        if (it.path === 'data/files.json' || it.path === 'data/users.json') return;
+                        if (it.path === 'data/files.json' || it.path === 'data/users.json' || it.path === 'data/user.json' || it.path === 'data/remark.json') return;
+                        if (/^data\/user\//i.test(it.path)) return;
                         jsonPaths.push(it.path);
                     });
                     if (jsonPaths.indexOf('data/store.json') === -1) jsonPaths.unshift('data/store.json');
