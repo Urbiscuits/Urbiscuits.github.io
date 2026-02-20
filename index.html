@@ -1980,24 +1980,6 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
          * 或简单数组：["batch1.txt", "store.json"]
          */
         function refreshFromRemoteStore() {
-            // 检查上次刷新时间，限制2小时内只能刷新一次
-            var LAST_REFRESH_KEY = 'xingce_last_refresh_time';
-            var REFRESH_INTERVAL_MS = 2 * 60 * 60 * 1000; // 2小时
-            try {
-                var lastRefreshTime = localStorage.getItem(LAST_REFRESH_KEY);
-                if (lastRefreshTime) {
-                    var now = Date.now();
-                    var elapsed = now - parseInt(lastRefreshTime, 10);
-                    if (elapsed < REFRESH_INTERVAL_MS) {
-                        var remainingMinutes = Math.ceil((REFRESH_INTERVAL_MS - elapsed) / (60 * 1000));
-                        showMsg('dataStatus', '距离上次刷新不足2小时，还需等待 ' + remainingMinutes + ' 分钟', 'error');
-                        return;
-                    }
-                }
-            } catch (e) {
-                // 忽略存储读取错误，继续执行
-            }
-
             // 个人中心：改为与管理员「从 data 加载」一致的选择式加载（全部/部分 JSON）
             if (typeof profileShowLoadFromDataModal === 'function') {
                 profileShowLoadFromDataModal();
@@ -2157,10 +2139,6 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         if (typeof updatePracticeSub === 'function') updatePracticeSub();
                         if (typeof renderPracticePointsCheckboxes === 'function') renderPracticePointsCheckboxes();
                         if (typeof checkExportState === 'function') checkExportState();
-                        // 刷新成功，记录当前时间
-                        try {
-                            localStorage.setItem(LAST_REFRESH_KEY, String(Date.now()));
-                        } catch (e) {}
                         showMsg('dataStatus', '已从 data 目录刷新题库：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
                     });
                 })
@@ -2175,10 +2153,6 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         .then(function(data) {
                             // 复用远程题库应用逻辑
                             applyRemoteStore(data);
-                            // 刷新成功，记录当前时间
-                            try {
-                                localStorage.setItem(LAST_REFRESH_KEY, String(Date.now()));
-                            } catch (e) {}
                             showMsg('dataStatus', 'files.json 获取失败，已仅从 store.json 刷新题库（仍可使用）。', 'success');
                         })
                         .catch(function(err2) {
@@ -3408,34 +3382,141 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var wrap = document.getElementById('adminSubcategoryEditor');
             if (!wrap) return;
             
-            // 确保使用本地 adminStore 数据
-            adminStore.load();
+            // 显示加载中
+            wrap.innerHTML = '<div style="padding:16px; color:var(--text-secondary); text-align:center;">正在从云端加载小分类...</div>';
             
-            // 从本地 adminStore 中获取实际使用的小类
-            var list = adminGetUsedSubcategories(section);
+            // 从云端JSON文件中加载所有小分类
+            if (!GITHUB_CONFIG.token) {
+                // 如果没有配置GitHub Token，则使用本地数据作为后备
+                adminStore.load();
+                var list = adminGetUsedSubcategories(section);
+                adminLoadSubcategoriesConfigIntoGlobal();
+                var defined = (SUBCATEGORIES[section] || []).slice().sort(function(a,b){ return String(a).localeCompare(String(b)); });
+                var all = Array.from(new Set(defined.concat(list))).filter(Boolean);
+                renderSubcategoryList(wrap, section, all);
+                return;
+            }
             
-            // 从本地配置中获取已定义的小类（优先使用本地配置）
-            adminLoadSubcategoriesConfigIntoGlobal();
-            var defined = (SUBCATEGORIES[section] || []).slice().sort(function(a,b){ return String(a).localeCompare(String(b)); });
-            
-            // 合并：本地实际使用的小类 + 本地配置的小类
-            var all = Array.from(new Set(defined.concat(list))).filter(Boolean);
-            if (!all.length) {
+            // 从云端加载所有JSON文件，提取小分类
+            adminRefreshDataJsonFileList().then(function(jsonFiles) {
+                if (!jsonFiles || !jsonFiles.length) {
+                    // 如果无法获取文件列表，使用本地数据作为后备
+                    adminStore.load();
+                    var list = adminGetUsedSubcategories(section);
+                    adminLoadSubcategoriesConfigIntoGlobal();
+                    var defined = (SUBCATEGORIES[section] || []).slice().sort(function(a,b){ return String(a).localeCompare(String(b)); });
+                    var all = Array.from(new Set(defined.concat(list))).filter(Boolean);
+                    renderSubcategoryList(wrap, section, all, null);
+                    return;
+                }
+                
+                // 加载所有JSON文件
+                var loadPromises = jsonFiles.map(function(filePath) {
+                    var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + filePath;
+                    var headers = {
+                        'Authorization': 'token ' + GITHUB_CONFIG.token,
+                        'Accept': 'application/vnd.github.v3+json'
+                    };
+                    return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                        .then(function(resp) {
+                            if (resp.status === 404) return null;
+                            if (!resp.ok) throw new Error('读取 ' + filePath + ' 失败: ' + resp.status);
+                            return resp.json();
+                        })
+                        .then(function(fileInfo) {
+                            if (!fileInfo || !fileInfo.content) return null;
+                            try {
+                                var content = base64ToUtf8(fileInfo.content);
+                                var data = deepRepairMojibake(JSON.parse(content));
+                                return data.questions || {};
+                            } catch (e) {
+                                console.error('解析 ' + filePath + ' 失败:', e);
+                                return null;
+                            }
+                        })
+                        .catch(function(err) {
+                            console.error('加载 ' + filePath + ' 失败:', err);
+                            return null;
+                        });
+                });
+                
+                Promise.all(loadPromises).then(function(results) {
+                    // 合并所有题目，提取小分类
+                    var allSubcategories = {};
+                    var cloudQuestionsMap = {}; // 保存云端题目数据，用于统计数量
+                    results.forEach(function(questions) {
+                        if (!questions) return;
+                        Object.keys(questions).forEach(function(qid) {
+                            var q = questions[qid];
+                            if (q && q.section === section) {
+                                var sub = q.subcategory || '';
+                                if (sub) {
+                                    allSubcategories[sub] = true;
+                                    cloudQuestionsMap[qid] = q; // 保存题目数据
+                                }
+                            }
+                        });
+                    });
+                    
+                    var all = Object.keys(allSubcategories).sort(function(a,b){ return String(a).localeCompare(String(b)); });
+                    renderSubcategoryList(wrap, section, all, cloudQuestionsMap);
+                })
+                .catch(function(err) {
+                    console.error('加载云端小分类失败:', err);
+                    // 失败时使用本地数据作为后备
+                    adminStore.load();
+                    var list = adminGetUsedSubcategories(section);
+                    adminLoadSubcategoriesConfigIntoGlobal();
+                    var defined = (SUBCATEGORIES[section] || []).slice().sort(function(a,b){ return String(a).localeCompare(String(b)); });
+                    var all = Array.from(new Set(defined.concat(list))).filter(Boolean);
+                    renderSubcategoryList(wrap, section, all, null);
+                    showMsg('adminSubcategoryStatus', '从云端加载小分类失败，已使用本地数据：' + (err.message || '未知错误'), 'warning');
+                });
+            });
+        }
+        
+        function renderSubcategoryList(wrap, section, all, cloudQuestionsMap) {
+            if (!all || !all.length) {
                 wrap.innerHTML = '<div style="padding:16px; color:var(--text-secondary);">暂无小类</div>';
                 return;
             }
+            
+            // 统计每个小类的题目数量（优先使用云端数据）
+            var countMap = {};
+            if (cloudQuestionsMap) {
+                Object.keys(cloudQuestionsMap).forEach(function(qid) {
+                    var q = cloudQuestionsMap[qid];
+                    if (q && q.section === section) {
+                        var sub = q.subcategory || '';
+                        if (sub) {
+                            if (!countMap[sub]) countMap[sub] = 0;
+                            countMap[sub]++;
+                        }
+                    }
+                });
+            } else {
+                // 如果没有云端数据，使用本地数据
+                adminStore.load();
+                try {
+                    Object.keys(adminStore.questions || {}).forEach(function(qid) {
+                        var q = adminStore.questions[qid];
+                        if (q && q.section === section) {
+                            var sub = q.subcategory || '';
+                            if (sub) {
+                                if (!countMap[sub]) countMap[sub] = 0;
+                                countMap[sub]++;
+                            }
+                        }
+                    });
+                } catch (e) {}
+            }
+            
             wrap.innerHTML =
                 '<div style="display:flex; padding:10px 12px; background:var(--light-bg); border-bottom:1px solid var(--border-color); font-size:0.85rem; color:var(--text-secondary);">' +
                     '<div style="flex:1;">原小类</div><div style="flex:1;">新名称（留空=不改）</div><div style="width:120px; text-align:right;">操作</div>' +
                 '</div>' +
                 all.map(function(sub) {
-                    var usedCount = 0;
-                    try {
-                        Object.keys(adminStore.questions || {}).forEach(function(qid) {
-                            var q = adminStore.questions[qid];
-                            if (q && q.section === section && (q.subcategory || '') === sub) usedCount++;
-                        });
-                    } catch (e) {}
+                    var usedCount = countMap[sub] || 0;
                     var subEsc = sub.replace(/"/g, '&quot;').replace(/'/g, "\\'");
                     var sectionEsc = section.replace(/"/g, '&quot;').replace(/'/g, "\\'");
                     return '<div style="display:flex; gap:10px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--border-color);">' +
@@ -3654,18 +3735,16 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 var data = deepRepairMojibake(JSON.parse(content));
                                 var questions = data.questions || {};
                                 
-                                // 检查哪些题目需要更新
+                                // 检查哪些题目需要更新：检查所有题目的小类名称，而不仅仅是changedQids中的题目
                                 var needsUpdate = false;
                                 Object.keys(questions).forEach(function(qid) {
-                                    if (changedQids.indexOf(qid) !== -1) {
-                                        var q = questions[qid];
-                                        if (q && q.section === section) {
-                                            var oldSub = q.subcategory || '';
-                                            if (map[oldSub]) {
-                                                if (!qidToFileMap[qid]) qidToFileMap[qid] = [];
-                                                qidToFileMap[qid].push(filePath);
-                                                needsUpdate = true;
-                                            }
+                                    var q = questions[qid];
+                                    if (q && q.section === section) {
+                                        var oldSub = q.subcategory || '';
+                                        if (map[oldSub]) {
+                                            if (!qidToFileMap[qid]) qidToFileMap[qid] = [];
+                                            qidToFileMap[qid].push(filePath);
+                                            needsUpdate = true;
                                         }
                                     }
                                 });
@@ -3690,20 +3769,22 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 });
                 
                 return Promise.all(loadPromises).then(function() {
-                    // 更新每个文件中的题目
+                    // 统计实际更新的题目数量
+                    var totalRemoteUpdated = 0;
+                    
+                    // 更新每个文件中的题目：更新所有匹配小类名称的题目，而不仅仅是changedQids中的题目
                     Object.keys(fileUpdateMap).forEach(function(filePath) {
                         var fileData = fileUpdateMap[filePath];
                         var data = fileData.data;
                         var questions = data.questions || {};
                         
                         Object.keys(questions).forEach(function(qid) {
-                            if (changedQids.indexOf(qid) !== -1) {
-                                var q = questions[qid];
-                                if (q && q.section === section) {
-                                    var oldSub = q.subcategory || '';
-                                    if (map[oldSub]) {
-                                        q.subcategory = map[oldSub];
-                                    }
+                            var q = questions[qid];
+                            if (q && q.section === section) {
+                                var oldSub = q.subcategory || '';
+                                if (map[oldSub]) {
+                                    q.subcategory = map[oldSub];
+                                    totalRemoteUpdated++;
                                 }
                             }
                         });
@@ -3764,13 +3845,16 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     });
                     
                     return Promise.all(updatePromises).then(function() {
-                        return Object.keys(fileUpdateMap).length; // 返回更新的文件数量
+                        return {
+                            fileCount: Object.keys(fileUpdateMap).length,
+                            questionCount: totalRemoteUpdated
+                        };
                     });
                 });
             })
-            .then(function(updatedFileCount) {
-                if (updatedFileCount !== undefined) {
-                    showMsg('adminSubcategoryStatus', '已同步：成功更新 ' + updatedFileCount + ' 个JSON文件中的 ' + changed + ' 道题目', 'success');
+            .then(function(result) {
+                if (result && result.fileCount !== undefined) {
+                    showMsg('adminSubcategoryStatus', '已同步：成功更新 ' + result.fileCount + ' 个JSON文件中的 ' + result.questionCount + ' 道题目', 'success');
                 } else {
                     showMsg('adminSubcategoryStatus', '已同步：成功更新 ' + changed + ' 道题目的小类', 'success');
                 }
@@ -6197,24 +6281,6 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (typeof checkExportState === 'function') checkExportState();
         }
         function profileLoadFromDataExecute() {
-            // 检查上次刷新时间，限制2小时内只能刷新一次
-            var LAST_REFRESH_KEY = 'xingce_last_refresh_time';
-            var REFRESH_INTERVAL_MS = 2 * 60 * 60 * 1000; // 2小时
-            try {
-                var lastRefreshTime = localStorage.getItem(LAST_REFRESH_KEY);
-                if (lastRefreshTime) {
-                    var now = Date.now();
-                    var elapsed = now - parseInt(lastRefreshTime, 10);
-                    if (elapsed < REFRESH_INTERVAL_MS) {
-                        var remainingMinutes = Math.ceil((REFRESH_INTERVAL_MS - elapsed) / (60 * 1000));
-                        showMsg('profileLoadFromDataStatus', '距离上次刷新不足2小时，还需等待 ' + remainingMinutes + ' 分钟', 'error');
-                        return;
-                    }
-                }
-            } catch (e) {
-                // 忽略存储读取错误，继续执行
-            }
-
             var loadAll = document.getElementById('profileLoadAllJson') && document.getElementById('profileLoadAllJson').checked;
             var selectedFiles = [];
             if (loadAll) {
@@ -6245,10 +6311,6 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }))
             .then(function(results) {
                 profileApplyJsonPayloadsToStore(results);
-                // 加载成功，记录当前时间
-                try {
-                    localStorage.setItem(LAST_REFRESH_KEY, String(Date.now()));
-                } catch (e) {}
                 showMsg('profileLoadFromDataStatus', '加载成功：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
                 showMsg('dataStatus', '已加载题库：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
                 setTimeout(function() { profileCloseLoadFromDataModal(); }, 900);
