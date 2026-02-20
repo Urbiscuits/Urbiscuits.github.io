@@ -3426,11 +3426,13 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             if (q && q.section === section && (q.subcategory || '') === sub) usedCount++;
                         });
                     } catch (e) {}
+                    var subEsc = sub.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+                    var sectionEsc = section.replace(/"/g, '&quot;').replace(/'/g, "\\'");
                     return '<div style="display:flex; gap:10px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--border-color);">' +
-                        '<div style="flex:1;"><strong>' + sub + '</strong> <span style="color:var(--text-secondary); font-size:0.85rem;">（' + usedCount + ' 题）</span></div>' +
+                        '<div style="flex:1;"><a href="javascript:void(0);" onclick="adminViewSubcategoryQuestions(\'' + sectionEsc + '\', \'' + subEsc + '\')" style="color:var(--primary-color); text-decoration:none; font-weight:bold; cursor:pointer;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">' + sub.replace(/</g, '&lt;') + '</a> <span style="color:var(--text-secondary); font-size:0.85rem;">（' + usedCount + ' 题）</span></div>' +
                         '<div style="flex:1;"><input type="text" class="admin-sub-rename" data-section="' + section.replace(/"/g,'&quot;') + '" data-old="' + sub.replace(/"/g,'&quot;') + '" placeholder="" style="width:100%; padding:8px 10px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>' +
                         '<div style="width:120px; text-align:right;">' +
-                            '<button type="button" class="btn btn-sm" style="background:#f8d7da; color:#721c24; border-color:#f5c6cb;" onclick="adminDeleteSubcategoryName(\'' + section.replace(/'/g,"\\'") + '\',\'' + sub.replace(/'/g,"\\'") + '\')">删除</button>' +
+                            '<button type="button" class="btn btn-sm" style="background:#f8d7da; color:#721c24; border-color:#f5c6cb;" onclick="adminDeleteSubcategoryName(\'' + sectionEsc + '\',\'' + subEsc + '\')">删除</button>' +
                         '</div>' +
                     '</div>';
                 }).join('');
@@ -3463,6 +3465,100 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             adminRenderSubcategoryEditor();
             showMsg('adminSubcategoryStatus', '已删除小类：' + sub, 'success');
         }
+        function adminViewSubcategoryQuestions(section, subcategory) {
+            // 获取该小类下的所有题目
+            var questions = [];
+            Object.keys(adminStore.questions || {}).forEach(function(qid) {
+                var q = adminStore.questions[qid];
+                if (q && q.section === section && (q.subcategory || '') === subcategory) {
+                    questions.push({ qid: qid, question: q });
+                }
+            });
+            
+            // 创建或获取模态框
+            var modal = document.getElementById('adminSubcategoryQuestionsModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'adminSubcategoryQuestionsModal';
+                modal.className = 'modal-overlay';
+                modal.style.display = 'none';
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                modal.style.zIndex = '10000';
+                modal.style.overflow = 'auto';
+                modal.onclick = function(e) {
+                    if (e.target === modal) adminCloseSubcategoryQuestionsModal();
+                };
+                document.body.appendChild(modal);
+            }
+            
+            // 创建模态框内容
+            var modalContent = document.getElementById('adminSubcategoryQuestionsModalContent');
+            if (!modalContent) {
+                modalContent = document.createElement('div');
+                modalContent.id = 'adminSubcategoryQuestionsModalContent';
+                modalContent.style.position = 'relative';
+                modalContent.style.maxWidth = '900px';
+                modalContent.style.margin = '40px auto';
+                modalContent.style.backgroundColor = 'var(--surface)';
+                modalContent.style.borderRadius = 'var(--border-radius)';
+                modalContent.style.padding = '24px';
+                modalContent.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+                modalContent.onclick = function(e) { e.stopPropagation(); };
+                modal.appendChild(modalContent);
+            }
+            
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />'; }
+            
+            var html = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid var(--border-color); padding-bottom:16px;">' +
+                '<h2 style="margin:0; color:var(--primary-color);"><i class="fas fa-list"></i> ' + esc(section) + ' - ' + esc(subcategory) + '（共 ' + questions.length + ' 题）</h2>' +
+                '<button class="btn btn-sm" onclick="adminCloseSubcategoryQuestionsModal()" style="background:#dc3545; color:#fff;"><i class="fas fa-times"></i> 关闭</button>' +
+                '</div>';
+            
+            if (!questions.length) {
+                html += '<div class="empty-state"><i class="fas fa-inbox"></i><p>该小类下暂无题目</p></div>';
+            } else {
+                html += '<div style="max-height:70vh; overflow-y:auto;">';
+                html += questions.map(function(item, idx) {
+                    var q = item.question;
+                    var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+                    var stemHtml = esc(q.content || '(无题干)') + (q.stemImages || []).map(imgTag).join('');
+                    var optHtml = (q.options || []).map(function(o) {
+                        var optImgs = (o.images || []).map(imgTag).join('');
+                        return '<div class="option"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + optImgs + '</div>';
+                    }).join('');
+                    return '<div class="question-item" style="margin-bottom:16px; padding:12px; border:1px solid var(--border-color); border-radius:var(--border-radius);">' +
+                        '<div class="question-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
+                        '<span class="question-category">' + esc(q.section) + ' - ' + esc(q.subcategory || q.section) + '</span> ' +
+                        '<div style="display:flex; gap:8px;">' +
+                        '<button class="btn btn-sm btn-info" onclick="adminShowQuestionDetail(\'' + item.qid + '\')" title="查看详情"><i class="fas fa-eye"></i> 详情</button>' +
+                        '<button class="btn btn-sm" style="background:#eaeaea;" onclick="adminEditQuestion(\'' + item.qid + '\'); adminCloseSubcategoryQuestionsModal();" title="编辑"><i class="fas fa-edit"></i> 编辑</button>' +
+                        '</div></div>' +
+                        (materialHtml ? '<div style="margin-bottom:8px; padding:8px; background:var(--light-bg); border-radius:var(--border-radius);"><strong>材料：</strong>' + materialHtml + '</div>' : '') +
+                        '<div class="question-content">' + (idx+1) + '. ' + stemHtml + '</div>' +
+                        '<div class="options-grid">' + optHtml + '</div>' +
+                        (q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') +
+                        '<div class="answer-block">答案：' + esc(q.answer) + '</div>' +
+                        '</div>';
+                }).join('');
+                html += '</div>';
+            }
+            
+            modalContent.innerHTML = html;
+            modal.style.display = 'block';
+            renderLaTeXInElement(modalContent);
+        }
+        
+        function adminCloseSubcategoryQuestionsModal() {
+            var modal = document.getElementById('adminSubcategoryQuestionsModal');
+            if (modal) modal.style.display = 'none';
+        }
+        
         function adminApplySubcategoryChanges() {
             var section = (document.getElementById('adminSubcatSection') && document.getElementById('adminSubcatSection').value) || '言语理解';
             var inputs = document.querySelectorAll('input.admin-sub-rename[data-section]');
@@ -3474,15 +3570,22 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 if (newName && newName !== oldName) map[oldName] = newName;
             });
             var keys = Object.keys(map);
-            if (!keys.length) { showMsg('adminSubcategoryStatus', '未检测到任何改动（请在“新名称”中填写）', 'error'); return; }
-            // 执行批量更新题目 subcategory
+            if (!keys.length) { showMsg('adminSubcategoryStatus', '未检测到任何改动（请在"新名称"中填写）', 'error'); return; }
+            
+            // 先更新本地 adminStore
             var changed = 0;
+            var changedQids = [];
             Object.keys(adminStore.questions || {}).forEach(function(qid) {
                 var q = adminStore.questions[qid];
                 if (!q || q.section !== section) return;
                 var oldSub = q.subcategory || '';
-                if (map[oldSub]) { q.subcategory = map[oldSub]; changed++; }
+                if (map[oldSub]) { 
+                    q.subcategory = map[oldSub]; 
+                    changed++;
+                    changedQids.push(qid);
+                }
             });
+            
             // 更新小类列表：移除旧名，加入新名
             if (!SUBCATEGORIES[section]) SUBCATEGORIES[section] = [];
             keys.forEach(function(oldName) {
@@ -3496,11 +3599,169 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             try { updateAdminSingleSub(); } catch (e) {}
             adminRenderSubcategoryEditor();
             renderAdminStatsTree();
-            showMsg('adminSubcategoryStatus', '已应用修改：更新 ' + changed + ' 道题目的小类（同名即合并），正在同步到 data…', 'info');
-            adminSyncToGitHub().then(function() {
-                showMsg('adminSubcategoryStatus', '已同步：小类修改已写入目标题库 JSON', 'success');
-            }).catch(function(err) {
-                showMsg('adminSubcategoryStatus', '小类修改已保存，但同步失败：' + ((err && err.message) || '未知错误'), 'error');
+            
+            if (!changed) {
+                showMsg('adminSubcategoryStatus', '未找到需要更新的题目', 'info');
+                return;
+            }
+            
+            // 同步到远程JSON文件
+            if (!GITHUB_CONFIG.token) {
+                showMsg('adminSubcategoryStatus', '已应用修改：更新 ' + changed + ' 道题目的小类（但未配置 GitHub Token，无法同步到远程）', 'warning');
+                return;
+            }
+            
+            showMsg('adminSubcategoryStatus', '已应用修改：更新 ' + changed + ' 道题目的小类，正在同步到各个JSON文件…', 'info');
+            
+            // 获取所有JSON文件列表
+            adminRefreshDataJsonFileList().then(function(jsonFiles) {
+                if (!jsonFiles || !jsonFiles.length) {
+                    showMsg('adminSubcategoryStatus', '无法获取JSON文件列表，请检查GitHub配置', 'error');
+                    return;
+                }
+                
+                // 为每个题目找到它所在的JSON文件
+                var qidToFileMap = {}; // qid -> [filePath1, filePath2, ...]
+                var fileUpdateMap = {}; // filePath -> { sha, data, questions }
+                
+                // 加载所有JSON文件，建立题目到文件的映射
+                var loadPromises = jsonFiles.map(function(filePath) {
+                    var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + filePath;
+                    var headers = {
+                        'Authorization': 'token ' + GITHUB_CONFIG.token,
+                        'Accept': 'application/vnd.github.v3+json'
+                    };
+                    return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                        .then(function(resp) {
+                            if (resp.status === 404) return null;
+                            if (!resp.ok) throw new Error('读取 ' + filePath + ' 失败: ' + resp.status);
+                            return resp.json();
+                        })
+                        .then(function(fileInfo) {
+                            if (!fileInfo || !fileInfo.content) return null;
+                            try {
+                                var content = base64ToUtf8(fileInfo.content);
+                                var data = deepRepairMojibake(JSON.parse(content));
+                                var questions = data.questions || {};
+                                
+                                // 检查哪些题目需要更新
+                                var needsUpdate = false;
+                                Object.keys(questions).forEach(function(qid) {
+                                    if (changedQids.indexOf(qid) !== -1) {
+                                        var q = questions[qid];
+                                        if (q && q.section === section) {
+                                            var oldSub = q.subcategory || '';
+                                            if (map[oldSub]) {
+                                                if (!qidToFileMap[qid]) qidToFileMap[qid] = [];
+                                                qidToFileMap[qid].push(filePath);
+                                                needsUpdate = true;
+                                            }
+                                        }
+                                    }
+                                });
+                                
+                                if (needsUpdate) {
+                                    fileUpdateMap[filePath] = {
+                                        sha: fileInfo.sha,
+                                        data: data,
+                                        fileInfo: fileInfo
+                                    };
+                                }
+                                return filePath;
+                            } catch (e) {
+                                console.error('解析 ' + filePath + ' 失败:', e);
+                                return null;
+                            }
+                        })
+                        .catch(function(err) {
+                            console.error('加载 ' + filePath + ' 失败:', err);
+                            return null;
+                        });
+                });
+                
+                return Promise.all(loadPromises).then(function() {
+                    // 更新每个文件中的题目
+                    Object.keys(fileUpdateMap).forEach(function(filePath) {
+                        var fileData = fileUpdateMap[filePath];
+                        var data = fileData.data;
+                        var questions = data.questions || {};
+                        
+                        Object.keys(questions).forEach(function(qid) {
+                            if (changedQids.indexOf(qid) !== -1) {
+                                var q = questions[qid];
+                                if (q && q.section === section) {
+                                    var oldSub = q.subcategory || '';
+                                    if (map[oldSub]) {
+                                        q.subcategory = map[oldSub];
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    
+                    // 同步更新所有需要修改的文件
+                    var updatePromises = Object.keys(fileUpdateMap).map(function(filePath) {
+                        var fileData = fileUpdateMap[filePath];
+                        var data = fileData.data;
+                        var content = JSON.stringify(data, null, 2);
+                        var encodedContent = utf8ToBase64(content);
+                        
+                        var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + filePath;
+                        var headers = {
+                            'Authorization': 'token ' + GITHUB_CONFIG.token,
+                            'Accept': 'application/vnd.github.v3+json'
+                        };
+                        
+                        var commitData = {
+                            message: '更新小类名称：' + keys.map(function(k) { return k + ' -> ' + map[k]; }).join(', ') + ' - ' + new Date().toLocaleString('zh-CN'),
+                            content: encodedContent,
+                            branch: GITHUB_CONFIG.branch,
+                            sha: fileData.sha
+                        };
+                        
+                        return fetch(apiUrl, {
+                            method: 'PUT',
+                            headers: headers,
+                            body: JSON.stringify(commitData)
+                        })
+                        .then(function(resp) {
+                            if (resp.ok) return resp.json();
+                            return resp.json().then(function(err) {
+                                // 如果sha不匹配，重新获取并重试
+                                if (resp.status === 409) {
+                                    return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                                        .then(function(r2) {
+                                            if (!r2.ok) throw new Error('重新获取 ' + filePath + ' 失败: ' + r2.status);
+                                            return r2.json();
+                                        })
+                                        .then(function(latest) {
+                                            commitData.sha = latest.sha;
+                                            return fetch(apiUrl, {
+                                                method: 'PUT',
+                                                headers: headers,
+                                                body: JSON.stringify(commitData)
+                                            }).then(function(r3) {
+                                                if (r3.ok) return r3.json();
+                                                return r3.json().then(function(err2) {
+                                                    throw new Error('更新 ' + filePath + ' 失败: ' + (err2.message || r3.status));
+                                                });
+                                            });
+                                        });
+                                }
+                                throw new Error('更新 ' + filePath + ' 失败: ' + (err.message || resp.status));
+                            });
+                        });
+                    });
+                    
+                    return Promise.all(updatePromises);
+                });
+            })
+            .then(function(results) {
+                var updatedFiles = Object.keys(fileUpdateMap);
+                showMsg('adminSubcategoryStatus', '已同步：成功更新 ' + updatedFiles.length + ' 个JSON文件中的 ' + changed + ' 道题目', 'success');
+            })
+            .catch(function(err) {
+                showMsg('adminSubcategoryStatus', '小类修改已保存到本地，但同步到远程失败：' + (err.message || '未知错误'), 'error');
             });
         }
 
