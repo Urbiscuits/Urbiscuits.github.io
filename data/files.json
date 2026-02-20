@@ -2,7 +2,9 @@
   "json": [
     "store.json",
     "fenbi2026.json",
-    "shangancun2026.json"
+    "shangancun2026.json",
+    "fenbi2025.json",
+    "chaoge2026.json"
   ],
   "txt": []
 }
