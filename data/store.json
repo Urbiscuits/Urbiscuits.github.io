@@ -2,19 +2,19 @@
   "sets": [
     {
       "id": "id_1771567709855_tlvqo67",
-      "name": "测试套卷草稿",
+      "name": "æµè¯å¥å·èç¨¿",
       "category": "",
-      "言语理解": [
+      "è¨è¯­çè§£": [
         "id_1771567741656_jfbttvx"
       ],
-      "数量关系": [],
-      "判断推理": [],
-      "资料分析": []
+      "æ°éå³ç³»": [],
+      "å¤æ­æ¨ç": [],
+      "èµæåæ": []
     }
   ],
   "questions": {
     "id_1771567741656_jfbttvx": {
-      "category": "言语理解",
+      "category": "è¨è¯­çè§£",
       "subcategory": "逻辑填空",
       "source": "",
       "content": "1",
@@ -34,7 +34,7 @@
       "knowledgePoints": [],
       "id": "id_1771567741656_jfbttvx",
       "setId": "id_1771567709855_tlvqo67",
-      "section": "言语理解",
+      "section": "è¨è¯­çè§£",
       "done": false,
       "correctCount": 0,
       "totalAttempts": 0
