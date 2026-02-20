@@ -7429,9 +7429,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             });
             if (changed) {
                 try { adminStore.save(); } catch (e) {}
-                adminUpdateSubcategoriesConfigReplace(section, oldName, newName);
                 try { if (typeof updateAdminSingleSub === 'function') updateAdminSingleSub(); } catch (e) {}
             }
+            adminUpdateSubcategoriesConfigReplace(section, oldName, newName);
             return changed > 0;
         }
         function adminApplySubcategoryMergeLocal(section, fromName, toName) {
@@ -7450,10 +7450,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             });
             if (changed) {
                 try { adminStore.save(); } catch (e) {}
-                adminUpdateSubcategoriesConfigReplace(section, fromName, toName);
                 adminUpdateSubcategoriesConfigRemove(section, fromName);
                 try { if (typeof updateAdminSingleSub === 'function') updateAdminSingleSub(); } catch (e) {}
             }
+            adminUpdateSubcategoriesConfigReplace(section, fromName, toName);
             return changed > 0;
         }
 
@@ -7546,55 +7546,91 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (!GITHUB_CONFIG || !GITHUB_CONFIG.token) return Promise.reject(new Error('请先配置 GitHub Token'));
             var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data?ref=' + GITHUB_CONFIG.branch;
             var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
-            return fetch(apiUrl, { method: 'GET', headers: headers })
-                .then(function(r) { if (!r.ok) throw new Error('读取 data 目录失败：' + r.status); return r.json(); })
-                .then(function(items) {
-                    var jsonPaths = [];
-                    (items || []).forEach(function(it) {
-                        if (!it || it.type !== 'file' || !it.path) return;
-                        if (!/\.json$/i.test(it.path)) return;
+            var jsonPaths = [];
+            function processItems(items) {
+                var promises = [];
+                (items || []).forEach(function(it) {
+                    if (!it || !it.path) return;
+                    if (it.type === 'file' && /\.json$/i.test(it.path)) {
                         if (it.path === 'data/files.json' || it.path === 'data/users.json' || it.path === 'data/user.json' || it.path === 'data/remark.json') return;
                         if (/^data\/user\//i.test(it.path)) return;
                         jsonPaths.push(it.path);
+                    } else if (it.type === 'dir' && it.path.startsWith('data/') && !/^data\/user\//i.test(it.path)) {
+                        var subUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + it.path + '?ref=' + GITHUB_CONFIG.branch;
+                        promises.push(
+                            fetch(subUrl, { method: 'GET', headers: headers })
+                                .then(function(r) { if (r.ok) return r.json(); return []; })
+                                .then(function(subItems) { processItems(subItems); })
+                        );
+                    }
+                });
+                return promises.length > 0 ? Promise.all(promises) : Promise.resolve();
+            }
+            return fetch(apiUrl, { method: 'GET', headers: headers })
+                .then(function(r) { if (!r.ok) throw new Error('读取 data 目录失败：' + r.status); return r.json(); })
+                .then(function(items) {
+                    return processItems(items).then(function() {
+                        if (jsonPaths.indexOf('data/store.json') === -1) jsonPaths.unshift('data/store.json');
+                        jsonPaths.sort(function(a, b) { return a.localeCompare(b); });
+                        return jsonPaths;
                     });
-                    if (jsonPaths.indexOf('data/store.json') === -1) jsonPaths.unshift('data/store.json');
-                    jsonPaths.sort(function(a, b) { return a.localeCompare(b); });
-                    return jsonPaths;
                 });
         }
         function adminSyncSubcategoriesToData() {
             if (!adminAuthenticated) { showMsg('adminSubcategoryStatus', '请先登录管理员', 'error'); return; }
             if (!GITHUB_CONFIG || !GITHUB_CONFIG.token) { showMsg('adminSubcategoryStatus', '请先在管理员页配置 GitHub Token（否则无法同步到 data）', 'error'); return; }
-            showMsg('adminSubcategoryStatus', '正在同步小类到 data 目录所有 JSON 文件...', 'info');
+            var mappings = getAdminSubcategoryMappings();
+            var mappingCount = 0;
+            Object.keys(mappings || {}).forEach(function(sec) {
+                if (mappings[sec]) mappingCount += Object.keys(mappings[sec]).length;
+            });
+            if (mappingCount === 0) {
+                showMsg('adminSubcategoryStatus', '没有需要同步的小类映射（请先进行改名或合并操作）', 'error');
+                return;
+            }
+            showMsg('adminSubcategoryStatus', '正在同步小类到 data 目录所有 JSON 文件（共 ' + mappingCount + ' 个映射）...', 'info');
             adminGetAllDataJsonPaths()
                 .then(function(paths) {
-                    var total = (paths || []).length;
+                    if (!paths || paths.length === 0) {
+                        showMsg('adminSubcategoryStatus', '未找到任何 JSON 文件', 'error');
+                        return;
+                    }
+                    var total = paths.length;
                     var updatedFiles = 0;
                     var skippedFiles = 0;
                     var failedFiles = 0;
+                    var totalChanged = 0;
                     // 串行执行，降低触发 GitHub API 限流概率
                     var p = Promise.resolve();
                     (paths || []).forEach(function(path, idx) {
                         p = p.then(function() {
                             showMsg('adminSubcategoryStatus', '同步中（' + (idx + 1) + '/' + total + '）：' + path, 'info');
                             return adminUpdateJsonFileSubcategory(path).then(function(r) {
-                                if (r && r.updated) updatedFiles++;
-                                else skippedFiles++;
-                            }).catch(function() {
+                                if (r && r.updated) {
+                                    updatedFiles++;
+                                    totalChanged += (r.changed || 0);
+                                } else {
+                                    skippedFiles++;
+                                }
+                            }).catch(function(err) {
                                 failedFiles++;
+                                console.error('同步文件失败：' + path, err);
                             });
                         });
                     });
                     return p.then(function() {
                         adminLoadSubcategories();
+                        var msg = '同步完成：更新 ' + updatedFiles + ' 个文件（共修改 ' + totalChanged + ' 道题目），跳过 ' + skippedFiles + ' 个文件';
                         if (failedFiles) {
-                            showMsg('adminSubcategoryStatus', '同步完成：更新 ' + updatedFiles + ' 个文件，跳过 ' + skippedFiles + ' 个文件，失败 ' + failedFiles + ' 个文件（请重试或查看控制台）', 'error');
+                            msg += '，失败 ' + failedFiles + ' 个文件（请查看控制台）';
+                            showMsg('adminSubcategoryStatus', msg, 'error');
                         } else {
-                            showMsg('adminSubcategoryStatus', '同步完成：更新 ' + updatedFiles + ' 个文件，跳过 ' + skippedFiles + ' 个文件', 'success');
+                            showMsg('adminSubcategoryStatus', msg, 'success');
                         }
                     });
                 })
                 .catch(function(err) {
+                    console.error('获取文件列表失败：', err);
                     showMsg('adminSubcategoryStatus', '同步失败：' + (err && err.message || '未知错误'), 'error');
                 });
         }
@@ -7619,13 +7655,19 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         var q = data.questions[qid];
                         if (!q) return;
                         var sec = (q.section || q.category || '').trim();
+                        if (!sec) return;
                         var curSub = (q.subcategory || '').trim() || '未分类';
                         var newSub = null;
-                        var local = adminStore && adminStore.questions ? adminStore.questions[qid] : null;
-                        if (local && (local.subcategory || '').trim()) {
-                            newSub = (local.subcategory || '').trim();
-                        } else if (sec && mappings[sec] && mappings[sec][curSub]) {
+                        if (mappings[sec] && mappings[sec][curSub]) {
                             newSub = mappings[sec][curSub];
+                        } else {
+                            var local = adminStore && adminStore.questions ? adminStore.questions[qid] : null;
+                            if (local && (local.subcategory || '').trim()) {
+                                var localSec = (local.section || local.category || '').trim();
+                                if (localSec === sec) {
+                                    newSub = (local.subcategory || '').trim();
+                                }
+                            }
                         }
                         if (newSub && curSub !== newSub) {
                             q.subcategory = newSub;
