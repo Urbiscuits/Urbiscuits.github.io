@@ -3407,8 +3407,18 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var section = (document.getElementById('adminSubcatSection') && document.getElementById('adminSubcatSection').value) || '言语理解';
             var wrap = document.getElementById('adminSubcategoryEditor');
             if (!wrap) return;
+            
+            // 确保使用本地 adminStore 数据
+            adminStore.load();
+            
+            // 从本地 adminStore 中获取实际使用的小类
             var list = adminGetUsedSubcategories(section);
+            
+            // 从本地配置中获取已定义的小类（优先使用本地配置）
+            adminLoadSubcategoriesConfigIntoGlobal();
             var defined = (SUBCATEGORIES[section] || []).slice().sort(function(a,b){ return String(a).localeCompare(String(b)); });
+            
+            // 合并：本地实际使用的小类 + 本地配置的小类
             var all = Array.from(new Set(defined.concat(list))).filter(Boolean);
             if (!all.length) {
                 wrap.innerHTML = '<div style="padding:16px; color:var(--text-secondary);">暂无小类</div>';
@@ -3614,15 +3624,15 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             showMsg('adminSubcategoryStatus', '已应用修改：更新 ' + changed + ' 道题目的小类，正在同步到各个JSON文件…', 'info');
             
             // 获取所有JSON文件列表
+            var fileUpdateMap = {}; // 在外部作用域定义，确保可以在所有then中访问
             adminRefreshDataJsonFileList().then(function(jsonFiles) {
                 if (!jsonFiles || !jsonFiles.length) {
                     showMsg('adminSubcategoryStatus', '无法获取JSON文件列表，请检查GitHub配置', 'error');
-                    return;
+                    return Promise.reject(new Error('无法获取JSON文件列表'));
                 }
                 
                 // 为每个题目找到它所在的JSON文件
                 var qidToFileMap = {}; // qid -> [filePath1, filePath2, ...]
-                var fileUpdateMap = {}; // filePath -> { sha, data, questions }
                 
                 // 加载所有JSON文件，建立题目到文件的映射
                 var loadPromises = jsonFiles.map(function(filePath) {
@@ -3753,12 +3763,17 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         });
                     });
                     
-                    return Promise.all(updatePromises);
+                    return Promise.all(updatePromises).then(function() {
+                        return Object.keys(fileUpdateMap).length; // 返回更新的文件数量
+                    });
                 });
             })
-            .then(function(results) {
-                var updatedFiles = Object.keys(fileUpdateMap);
-                showMsg('adminSubcategoryStatus', '已同步：成功更新 ' + updatedFiles.length + ' 个JSON文件中的 ' + changed + ' 道题目', 'success');
+            .then(function(updatedFileCount) {
+                if (updatedFileCount !== undefined) {
+                    showMsg('adminSubcategoryStatus', '已同步：成功更新 ' + updatedFileCount + ' 个JSON文件中的 ' + changed + ' 道题目', 'success');
+                } else {
+                    showMsg('adminSubcategoryStatus', '已同步：成功更新 ' + changed + ' 道题目的小类', 'success');
+                }
             })
             .catch(function(err) {
                 showMsg('adminSubcategoryStatus', '小类修改已保存到本地，但同步到远程失败：' + (err.message || '未知错误'), 'error');
@@ -6379,6 +6394,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 adminStore.save();
                 fillAdminSetSelects();
                 adminFilterSetList();
+                // 重新渲染小类编辑器，确保显示本地数据
+                adminRenderSubcategoryEditor();
+                renderAdminStatsTree();
                 showMsg('adminLoadFromDataStatus', '已从 ' + selectedFiles.length + ' 个文件加载：' + mergedSets.length + ' 个套卷，' + Object.keys(mergedQuestions).length + ' 道题目', 'success');
                 setTimeout(function() {
                     adminCloseLoadFromDataModal();
