@@ -5,7 +5,8 @@
       "name": "测试套卷草稿",
       "category": "",
       "言语理解": [
-        "id_1771567741656_jfbttvx"
+        "id_1771567741656_jfbttvx",
+        "id_1771603897048_7br36h6"
       ],
       "数量关系": [],
       "判断推理": [],
@@ -38,7 +39,48 @@
       "done": false,
       "correctCount": 0,
       "totalAttempts": 0
+    },
+    "id_1771603897048_7br36h6": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025年5月11日重庆A类",
+      "content": "从当前一些发达国家的人口发展实际来看,其人口生育率下降的趋势已经到了 ______ 。究其原因,是这些国家采取了一体化的干预政策,让育龄女性能够很好地平衡家庭和事业之间的关系,走出“ ______ ”的两难困境。育龄女性没有 ______ ,生育意愿自然会有所提高。依次填入画横线部分最恰当的一项是( )。",
+      "options": [
+        {
+          "label": "A",
+          "text": "逆转无存 生育之痛",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "遏制 因小失大 燃眉之急",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "翻转 别无选择 后顾之忧",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "扭转 左支右绌 后顾之忧",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771603897048_7br36h6",
+      "setId": "id_1771567709855_tlvqo67",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-20T16:07:37.989Z"
+  "exportTime": "2026-02-20T16:11:55.212Z"
 }
