@@ -549,6 +549,13 @@
             display: block;
         }
 
+        .status-message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
         .loading {
             text-align: center;
             padding: 30px;
@@ -1516,7 +1523,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                         <button class="btn btn-sm" type="button" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminCancelSubcategoryEdit()"><i class="fas fa-times"></i> 取消</button>
                                     </div>
                                 </div>
-                                <p style="margin:0; font-size:0.85rem; color:var(--text-secondary);">提示：这里只会修改 adminStore 中该大类下、当前小类名称一致的题目；同步到 data 请点击上方「同步到data」。</p>
+                                <p style="margin:0; font-size:0.85rem; color:var(--text-secondary);">提示：点击「应用」后，会自动将修改同步到 data 目录下所有 JSON 文件中的对应题目。</p>
                             </div>
 
                             <!-- 合并 -->
@@ -1536,7 +1543,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                         <button class="btn btn-sm" type="button" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminCancelSubcategoryMerge()"><i class="fas fa-times"></i> 取消</button>
                                     </div>
                                 </div>
-                                <p style="margin:0; font-size:0.85rem; color:var(--text-secondary);">提示：合并会把来源小类的题目全部改为目标小类；同步到 data 请点击上方「同步到data」。</p>
+                                <p style="margin:0; font-size:0.85rem; color:var(--text-secondary);">提示：点击「应用」后，会自动将合并操作同步到 data 目录下所有 JSON 文件中的对应题目。</p>
                             </div>
 
                             <div id="adminSubcategoryStatus" class="status-message" style="margin-top: 10px;"></div>
@@ -4661,10 +4668,19 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function showMsg(elId, msg, type) {
             var el = document.getElementById(elId);
             if (!el) return;
-            el.textContent = msg;
+            // 支持 HTML 内容（如果消息包含 <br> 或 <strong> 等标签）
+            if (msg.indexOf('<') >= 0) {
+                el.innerHTML = msg;
+            } else {
+                el.textContent = msg;
+            }
             el.className = 'status-message ' + type;
             el.style.display = 'block';
-            if (type === 'success') setTimeout(function() { el.style.display = 'none'; }, 3000);
+            // 对于包含详细信息的成功消息，延长显示时间
+            var autoHideDelay = (type === 'success' && msg.indexOf('<br>') >= 0) ? 10000 : (type === 'success' ? 3000 : 0);
+            if (autoHideDelay > 0) {
+                setTimeout(function() { el.style.display = 'none'; }, autoHideDelay);
+            }
         }
 
         function generatePageHTML(questions, mode, pageIndex, globalStartNum, fontSize, includeSource) {
@@ -7335,7 +7351,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var changed = adminApplySubcategoryChange(section, oldName, newName);
             adminCancelSubcategoryEdit();
             adminLoadSubcategories();
-            showMsg('adminSubcategoryStatus', changed ? ('已将「' + oldName + '」改为「' + newName + '」（本地已更新，可点击同步到data）') : '未找到可修改的题目', changed ? 'success' : 'error');
+            if (changed) {
+                // 立即同步到所有data目录下的JSON文件
+                adminSyncSingleSubcategoryChange(section, oldName, newName);
+            } else {
+                showMsg('adminSubcategoryStatus', '未找到可修改的题目', 'error');
+            }
         }
 
         function adminStartSubcategoryMerge(section, fromName) {
@@ -7371,7 +7392,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var changed = adminApplySubcategoryMergeLocal(section, fromName, toName);
             adminCancelSubcategoryMerge();
             adminLoadSubcategories();
-            showMsg('adminSubcategoryStatus', changed ? ('已将「' + fromName + '」合并到「' + toName + '」（本地已更新，可点击同步到data）') : '未找到可合并的题目', changed ? 'success' : 'error');
+            if (changed) {
+                // 立即同步到所有data目录下的JSON文件
+                adminSyncSingleSubcategoryChange(section, fromName, toName);
+            } else {
+                showMsg('adminSubcategoryStatus', '未找到可合并的题目', 'error');
+            }
         }
 
         // 小类改名/合并映射，用于同步到 data 时对所有题目生效（含不在 adminStore 的题目）
@@ -7632,6 +7658,134 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 .catch(function(err) {
                     console.error('获取文件列表失败：', err);
                     showMsg('adminSubcategoryStatus', '同步失败：' + (err && err.message || '未知错误'), 'error');
+                });
+        }
+        // 同步单个小类修改到所有data目录下的JSON文件
+        function adminSyncSingleSubcategoryChange(section, oldName, newName) {
+            if (!adminAuthenticated) {
+                showMsg('adminSubcategoryStatus', '请先登录管理员', 'error');
+                return;
+            }
+            if (!GITHUB_CONFIG || !GITHUB_CONFIG.token) {
+                showMsg('adminSubcategoryStatus', '请先在管理员页配置 GitHub Token（否则无法同步到 data）', 'error');
+                return;
+            }
+            showMsg('adminSubcategoryStatus', '正在同步「' + oldName + '」→「' + newName + '」到所有 JSON 文件...', 'info');
+            adminGetAllDataJsonPaths()
+                .then(function(paths) {
+                    if (!paths || paths.length === 0) {
+                        showMsg('adminSubcategoryStatus', '未找到任何 JSON 文件', 'error');
+                        return;
+                    }
+                    var total = paths.length;
+                    var updatedFiles = 0;
+                    var skippedFiles = 0;
+                    var failedFiles = 0;
+                    var totalChanged = 0;
+                    var updatedFileList = []; // 记录更新成功的文件及题目数
+                    var failedFileList = []; // 记录失败的文件及错误信息
+                    // 串行执行，降低触发 GitHub API 限流概率
+                    var p = Promise.resolve();
+                    (paths || []).forEach(function(path, idx) {
+                        p = p.then(function() {
+                            var progressMsg = '同步中（' + (idx + 1) + '/' + total + '）：' + path;
+                            showMsg('adminSubcategoryStatus', progressMsg, 'info');
+                            return adminUpdateJsonFileSubcategorySingle(path, section, oldName, newName).then(function(r) {
+                                if (r && r.updated) {
+                                    updatedFiles++;
+                                    totalChanged += (r.changed || 0);
+                                    updatedFileList.push({ path: path, changed: r.changed });
+                                    var fileMsg = '✓ ' + path + '：更新了 ' + r.changed + ' 道题目';
+                                    showMsg('adminSubcategoryStatus', progressMsg + '<br>' + fileMsg, 'info');
+                                } else {
+                                    skippedFiles++;
+                                }
+                            }).catch(function(err) {
+                                failedFiles++;
+                                failedFileList.push({ path: path, error: err.message || '未知错误' });
+                                console.error('同步文件失败：' + path, err);
+                                var errorMsg = progressMsg + '<br>✗ ' + path + '：失败 - ' + (err.message || '未知错误');
+                                showMsg('adminSubcategoryStatus', errorMsg, 'error');
+                            });
+                        });
+                    });
+                    return p.then(function() {
+                        adminLoadSubcategories();
+                        var msg = '<strong>同步完成</strong><br>';
+                        msg += '已将「' + oldName + '」改为「' + newName + '」<br><br>';
+                        msg += '<strong>统计信息：</strong><br>';
+                        msg += '✓ 更新了 ' + updatedFiles + ' 个文件，共修改 ' + totalChanged + ' 道题目';
+                        if (skippedFiles > 0) {
+                            msg += '<br>⊘ 跳过 ' + skippedFiles + ' 个文件（无匹配题目）';
+                        }
+                        if (updatedFileList.length > 0) {
+                            msg += '<br><br><strong>更新详情：</strong><br>';
+                            updatedFileList.forEach(function(item) {
+                                msg += '• ' + item.path + '：' + item.changed + ' 题<br>';
+                            });
+                        }
+                        if (failedFiles > 0) {
+                            msg += '<br><br><strong style="color:#721c24;">失败文件：</strong><br>';
+                            failedFileList.forEach(function(item) {
+                                msg += '• ' + item.path + '：' + item.error + '<br>';
+                            });
+                            showMsg('adminSubcategoryStatus', msg, 'error');
+                        } else {
+                            showMsg('adminSubcategoryStatus', msg, 'success');
+                        }
+                    });
+                })
+                .catch(function(err) {
+                    console.error('获取文件列表失败：', err);
+                    showMsg('adminSubcategoryStatus', '同步失败：' + (err && err.message || '未知错误'), 'error');
+                });
+        }
+        // 更新单个JSON文件中的小类名称（单个映射版本）
+        function adminUpdateJsonFileSubcategorySingle(targetPath, section, oldName, newName) {
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+            return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                .then(function(resp) {
+                    if (resp.status === 404) throw new Error('文件不存在：' + targetPath);
+                    if (!resp.ok) throw new Error('获取文件失败：' + resp.status);
+                    return resp.json();
+                })
+                .then(function(fileInfo) {
+                    var raw = fileInfo && fileInfo.content ? base64ToUtf8(fileInfo.content) : '';
+                    var data;
+                    try { data = deepRepairMojibake(JSON.parse(raw || '{}')); } catch (e) { data = {}; }
+                    if (!data || typeof data !== 'object') data = {};
+                    if (!data.questions || typeof data.questions !== 'object') data.questions = {};
+                    var changed = 0;
+                    Object.keys(data.questions).forEach(function(qid) {
+                        var q = data.questions[qid];
+                        if (!q) return;
+                        var sec = (q.section || q.category || '').trim();
+                        if (sec !== section) return;
+                        var curSub = (q.subcategory || '').trim() || '未分类';
+                        if (curSub === oldName) {
+                            q.subcategory = newName;
+                            changed++;
+                        }
+                    });
+                    if (!changed) return { updated: false, path: targetPath };
+                    var content = JSON.stringify(data, null, 2);
+                    var commitData = {
+                        message: '同步小类名称：' + oldName + ' → ' + newName + ' (' + targetPath + ') - ' + new Date().toLocaleString('zh-CN'),
+                        content: utf8ToBase64(content),
+                        branch: GITHUB_CONFIG.branch,
+                        sha: fileInfo.sha
+                    };
+                    return fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }),
+                        body: JSON.stringify(commitData)
+                    }).then(function(r) {
+                        if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || '写入失败'); });
+                        return r.json();
+                    }).then(function() {
+                        return { updated: true, path: targetPath, changed: changed };
+                    });
                 });
         }
         function adminUpdateJsonFileSubcategory(targetPath) {
