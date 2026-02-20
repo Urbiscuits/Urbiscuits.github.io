@@ -1463,7 +1463,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
 
                         <!-- 小类名称维护 -->
                         <div class="card" style="margin-bottom: 20px; border: 2px solid var(--primary-color);">
-                            <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-tags"></i> 小类名称维护/合并</h2>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <h2 style="margin: 0; color: var(--primary-color);"><i class="fas fa-tags"></i> 小类名称维护/合并</h2>
+                                <button class="btn btn-info btn-sm" onclick="adminRefreshSubcategories()" title="刷新小类列表"><i class="fas fa-sync-alt"></i> 刷新</button>
+                            </div>
                             <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">修改或合并小类名称，将同步更新所有相关题目JSON文件中的subcategory字段。</p>
                             
                             <!-- 大类选择 -->
@@ -1475,6 +1478,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                     <option value="判断推理">判断推理</option>
                                     <option value="资料分析">资料分析</option>
                                 </select>
+                            </div>
+
+                            <!-- 操作按钮 -->
+                            <div style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                                <button class="btn btn-success btn-sm" onclick="adminImportSubcategoriesFromData()"><i class="fas fa-download"></i> 从data导入小类数据</button>
+                                <button class="btn btn-primary btn-sm" onclick="adminSyncSubcategoriesToData()"><i class="fas fa-cloud-upload-alt"></i> 同步到data</button>
                             </div>
 
                             <!-- 小类列表 -->
@@ -7175,6 +7184,184 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         var adminSubcategoryEditing = null;
         var adminSubcategoryMerging = null;
 
+        function adminRefreshSubcategories() {
+            adminLoadSubcategories();
+            showMsg('adminSubcategoryStatus', '已刷新小类列表', 'success');
+        }
+
+        function adminImportSubcategoriesFromData() {
+            if (!confirm('确定要从data目录下的JSON文件导入小类数据到adminStore吗？这将更新adminStore中所有题目的subcategory字段。')) {
+                return;
+            }
+
+            showMsg('adminSubcategoryStatus', '正在从data导入小类数据...', 'info');
+
+            adminGetAllJsonFiles().then(function(jsonFiles) {
+                var importPromises = jsonFiles.map(function(filename) {
+                    return adminImportSubcategoriesFromFile(filename);
+                });
+
+                return Promise.all(importPromises);
+            }).then(function(results) {
+                var importedCount = 0;
+                results.forEach(function(r) {
+                    importedCount += r.count || 0;
+                });
+
+                adminStore.save();
+                adminLoadSubcategories();
+                showMsg('adminSubcategoryStatus', '已从 ' + results.length + ' 个文件导入 ' + importedCount + ' 道题目的小类数据', 'success');
+            }).catch(function(error) {
+                showMsg('adminSubcategoryStatus', '导入失败：' + (error.message || '未知错误'), 'error');
+            });
+        }
+
+        function adminImportSubcategoriesFromFile(filename) {
+            return new Promise(function(resolve, reject) {
+                var fileUrl = getRemoteBaseUrl() + '/data/' + filename + '?t=' + Date.now();
+                fetch(fileUrl).then(function(res) {
+                    if (!res.ok) {
+                        resolve({ filename: filename, count: 0 });
+                        return null;
+                    }
+                    return res.json();
+                }).then(function(data) {
+                    if (!data || !data.questions) {
+                        resolve({ filename: filename, count: 0 });
+                        return;
+                    }
+
+                    var count = 0;
+                    Object.keys(data.questions).forEach(function(qid) {
+                        var remoteQ = data.questions[qid];
+                        var adminQ = adminStore.questions[qid];
+                        if (remoteQ && adminQ && remoteQ.subcategory) {
+                            adminQ.subcategory = remoteQ.subcategory;
+                            count++;
+                        }
+                    });
+
+                    resolve({ filename: filename, count: count });
+                }).catch(function(err) {
+                    console.error('导入文件 ' + filename + ' 失败:', err);
+                    resolve({ filename: filename, count: 0 });
+                });
+            });
+        }
+
+        function adminSyncSubcategoriesToData() {
+            if (!GITHUB_CONFIG.token) {
+                showMsg('adminSubcategoryStatus', '请先配置GitHub Token', 'error');
+                return;
+            }
+
+            if (!confirm('确定要将adminStore中的小类修改同步到data目录下的所有JSON文件吗？这将更新所有相关文件。')) {
+                return;
+            }
+
+            showMsg('adminSubcategoryStatus', '正在同步到data...', 'info');
+
+            // 获取所有需要同步的JSON文件
+            adminGetAllJsonFiles().then(function(jsonFiles) {
+                var syncPromises = jsonFiles.map(function(filename) {
+                    return adminSyncSubcategoriesToFile(filename);
+                });
+
+                return Promise.all(syncPromises);
+            }).then(function(results) {
+                var syncedFiles = results.filter(function(r) { return r.updated; });
+                var message = '已同步 ' + syncedFiles.length + ' 个文件：' + syncedFiles.map(function(r) { return r.filename; }).join('、');
+                showMsg('adminSubcategoryStatus', message, 'success');
+            }).catch(function(error) {
+                showMsg('adminSubcategoryStatus', '同步失败：' + (error.message || '未知错误'), 'error');
+            });
+        }
+
+        function adminSyncSubcategoriesToFile(filename) {
+            return new Promise(function(resolve, reject) {
+                if (!GITHUB_CONFIG.token) {
+                    resolve({ filename: filename, updated: false });
+                    return;
+                }
+
+                var filePath = 'data/' + filename;
+                var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + filePath;
+                var headers = {
+                    'Authorization': 'token ' + GITHUB_CONFIG.token,
+                    'Accept': 'application/vnd.github.v3+json'
+                };
+
+                // 先获取现有文件
+                fetch(apiUrl + '?ref=' + (GITHUB_CONFIG.branch || 'main')).then(function(resp) {
+                    if (resp.status === 404) {
+                        resolve({ filename: filename, updated: false });
+                        return null;
+                    }
+                    if (!resp.ok) {
+                        throw new Error('获取文件失败: ' + resp.status);
+                    }
+                    return resp.json();
+                }).then(function(fileInfo) {
+                    if (!fileInfo) {
+                        resolve({ filename: filename, updated: false });
+                        return;
+                    }
+
+                    // 解码文件内容
+                    var content = atob(fileInfo.content.replace(/\s/g, ''));
+                    var data = JSON.parse(content);
+                    var updated = false;
+
+                    // 更新questions中的subcategory（从adminStore同步）
+                    if (data.questions && typeof data.questions === 'object') {
+                        Object.keys(data.questions).forEach(function(qid) {
+                            var adminQ = adminStore.questions[qid];
+                            if (adminQ && adminQ.subcategory) {
+                                var remoteQ = data.questions[qid];
+                                if (remoteQ && remoteQ.subcategory !== adminQ.subcategory) {
+                                    remoteQ.subcategory = adminQ.subcategory;
+                                    updated = true;
+                                }
+                            }
+                        });
+                    }
+
+                    if (!updated) {
+                        resolve({ filename: filename, updated: false });
+                        return;
+                    }
+
+                    // 更新文件
+                    var updatedContent = JSON.stringify(data, null, 2);
+                    var encodedContent = btoa(unescape(encodeURIComponent(updatedContent)));
+
+                    var commitData = {
+                        message: '同步小类信息到 ' + filename,
+                        content: encodedContent,
+                        branch: GITHUB_CONFIG.branch || 'main',
+                        sha: fileInfo.sha
+                    };
+
+                    return fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: headers,
+                        body: JSON.stringify(commitData)
+                    });
+                }).then(function(resp) {
+                    if (resp && resp.ok) {
+                        resolve({ filename: filename, updated: true });
+                    } else if (resp) {
+                        throw new Error('更新文件失败: ' + resp.status);
+                    } else {
+                        resolve({ filename: filename, updated: false });
+                    }
+                }).catch(function(err) {
+                    console.error('同步文件 ' + filename + ' 失败:', err);
+                    resolve({ filename: filename, updated: false });
+                });
+            });
+        }
+
         function adminLoadSubcategories() {
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
             
@@ -7234,8 +7421,13 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         '<button class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminCancelSubcategoryMerge()">取消</button>' +
                         '</div>';
                 } else {
+                    var section = document.getElementById('adminSubcategorySection').value;
+                    var viewUrl = 'manage.html?section=' + encodeURIComponent(section) + '&subcategory=' + encodeURIComponent(item.name);
                     return '<div style="padding:16px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">' +
-                        '<div><strong>' + esc(item.name) + '</strong> <span style="color:#999; margin-left:8px;">(' + item.count + '题)</span></div>' +
+                        '<div style="flex:1;">' +
+                        '<a href="' + viewUrl + '" target="_blank" style="color:var(--primary-color); text-decoration:none; font-weight:bold; margin-right:8px;" title="查看该小类的题目">' + esc(item.name) + '</a>' +
+                        '<span style="color:#999;">(' + item.count + '题)</span>' +
+                        '</div>' +
                         '<div style="display:flex; gap:8px;">' +
                         '<button class="btn btn-primary btn-sm" onclick="adminStartSubcategoryEdit(\'' + esc(item.name) + '\')">修改</button>' +
                         '<button class="btn btn-sm" style="background:#ff9800; color:#fff;" onclick="adminStartSubcategoryMerge(\'' + esc(item.name) + '\')">合并</button>' +
@@ -7374,7 +7566,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     if (manifest && manifest.json) {
                         var jsonFiles = Array.isArray(manifest.json) ? manifest.json : [manifest.json];
                         resolve(jsonFiles.map(function(f) {
-                            return f.replace(/^data\//, '').replace(/\.json$/, '') + '.json';
+                            var name = f.replace(/^data\//, '').replace(/\.json$/, '');
+                            return name + '.json';
                         }));
                     } else {
                         resolve(['store.json']);
@@ -7383,6 +7576,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     resolve(['store.json']);
                 });
             });
+        }
+
+        function adminGetAllJsonFiles() {
+            return adminGetJsonFilesToUpdate('', '');
         }
 
         function adminUpdateJsonFileSubcategory(filename, oldSubcategory, newSubcategory, section) {
