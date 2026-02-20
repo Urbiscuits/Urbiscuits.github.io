@@ -1452,7 +1452,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             </div>
 
                             <div style="margin-bottom:16px; padding:14px; border:1px solid var(--border-color); border-radius:var(--border-radius); background:var(--light-bg);">
-                                <h4 style="margin-bottom:10px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-sitemap"></i> 小类名称维护/合并（会修改题目分类）</h4>
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                    <h4 style="margin:0; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-sitemap"></i> 小类名称维护/合并（会修改题目分类）</h4>
+                                    <button class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminRefreshSubcategoryFromData()" title="从data加载题目并刷新小类列表"><i class="fas fa-sync-alt"></i> 刷新</button>
+                                </div>
                                 <div class="filter-controls" style="margin-bottom:10px;">
                                     <div>
                                         <label>选择大类</label>
@@ -6472,6 +6475,101 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         // 保留原函数名作为兼容
         function adminLoadFromData() {
             adminShowLoadFromDataModal();
+        }
+        
+        // 刷新小类名称维护/合并：从data加载题目并刷新显示
+        function adminRefreshSubcategoryFromData() {
+            if (!window.fetch) {
+                showMsg('adminSubcategoryStatus', '当前浏览器不支持 fetch', 'error');
+                return;
+            }
+            
+            if (location && location.protocol === 'file:') {
+                showMsg('adminSubcategoryStatus', '请通过 HTTP 服务访问（非 file://）', 'error');
+                return;
+            }
+            
+            showMsg('adminSubcategoryStatus', '正在从data加载题目…', 'info');
+            
+            // 获取所有JSON文件列表
+            var getJsonFiles = function() {
+                if (GITHUB_CONFIG.token) {
+                    // 如果有GitHub Token，从GitHub获取文件列表
+                    return adminRefreshDataJsonFileList();
+                } else {
+                    // 否则从files.json获取
+                    var base = window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/');
+                    var manifestUrl = base + 'data/files.json?t=' + Date.now();
+                    return fetch(manifestUrl)
+                        .then(function(resp) {
+                            if (!resp.ok) throw new Error('files.json 未找到');
+                            return resp.json();
+                        })
+                        .then(function(manifest) {
+                            var jsonList = Array.isArray(manifest.json) ? manifest.json : (manifest.json ? [manifest.json] : ['store.json']);
+                            return jsonList.map(function(name) { return 'data/' + name.replace(/^data\//, ''); });
+                        })
+                        .catch(function(err) {
+                            // 如果files.json不存在，默认使用store.json
+                            return ['data/store.json'];
+                        });
+                }
+            };
+            
+            getJsonFiles().then(function(jsonFiles) {
+                if (!jsonFiles || !jsonFiles.length) {
+                    showMsg('adminSubcategoryStatus', '无法获取JSON文件列表', 'error');
+                    return;
+                }
+                
+                var base = window.location.origin + (window.location.pathname.replace(/[^/]+$/, '') || '/');
+                var urls = jsonFiles.map(function(path) {
+                    var fileName = path.replace(/^data\//, '');
+                    return base + 'data/' + fileName + '?t=' + Date.now();
+                });
+                
+                return Promise.all(urls.map(function(url) {
+                    return fetch(url).then(function(r) {
+                        if (!r.ok) throw new Error('无法读取：' + url);
+                        return r.json();
+                    });
+                }));
+            })
+            .then(function(results) {
+                // 合并所有题目到adminStore
+                var mergedSets = [];
+                var mergedQuestions = {};
+                var setIds = new Set();
+                
+                results.forEach(function(data) {
+                    if (!data) return;
+                    // 合并套卷（去重）
+                    (data.sets || []).forEach(function(s) {
+                        if (s && s.id && !setIds.has(s.id)) {
+                            mergedSets.push(s);
+                            setIds.add(s.id);
+                        }
+                    });
+                    // 合并题目（后面的覆盖前面的）
+                    var qs = data.questions || {};
+                    Object.keys(qs).forEach(function(qid) {
+                        if (qs[qid]) mergedQuestions[qid] = qs[qid];
+                    });
+                });
+                
+                adminStore.sets = mergedSets;
+                adminStore.questions = mergedQuestions;
+                adminStore.save();
+                
+                // 刷新小类名称维护/合并的显示
+                adminRenderSubcategoryEditor();
+                renderAdminStatsTree();
+                
+                showMsg('adminSubcategoryStatus', '已从data加载 ' + mergedSets.length + ' 个套卷、' + Object.keys(mergedQuestions).length + ' 道题目，小类列表已刷新', 'success');
+            })
+            .catch(function(err) {
+                showMsg('adminSubcategoryStatus', '刷新失败：' + (err && err.message || '未知错误') + '。请确保通过 HTTP 服务访问（非 file://）', 'error');
+            });
         }
         
         function adminFilterSetList() {
