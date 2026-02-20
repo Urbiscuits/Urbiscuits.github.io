@@ -211,6 +211,14 @@
             var m = /[?&]setId=([^&]+)/.exec(location.search);
             return m ? decodeURIComponent(m[1]) : null;
         }
+        function getSectionFromUrl() {
+            var m = /[?&]section=([^&]+)/.exec(location.search);
+            return m ? decodeURIComponent(m[1]) : '';
+        }
+        function getSubcategoryFromUrl() {
+            var m = /[?&]subcategory=([^&]+)/.exec(location.search);
+            return m ? decodeURIComponent(m[1]) : '';
+        }
 
         function loadStore() {
             try {
@@ -259,24 +267,30 @@
             renderList();
         }
 
+        function collectQuestionIds() {
+            var data = loadStore();
+            if (currentSetId && currentSet) {
+                var ids = [];
+                MAIN_SECTIONS.forEach(function(sec) {
+                    (currentSet[sec] || []).forEach(function(qid) { ids.push(qid); });
+                });
+                return ids;
+            }
+            return Object.keys(data && data.questions ? data.questions : {});
+        }
         function renderSubcategoryOptions() {
             var sel = document.getElementById('filterSubcategory');
             if (!sel) return;
-            if (!currentSetId || !currentSet) {
-                sel.innerHTML = '<option value="">全部</option>';
-                sel.value = '';
-                return;
-            }
             var data = loadStore();
             var subs = {};
-            MAIN_SECTIONS.forEach(function(sec) {
+            var ids = collectQuestionIds();
+            ids.forEach(function(qid) {
+                var q = data.questions[qid];
+                if (!q) return;
+                var sec = q.section || q.category || '';
                 if (filterSection && sec !== filterSection) return;
-                (currentSet[sec] || []).forEach(function(qid) {
-                    var q = data.questions[qid];
-                    if (!q) return;
-                    var sub = q.subcategory || '';
-                    if (sub) subs[sub] = true;
-                });
+                var sub = q.subcategory || '';
+                if (sub) subs[sub] = true;
             });
             var list = Object.keys(subs).sort(function(a,b){ return String(a).localeCompare(String(b)); });
             sel.innerHTML = '<option value="">全部</option>' + list.map(function(s) {
@@ -286,30 +300,28 @@
         }
 
         function renderList() {
-            if (!currentSetId || !currentSet) return;
             var data = loadStore();
+            var ids = collectQuestionIds();
             var bySection = {};
-            MAIN_SECTIONS.forEach(function(sec) {
+            ids.forEach(function(qid) {
+                var q = data.questions[qid];
+                if (!q) return;
+                var sec = q.section || q.category || '';
                 if (filterSection && sec !== filterSection) return;
-                (currentSet[sec] || []).forEach(function(qid) {
-                    var q = data.questions[qid];
-                    if (q) {
-                        if (filterKeyword) {
-                            var textParts = [];
-                            textParts.push(q.content || '');
-                            textParts.push(q.material || '');
-                            (q.options || []).forEach(function(o) { textParts.push(o.text || ''); });
-                            textParts.push(q.explanation || '');
-                            var joined = textParts.join(' ').toLowerCase();
-                            if (joined.indexOf(filterKeyword) === -1) return;
-                        }
-                        var sub = q.subcategory || sec;
-                        if (filterSubcategory && sub !== filterSubcategory) return;
-                        if (!bySection[sec]) bySection[sec] = {};
-                        if (!bySection[sec][sub]) bySection[sec][sub] = [];
-                        bySection[sec][sub].push(q);
-                    }
-                });
+                if (filterKeyword) {
+                    var textParts = [];
+                    textParts.push(q.content || '');
+                    textParts.push(q.material || '');
+                    (q.options || []).forEach(function(o) { textParts.push(o.text || ''); });
+                    textParts.push(q.explanation || '');
+                    var joined = textParts.join(' ').toLowerCase();
+                    if (joined.indexOf(filterKeyword) === -1) return;
+                }
+                var sub = q.subcategory || sec;
+                if (filterSubcategory && sub !== filterSubcategory) return;
+                if (!bySection[sec]) bySection[sec] = {};
+                if (!bySection[sec][sub]) bySection[sec][sub] = [];
+                bySection[sec][sub].push(q);
             });
             var html = '';
             MAIN_SECTIONS.forEach(function(sec) {
@@ -318,7 +330,6 @@
                 Object.keys(bySection[sec]).sort().forEach(function(sub) {
                     bySection[sec][sub].forEach(function(q) {
                         var qid = String(q.id || '');
-                        // 使用 data-* + 事件委托，避免 inline onclick 在某些环境下失效
                         html += '<div class="question-item">' +
                             '<span class="question-category">' + esc(sub) + '</span> ' + esc((q.content||'').slice(0, 80)) + '… ' +
                             '<button type="button" class="btn btn-info btn-sm" data-action="view" data-qid="' + esc(qid) + '">查看</button> ' +
@@ -329,7 +340,7 @@
                 });
                 html += '</div>';
             });
-            document.getElementById('questionList').innerHTML = html || '<p style="color:#6c757d;">该套卷下暂无题目</p>';
+            document.getElementById('questionList').innerHTML = html || '<p style="color:#6c757d;">暂无题目</p>';
         }
 
         function showDetail(qid) {
@@ -566,19 +577,28 @@
 
         window.onload = function() {
             currentSetId = getSetIdFromUrl();
-            if (!currentSetId) {
+            var urlSection = getSectionFromUrl();
+            var urlSubcategory = getSubcategoryFromUrl();
+            currentSet = currentSetId ? getSet(currentSetId) : null;
+            if (!currentSetId && urlSection && urlSubcategory) {
+                filterSection = urlSection;
+                filterSubcategory = urlSubcategory;
+                document.getElementById('mainBlock').style.display = 'block';
+                document.getElementById('setTitle').textContent = '按小类查看：' + urlSection + ' - ' + urlSubcategory + '（管理员题库）';
+                document.getElementById('btnAddQuestion').style.display = 'none';
+            } else if (!currentSetId) {
                 document.getElementById('noSet').style.display = 'block';
                 return;
-            }
-            currentSet = getSet(currentSetId);
-            if (!currentSet) {
+            } else if (!currentSet) {
                 document.getElementById('noSet').style.display = 'block';
                 document.querySelector('#noSet p').textContent = '套卷不存在或已删除。';
                 return;
+            } else {
+                document.getElementById('mainBlock').style.display = 'block';
+                document.getElementById('setTitle').textContent = (currentSet.name || '未命名套卷') + '（管理员题库）';
+                document.getElementById('btnAddQuestion').style.display = 'inline-flex';
+                document.getElementById('btnAddQuestion').onclick = goAddQuestion;
             }
-            document.getElementById('mainBlock').style.display = 'block';
-            document.getElementById('setTitle').textContent = (currentSet.name || '未命名套卷') + '（管理员题库）';
-            document.getElementById('btnAddQuestion').onclick = goAddQuestion;
             try {
                 var data = loadStore();
                 var setCount = (data.sets || []).length;
@@ -586,6 +606,12 @@
                 showDebug('当前 setId=' + currentSetId + '；管理员套卷数=' + setCount + '；管理员题目数=' + qCount + '。若这里为 0，说明你打开此页面的域名/协议与管理员后台不一致（localStorage 不共享）。', false);
             } catch (e) {}
             renderSubcategoryOptions();
+            if (urlSection && urlSubcategory) {
+                var se = document.getElementById('filterSection');
+                var su = document.getElementById('filterSubcategory');
+                if (se) se.value = urlSection;
+                if (su) su.value = urlSubcategory;
+            }
             renderList();
 
             // 事件委托：处理查看/编辑/删除
