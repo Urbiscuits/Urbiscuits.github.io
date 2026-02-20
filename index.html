@@ -1344,9 +1344,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 <div id="adminSelectedSetsSyncStatus" class="status-message" style="margin-top: 12px;"></div>
                             </div>
                             
-                            <!-- 同步/重置：可选择 data 目录下的 JSON 文件 -->
-                            <div style="margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">选择 data 目录下某个 JSON 文件作为目标，然后执行同步、重置或删除。这样可以分片存储，避免单个 JSON 过大。</p>
+                            <!-- 危险操作：删除和重置多个 JSON 文件 -->
+                            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #dc3545;">
+                                <h4 style="margin-bottom: 12px; color: #dc3545; font-size: 1rem;"><i class="fas fa-exclamation-triangle"></i> 危险操作：删除和重置多个 JSON 文件</h4>
+                                <p style="font-size: 0.9rem; color: #721c24; margin-bottom: 12px;">选择 data 目录下的 JSON 文件进行重置或删除操作（需要三次确认）。</p>
                                 <div class="control-group" style="margin-bottom: 12px; align-items: center;">
                                     <label style="min-width: 90px;">目标文件：</label>
                                     <select id="adminTargetJsonSelect" style="flex: 1; max-width: 420px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius);">
@@ -1354,18 +1355,6 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                     </select>
                                     <button class="btn" style="background:var(--light-bg); border:1px solid var(--border-color); margin-left:8px;" onclick="adminRefreshDataJsonFileList()"><i class="fas fa-sync-alt"></i> 刷新列表</button>
                                 </div>
-                                <div class="control-group" style="margin-bottom: 12px;">
-                                    <label>同步模式：</label>
-                                    <label style="margin-right: 16px;"><input type="radio" name="adminSyncMode" value="merge" checked> 合并（保留目标文件现有数据，添加新数据）</label>
-                                    <label><input type="radio" name="adminSyncMode" value="overwrite"> 覆盖（完全替换目标文件数据）</label>
-                                </div>
-                                <button class="btn btn-success" onclick="adminSyncToGitHub()" style="padding: 12px 24px; font-size: 1rem;"><i class="fas fa-cloud-upload-alt"></i> 同步到所选 JSON</button>
-                                <div id="adminSyncStatus" class="status-message" style="margin-top: 12px;"></div>
-                            </div>
-                            
-                            <!-- 危险操作 -->
-                            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #dc3545;">
-                                <p style="font-size: 0.9rem; color: #721c24; margin-bottom: 12px;"><strong>危险操作：</strong>将所选 JSON 文件重置为空或删除文件（需要三次确认）。</p>
                                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                                     <button class="btn" style="background: #dc3545; color: #fff; border-color: #dc3545; padding: 10px 20px;" onclick="adminResetGitHubData()"><i class="fas fa-exclamation-triangle"></i> 重置所选 JSON</button>
                                     <button class="btn" style="background: #dc3545; color: #fff; border-color: #dc3545; padding: 10px 20px;" onclick="adminDeleteGitHubJsonFile()"><i class="fas fa-trash"></i> 删除所选 JSON</button>
@@ -1378,7 +1367,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <!-- GitHub 同步配置 -->
                         <div class="card" style="margin-bottom: 20px;">
                             <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fab fa-github"></i> GitHub 同步配置</h2>
-                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">配置 GitHub Personal Access Token 后，管理员在此页面进行的所有操作（套卷管理、批量导入、单题录入）将自动同步到 GitHub 仓库的 data/store.json 文件。<strong style="color:var(--primary-color);">Token 将以加密形式存储，不会直接暴露。</strong></p>
+                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">配置 GitHub Personal Access Token 后，可在「数据同步操作」中手动同步数据到 GitHub 仓库。<strong style="color:var(--primary-color);">Token 将以加密形式存储，不会直接暴露。</strong></p>
                             <div class="control-group" style="margin-bottom:12px;">
                                 <label style="display:block; margin-bottom:6px;">GitHub Personal Access Token：</label>
                                 <input type="password" id="adminGithubTokenInput" placeholder="输入 Token（需要 repo 权限，将加密存储）" style="width:100%; max-width:600px; padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius); font-family:monospace; font-size:0.9rem;">
@@ -1502,7 +1491,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <!-- 批量导入 -->
                         <div id="adminBatchImportCard" class="card" style="margin-bottom: 20px; display:none;">
                             <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-file-import"></i> 批量导入</h2>
-                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">批量导入的题目将保存到管理员题库中，导入后会自动同步到 GitHub。</p>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">批量导入的题目将保存到管理员题库中，可在「数据同步操作」中手动同步到 GitHub。</p>
                             <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="adminBatchSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                             <div class="control-group" style="margin-bottom: 12px;">
                                 <label>从 TXT 导入：</label>
@@ -1536,7 +1525,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <!-- 单题录入 -->
                         <div id="adminSingleImportCard" class="card" style="display:none;">
                             <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-edit"></i> 单题录入</h2>
-                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">单题录入的题目将保存到管理员题库中，保存后会自动同步到 GitHub。</p>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">单题录入的题目将保存到管理员题库中，可在「数据同步操作」中手动同步到 GitHub。</p>
                             <p style="margin-bottom: 12px; color: var(--text-secondary); font-size: 0.9rem;">材料/题干/选项可 Ctrl+V 粘贴图片，支持 LaTeX。</p>
                             <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="adminSingleSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                             <div style="margin-bottom:12px;">
@@ -1991,6 +1980,24 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
          * 或简单数组：["batch1.txt", "store.json"]
          */
         function refreshFromRemoteStore() {
+            // 检查上次刷新时间，限制2小时内只能刷新一次
+            var LAST_REFRESH_KEY = 'xingce_last_refresh_time';
+            var REFRESH_INTERVAL_MS = 2 * 60 * 60 * 1000; // 2小时
+            try {
+                var lastRefreshTime = localStorage.getItem(LAST_REFRESH_KEY);
+                if (lastRefreshTime) {
+                    var now = Date.now();
+                    var elapsed = now - parseInt(lastRefreshTime, 10);
+                    if (elapsed < REFRESH_INTERVAL_MS) {
+                        var remainingMinutes = Math.ceil((REFRESH_INTERVAL_MS - elapsed) / (60 * 1000));
+                        showMsg('dataStatus', '距离上次刷新不足2小时，还需等待 ' + remainingMinutes + ' 分钟', 'error');
+                        return;
+                    }
+                }
+            } catch (e) {
+                // 忽略存储读取错误，继续执行
+            }
+
             // 个人中心：改为与管理员「从 data 加载」一致的选择式加载（全部/部分 JSON）
             if (typeof profileShowLoadFromDataModal === 'function') {
                 profileShowLoadFromDataModal();
@@ -2150,6 +2157,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         if (typeof updatePracticeSub === 'function') updatePracticeSub();
                         if (typeof renderPracticePointsCheckboxes === 'function') renderPracticePointsCheckboxes();
                         if (typeof checkExportState === 'function') checkExportState();
+                        // 刷新成功，记录当前时间
+                        try {
+                            localStorage.setItem(LAST_REFRESH_KEY, String(Date.now()));
+                        } catch (e) {}
                         showMsg('dataStatus', '已从 data 目录刷新题库：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
                     });
                 })
@@ -2164,6 +2175,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         .then(function(data) {
                             // 复用远程题库应用逻辑
                             applyRemoteStore(data);
+                            // 刷新成功，记录当前时间
+                            try {
+                                localStorage.setItem(LAST_REFRESH_KEY, String(Date.now()));
+                            } catch (e) {}
                             showMsg('dataStatus', 'files.json 获取失败，已仅从 store.json 刷新题库（仍可使用）。', 'success');
                         })
                         .catch(function(err2) {
@@ -5313,16 +5328,58 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         
         function getAdminUsers() { try { var raw = localStorage.getItem('xingce_admin_users'); return raw ? JSON.parse(raw) : []; } catch (e) { return []; } }
         function saveAdminUsers(users) { try { localStorage.setItem('xingce_admin_users', JSON.stringify(users)); } catch (e) {} }
+        // SHA-256 纯 JavaScript 实现（与小程序端保持一致）
+        function sha256Hex(str) {
+            if (typeof str !== 'string') str = '';
+            var utf8 = unescape(encodeURIComponent(str));
+            var bytes = [];
+            for (var i = 0; i < utf8.length; i++) bytes.push(utf8.charCodeAt(i));
+            var K = [
+                0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+                0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+                0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+                0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+                0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+                0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+                0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+                0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+            ];
+            function rightRotate(x, n) { return (x >>> n) | (x << (32 - n)); }
+            function toHex(n) { var s = (n >>> 0).toString(16); return s.length < 8 ? ('00000000' + s).slice(-8) : s; }
+            bytes.push(0x80);
+            while ((bytes.length % 64) !== 56) bytes.push(0);
+            var bitLen = (utf8.length * 8);
+            for (var i = 7; i >= 0; i--) bytes.push((bitLen >>> (i * 8)) & 0xff);
+            var H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+            for (var chunk = 0; chunk < bytes.length / 64; chunk++) {
+                var W = [];
+                for (var t = 0; t < 16; t++) {
+                    var i = chunk * 64 + t * 4;
+                    W[t] = (bytes[i] << 24) | (bytes[i + 1] << 16) | (bytes[i + 2] << 8) | bytes[i + 3];
+                }
+                for (var t = 16; t < 64; t++) {
+                    var s0 = rightRotate(W[t - 15], 7) ^ rightRotate(W[t - 15], 18) ^ (W[t - 15] >>> 3);
+                    var s1 = rightRotate(W[t - 2], 17) ^ rightRotate(W[t - 2], 19) ^ (W[t - 2] >>> 10);
+                    W[t] = (W[t - 16] + s0 + W[t - 7] + s1) >>> 0;
+                }
+                var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+                for (var t = 0; t < 64; t++) {
+                    var S1 = rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25);
+                    var ch = (e & f) ^ ((~e) & g);
+                    var t1 = (h + S1 + ch + K[t] + W[t]) >>> 0;
+                    var S0 = rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22);
+                    var maj = (a & b) ^ (a & c) ^ (b & c);
+                    var t2 = (S0 + maj) >>> 0;
+                    h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+                }
+                H = [(H[0] + a) >>> 0, (H[1] + b) >>> 0, (H[2] + c) >>> 0, (H[3] + d) >>> 0, (H[4] + e) >>> 0, (H[5] + f) >>> 0, (H[6] + g) >>> 0, (H[7] + h) >>> 0];
+            }
+            return H.map(toHex).join('');
+        }
         function hashPassword(username, password) {
             var str = (username || '') + ':' + (password || '');
-            return new Promise(function(resolve, reject) {
-                if (!window.crypto || !crypto.subtle) { resolve(str.split('').reduce(function(a,c){ a=((a<<5)-a)+c.charCodeAt(0); return a&a; }, 0).toString(16)); return; }
-                var enc = new TextEncoder();
-                crypto.subtle.digest('SHA-256', enc.encode(str)).then(function(buf) {
-                    var arr = Array.from(new Uint8Array(buf));
-                    resolve(arr.map(function(b) { return ('0'+b.toString(16)).slice(-2); }).join(''));
-                }).catch(reject);
-            });
+            // 统一使用纯 JavaScript SHA-256 实现，确保与小程序端一致
+            return Promise.resolve(sha256Hex(str));
         }
         function adminAddUser() {
             var username = (document.getElementById('adminNewUserName').value || '').trim();
@@ -5864,6 +5921,24 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (typeof checkExportState === 'function') checkExportState();
         }
         function profileLoadFromDataExecute() {
+            // 检查上次刷新时间，限制2小时内只能刷新一次
+            var LAST_REFRESH_KEY = 'xingce_last_refresh_time';
+            var REFRESH_INTERVAL_MS = 2 * 60 * 60 * 1000; // 2小时
+            try {
+                var lastRefreshTime = localStorage.getItem(LAST_REFRESH_KEY);
+                if (lastRefreshTime) {
+                    var now = Date.now();
+                    var elapsed = now - parseInt(lastRefreshTime, 10);
+                    if (elapsed < REFRESH_INTERVAL_MS) {
+                        var remainingMinutes = Math.ceil((REFRESH_INTERVAL_MS - elapsed) / (60 * 1000));
+                        showMsg('profileLoadFromDataStatus', '距离上次刷新不足2小时，还需等待 ' + remainingMinutes + ' 分钟', 'error');
+                        return;
+                    }
+                }
+            } catch (e) {
+                // 忽略存储读取错误，继续执行
+            }
+
             var loadAll = document.getElementById('profileLoadAllJson') && document.getElementById('profileLoadAllJson').checked;
             var selectedFiles = [];
             if (loadAll) {
@@ -5894,6 +5969,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }))
             .then(function(results) {
                 profileApplyJsonPayloadsToStore(results);
+                // 加载成功，记录当前时间
+                try {
+                    localStorage.setItem(LAST_REFRESH_KEY, String(Date.now()));
+                } catch (e) {}
                 showMsg('profileLoadFromDataStatus', '加载成功：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
                 showMsg('dataStatus', '已加载题库：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
                 setTimeout(function() { profileCloseLoadFromDataModal(); }, 900);
@@ -7111,12 +7190,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             document.getElementById('adminInputText').value = '';
             document.getElementById('adminBatchTxtFile').value = '';
             document.getElementById('adminBatchPreviewWrap').style.display = 'none';
-            showMsg('adminImportStatus', '成功导入 ' + added + ' 题，正在同步到 GitHub...', 'info');
-            adminSyncToGitHub().then(function() {
-                showMsg('adminImportStatus', '成功导入 ' + added + ' 题并已同步到 GitHub', 'success');
-            }).catch(function(err) {
-                showMsg('adminImportStatus', '成功导入 ' + added + ' 题，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
-            });
+            showMsg('adminImportStatus', '成功导入 ' + added + ' 题（已保存到本地）', 'success');
         }
         
         var adminSingleZiliaoQIndex = 0;
@@ -7211,12 +7285,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 if (adminCurrentViewSetId === setId) {
                     adminViewSetDetails(setId);
                 }
-                showMsg('adminSingleStatus', '已保存 ' + added + ' 道小题，正在同步到 GitHub...', 'info');
-                adminSyncToGitHub().then(function() {
-                    showMsg('adminSingleStatus', '已保存 ' + added + ' 道小题并已同步到 GitHub', 'success');
-                }).catch(function(err) {
-                    showMsg('adminSingleStatus', '已保存 ' + added + ' 道小题，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
-                });
+                showMsg('adminSingleStatus', '已保存 ' + added + ' 道小题（已保存到本地）', 'success');
                 document.getElementById('adminSingleMaterialZiliao').innerHTML = '';
                 cards.forEach(function(card) {
                     var qId = card.getAttribute('data-zq-id');
@@ -7246,12 +7315,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 adminStore.save();
                 fillAdminSetSelects();
                 adminFilterSetList();
-                showMsg('adminSingleStatus', '题目已保存，正在同步到 GitHub...', 'info');
-                adminSyncToGitHub().then(function() {
-                    showMsg('adminSingleStatus', '题目已保存并已同步到 GitHub', 'success');
-                }).catch(function(err) {
-                    showMsg('adminSingleStatus', '题目已保存，但同步到 GitHub 失败：' + (err.message || '未知错误'), 'error');
-                });
+                showMsg('adminSingleStatus', '题目已保存（已保存到本地）', 'success');
                 var expEl = document.getElementById('adminSingleExplanation');
                 if (expEl) expEl.innerHTML = '';
                 ['adminSingleMaterial', 'adminSingleStem'].forEach(function(id) { var e = document.getElementById(id); if (e) e.innerHTML = ''; });
