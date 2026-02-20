@@ -7374,8 +7374,22 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             showMsg('adminSubcategoryStatus', changed ? ('已将「' + fromName + '」合并到「' + toName + '」（本地已更新，可点击同步到data）') : '未找到可合并的题目', changed ? 'success' : 'error');
         }
 
+        // 小类改名/合并映射，用于同步到 data 时对所有题目生效（含不在 adminStore 的题目）
+        function getAdminSubcategoryMappings() {
+            try { return JSON.parse(localStorage.getItem('xingce_admin_subcategory_mappings') || '{}') || {}; } catch (e) { return {}; }
+        }
+        function saveAdminSubcategoryMappings(obj) {
+            try { localStorage.setItem('xingce_admin_subcategory_mappings', JSON.stringify(obj || {})); } catch (e) {}
+        }
+        function addAdminSubcategoryMapping(section, oldName, newName) {
+            var m = getAdminSubcategoryMappings();
+            if (!m[section]) m[section] = {};
+            m[section][oldName] = newName;
+            saveAdminSubcategoryMappings(m);
+        }
         function adminUpdateSubcategoriesConfigReplace(section, oldName, newName) {
             try {
+                addAdminSubcategoryMapping(section, oldName, newName);
                 if (!window.SUBCATEGORIES) return;
                 if (!SUBCATEGORIES[section]) SUBCATEGORIES[section] = [];
                 var arr = SUBCATEGORIES[section] || [];
@@ -7599,15 +7613,21 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     try { data = deepRepairMojibake(JSON.parse(raw || '{}')); } catch (e) { data = {}; }
                     if (!data || typeof data !== 'object') data = {};
                     if (!data.questions || typeof data.questions !== 'object') data.questions = {};
+                    var mappings = getAdminSubcategoryMappings();
                     var changed = 0;
                     Object.keys(data.questions).forEach(function(qid) {
                         var q = data.questions[qid];
                         if (!q) return;
+                        var sec = (q.section || q.category || '').trim();
+                        var curSub = (q.subcategory || '').trim() || '未分类';
+                        var newSub = null;
                         var local = adminStore && adminStore.questions ? adminStore.questions[qid] : null;
-                        if (!local) return;
-                        var newSub = (local.subcategory || '').trim();
-                        if (!newSub) return;
-                        if ((q.subcategory || '').trim() !== newSub) {
+                        if (local && (local.subcategory || '').trim()) {
+                            newSub = (local.subcategory || '').trim();
+                        } else if (sec && mappings[sec] && mappings[sec][curSub]) {
+                            newSub = mappings[sec][curSub];
+                        }
+                        if (newSub && curSub !== newSub) {
                             q.subcategory = newSub;
                             changed++;
                         }
