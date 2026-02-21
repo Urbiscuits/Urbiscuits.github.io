@@ -1499,6 +1499,34 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <div id="adminSubcategoryStatus" class="status-message"></div>
                         </div>
 
+                        <!-- 知识管理 -->
+                        <div class="card" style="margin-bottom: 20px;">
+                            <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-book"></i> 知识管理</h2>
+                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">为大类下的各小类编写知识点笔记，支持 LaTeX 公式和图片（Ctrl+V 粘贴，图片可穿插在文字中间）。保存后上传到 GitHub，小程序用户可在专项练习中点击「开始学习」查看。</p>
+                            <div class="filter-controls" style="margin-bottom:12px;">
+                                <div><label>大类</label><select id="adminKnowledgeSection" onchange="adminKnowledgeLoadSubcategories()" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
+                                <div style="flex:1;"><label>小类</label><select id="adminKnowledgeSubcategory" onchange="adminKnowledgeLoadNote()" style="width:100%; padding:10px; margin-top:5px;"><option value="">选择小类</option></select></div>
+                            </div>
+                            <div id="adminKnowledgeNoteWrap" style="display:none;">
+                                <label style="display:block; margin-bottom:8px;">笔记内容（支持 LaTeX：$...$ 或 $$...$$，可粘贴图片）</label>
+                                <div id="adminKnowledgeNote" class="editable-area" contenteditable="true" style="min-height:200px; padding:12px; border:1px solid var(--border-color); border-radius:var(--border-radius); background:var(--surface);"></div>
+                                <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+                                    <button class="btn btn-primary" onclick="adminKnowledgeSave()"><i class="fas fa-save"></i> 保存到本地(下载JSON)</button>
+                                    <button class="btn btn-success" onclick="adminKnowledgeUploadToGitHub()"><i class="fas fa-cloud-upload-alt"></i> 上传到 GitHub</button>
+                                    <button class="btn btn-info" onclick="adminKnowledgePreview()"><i class="fas fa-eye"></i> 预览渲染</button>
+                                </div>
+                                <div id="adminKnowledgeStatus" class="status-message" style="margin-top:8px;"></div>
+                            </div>
+                            <div id="adminKnowledgePreviewModal" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.5); z-index:10000; overflow:auto; padding:20px;">
+                                <div class="card" style="max-width:700px; margin:20px auto;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                                        <h4 style="margin:0; color:var(--primary-color);">预览</h4>
+                                        <button type="button" class="btn btn-sm" onclick="document.getElementById('adminKnowledgePreviewModal').style.display='none';">关闭</button>
+                                    </div>
+                                    <div id="adminKnowledgePreviewContent" class="explanation-preview" style="max-height:60vh; overflow:auto;"></div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- 批量导入 -->
                         <div id="adminBatchImportCard" class="card" style="margin-bottom: 20px; display:none;">
@@ -3446,6 +3474,145 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 });
         }
 
+        // 知识管理：加载小类列表（复用小类维护的数据逻辑）
+        var _adminKnowledgeDataCache = { questions: {} };
+        function adminKnowledgeLoadSubcategories() {
+            var section = (document.getElementById('adminKnowledgeSection') && document.getElementById('adminKnowledgeSection').value) || '言语理解';
+            var sel = document.getElementById('adminKnowledgeSubcategory');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">加载中…</option>';
+            fetch(getDataFileUrl('files.json') + '?t=' + Date.now())
+                .then(function(r) { if (!r.ok) throw new Error('files.json 未找到'); return r.json(); })
+                .then(function(manifest) {
+                    var jsonFiles = Array.isArray(manifest && manifest.json) ? manifest.json : (manifest && manifest.json ? [manifest.json] : ['store.json']);
+                    jsonFiles = (jsonFiles || []).map(function(n) { return String(n || '').trim().replace(/^data\//i, ''); }).filter(Boolean);
+                    jsonFiles = jsonFiles.filter(function(p) {
+                        if (p === 'files.json' || p === 'users.json' || p === 'remark.json' || p === 'user.json' || p === 'zhishikaodian.json') return false;
+                        if (/^user\//i.test(p)) return false;
+                        return /\.json$/i.test(p);
+                    });
+                    if (!jsonFiles.length) jsonFiles = ['store.json'];
+                    return Promise.all(jsonFiles.map(function(f) { return fetch(getDataFileUrl(f) + '?t=' + Date.now()).then(function(r) { return r.ok ? r.json() : null; }); }))
+                        .then(function(results) {
+                            var merged = {};
+                            (results || []).forEach(function(data) {
+                                if (data && data.questions) Object.keys(data.questions).forEach(function(qid) { if (data.questions[qid]) merged[qid] = data.questions[qid]; });
+                            });
+                            _adminKnowledgeDataCache.questions = merged;
+                            var counts = {};
+                            Object.keys(merged).forEach(function(qid) {
+                                var q = merged[qid];
+                                if (!q) return;
+                                var sec = (q.section || q.category || '').trim();
+                                if (sec !== section) return;
+                                var sub = (q.subcategory || '').trim() || '未分类';
+                                counts[sub] = (counts[sub] || 0) + 1;
+                            });
+                            var list = Object.keys(counts).sort(function(a,b){ return String(a).localeCompare(String(b)); });
+                            sel.innerHTML = '<option value="">选择小类</option>' + list.map(function(n){ return '<option value="'+ (n||'').replace(/"/g,'&quot;') +'">'+ (n||'').replace(/</g,'&lt;') +'</option>'; }).join('');
+                            adminKnowledgeLoadNote();
+                        });
+                })
+                .catch(function(err) {
+                    sel.innerHTML = '<option value="">加载失败</option>';
+                });
+        }
+        function adminKnowledgeLoadNote() {
+            var section = (document.getElementById('adminKnowledgeSection') && document.getElementById('adminKnowledgeSection').value) || '言语理解';
+            var sub = (document.getElementById('adminKnowledgeSubcategory') && document.getElementById('adminKnowledgeSubcategory').value) || '';
+            var wrap = document.getElementById('adminKnowledgeNoteWrap');
+            var el = document.getElementById('adminKnowledgeNote');
+            if (!wrap || !el) return;
+            if (!sub) { wrap.style.display = 'none'; return; }
+            wrap.style.display = 'block';
+            el.innerHTML = '<p style="color:#6c757d;">加载中…</p>';
+            fetch(getDataFileUrl('zhishikaodian.json') + '?t=' + Date.now())
+                .then(function(r) { return r.ok ? r.json() : { notes: {} }; })
+                .catch(function() { return { notes: {} }; })
+                .then(function(data) {
+                    var notes = data.notes || {};
+                    var secNotes = notes[section] || {};
+                    var item = secNotes[sub];
+                    var content = item && item.content ? item.content : '';
+                    el.innerHTML = content ? explanationToHtml(content) : '';
+                    if (typeof renderLaTeXInElement === 'function') renderLaTeXInElement(el);
+                    if (!content) el.innerHTML = ''; // 空内容时清空占位
+                });
+        }
+        function adminKnowledgeGetCurrent() {
+            var section = (document.getElementById('adminKnowledgeSection') && document.getElementById('adminKnowledgeSection').value) || '言语理解';
+            var sub = (document.getElementById('adminKnowledgeSubcategory') && document.getElementById('adminKnowledgeSubcategory').value) || '';
+            return { section: section, subcategory: sub };
+        }
+        function adminKnowledgeSave() {
+            var cur = adminKnowledgeGetCurrent();
+            if (!cur.subcategory) { showMsg('adminKnowledgeStatus', '请先选择小类', 'error'); return; }
+            var content = getExplanationWithInlineImages('adminKnowledgeNote') || '';
+            fetch(getDataFileUrl('zhishikaodian.json') + '?t=' + Date.now())
+                .then(function(r) { return r.ok ? r.json() : { notes: {}, updatedAt: '' }; })
+                .catch(function() { return { notes: {}, updatedAt: '' }; })
+                .then(function(data) {
+                    var notes = data.notes || {};
+                    if (!notes[cur.section]) notes[cur.section] = {};
+                    notes[cur.section][cur.subcategory] = { content: content, updatedAt: new Date().toISOString() };
+                    data.notes = notes;
+                    data.updatedAt = new Date().toISOString();
+                    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    var a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'zhishikaodian.json';
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                    showMsg('adminKnowledgeStatus', '已生成 zhishikaodian.json 下载，请保存到 data 目录', 'success');
+                });
+        }
+        function adminKnowledgeUploadToGitHub() {
+            var cur = adminKnowledgeGetCurrent();
+            if (!cur.subcategory) { showMsg('adminKnowledgeStatus', '请先选择小类', 'error'); return; }
+            if (!(GITHUB_CONFIG && GITHUB_CONFIG.token && GITHUB_CONFIG.owner && GITHUB_CONFIG.repo)) {
+                showMsg('adminKnowledgeStatus', '请先配置 GitHub Token', 'error');
+                return;
+            }
+            var content = getExplanationWithInlineImages('adminKnowledgeNote') || '';
+            showMsg('adminKnowledgeStatus', '正在上传…', 'info');
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data/zhishikaodian.json';
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+            fetch(apiUrl + '?ref=' + (GITHUB_CONFIG.branch || 'main'), { method: 'GET', headers: headers })
+                .then(function(r) { return r.status === 404 ? null : (r.ok ? r.json() : r.json().then(function(e){ throw new Error(e.message || r.status); })); })
+                .then(function(fileInfo) {
+                    var data = fileInfo && fileInfo.content ? (function(){ try { var c = atob(fileInfo.content.replace(/\s/g,'')); return JSON.parse(decodeURIComponent(escape(c))); } catch(e){ return { notes: {}, updatedAt: '' }; } })() : { notes: {}, updatedAt: '' };
+                    var notes = data.notes || {};
+                    if (!notes[cur.section]) notes[cur.section] = {};
+                    notes[cur.section][cur.subcategory] = { content: content, updatedAt: new Date().toISOString() };
+                    data.notes = notes;
+                    data.updatedAt = new Date().toISOString();
+                    var body = { message: '知识管理更新 - ' + cur.section + '-' + cur.subcategory + ' - ' + new Date().toLocaleString('zh-CN'), content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))), branch: GITHUB_CONFIG.branch || 'main' };
+                    if (fileInfo && fileInfo.sha) body.sha = fileInfo.sha;
+                    return fetch(apiUrl, { method: 'PUT', headers: headers, body: JSON.stringify(body) });
+                })
+                .then(function(r) {
+                    if (!r.ok) return r.json().then(function(e){ throw new Error(e.message || r.status); });
+                    return r.json();
+                })
+                .then(function() {
+                    showMsg('adminKnowledgeStatus', '已上传到 GitHub', 'success');
+                    adminEnsureFileInManifest('zhishikaodian.json').catch(function(){});
+                })
+                .catch(function(err) {
+                    showMsg('adminKnowledgeStatus', '上传失败：' + (err && err.message || '未知'), 'error');
+                });
+        }
+        function adminKnowledgePreview() {
+            var cur = adminKnowledgeGetCurrent();
+            if (!cur.subcategory) { showMsg('adminKnowledgeStatus', '请先选择小类', 'error'); return; }
+            var content = getExplanationWithInlineImages('adminKnowledgeNote') || '';
+            var wrap = document.getElementById('adminKnowledgePreviewContent');
+            var modal = document.getElementById('adminKnowledgePreviewModal');
+            if (wrap) wrap.innerHTML = content ? explanationToHtml(content) : '<p style="color:#6c757d;">暂无内容</p>';
+            if (typeof renderLaTeXInElement === 'function' && wrap) renderLaTeXInElement(wrap);
+            if (modal) modal.style.display = 'block';
+        }
+
         function adminSubcategoryShowRename(section, oldName) {
             _adminSubcategoryPending = { type: 'rename', section: section, oldName: oldName };
             document.getElementById('adminSubcategoryModalTitle').textContent = '重命名小类';
@@ -4233,7 +4400,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }).join('');
         }
         function bindEditablePaste() {
-            ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD', 'singleExplanation', 'singleMaterialZiliao', 'editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD', 'editExplanation'].forEach(function(id) {
+            ['singleMaterial', 'singleStem', 'singleOptA', 'singleOptB', 'singleOptC', 'singleOptD', 'singleExplanation', 'singleMaterialZiliao', 'editMaterial', 'editQuestionContent', 'editOptA', 'editOptB', 'editOptC', 'editOptD', 'editExplanation', 'adminKnowledgeNote'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (!el) return;
                 el.addEventListener('paste', function(e) {
@@ -5301,6 +5468,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             updateAdminSingleSub();
             // 初始化小类名称维护列表
             if (typeof adminLoadSubcategories === 'function') adminLoadSubcategories();
+            // 初始化知识管理小类列表
+            if (typeof adminKnowledgeLoadSubcategories === 'function') adminKnowledgeLoadSubcategories();
             // 设置默认值：判断推理、图形推理
             document.getElementById('adminSingleSection').value = '判断推理';
             updateAdminSingleSub();
