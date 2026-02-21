@@ -1498,6 +1498,26 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                     <div id="adminSubcategoryProgressBar" style="height:100%; background:var(--primary-color); width:0%; transition:width 0.2s;"></div>
                                 </div>
                             </div>
+                            <!-- 小类题目列表弹层 -->
+                            <div id="adminSubcategoryQuestionListModal" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.45); z-index:10001; align-items:center; justify-content:center; padding:20px;">
+                                <div class="card" style="max-width:700px; width:100%; max-height:85vh; display:flex; flex-direction:column;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-shrink:0;">
+                                        <h4 id="adminSubcategoryQuestionListTitle" style="margin:0; color:var(--primary-color);"></h4>
+                                        <button type="button" class="btn btn-sm" onclick="document.getElementById('adminSubcategoryQuestionListModal').style.display='none';">关闭</button>
+                                    </div>
+                                    <div id="adminSubcategoryQuestionListBody" style="overflow:auto; flex:1; min-height:0; border:1px solid var(--border-color); border-radius:var(--border-radius); padding:12px;"></div>
+                                </div>
+                            </div>
+                            <!-- 小类题目详情弹层（来自 data 缓存，只读） -->
+                            <div id="adminSubcategoryQuestionDetailModal" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.5); z-index:10002; overflow:auto; padding:20px;">
+                                <div class="card" style="max-width:700px; margin:20px auto;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                                        <h4 style="margin:0; color:var(--primary-color);">题目详情</h4>
+                                        <button type="button" class="btn btn-sm" onclick="document.getElementById('adminSubcategoryQuestionDetailModal').style.display='none';">关闭</button>
+                                    </div>
+                                    <div id="adminSubcategoryQuestionDetailBody" class="explanation-preview"></div>
+                                </div>
+                            </div>
                             <div id="adminSubcategoryStatus" class="status-message"></div>
                         </div>
 
@@ -3470,10 +3490,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         });
                         el.innerHTML = list.map(function(it) {
                             var name = (it.name || '').replace(/</g, '&lt;');
+                            var nameRaw = (it.name || '').replace(/'/g, "\\'");
                             return '<span class="set-item" style="padding:8px 12px; display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border-color); border-radius:var(--border-radius);">' +
                                 '<span>' + name + '</span><span style="color:var(--text-secondary); font-size:0.9rem;">(' + it.count + ' 题)</span>' +
-                                '<button type="button" class="btn btn-sm" style="padding:4px 8px; background:#e3f2fd;" onclick="adminSubcategoryShowRename(\'' + section.replace(/'/g, "\\'") + '\',\'' + (it.name || '').replace(/'/g, "\\'") + '\')">重命名</button>' +
-                                '<button type="button" class="btn btn-sm" style="padding:4px 8px; background:#f3e5f5;" onclick="adminSubcategoryShowMerge(\'' + section.replace(/'/g, "\\'") + '\',\'' + (it.name || '').replace(/'/g, "\\'") + '\')">合并</button>' +
+                                '<a href="javascript:void(0)" onclick="adminSubcategoryShowQuestionList(\'' + section.replace(/'/g, "\\'") + '\',\'' + nameRaw + '\')" style="font-size:0.9rem; color:var(--primary-color);">查看题目</a>' +
+                                '<button type="button" class="btn btn-sm" style="padding:4px 8px; background:#e3f2fd;" onclick="adminSubcategoryShowRename(\'' + section.replace(/'/g, "\\'") + '\',\'' + nameRaw + '\')">重命名</button>' +
+                                '<button type="button" class="btn btn-sm" style="padding:4px 8px; background:#f3e5f5;" onclick="adminSubcategoryShowMerge(\'' + section.replace(/'/g, "\\'") + '\',\'' + nameRaw + '\')">合并</button>' +
                                 '</span>';
                         }).join('');
                         if (list.length === 0) el.innerHTML = '<p style="color:var(--text-secondary); font-size:0.9rem;">该大类暂无小类（请检查 data 目录下是否有题库 JSON 文件）</p>';
@@ -3814,6 +3836,54 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (modal) modal.style.display = 'block';
         }
 
+        function adminSubcategoryShowQuestionList(section, subName) {
+            var qs = _adminSubcategoryDataCache.questions || {};
+            var list = [];
+            Object.keys(qs).forEach(function(qid) {
+                var q = qs[qid];
+                if (!q) return;
+                var sec = (q.section || q.category || '').trim();
+                var sub = (q.subcategory || '').trim() || '未分类';
+                if (sec === section && sub === subName) list.push({ id: qid, q: q });
+            });
+            list.sort(function(a, b) { return String(a.id).localeCompare(String(b.id)); });
+            var titleEl = document.getElementById('adminSubcategoryQuestionListTitle');
+            var bodyEl = document.getElementById('adminSubcategoryQuestionListBody');
+            if (titleEl) titleEl.textContent = section + ' - ' + subName + '（共 ' + list.length + ' 题）';
+            if (!bodyEl) return;
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            bodyEl.innerHTML = list.length === 0 ? '<p style="color:var(--text-secondary);">该小类下暂无题目</p>' : list.map(function(item, idx) {
+                var q = item.q;
+                var preview = (q.content || '').replace(/\s+/g, ' ').slice(0, 80);
+                if ((q.content || '').length > 80) preview += '…';
+                return '<div class="question-item" style="margin-bottom:12px; padding:12px; border:1px solid var(--border-color); border-radius:var(--border-radius);">' +
+                    '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">' +
+                    '<span style="color:var(--text-secondary); font-size:0.85rem;">' + (idx + 1) + '. ' + esc(preview) + '</span>' +
+                    '<a href="javascript:void(0)" onclick="adminSubcategoryShowQuestionDetail(\'' + (item.id || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\')" style="flex-shrink:0; font-size:0.9rem; color:var(--primary-color);">题目详情</a>' +
+                    '</div></div>';
+            }).join('');
+            document.getElementById('adminSubcategoryQuestionListModal').style.display = 'flex';
+        }
+        function adminSubcategoryShowQuestionDetail(qid) {
+            var q = ( _adminSubcategoryDataCache.questions || {} )[qid];
+            if (!q) return;
+            function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+            function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />'; }
+            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(imgTag).join('');
+            var optHtml = (q.options || []).map(function(o) {
+                var c = o.label === q.answer ? 'correct' : '';
+                return '<div class="option ' + c + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + (o.images || []).map(imgTag).join('') + '</div>';
+            }).join('');
+            var html = '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】</div>' +
+                (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') +
+                '<div class="question-content">' + stemHtml + '</div>' +
+                '<div class="options-grid" style="margin-top:12px;">' + optHtml + '</div>' +
+                (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '');
+            var bodyEl = document.getElementById('adminSubcategoryQuestionDetailBody');
+            if (bodyEl) { bodyEl.innerHTML = html; renderLaTeXInElement(bodyEl); }
+            document.getElementById('adminSubcategoryQuestionDetailModal').style.display = 'block';
+        }
         function adminSubcategoryShowRename(section, oldName) {
             _adminSubcategoryPending = { type: 'rename', section: section, oldName: oldName };
             document.getElementById('adminSubcategoryModalTitle').textContent = '重命名小类';
@@ -7046,6 +7116,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
          * 确保指定 JSON 文件名已经出现在 data/files.json 的 json 列表中
          * - 支持 object 形式：{ "json": ["store.json"] }
          * - 也支持数组形式：["store.json", "extra.json"]
+         * - 若 PUT 因 SHA 不一致失败，会重新拉取最新 files.json 再重试一次
          */
         function adminEnsureFileInManifest(jsonFileName) {
             if (!GITHUB_CONFIG.token || !window.fetch) {
@@ -7057,38 +7128,21 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 'Authorization': 'token ' + GITHUB_CONFIG.token,
                 'Accept': 'application/vnd.github.v3+json'
             };
+            var branch = GITHUB_CONFIG.branch;
             
-            return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, {
-                method: 'GET',
-                headers: headers
-            })
-            .then(function(resp) {
-                if (resp.status === 404) {
-                    // files.json 不存在，创建一个新的
-                    return null;
-                }
-                if (!resp.ok) {
-                    throw new Error('获取 files.json 失败: ' + resp.status);
-                }
-                return resp.json();
-            })
-            .then(function(fileInfo) {
+            function buildManifestFromFileInfo(fileInfo) {
                 var manifest;
                 if (!fileInfo) {
-                    // 默认创建 object 形式的清单，并保证包含 store.json
                     manifest = { json: ['store.json', jsonFileName] };
                 } else {
                     try {
                         var existingContent = base64ToUtf8(fileInfo.content);
                         manifest = JSON.parse(existingContent);
                     } catch (e) {
-                        // 解析失败时，重新生成一个安全的清单
                         manifest = { json: ['store.json', jsonFileName] };
                     }
-                    // 统一成 { txt:[], json:[] } 结构
                     if (Array.isArray(manifest)) {
-                        var txtFiles = [];
-                        var jsonFiles = [];
+                        var txtFiles = [], jsonFiles = [];
                         manifest.forEach(function(p) {
                             if (typeof p !== 'string') return;
                             if (/\.txt$/i.test(p)) txtFiles.push(p);
@@ -7098,38 +7152,56 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     }
                     manifest.txt = manifest.txt || [];
                     manifest.json = manifest.json || [];
-                    if (manifest.json.indexOf('store.json') === -1) {
-                        manifest.json.unshift('store.json');
-                    }
-                    if (manifest.json.indexOf(jsonFileName) === -1) {
-                        manifest.json.push(jsonFileName);
-                    }
+                    if (manifest.json.indexOf('store.json') === -1) manifest.json.unshift('store.json');
+                    if (manifest.json.indexOf(jsonFileName) === -1) manifest.json.push(jsonFileName);
                 }
-                
                 var newContent = JSON.stringify(manifest, null, 2);
-                var encodedContent = utf8ToBase64(newContent);
-                var commitData = {
+                return { fileInfo: fileInfo, content: newContent, encoded: utf8ToBase64(newContent) };
+            }
+            
+            function getFileInfo(noCache) {
+                var url = apiUrl + '?ref=' + branch;
+                if (noCache) url += '&_=' + Date.now();
+                return fetch(url, { method: 'GET', headers: headers, cache: noCache ? 'no-store' : 'default' })
+                    .then(function(resp) {
+                        if (resp.status === 404) return null;
+                        if (!resp.ok) throw new Error('获取 files.json 失败: ' + resp.status);
+                        return resp.json();
+                    });
+            }
+            
+            function doPut(sha, encodedContent) {
+                var body = {
                     message: '管理员更新 files.json，加入 ' + jsonFileName + ' - ' + new Date().toLocaleString('zh-CN'),
                     content: encodedContent,
-                    branch: GITHUB_CONFIG.branch
+                    branch: branch
                 };
-                if (fileInfo && fileInfo.sha) {
-                    commitData.sha = fileInfo.sha;
-                }
-                return fetch(apiUrl, {
-                    method: 'PUT',
-                    headers: headers,
-                    body: JSON.stringify(commitData)
-                });
-            })
-            .then(function(resp) {
-                if (!resp.ok) {
-                    return resp.json().then(function(err) {
-                        throw new Error('更新 files.json 失败: ' + (err.message || resp.status));
+                if (sha) body.sha = sha;
+                return fetch(apiUrl, { method: 'PUT', headers: headers, body: JSON.stringify(body) });
+            }
+            
+            return getFileInfo(false)
+                .then(function(fileInfo) {
+                    var built = buildManifestFromFileInfo(fileInfo);
+                    return doPut(fileInfo && fileInfo.sha, built.encoded).then(function(resp) {
+                        if (resp.ok) return resp.json();
+                        return resp.json().then(function(err) {
+                            var msg = (err && err.message) ? err.message : String(resp.status || '');
+                            var isShaMismatch = resp.status === 409 || /does not match/i.test(msg) || /sha/i.test(msg);
+                            if (!isShaMismatch) throw new Error('更新 files.json 失败: ' + msg);
+                            // 重新拉取最新 files.json 再重试一次
+                            return getFileInfo(true).then(function(latestInfo) {
+                                var built2 = buildManifestFromFileInfo(latestInfo);
+                                return doPut(latestInfo && latestInfo.sha, built2.encoded).then(function(r2) {
+                                    if (r2.ok) return r2.json();
+                                    return r2.json().then(function(e2) {
+                                        throw new Error('更新 files.json 失败: ' + ((e2 && e2.message) || r2.status));
+                                    });
+                                });
+                            });
+                        });
                     });
-                }
-                return resp.json();
-            });
+                });
         }
         
         /**
@@ -7453,7 +7525,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         }
 
         /**
-         * 从 files.json 中移除指定文件
+         * 从 files.json 中移除指定文件。
+         * 若 PUT 因 SHA 不一致失败，会重新拉取最新 files.json 再重试一次。
          */
         function adminRemoveFileFromManifest(jsonFileName) {
             if (!GITHUB_CONFIG.token || !window.fetch) {
@@ -7465,67 +7538,70 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 'Authorization': 'token ' + GITHUB_CONFIG.token,
                 'Accept': 'application/vnd.github.v3+json'
             };
+            var branch = GITHUB_CONFIG.branch;
             
-            return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, {
-                method: 'GET',
-                headers: headers
-            })
-            .then(function(resp) {
-                if (resp.status === 404) {
-                    return null; // files.json 不存在，无需更新
-                }
-                if (!resp.ok) {
-                    throw new Error('获取 files.json 失败: ' + resp.status);
-                }
-                return resp.json();
-            })
-            .then(function(fileInfo) {
-                if (!fileInfo) return null; // files.json 不存在
+            function getFileInfo(noCache) {
+                var url = apiUrl + '?ref=' + branch;
+                if (noCache) url += '&_=' + Date.now();
+                return fetch(url, { method: 'GET', headers: headers, cache: noCache ? 'no-store' : 'default' })
+                    .then(function(resp) {
+                        if (resp.status === 404) return null;
+                        if (!resp.ok) throw new Error('获取 files.json 失败: ' + resp.status);
+                        return resp.json();
+                    });
+            }
+            
+            function buildRemovePayload(fileInfo) {
+                if (!fileInfo) return null;
                 var existingContent = base64ToUtf8(fileInfo.content);
                 var manifest = JSON.parse(existingContent);
                 var updated = false;
-                
-                // 从 json 数组中移除
                 if (Array.isArray(manifest.json)) {
                     var idx = manifest.json.indexOf(jsonFileName);
-                    if (idx >= 0) {
-                        manifest.json.splice(idx, 1);
-                        updated = true;
-                    }
-                } else if (manifest.json && typeof manifest.json === 'object') {
-                    // 如果是对象格式，也尝试处理
-                    if (Array.isArray(manifest.json.list)) {
-                        var idx = manifest.json.list.indexOf(jsonFileName);
-                        if (idx >= 0) {
-                            manifest.json.list.splice(idx, 1);
-                            updated = true;
-                        }
-                    }
+                    if (idx >= 0) { manifest.json.splice(idx, 1); updated = true; }
+                } else if (manifest.json && typeof manifest.json === 'object' && Array.isArray(manifest.json.list)) {
+                    var idx = manifest.json.list.indexOf(jsonFileName);
+                    if (idx >= 0) { manifest.json.list.splice(idx, 1); updated = true; }
                 }
-                
-                if (!updated) return null; // 文件不在清单中
-                
+                if (!updated) return null;
                 var newContent = JSON.stringify(manifest, null, 2);
-                var encodedContent = utf8ToBase64(newContent);
-                
+                return { sha: fileInfo.sha, encoded: utf8ToBase64(newContent) };
+            }
+            
+            function doPut(sha, encodedContent) {
                 return fetch(apiUrl, {
                     method: 'PUT',
                     headers: headers,
                     body: JSON.stringify({
                         message: '从 files.json 移除：' + jsonFileName,
                         content: encodedContent,
-                        sha: fileInfo.sha,
-                        branch: GITHUB_CONFIG.branch
+                        sha: sha,
+                        branch: branch
                     })
                 });
-            })
-            .then(function(resp) {
-                if (resp && !resp.ok) {
+            }
+            
+            return getFileInfo(false).then(function(fileInfo) {
+                var payload = buildRemovePayload(fileInfo);
+                if (!payload) return null;
+                return doPut(payload.sha, payload.encoded).then(function(resp) {
+                    if (resp.ok) return resp.json();
                     return resp.json().then(function(err) {
-                        throw new Error('更新 files.json 失败: ' + (err.message || resp.status));
+                        var msg = (err && err.message) ? err.message : String(resp.status || '');
+                        var isShaMismatch = resp.status === 409 || /does not match/i.test(msg) || /sha/i.test(msg);
+                        if (!isShaMismatch) throw new Error('更新 files.json 失败: ' + msg);
+                        return getFileInfo(true).then(function(latestInfo) {
+                            var payload2 = buildRemovePayload(latestInfo);
+                            if (!payload2) return null;
+                            return doPut(payload2.sha, payload2.encoded).then(function(r2) {
+                                if (r2.ok) return r2.json();
+                                return r2.json().then(function(e2) {
+                                    throw new Error('更新 files.json 失败: ' + ((e2 && e2.message) || r2.status));
+                                });
+                            });
+                        });
                     });
-                }
-                return resp ? resp.json() : null;
+                });
             });
         }
         
