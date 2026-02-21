@@ -1504,7 +1504,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <!-- 知识管理 -->
                         <div class="card" style="margin-bottom: 20px;">
                             <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-book"></i> 知识管理</h2>
-                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">在 data/zhishikaodian/ 文件夹下创建知识点 JSON 文件。支持富文本（字体、颜色、高亮、加粗、斜体等）、LaTeX 公式、图片（Ctrl+V 粘贴）。单个文件不超过 800KB，超限自动拆分。换行符会保留。</p>
+                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">在 data/zhishikaodian/ 文件夹下创建知识点 JSON 文件。支持多页面，每个页面单独编辑，小程序端可左右滑动切换。富文本、LaTeX、图片均支持。单页不超过 800KB。</p>
                             <div class="filter-controls" style="margin-bottom:12px;">
                                 <div><label>大类</label><select id="adminKnowledgeSection" onchange="adminKnowledgeLoadSubcategories()" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
                                 <div style="flex:1;"><label>小类</label><select id="adminKnowledgeSubcategory" onchange="adminKnowledgeLoadNote()" style="width:100%; padding:10px; margin-top:5px;"><option value="">选择小类</option></select></div>
@@ -1513,6 +1513,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 <div style="flex:1;"><label>JSON 文件名（英文，如 luojitiankong，留空自动生成）</label><input type="text" id="adminKnowledgeFileName" placeholder="如：luojitiankong" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>
                             </div>
                             <div id="adminKnowledgeNoteWrap" style="display:none;">
+                                <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                                    <label style="margin:0;">页面：</label>
+                                    <div id="adminKnowledgePageTabs" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+                                    <button type="button" class="btn btn-sm btn-primary" onclick="adminKnowledgeAddPage()"><i class="fas fa-plus"></i> 新增页面</button>
+                                </div>
                                 <label style="display:block; margin-bottom:8px;">笔记内容（富文本、LaTeX、图片）</label>
                                 <div id="adminKnowledgeNoteEditor" style="min-height:200px; border:1px solid var(--border-color); border-radius:var(--border-radius); background:var(--surface);"></div>
                                 <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
@@ -3482,6 +3487,8 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         // 知识管理：data/zhishikaodian/ 文件夹，每小类一个 JSON
         var _adminKnowledgeDataCache = { questions: {} };
         var _adminKnowledgeQuill = null;
+        var _adminKnowledgePages = [''];
+        var _adminKnowledgeCurrentPageIndex = 0;
         var SLUG_MAP = { '逻辑填空':'luojitiankong','中心理解':'zhongxinlijie','语句表达':'yujubiaoda','篇章阅读':'pianzhangyuedu','图形推理':'tuxingtuili','定义判断':'dingyipanduan','类比推理':'leibituili','逻辑判断':'luojipanduan','数字推理':'shuzituili','数学运算':'shuxueyunsuan','未分类':'other' };
         function toSlug(s) { return (SLUG_MAP[s] || (s || '').replace(/[\u4e00-\u9fa5]/g, function(c){ var x = {'逻':'luo','辑':'ji','填':'tian','空':'kong','中':'zhong','心':'xin','理':'li','解':'jie','语':'yu','句':'ju','表':'biao','达':'da','篇':'pian','章':'zhang','阅':'yue','读':'du','图':'tu','形':'xing','推':'tui','定':'ding','义':'yi','判':'pan','断':'duan','类':'lei','比':'bi','数':'shu','字':'zi','学':'xue','运':'yun','算':'suan','未':'wei','分':'fen','类':'lei'}; return x[c] || c; }).replace(/[^a-z0-9]/gi,'').toLowerCase() || 'note'); }
         function getZhishikaodianUrl(path) { return getDataFileUrl('zhishikaodian/' + (path || '')); }
@@ -3551,6 +3558,42 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (!_adminKnowledgeQuill) return;
             _adminKnowledgeQuill.root.innerHTML = html || '';
         }
+        function adminKnowledgeSaveCurrentToPages() {
+            if (_adminKnowledgePages.length > _adminKnowledgeCurrentPageIndex && _adminKnowledgeQuill) {
+                _adminKnowledgePages[_adminKnowledgeCurrentPageIndex] = _adminKnowledgeQuill.root.innerHTML || '';
+            }
+        }
+        function adminKnowledgeAddPage() {
+            adminKnowledgeSaveCurrentToPages();
+            _adminKnowledgePages.push('');
+            _adminKnowledgeCurrentPageIndex = _adminKnowledgePages.length - 1;
+            adminKnowledgeRenderPageTabs();
+            adminKnowledgeSetQuillHtml('');
+        }
+        function adminKnowledgeRemovePage(idx) {
+            if (_adminKnowledgePages.length <= 1) return;
+            adminKnowledgeSaveCurrentToPages();
+            _adminKnowledgePages.splice(idx, 1);
+            if (_adminKnowledgeCurrentPageIndex >= _adminKnowledgePages.length) _adminKnowledgeCurrentPageIndex = Math.max(0, _adminKnowledgePages.length - 1);
+            adminKnowledgeRenderPageTabs();
+            adminKnowledgeSetQuillHtml(_adminKnowledgePages[_adminKnowledgeCurrentPageIndex] || '');
+        }
+        function adminKnowledgeSwitchPage(idx) {
+            adminKnowledgeSaveCurrentToPages();
+            _adminKnowledgeCurrentPageIndex = idx;
+            adminKnowledgeRenderPageTabs();
+            adminKnowledgeSetQuillHtml(_adminKnowledgePages[idx] || '');
+        }
+        function adminKnowledgeRenderPageTabs() {
+            var el = document.getElementById('adminKnowledgePageTabs');
+            if (!el) return;
+            el.innerHTML = _adminKnowledgePages.map(function(_, i) {
+                var active = i === _adminKnowledgeCurrentPageIndex;
+                var canDel = _adminKnowledgePages.length > 1;
+                return '<button type="button" class="btn btn-sm ' + (active ? 'btn-primary' : '') + '" style="' + (active ? '' : 'background:var(--light-bg); border:1px solid var(--border-color);') + '" onclick="adminKnowledgeSwitchPage(' + i + ')">页面' + (i + 1) + '</button>' +
+                    (canDel ? '<button type="button" class="btn btn-sm" style="padding:4px 8px; color:#dc3545; background:transparent; border:none;" onclick="event.stopPropagation(); adminKnowledgeRemovePage(' + i + ')" title="删除此页面"><i class="fas fa-times"></i></button>' : '');
+            }).join('');
+        }
         function adminKnowledgeLoadNote() {
             var section = (document.getElementById('adminKnowledgeSection') && document.getElementById('adminKnowledgeSection').value) || '言语理解';
             var sub = (document.getElementById('adminKnowledgeSubcategory') && document.getElementById('adminKnowledgeSubcategory').value) || '';
@@ -3568,14 +3611,39 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 .then(function(manifest) {
                     var key = section + '-' + sub;
                     var files = (manifest.topics || {})[key];
-                    if (!files || !files.length) { adminKnowledgeSetQuillHtml(''); return; }
+                    if (!files || !files.length) {
+                        _adminKnowledgePages = [''];
+                        _adminKnowledgeCurrentPageIndex = 0;
+                        adminKnowledgeRenderPageTabs();
+                        adminKnowledgeSetQuillHtml('');
+                        return;
+                    }
                     return Promise.all((files || []).map(function(f) { return fetch(getZhishikaodianUrl(f) + '?t=' + Date.now()).then(function(r) { return r.ok ? r.json() : null; }); }))
                         .then(function(parts) {
-                            var content = (parts || []).filter(Boolean).map(function(p) { return p.content || ''; }).join('');
-                            adminKnowledgeSetQuillHtml(content || '');
+                            var byPage = {};
+                            (parts || []).filter(Boolean).forEach(function(p) {
+                                var pageNum = p.page != null ? p.page : 1;
+                                var partNum = p.part != null ? p.part : 1;
+                                if (!byPage[pageNum]) byPage[pageNum] = [];
+                                byPage[pageNum].push({ part: partNum, content: p.content || '' });
+                            });
+                            var pageNums = Object.keys(byPage).map(Number).sort(function(a,b){ return a - b; });
+                            _adminKnowledgePages = pageNums.map(function(n) {
+                                var arr = byPage[n].sort(function(a,b){ return a.part - b.part; });
+                                return arr.map(function(x){ return x.content; }).join('');
+                            });
+                            if (_adminKnowledgePages.length === 0) _adminKnowledgePages = [''];
+                            _adminKnowledgeCurrentPageIndex = 0;
+                            adminKnowledgeRenderPageTabs();
+                            adminKnowledgeSetQuillHtml(_adminKnowledgePages[0] || '');
                         });
                 })
-                .catch(function() { adminKnowledgeSetQuillHtml(''); });
+                .catch(function() {
+                    _adminKnowledgePages = [''];
+                    _adminKnowledgeCurrentPageIndex = 0;
+                    adminKnowledgeRenderPageTabs();
+                    adminKnowledgeSetQuillHtml('');
+                });
         }
         function adminKnowledgeGetCurrent() {
             var section = (document.getElementById('adminKnowledgeSection') && document.getElementById('adminKnowledgeSection').value) || '言语理解';
@@ -3626,13 +3694,20 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function adminKnowledgeSave() {
             var cur = adminKnowledgeGetCurrent();
             if (!cur.subcategory) { showMsg('adminKnowledgeStatus', '请先选择小类', 'error'); return; }
-            var rawHtml = adminKnowledgeGetQuillHtml();
-            var content = processLatexInHtml(rawHtml);
-            var chunks = splitContentBy800k(content);
+            adminKnowledgeSaveCurrentToPages();
             var files = [];
-            chunks.forEach(function(chunk, i) {
-                var fn = chunks.length > 1 ? cur.baseName + '_' + (i + 1) + '.json' : cur.baseName + '.json';
-                files.push(fn);
+            var toDownload = [];
+            _adminKnowledgePages.forEach(function(rawHtml, pageIdx) {
+                var content = processLatexInHtml(rawHtml || '');
+                var chunks = splitContentBy800k(content);
+                chunks.forEach(function(chunk, chunkIdx) {
+                    var fn = pageIdx === 0 && chunks.length === 1 ? cur.baseName + '.json'
+                        : pageIdx === 0 ? cur.baseName + '_' + (chunkIdx + 1) + '.json'
+                        : chunks.length === 1 ? cur.baseName + '_p' + (pageIdx + 1) + '.json'
+                        : cur.baseName + '_p' + (pageIdx + 1) + '_' + (chunkIdx + 1) + '.json';
+                    files.push(fn);
+                    toDownload.push({ name: fn, content: JSON.stringify({ section: cur.section, subcategory: cur.subcategory, content: chunk, page: pageIdx + 1, part: chunkIdx + 1, updatedAt: new Date().toISOString() }, null, 2) });
+                });
             });
             var manifest = { topics: {}, updatedAt: new Date().toISOString() };
             manifest.topics[cur.section + '-' + cur.subcategory] = files;
@@ -3644,11 +3719,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     topics[cur.section + '-' + cur.subcategory] = files;
                     manifest.topics = topics;
                     manifest.updatedAt = new Date().toISOString();
-                    var toDownload = [{ name: 'manifest.json', content: JSON.stringify(manifest, null, 2) }];
-                    chunks.forEach(function(chunk, i) {
-                        var fn = files[i];
-                        toDownload.push({ name: fn, content: JSON.stringify({ section: cur.section, subcategory: cur.subcategory, content: chunk, part: i + 1, updatedAt: new Date().toISOString() }, null, 2) });
-                    });
+                    toDownload.unshift({ name: 'manifest.json', content: JSON.stringify(manifest, null, 2) });
                     toDownload.forEach(function(item, idx) {
                         var a = document.createElement('a');
                         a.href = URL.createObjectURL(new Blob([item.content], { type: 'application/json' }));
@@ -3666,12 +3737,20 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 showMsg('adminKnowledgeStatus', '请先配置 GitHub Token', 'error');
                 return;
             }
-            var rawHtml = adminKnowledgeGetQuillHtml();
-            var content = processLatexInHtml(rawHtml);
-            var chunks = splitContentBy800k(content);
+            adminKnowledgeSaveCurrentToPages();
             var files = [];
-            chunks.forEach(function(chunk, i) {
-                files.push(chunks.length > 1 ? cur.baseName + '_' + (i + 1) + '.json' : cur.baseName + '.json');
+            var toUpload = [];
+            _adminKnowledgePages.forEach(function(rawHtml, pageIdx) {
+                var content = processLatexInHtml(rawHtml || '');
+                var chunks = splitContentBy800k(content);
+                chunks.forEach(function(chunk, chunkIdx) {
+                    var fn = pageIdx === 0 && chunks.length === 1 ? cur.baseName + '.json'
+                        : pageIdx === 0 ? cur.baseName + '_' + (chunkIdx + 1) + '.json'
+                        : chunks.length === 1 ? cur.baseName + '_p' + (pageIdx + 1) + '.json'
+                        : cur.baseName + '_p' + (pageIdx + 1) + '_' + (chunkIdx + 1) + '.json';
+                    files.push(fn);
+                    toUpload.push({ fn: fn, payload: JSON.stringify({ section: cur.section, subcategory: cur.subcategory, content: chunk, page: pageIdx + 1, part: chunkIdx + 1, updatedAt: new Date().toISOString() }, null, 2) });
+                });
             });
             var branch = GITHUB_CONFIG.branch || 'main';
             var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
@@ -3713,11 +3792,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     var manifest = { topics: topics, updatedAt: new Date().toISOString() };
                     var manifestStr = JSON.stringify(manifest, null, 2);
                     var promises = [putFile('manifest.json', manifestStr)];
-                    chunks.forEach(function(chunk, i) {
-                        var fn = files[i];
-                        var partContent = JSON.stringify({ section: cur.section, subcategory: cur.subcategory, content: chunk, part: i + 1, updatedAt: new Date().toISOString() }, null, 2);
-                        promises.push(putFile(fn, partContent));
-                    });
+                    toUpload.forEach(function(item) { promises.push(putFile(item.fn, item.payload)); });
                     return Promise.all(promises);
                 })
                 .then(function() {
