@@ -522,6 +522,30 @@
             margin: 10px 0;
             overflow-x: auto;
         }
+        /* 知识管理 / 解析预览：代码块样式，与小程序端保持一致 */
+        .explanation-preview pre,
+        .explanation-preview pre.ql-syntax,
+        .explanation-preview .ql-syntax {
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow-x: auto;
+            border: 1px solid #444;
+        }
+        .explanation-preview p code,
+        .explanation-preview li code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: rgba(0,0,0,0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
 
         .status-message {
             padding: 15px;
@@ -1692,12 +1716,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 <h2 style="margin:0; color:var(--primary-color);"><i class="fas fa-download"></i> 从 data 加载题库</h2>
                 <button onclick="profileCloseLoadFromDataModal()" style="background:none; border:none; font-size:32px; color:var(--text-secondary); cursor:pointer; line-height:1;">×</button>
             </div>
-            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">选择要加载的 JSON 文件（可多选），或选择"全部"加载所有文件。</p>
+            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">选择要加载的 JSON 文件（可多选）。全选后可点击单个文件取消勾选。</p>
             <div style="margin-bottom:16px;">
-                <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; cursor:pointer;">
-                    <input type="checkbox" id="profileLoadAllJson" onchange="profileToggleLoadAllJson()">
-                    <strong>加载全部 JSON 文件</strong>
-                </label>
+                <div style="margin-bottom:12px;">
+                    <button type="button" class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color); margin-right:8px;" onclick="profileToggleLoadAllJson(true)">全选</button>
+                    <button type="button" class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="profileToggleLoadAllJson(false)">取消全选</button>
+                </div>
                 <div id="profileLoadJsonFileList" style="max-height:400px; overflow-y:auto; border:1px solid var(--border-color); border-radius:var(--border-radius); padding:12px;">
                     <p style="color:var(--text-secondary); text-align:center; padding:20px;">正在加载文件列表...</p>
                 </div>
@@ -3276,7 +3300,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 var subCounts = stats[section] || {};
                 var sectionTotal = Object.keys(subCounts).reduce(function(a, k) { return a + subCounts[k]; }, 0);
                 if (sectionTotal === 0) return;
-                var subs = Object.keys(subCounts);
+                var subs = Object.keys(subCounts).sort(function(a, b) { return String(a).localeCompare(String(b)); });
                 html += '<li class="tree-node collapsed"><div class="tree-toggle"><i class="fas fa-chevron-right"></i><i class="fas fa-chevron-down"></i><span>' + section + '</span><span class="tree-count">' + sectionTotal + '</span></div><ul class="tree-children">';
                 subs.forEach(function(sub) { html += '<li class="tree-leaf"><span>' + sub + '</span><span class="tree-count">' + subCounts[sub] + '</span></li>'; });
                 html += '</ul></li>';
@@ -6340,8 +6364,6 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 return;
             }
             modal.style.display = 'flex';
-            var allEl = document.getElementById('profileLoadAllJson');
-            if (allEl) allEl.checked = false;
             var listEl = document.getElementById('profileLoadJsonFileList');
             if (listEl) listEl.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">正在加载文件列表...</p>';
             var st = document.getElementById('profileLoadFromDataStatus');
@@ -6392,17 +6414,17 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     }
                 });
         }
-        function profileToggleLoadAllJson() {
-            var loadAll = document.getElementById('profileLoadAllJson') && document.getElementById('profileLoadAllJson').checked;
+        function profileToggleLoadAllJson(checked) {
+            var loadAll = arguments.length > 0 ? !!checked : (document.getElementById('profileLoadAllJson') && document.getElementById('profileLoadAllJson').checked);
             var checkboxes = document.querySelectorAll('.profile-load-json-checkbox');
             checkboxes.forEach(function(cb) {
-                cb.checked = !!loadAll;
-                cb.disabled = !!loadAll;
+                cb.checked = loadAll;
             });
+            profileUpdateLoadJsonSelection();
         }
         function profileUpdateLoadJsonSelection() {
             var checkboxes = document.querySelectorAll('.profile-load-json-checkbox');
-            var allChecked = Array.from(checkboxes).length > 0 && Array.from(checkboxes).every(function(cb) { return cb.checked || cb.disabled; });
+            var allChecked = Array.from(checkboxes).length > 0 && Array.from(checkboxes).every(function(cb) { return cb.checked; });
             var allEl = document.getElementById('profileLoadAllJson');
             if (allEl) allEl.checked = allChecked;
         }
@@ -6499,13 +6521,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             if (typeof checkExportState === 'function') checkExportState();
         }
         function profileLoadFromDataExecute() {
-            var loadAll = document.getElementById('profileLoadAllJson') && document.getElementById('profileLoadAllJson').checked;
-            var selectedFiles = [];
-            if (loadAll) {
-                selectedFiles = Array.from(document.querySelectorAll('.profile-load-json-checkbox')).map(function(cb) { return cb.value; });
-            } else {
-                selectedFiles = Array.from(document.querySelectorAll('.profile-load-json-checkbox:checked')).map(function(cb) { return cb.value; });
-            }
+            var selectedFiles = Array.from(document.querySelectorAll('.profile-load-json-checkbox:checked')).map(function(cb) { return cb.value; });
             if (!selectedFiles.length) {
                 showMsg('profileLoadFromDataStatus', '请至少选择一个 JSON 文件', 'error');
                 return;
