@@ -3380,37 +3380,70 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             saveAdminSubcategoriesConfig(cfg);
         }
 
-        // 小类名称维护/合并：从 adminStore 加载小类列表并渲染
-        var _adminSubcategoryPending = null; // { type: 'rename'|'merge', section, oldName, newName }
+        // 小类名称维护/合并：从 data 加载（与「从 data 加载」同源），不读 adminStore
+        var _adminSubcategoryPending = null;
+        var _adminSubcategoryDataCache = { questions: {} }; // 缓存从 data 合并后的题目，供合并目标列表使用
         function adminLoadSubcategories() {
             var el = document.getElementById('adminSubcategoryList');
             if (!el) return;
-            adminStore.load();
             var section = (document.getElementById('adminSubcategorySection') && document.getElementById('adminSubcategorySection').value) || '言语理解';
-            var counts = {};
-            var qs = adminStore.questions || {};
-            Object.keys(qs).forEach(function(qid) {
-                var q = qs[qid];
-                if (!q) return;
-                var sec = q.section || q.category || '';
-                if (sec !== section) return;
-                var sub = (q.subcategory || '').trim() || '未分类';
-                counts[sub] = (counts[sub] || 0) + 1;
-            });
-            var list = Object.keys(counts).map(function(name) { return { name: name, count: counts[name] }; });
-            list.sort(function(a, b) {
-                if (b.count !== a.count) return b.count - a.count;
-                return String(a.name).localeCompare(String(b.name));
-            });
-            el.innerHTML = list.map(function(it) {
-                var name = (it.name || '').replace(/</g, '&lt;');
-                return '<span class="set-item" style="padding:8px 12px; display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border-color); border-radius:var(--border-radius);">' +
-                    '<span>' + name + '</span><span style="color:var(--text-secondary); font-size:0.9rem;">(' + it.count + ' 题)</span>' +
-                    '<button type="button" class="btn btn-sm" style="padding:4px 8px; background:#e3f2fd;" onclick="adminSubcategoryShowRename(\'' + section.replace(/'/g, "\\'") + '\',\'' + (it.name || '').replace(/'/g, "\\'") + '\')">重命名</button>' +
-                    '<button type="button" class="btn btn-sm" style="padding:4px 8px; background:#f3e5f5;" onclick="adminSubcategoryShowMerge(\'' + section.replace(/'/g, "\\'") + '\',\'' + (it.name || '').replace(/'/g, "\\'") + '\')">合并</button>' +
-                    '</span>';
-            }).join('');
-            if (list.length === 0) el.innerHTML = '<p style="color:var(--text-secondary); font-size:0.9rem;">该大类暂无小类（请先从 data 加载或批量导入题目）</p>';
+            el.innerHTML = '<p style="color:var(--text-secondary); font-size:0.9rem;">正在从 data 加载…</p>';
+            fetch(getDataFileUrl('files.json') + '?t=' + Date.now())
+                .then(function(r) {
+                    if (!r.ok) throw new Error('files.json 未找到');
+                    return r.json();
+                })
+                .then(function(manifest) {
+                    var jsonFiles = Array.isArray(manifest && manifest.json) ? manifest.json : (manifest && manifest.json ? [manifest.json] : ['store.json']);
+                    jsonFiles = (jsonFiles || []).map(function(n) { return String(n || '').trim().replace(/^data\//i, ''); }).filter(Boolean);
+                    jsonFiles = jsonFiles.filter(function(p) {
+                        if (p === 'files.json' || p === 'users.json' || p === 'remark.json' || p === 'user.json') return false;
+                        if (/^user\//i.test(p)) return false;
+                        return /\.json$/i.test(p);
+                    });
+                    if (!jsonFiles.length) jsonFiles = ['store.json'];
+                    return Promise.all(jsonFiles.map(function(fileName) {
+                        return fetch(getDataFileUrl(fileName) + '?t=' + Date.now()).then(function(r) {
+                            if (!r.ok) return null;
+                            return r.json();
+                        });
+                    })).then(function(results) {
+                        var mergedQuestions = {};
+                        (results || []).forEach(function(data) {
+                            if (!data || !data.questions) return;
+                            Object.keys(data.questions).forEach(function(qid) {
+                                if (data.questions[qid]) mergedQuestions[qid] = data.questions[qid];
+                            });
+                        });
+                        _adminSubcategoryDataCache.questions = mergedQuestions;
+                        var counts = {};
+                        Object.keys(mergedQuestions).forEach(function(qid) {
+                            var q = mergedQuestions[qid];
+                            if (!q) return;
+                            var sec = (q.section || q.category || '').trim();
+                            if (sec !== section) return;
+                            var sub = (q.subcategory || '').trim() || '未分类';
+                            counts[sub] = (counts[sub] || 0) + 1;
+                        });
+                        var list = Object.keys(counts).map(function(name) { return { name: name, count: counts[name] }; });
+                        list.sort(function(a, b) {
+                            if (b.count !== a.count) return b.count - a.count;
+                            return String(a.name).localeCompare(String(b.name));
+                        });
+                        el.innerHTML = list.map(function(it) {
+                            var name = (it.name || '').replace(/</g, '&lt;');
+                            return '<span class="set-item" style="padding:8px 12px; display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border-color); border-radius:var(--border-radius);">' +
+                                '<span>' + name + '</span><span style="color:var(--text-secondary); font-size:0.9rem;">(' + it.count + ' 题)</span>' +
+                                '<button type="button" class="btn btn-sm" style="padding:4px 8px; background:#e3f2fd;" onclick="adminSubcategoryShowRename(\'' + section.replace(/'/g, "\\'") + '\',\'' + (it.name || '').replace(/'/g, "\\'") + '\')">重命名</button>' +
+                                '<button type="button" class="btn btn-sm" style="padding:4px 8px; background:#f3e5f5;" onclick="adminSubcategoryShowMerge(\'' + section.replace(/'/g, "\\'") + '\',\'' + (it.name || '').replace(/'/g, "\\'") + '\')">合并</button>' +
+                                '</span>';
+                        }).join('');
+                        if (list.length === 0) el.innerHTML = '<p style="color:var(--text-secondary); font-size:0.9rem;">该大类暂无小类（请检查 data 目录下是否有题库 JSON 文件）</p>';
+                    });
+                })
+                .catch(function(err) {
+                    el.innerHTML = '<p style="color:#dc3545; font-size:0.9rem;">加载失败：' + (err && err.message || '未知错误') + '。请通过 HTTP 访问（非 file://）</p>';
+                });
         }
 
         function adminSubcategoryShowRename(section, oldName) {
@@ -3424,12 +3457,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
 
         function adminSubcategoryShowMerge(section, fromName) {
             var list = [];
-            var qs = adminStore.questions || {};
+            var qs = _adminSubcategoryDataCache.questions || {};
             var counts = {};
             Object.keys(qs).forEach(function(qid) {
                 var q = qs[qid];
                 if (!q) return;
-                var sec = q.section || q.category || '';
+                var sec = (q.section || q.category || '').trim();
                 if (sec !== section) return;
                 var sub = (q.subcategory || '').trim() || '未分类';
                 if (sub !== fromName) counts[sub] = (counts[sub] || 0) + 1;
@@ -3469,34 +3502,13 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 return;
             }
             adminSubcategoryModalClose();
-            adminSubcategoryApplyToAdminStore(section, oldName, newName);
             adminSyncSubcategoryToDataFiles(section, oldName, newName);
         }
 
-        function adminSubcategoryApplyToAdminStore(section, oldName, newName) {
-            adminStore.load();
-            var qs = adminStore.questions || {};
-            var changed = 0;
-            Object.keys(qs).forEach(function(qid) {
-                var q = qs[qid];
-                if (!q) return;
-                var sec = q.section || q.category || '';
-                if (sec !== section) return;
-                var sub = (q.subcategory || '').trim() || '未分类';
-                if (sub === oldName) {
-                    q.subcategory = newName;
-                    changed++;
-                }
-            });
-            if (changed) adminStore.save();
-        }
-
         // 将小类修改同步到 data 目录下各源 JSON 文件（chaoge2026.json、fenbi.json 等），就地更新题目
+        // 读取数据从当前题库地址（getDataFileUrl），与「从 data 加载」同源，不保存到 adminStore
         function adminSyncSubcategoryToDataFiles(section, oldName, newName) {
-            if (!GITHUB_CONFIG || !GITHUB_CONFIG.token || !GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo) {
-                showMsg('adminSubcategoryStatus', '请先配置 GitHub Token 与仓库信息', 'error');
-                return;
-            }
+            var hasGitHub = !!(GITHUB_CONFIG && GITHUB_CONFIG.token && GITHUB_CONFIG.owner && GITHUB_CONFIG.repo);
             var progressWrap = document.getElementById('adminSubcategoryProgressWrap');
             if (progressWrap) progressWrap.style.display = 'block';
             showMsg('adminSubcategoryStatus', '正在替换…', 'info');
@@ -3510,59 +3522,58 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 if (bar) bar.style.width = percent + '%';
             }
             updateSubcategoryProgress(0, 0, '');
-            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
-            var apiBase = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/';
-            var manifestPath = 'data/files.json';
-            fetch(apiBase + manifestPath + '?ref=' + (GITHUB_CONFIG.branch || 'main'))
+            // 从当前题库地址读取 files.json（与「从 data 加载」同源）
+            fetch(getDataFileUrl('files.json') + '?t=' + Date.now())
                 .then(function(r) {
-                    if (!r.ok) throw new Error('获取 files.json 失败: ' + r.status);
+                    if (!r.ok) throw new Error('获取 files.json 失败: ' + r.status + '（请确保通过 HTTP 访问，非 file://）');
                     return r.json();
                 })
-                .then(function(fileInfo) {
-                    if (!fileInfo || !fileInfo.content) throw new Error('files.json 内容为空');
-                    var content = base64ToUtf8 ? base64ToUtf8(fileInfo.content) : atob(fileInfo.content.replace(/\s/g, ''));
-                    var manifest = JSON.parse(content);
+                .then(function(manifest) {
                     var jsonFiles = Array.isArray(manifest && manifest.json) ? manifest.json : (manifest && manifest.json ? [manifest.json] : ['store.json']);
-                    jsonFiles = (jsonFiles || []).map(function(n) { return String(n || '').trim(); }).filter(Boolean);
+                    jsonFiles = (jsonFiles || []).map(function(n) { return String(n || '').trim().replace(/^data\//i, ''); }).filter(Boolean);
                     jsonFiles = jsonFiles.filter(function(p) {
-                        var path = p.replace(/^data\//i, '');
-                        if (path === 'files.json' || path === 'users.json' || path === 'remark.json' || path === 'user.json') return false;
-                        if (/^user\//i.test(path)) return false;
-                        return /\.json$/i.test(path);
+                        if (p === 'files.json' || p === 'users.json' || p === 'remark.json' || p === 'user.json') return false;
+                        if (/^user\//i.test(p)) return false;
+                        return /\.json$/i.test(p);
                     });
                     if (!jsonFiles.length) jsonFiles = ['store.json'];
                     var total = jsonFiles.length;
                     var updatedFiles = 0;
                     var totalChanged = 0;
                     var idx = 0;
+                    var headers = hasGitHub ? { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' } : null;
+                    var apiBase = hasGitHub ? ('https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/') : '';
                     updateSubcategoryProgress(0, total, '');
                     function processNext() {
                         if (idx >= total) {
                             if (progressWrap) progressWrap.style.display = 'none';
-                            showMsg('adminSubcategoryStatus', updatedFiles > 0 ? ('已更新 ' + updatedFiles + ' 个文件，共 ' + totalChanged + ' 道题目的小类') : '未找到需要更新的题目', updatedFiles > 0 ? 'success' : 'info');
+                            if (!hasGitHub && totalChanged > 0) {
+                                showMsg('adminSubcategoryStatus', '已修改 ' + totalChanged + ' 道题目（未配置 GitHub，无法推送；可在本地 data 目录查看）', 'info');
+                            } else if (updatedFiles > 0) {
+                                showMsg('adminSubcategoryStatus', '已更新 ' + updatedFiles + ' 个文件，共 ' + totalChanged + ' 道题目的小类', 'success');
+                            } else if (totalChanged > 0 && !hasGitHub) {
+                                showMsg('adminSubcategoryStatus', '已修改 ' + totalChanged + ' 道题目（未配置 GitHub，无法推送）', 'info');
+                            } else if (totalChanged > 0) {
+                                showMsg('adminSubcategoryStatus', '已修改 ' + totalChanged + ' 道题目，但推送到 GitHub 失败', 'error');
+                            } else {
+                                showMsg('adminSubcategoryStatus', '未找到需要更新的题目（请确认所选大类+小类在当前 data 文件中存在）', 'info');
+                            }
                             adminLoadSubcategories();
                             if (typeof renderAdminStatsTree === 'function') renderAdminStatsTree();
                             return;
                         }
-                        var f = jsonFiles[idx];
-                        var filePath = f.indexOf('data/') === 0 ? f : 'data/' + f;
-                        var fileName = f.replace(/^data\//i, '');
+                        var fileName = jsonFiles[idx];
+                        var filePath = 'data/' + fileName;
                         updateSubcategoryProgress(idx, total, fileName);
                         idx++;
-                        fetch(apiBase + filePath + '?ref=' + (GITHUB_CONFIG.branch || 'main'), { headers: headers })
+                        // 从当前题库地址读取文件内容（与「从 data 加载」同源）
+                        fetch(getDataFileUrl(fileName) + '?t=' + Date.now())
                             .then(function(r) {
-                                if (!r.ok) {
-                                    if (r.status === 404) return null;
-                                    throw new Error('获取 ' + filePath + ' 失败: ' + r.status);
-                                }
+                                if (!r.ok) throw new Error('获取 ' + fileName + ' 失败: ' + r.status);
                                 return r.json();
                             })
-                            .then(function(fileData) {
-                                if (!fileData || !fileData.content || !fileData.sha) return null;
-                                var raw = base64ToUtf8 ? base64ToUtf8(fileData.content) : atob(fileData.content.replace(/\s/g, ''));
-                                var data;
-                                try { data = JSON.parse(raw); } catch (e) { return null; }
-                                if (!data.questions || typeof data.questions !== 'object') return null;
+                            .then(function(data) {
+                                if (!data || !data.questions || typeof data.questions !== 'object') return null;
                                 var changed = 0;
                                 Object.keys(data.questions).forEach(function(qid) {
                                     var q = data.questions[qid];
@@ -3577,21 +3588,34 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 });
                                 if (changed === 0) return null;
                                 totalChanged += changed;
+                                if (!hasGitHub) return null; // 无 GitHub 无法推送，仅统计
                                 var newContent = JSON.stringify(data, null, 2);
                                 var encoded = utf8ToBase64 ? utf8ToBase64(newContent) : btoa(unescape(encodeURIComponent(newContent)));
-                                return fetch(apiBase + filePath, {
-                                    method: 'PUT',
-                                    headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }),
-                                    body: JSON.stringify({
-                                        message: '小类维护：' + oldName + ' → ' + newName + ' (' + filePath + ')',
-                                        content: encoded,
-                                        sha: fileData.sha,
-                                        branch: GITHUB_CONFIG.branch || 'main'
+                                return fetch(apiBase + filePath + '?ref=' + (GITHUB_CONFIG.branch || 'main'), { headers: headers })
+                                    .then(function(rSha) {
+                                        var sha = null;
+                                        if (rSha.ok) {
+                                            return rSha.json().then(function(fi) { return fi && fi.sha ? fi.sha : null; });
+                                        }
+                                        return Promise.resolve(null);
                                     })
-                                }).then(function(putResp) {
-                                    if (putResp && putResp.ok) updatedFiles++;
-                                    return putResp;
-                                });
+                                    .then(function(sha) {
+                                        var body = {
+                                            message: '小类维护：' + oldName + ' → ' + newName + ' (' + filePath + ')',
+                                            content: encoded,
+                                            branch: GITHUB_CONFIG.branch || 'main'
+                                        };
+                                        if (sha) body.sha = sha;
+                                        return fetch(apiBase + filePath, {
+                                            method: 'PUT',
+                                            headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }),
+                                            body: JSON.stringify(body)
+                                        });
+                                    })
+                                    .then(function(putResp) {
+                                        if (putResp && putResp.ok) updatedFiles++;
+                                        return putResp;
+                                    });
                             })
                             .then(function() { updateSubcategoryProgress(idx, total, fileName); processNext(); })
                             .catch(function(err) {
@@ -3604,7 +3628,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 })
                 .catch(function(err) {
                     if (progressWrap) progressWrap.style.display = 'none';
-                    showMsg('adminSubcategoryStatus', '同步失败: ' + (err && err.message || '未知错误'), 'error');
+                    showMsg('adminSubcategoryStatus', '读取失败: ' + (err && err.message || '未知错误') + '。请通过 HTTP 访问（非 file://）', 'error');
                 });
         }
 
