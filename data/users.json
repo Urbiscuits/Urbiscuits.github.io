@@ -1,0 +1,11 @@
+{
+  "users": [
+    {
+      "username": "user1",
+      "passwordHash": "56afd59571c89bde39abd1e6a8e1d6cb8e8d6b26822b977c16865166d31f2083",
+      "createdAt": "2026-02-19T06:25:16.958Z",
+      "updatedAt": "2026-02-19T14:48:09.106Z"
+    }
+  ],
+  "exportTime": "2026-02-19T14:48:12.933Z"
+}
