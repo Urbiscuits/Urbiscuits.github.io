@@ -3676,14 +3676,32 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var branch = GITHUB_CONFIG.branch || 'main';
             var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
             var baseApi = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data/zhishikaodian/';
-            function putFile(path, content, sha) {
+            function putFile(path, content) {
                 var url = baseApi + path;
-                var body = { message: '知识管理 - ' + path, content: btoa(unescape(encodeURIComponent(content))), branch: branch };
-                if (sha) body.sha = sha;
-                return fetch(url + '?ref=' + branch, { method: 'GET', headers: headers })
+                function doPut(sha) {
+                    var body = { message: '知识管理 - ' + path, content: btoa(unescape(encodeURIComponent(content))), branch: branch };
+                    if (sha) body.sha = sha;
+                    return fetch(url, { method: 'PUT', headers: headers, body: JSON.stringify(body) });
+                }
+                return fetch(url + '?ref=' + branch + '&_=' + Date.now(), { method: 'GET', headers: headers, cache: 'no-store' })
                     .then(function(r) { return r.status === 404 ? null : (r.ok ? r.json() : r.json().then(function(e){ throw new Error(e.message); })); })
-                    .then(function(info) { if (info && info.sha) body.sha = info.sha; return fetch(url, { method: 'PUT', headers: headers, body: JSON.stringify(body) }); })
-                    .then(function(r) { if (!r.ok) return r.json().then(function(e){ throw new Error(e.message); }); return r.json(); });
+                    .then(function(info) {
+                        return doPut(info && info.sha).then(function(resp) {
+                            if (resp.ok) return resp.json();
+                            return resp.json().then(function(err) {
+                                var msg = (err && err.message) ? err.message : '';
+                                var isShaMismatch = resp.status === 409 || /does not match/i.test(msg);
+                                if (!isShaMismatch) throw new Error(msg);
+                                return fetch(url + '?ref=' + branch + '&_=' + Date.now(), { method: 'GET', headers: headers, cache: 'no-store' })
+                                    .then(function(r2) { return r2.ok ? r2.json() : r2.json().then(function(e){ throw new Error(e.message); }); })
+                                    .then(function(latest) { return doPut(latest && latest.sha); })
+                                    .then(function(r3) {
+                                        if (!r3.ok) return r3.json().then(function(e){ throw new Error(e.message); });
+                                        return r3.json();
+                                    });
+                            });
+                        });
+                    });
             }
             showMsg('adminKnowledgeStatus', '正在上传…', 'info');
             fetch(getZhishikaodianUrl('manifest.json') + '?t=' + Date.now())
