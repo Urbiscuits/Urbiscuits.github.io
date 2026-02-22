@@ -6405,6 +6405,70 @@
         function adminSelectAllSetsForSync(checked) {
             document.querySelectorAll('.admin-selected-set-cb').forEach(function(cb) { cb.checked = checked; });
         }
+        function adminCompressImageDataUrl(dataUrl, maxWidth, quality) {
+            maxWidth = maxWidth || 720;
+            quality = quality || 0.7;
+            if (!dataUrl || typeof dataUrl !== 'string' || dataUrl.indexOf('data:image') !== 0) return Promise.resolve(dataUrl);
+            return new Promise(function(resolve) {
+                var img = new Image();
+                img.onload = function() {
+                    var w = img.width, h = img.height, maxPixels = 720 * 720;
+                    if (w <= maxWidth && w * h <= maxPixels) {
+                        try {
+                            var c = document.createElement('canvas'); c.width = w; c.height = h;
+                            var ctx = c.getContext('2d');
+                            if (ctx) { ctx.drawImage(img, 0, 0, w, h); resolve(c.toDataURL('image/jpeg', quality) || dataUrl); return; }
+                        } catch (e) {}
+                        resolve(dataUrl);
+                        return;
+                    }
+                    if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+                    if (w * h > maxPixels) { var s = Math.sqrt(maxPixels / (w * h)); w = Math.round(w * s); h = Math.round(h * s); }
+                    try {
+                        var c = document.createElement('canvas'); c.width = w; c.height = h;
+                        c.getContext('2d').drawImage(img, 0, 0, w, h);
+                        resolve(c.toDataURL('image/jpeg', quality) || dataUrl);
+                    } catch (e) { resolve(dataUrl); }
+                };
+                img.onerror = function() { resolve(dataUrl); };
+                img.src = dataUrl;
+            });
+        }
+        function adminCompressQuestionImages(q) {
+            if (!q) return Promise.resolve(q);
+            var out = {};
+            for (var k in q) if (Object.prototype.hasOwnProperty.call(q, k)) out[k] = q[k];
+            var promises = [];
+            if (Array.isArray(out.stemImages)) {
+                out.stemImages = out.stemImages.slice();
+                out.stemImages.forEach(function(src, i) {
+                    promises.push(adminCompressImageDataUrl(src).then(function(c) { out.stemImages[i] = c; }));
+                });
+            }
+            if (Array.isArray(out.options)) {
+                out.options = out.options.slice();
+                out.options.forEach(function(opt, oi) {
+                    if (Array.isArray(opt.images)) {
+                        out.options[oi] = { label: opt.label, text: opt.text, images: opt.images.slice() };
+                        opt.images.forEach(function(src, i) {
+                            promises.push(adminCompressImageDataUrl(src).then(function(c) { out.options[oi].images[i] = c; }));
+                        });
+                    } else { out.options[oi] = opt; }
+                });
+            }
+            return Promise.all(promises).then(function() { return out; });
+        }
+        function adminCompressQuestionsObject(questions) {
+            var qids = Object.keys(questions || {});
+            if (!qids.length) return Promise.resolve(questions || {});
+            return Promise.all(qids.map(function(qid) {
+                return adminCompressQuestionImages(questions[qid]).then(function(c) { return { qid: qid, q: c }; });
+            })).then(function(results) {
+                var out = {};
+                results.forEach(function(r) { out[r.qid] = r.q; });
+                return out;
+            });
+        }
         function adminSyncSelectedSetsToJson() {
             if (!GITHUB_CONFIG.token) {
                 showMsg('adminSelectedSetsSyncStatus', '请先配置 GitHub Token', 'error');
@@ -6424,7 +6488,7 @@
                 showMsg('adminSelectedSetsSyncStatus', '数据源不可用', 'error');
                 return;
             }
-            showMsg('adminSelectedSetsSyncStatus', '正在同步选中套卷到 ' + targetPath + ' ...', 'info');
+            showMsg('adminSelectedSetsSyncStatus', '正在压缩题目图片以减小 JSON 体积…', 'info');
             var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
             var selectedSets = src.sets.filter(function(s) { return selected.indexOf(s.id) !== -1; });
             var selectedQuestionIds = {};
@@ -6437,10 +6501,13 @@
             Object.keys(selectedQuestionIds).forEach(function(qid) {
                 if (src.questions && src.questions[qid]) selectedQuestions[qid] = src.questions[qid];
             });
-            var exportData = { sets: selectedSets, questions: selectedQuestions, exportTime: new Date().toISOString() };
             var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
             var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
-            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+            adminCompressQuestionsObject(selectedQuestions).then(function(compressedQuestions) {
+                selectedQuestions = compressedQuestions;
+                showMsg('adminSelectedSetsSyncStatus', '正在同步选中套卷到 ' + targetPath + ' ...', 'info');
+                var exportData = { sets: selectedSets, questions: selectedQuestions, exportTime: new Date().toISOString() };
+                return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
                 .then(function(resp) {
                     if (resp.status === 404) return null;
                     if (!resp.ok) throw new Error('获取文件信息失败: ' + resp.status);
@@ -6501,10 +6568,10 @@
                 })
                 .then(function(result) {
                     showMsg('adminSelectedSetsSyncStatus', '成功同步 ' + selectedSets.length + ' 个套卷到 ' + targetPath + ' (' + (result.commit.html_url || '') + ')', 'success');
-                })
-                .catch(function(err) {
-                    showMsg('adminSelectedSetsSyncStatus', '同步失败：' + (err.message || '未知错误'), 'error');
                 });
+            }).catch(function(err) {
+                showMsg('adminSelectedSetsSyncStatus', '同步失败：' + (err && err.message ? err.message : '未知错误'), 'error');
+            });
         }
         /** 从小程序复制的题库数据：粘贴后保存到 data/store.json（免后端） */
         function adminSyncPastedStoreToGitHub() {

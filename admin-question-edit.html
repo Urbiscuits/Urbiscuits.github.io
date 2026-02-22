@@ -51,6 +51,15 @@
         </div>
 
         <div class="card" id="editCard" style="display:none;">
+            <label>材料（可选，支持 LaTeX、Ctrl+V 粘贴图片，图片可穿插在文字之间；资料分析一材料多题时多道小题可共用同一材料）</label>
+            <div class="row-edit-preview">
+                <div>
+                    <div id="fieldMaterial" contenteditable="true" class="editable-area" data-preview="previewMaterial"></div>
+                    <button type="button" class="btn btn-info btn-sm" style="margin-top:6px;" data-insert="fieldMaterial">插入图片</button>
+                </div>
+                <div><div class="preview-box" id="previewMaterial">预览</div></div>
+            </div>
+
             <label>题干</label>
             <div class="row-edit-preview">
                 <div>
@@ -180,16 +189,30 @@
             }
         }
 
-        /** 压缩图片 data URL，减小占用，避免 localStorage 超限。maxWidth 默认 900，quality 0.85 */
+        /** 压缩图片 data URL，显著减小 JSON 体积。写入/同步前统一用较严参数：宽≤720，质量 0.7 */
         function compressImageDataUrl(dataUrl, maxWidth, quality) {
-            maxWidth = maxWidth || 900;
-            quality = quality || 0.85;
+            maxWidth = maxWidth || 720;
+            quality = quality || 0.7;
+            if (!dataUrl || typeof dataUrl !== 'string' || dataUrl.indexOf('data:image') !== 0) return Promise.resolve(dataUrl);
             return new Promise(function(resolve) {
                 var img = new Image();
                 img.onload = function() {
                     var w = img.width;
                     var h = img.height;
-                    if (w <= maxWidth && w * h <= 1200000) {
+                    var maxPixels = 720 * 720;
+                    if (w <= maxWidth && w * h <= maxPixels) {
+                        try {
+                            var canvas = document.createElement('canvas');
+                            canvas.width = w;
+                            canvas.height = h;
+                            var ctx = canvas.getContext('2d');
+                            if (ctx) {
+                                ctx.drawImage(img, 0, 0, w, h);
+                                var out = canvas.toDataURL('image/jpeg', quality);
+                                resolve(out || dataUrl);
+                                return;
+                            }
+                        } catch (e2) {}
                         resolve(dataUrl);
                         return;
                     }
@@ -197,8 +220,8 @@
                         h = Math.round(h * maxWidth / w);
                         w = maxWidth;
                     }
-                    if (w * h > 1200000) {
-                        var scale = Math.sqrt(1200000 / (w * h));
+                    if (w * h > maxPixels) {
+                        var scale = Math.sqrt(maxPixels / (w * h));
                         w = Math.round(w * scale);
                         h = Math.round(h * scale);
                     }
@@ -217,6 +240,52 @@
                 };
                 img.onerror = function() { resolve(dataUrl); };
                 img.src = dataUrl;
+            });
+        }
+        /** 压缩题目内所有图片（materialImages、stemImages、options[].images），返回 Promise<题目副本> */
+        function compressQuestionImages(q) {
+            if (!q) return Promise.resolve(q);
+            var out = {};
+            for (var k in q) if (Object.prototype.hasOwnProperty.call(q, k)) out[k] = q[k];
+            var promises = [];
+            if (Array.isArray(out.materialImages)) {
+                out.materialImages = out.materialImages.slice();
+                out.materialImages.forEach(function(src, i) {
+                    promises.push(compressImageDataUrl(src).then(function(compressed) { out.materialImages[i] = compressed; }));
+                });
+            }
+            if (Array.isArray(out.stemImages)) {
+                out.stemImages = out.stemImages.slice();
+                out.stemImages.forEach(function(src, i) {
+                    promises.push(compressImageDataUrl(src).then(function(compressed) { out.stemImages[i] = compressed; }));
+                });
+            }
+            if (Array.isArray(out.options)) {
+                out.options = out.options.slice();
+                out.options.forEach(function(opt, oi) {
+                    if (Array.isArray(opt.images)) {
+                        out.options[oi] = { label: opt.label, text: opt.text, images: opt.images.slice() };
+                        opt.images.forEach(function(src, i) {
+                            promises.push(compressImageDataUrl(src).then(function(compressed) { out.options[oi].images[i] = compressed; }));
+                        });
+                    } else {
+                        out.options[oi] = opt;
+                    }
+                });
+            }
+            return Promise.all(promises).then(function() { return out; });
+        }
+        /** 压缩 questions 对象中所有题目的图片，返回 Promise<questions> */
+        function compressQuestionsObject(questions) {
+            var qids = Object.keys(questions || {});
+            if (!qids.length) return Promise.resolve(questions || {});
+            var list = qids.map(function(qid) {
+                return compressQuestionImages(questions[qid]).then(function(compressed) { return { qid: qid, q: compressed }; });
+            });
+            return Promise.all(list).then(function(results) {
+                var out = {};
+                results.forEach(function(r) { out[r.qid] = r.q; });
+                return out;
             });
         }
         function getSet(data, setId) {
@@ -452,13 +521,20 @@
             var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
             var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
 
-            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+            setSyncProgress(20, '正在压缩题目图片以减小 JSON 体积…');
+            compressQuestionsObject(selectedQuestions).then(function(compressedQuestions) {
+                selectedQuestions = compressedQuestions;
+                setSyncProgress(25, '正在获取远程文件…');
+                return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers });
+            })
                 .then(function(resp) {
+                    if (!resp) return null;
                     if (resp.status === 404) return null;
                     if (!resp.ok) throw new Error('获取失败: ' + resp.status);
                     return resp.json();
                 })
                 .then(function(fileInfo) {
+                    setSyncProgress(50, '正在合并数据…');
                     var finalData;
                     if (fileInfo && fileInfo.content) {
                         try {
@@ -556,6 +632,7 @@
                 '<span class="badge">题目 ID：' + esc(qid) + '</span>' +
                 (q.section ? '<span class="badge">' + esc(q.section) + (q.subcategory ? ' - ' + esc(q.subcategory) : '') + '</span>' : '');
 
+            setEditableContent('fieldMaterial', q.material || '', q.materialImages || []);
             setEditableContent('fieldContent', q.content || '', q.stemImages || []);
             var opts = q.options || [];
             setEditableContent('fieldA', (opts[0] && opts[0].text) || '', (opts[0] && opts[0].images) || []);
@@ -565,7 +642,7 @@
             document.getElementById('fieldAnswer').value = q.answer || 'A';
             setEditableContent('fieldExplanation', q.explanation || '', []);
 
-            var fieldIds = ['fieldContent', 'fieldA', 'fieldB', 'fieldC', 'fieldD', 'fieldExplanation'];
+            var fieldIds = ['fieldMaterial', 'fieldContent', 'fieldA', 'fieldB', 'fieldC', 'fieldD', 'fieldExplanation'];
             setTimeout(function() {
                 fieldIds.forEach(function(id) { updatePreview(id); });
             }, 50);
@@ -588,6 +665,7 @@
                 statusEl.textContent = '';
                 statusEl.className = 'status';
 
+                var materialData = getEditableContent('fieldMaterial');
                 var contentData = getEditableContent('fieldContent');
                 var optA = getEditableContent('fieldA');
                 var optB = getEditableContent('fieldB');
@@ -613,6 +691,8 @@
 
                 var updated = {};
                 for (var k in q2) if (Object.prototype.hasOwnProperty.call(q2, k)) updated[k] = q2[k];
+                updated.material = (materialData && materialData.text) || '';
+                updated.materialImages = Array.isArray(materialData && materialData.images) ? materialData.images : [];
                 updated.content = contentData.text || '';
                 updated.stemImages = Array.isArray(contentData.images) ? contentData.images : [];
                 updated.options = [
@@ -624,30 +704,34 @@
                 updated.answer = newAnswer;
                 updated.explanation = (explanationData && explanationData.text) || '';
 
-                fresh.questions[q2Key] = updated;
-                try {
-                    var saveResult = saveStore(fresh);
-                    if (saveResult && typeof saveResult.then === 'function') {
-                        saveResult.then(function() {
-                            statusEl.textContent = '已保存到本地管理员题库，可返回套卷管理查看，或点击「同步到 JSON」更新云端。';
-                            statusEl.className = 'status success';
-                        }).catch(function() {
-                            statusEl.textContent = '保存失败：写入异常';
-                            statusEl.className = 'status error';
-                        });
-                        return;
+                compressQuestionImages(updated).then(function(compressed) {
+                    fresh.questions[q2Key] = compressed;
+                    try {
+                        var saveResult = saveStore(fresh);
+                        if (saveResult && typeof saveResult.then === 'function') {
+                            saveResult.then(function() {
+                                statusEl.textContent = '已保存到本地管理员题库，可返回套卷管理查看，或点击「同步到 JSON」更新云端。';
+                                statusEl.className = 'status success';
+                            }).catch(function() {
+                                statusEl.textContent = '保存失败：写入异常';
+                                statusEl.className = 'status error';
+                            });
+                            return;
+                        }
+                        statusEl.textContent = '已保存到本地管理员题库，可返回套卷管理查看，或点击「同步到 JSON」更新云端。';
+                        statusEl.className = 'status success';
+                    } catch (e) {
+                        if (e && e.message === 'QUOTA_EXCEEDED') {
+                            statusEl.innerHTML = '本地存储已满，无法保存。建议：<br>1) 先点击「同步到 JSON」将当前套卷备份到云端；<br>2) 返回套卷管理，删除暂不需要的题目或套卷以释放空间；<br>3) 或减少本题中的图片数量/尺寸后重试（新插入的图片已自动压缩）。';
+                        } else {
+                            statusEl.textContent = '保存失败：' + (e && e.message ? e.message : '写入异常');
+                        }
+                        statusEl.className = 'status error';
                     }
-                } catch (e) {
-                    if (e && e.message === 'QUOTA_EXCEEDED') {
-                        statusEl.innerHTML = '本地存储已满，无法保存。建议：<br>1) 先点击「同步到 JSON」将当前套卷备份到云端；<br>2) 返回套卷管理，删除暂不需要的题目或套卷以释放空间；<br>3) 或减少本题中的图片数量/尺寸后重试（新插入的图片已自动压缩）。';
-                    } else {
-                        statusEl.textContent = '保存失败：' + (e && e.message ? e.message : '写入异常');
-                    }
+                }).catch(function() {
+                    statusEl.textContent = '保存失败：图片压缩或写入异常';
                     statusEl.className = 'status error';
-                    return;
-                }
-                statusEl.textContent = '已保存到本地管理员题库，可返回套卷管理查看，或点击「同步到 JSON」更新云端。';
-                statusEl.className = 'status success';
+                });
             };
 
             document.getElementById('btnRefreshJsonList').onclick = function() {
