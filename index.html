@@ -1217,7 +1217,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <h2 style="margin-bottom: 20px; color: var(--text-primary); font-size: 1.25rem;"><i class="fas fa-user"></i> 个人中心</h2>
                         <div id="profileLoginSection" class="profile-section" style="padding:16px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color); margin-bottom:20px;">
                             <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-sign-in-alt"></i> 账号登录</h4>
-                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">使用管理员分配的账号登录后，做题数据将保存到云端 data/user/{用户名}.json。</p>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:12px;">使用管理员分配的账号登录后，做题数据将保存到云端 data/user/{用户名}.json。从云端加载后，可在下方「错题本」「收藏」处导出 PDF 下载。</p>
                             <div id="profileLoginForm" class="filter-controls" style="margin-bottom:0;">
                                 <div><label>用户名</label><input type="text" id="profileLoginUsername" placeholder="用户名" style="width:160px; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>
                                 <div><label>密码</label><input type="password" id="profileLoginPassword" placeholder="密码" style="width:160px; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>
@@ -1228,6 +1228,12 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 <button class="btn btn-sm" style="margin-left:16px; background:var(--light-bg); border:1px solid var(--border-color);" onclick="profileUserLogout()"><i class="fas fa-sign-out-alt"></i> 退出</button>
                                 <button class="btn btn-info btn-sm" style="margin-left:8px;" onclick="profileSyncUserDataToCloud()"><i class="fas fa-cloud-upload-alt"></i> 同步到云端</button>
                                 <button class="btn btn-sm" style="margin-left:8px; background:var(--light-bg); border:1px solid var(--border-color);" onclick="profileLoadUserDataFromCloud()"><i class="fas fa-cloud-download-alt"></i> 从云端加载</button>
+                            </div>
+                            <div id="profilePasteSyncWrap" style="display:none; margin-top:16px; padding:12px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color);">
+                                <h5 style="margin-bottom:8px; font-size:0.9rem;">从小程序同步（免后端）</h5>
+                                <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:8px;">在小程序个人中心点击「同步到云端」后数据已复制，在此粘贴并上传到 GitHub：</p>
+                                <textarea id="profilePasteSyncInput" placeholder="粘贴小程序复制的 JSON 数据…" style="width:100%; min-height:80px; padding:10px; font-family:monospace; font-size:0.85rem; border:1px solid var(--border-color); border-radius:var(--border-radius); box-sizing:border-box;"></textarea>
+                                <button class="btn btn-info btn-sm" style="margin-top:8px;" onclick="profileSyncPastedUserDataToCloud()"><i class="fas fa-cloud-upload-alt"></i> 粘贴并同步到云端</button>
                             </div>
                             <div id="profileLoginStatus" class="status-message" style="margin-top:8px;"></div>
                         </div>
@@ -1375,6 +1381,15 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 </div>
                                 <button class="btn btn-success" onclick="adminSyncSelectedSetsToJson()" style="padding: 10px 20px;"><i class="fas fa-cloud-upload-alt"></i> 同步选中套卷到指定 JSON</button>
                                 <div id="adminSelectedSetsSyncStatus" class="status-message" style="margin-top: 12px;"></div>
+                            </div>
+                            
+                            <!-- 从小程序保存题库（免后端） -->
+                            <div style="margin-bottom: 20px; padding: 16px; background: #e8f5e9; border-radius: var(--border-radius); border: 1px solid #4caf50;">
+                                <h4 style="margin-bottom: 12px; color: #2e7d32; font-size: 1rem;"><i class="fas fa-mobile-alt"></i> 从小程序保存题库</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">在小程序题目管理中点击「复制并到网页保存」后，在此粘贴并上传到 <code>data/store.json</code>。需先配置 GitHub Token。</p>
+                                <textarea id="adminPasteStoreInput" placeholder="粘贴小程序复制的题库 JSON（含 sets、questions）…" style="width:100%; min-height:100px; padding:10px; font-family:monospace; font-size:0.85rem; border:1px solid var(--border-color); border-radius:var(--border-radius); box-sizing:border-box;"></textarea>
+                                <button class="btn btn-success" style="margin-top:8px;" onclick="adminSyncPastedStoreToGitHub()"><i class="fas fa-cloud-upload-alt"></i> 粘贴并保存到 GitHub</button>
+                                <div id="adminPasteStoreStatus" class="status-message" style="margin-top: 12px;"></div>
                             </div>
                             
                             <!-- 危险操作：删除和重置多个 JSON 文件 -->
@@ -2403,8 +2418,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             var formEl = document.getElementById('profileLoginForm');
             var infoEl = document.getElementById('profileLoggedInInfo');
             var nameEl = document.getElementById('profileLoggedInUsername');
-            if (u) { if (formEl) formEl.style.display = 'none'; if (infoEl) { infoEl.style.display = 'block'; if (nameEl) nameEl.textContent = u; } }
-            else { if (formEl) formEl.style.display = 'flex'; if (infoEl) infoEl.style.display = 'none'; }
+            var pasteWrap = document.getElementById('profilePasteSyncWrap');
+            if (u) { if (formEl) formEl.style.display = 'none'; if (infoEl) { infoEl.style.display = 'block'; if (nameEl) nameEl.textContent = u; } if (pasteWrap) pasteWrap.style.display = 'block'; }
+            else { if (formEl) formEl.style.display = 'flex'; if (infoEl) infoEl.style.display = 'none'; if (pasteWrap) pasteWrap.style.display = 'none'; }
         }
         var MAX_USER_JSON_BYTES = 800 * 1024;
         function profileSyncUserDataToCloud() {
@@ -2431,6 +2447,35 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }
             showMsg('profileLoginStatus', '正在同步到云端…', 'info');
             uploadUserFiles(filesToUpload, 0, function() { showMsg('profileLoginStatus', '已同步到 data/user/' + u + '.json', 'success'); }, function(err) { showMsg('profileLoginStatus', '同步失败：' + (err.message || '未知错误'), 'error'); });
+        }
+        /** 从小程序复制的数据：粘贴后同步到云端（免后端） */
+        function profileSyncPastedUserDataToCloud() {
+            var u = getCurrentUser();
+            if (!u) { showMsg('profileLoginStatus', '请先登录', 'error'); return; }
+            if (!GITHUB_CONFIG.token) { showMsg('profileLoginStatus', '管理员尚未配置 GitHub Token，无法同步', 'error'); return; }
+            var input = document.getElementById('profilePasteSyncInput');
+            var text = (input && input.value) ? input.value.trim() : '';
+            if (!text) { showMsg('profileLoginStatus', '请先粘贴小程序复制的数据', 'error'); return; }
+            var d;
+            try { d = JSON.parse(text); } catch (e) { showMsg('profileLoginStatus', '粘贴的不是有效 JSON', 'error'); return; }
+            if (!d || typeof d !== 'object') { showMsg('profileLoginStatus', '数据格式错误', 'error'); return; }
+            var questionStats = d.questionStats || {};
+            delete d.questionStats;
+            d.questionStatsFiles = [];
+            var qids = Object.keys(questionStats);
+            var chunkSize = MAX_USER_JSON_BYTES - 500;
+            var filesToUpload = [];
+            var single = {};
+            for (var k in d) if (d.hasOwnProperty(k)) single[k] = d[k];
+            single.questionStats = questionStats;
+            var content = JSON.stringify(single, null, 2);
+            if (content.length <= MAX_USER_JSON_BYTES) {
+                filesToUpload.push({ path: 'data/user/' + encodeURIComponent(u) + '.json', content: content, message: '用户 ' + u + ' 数据同步（从小程序）' });
+            } else {
+                filesToUpload = buildSplitUserFiles(u, d, questionStats, qids, chunkSize);
+            }
+            showMsg('profileLoginStatus', '正在同步到云端…', 'info');
+            uploadUserFiles(filesToUpload, 0, function() { showMsg('profileLoginStatus', '已同步到 data/user/' + u + '.json', 'success'); if (input) input.value = ''; }, function(err) { showMsg('profileLoginStatus', '同步失败：' + (err.message || '未知错误'), 'error'); });
         }
         function buildSplitUserFiles(u, mainObj, questionStats, qids, chunkSize) {
             var list = [];
@@ -6319,6 +6364,31 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 .catch(function(err) {
                     showMsg('adminSelectedSetsSyncStatus', '同步失败：' + (err.message || '未知错误'), 'error');
                 });
+        }
+        /** 从小程序复制的题库数据：粘贴后保存到 data/store.json（免后端） */
+        function adminSyncPastedStoreToGitHub() {
+            if (!GITHUB_CONFIG.token) {
+                showMsg('adminPasteStoreStatus', '请先配置 GitHub Token', 'error');
+                return;
+            }
+            var input = document.getElementById('adminPasteStoreInput');
+            var text = (input && input.value) ? input.value.trim() : '';
+            if (!text) { showMsg('adminPasteStoreStatus', '请先粘贴小程序复制的题库数据', 'error'); return; }
+            var d;
+            try { d = JSON.parse(text); } catch (e) { showMsg('adminPasteStoreStatus', '粘贴的不是有效 JSON', 'error'); return; }
+            if (!d || !Array.isArray(d.sets) || !d.questions || typeof d.questions !== 'object') {
+                showMsg('adminPasteStoreStatus', '数据格式错误，需包含 sets 数组和 questions 对象', 'error');
+                return;
+            }
+            var content = JSON.stringify({ sets: d.sets, questions: d.questions, exportTime: d.exportTime || new Date().toISOString() }, null, 2);
+            var files = [{ path: 'data/store.json', content: content, message: '小程序管理员保存题库 - ' + new Date().toLocaleString('zh-CN') }];
+            showMsg('adminPasteStoreStatus', '正在保存到 GitHub…', 'info');
+            uploadUserFiles(files, 0, function() {
+                showMsg('adminPasteStoreStatus', '已保存到 data/store.json', 'success');
+                if (input) input.value = '';
+            }, function(err) {
+                showMsg('adminPasteStoreStatus', '保存失败：' + (err.message || '未知错误'), 'error');
+            });
         }
         function adminAddCategory() {
             var name = (document.getElementById('adminNewCategoryName').value || '').trim();
