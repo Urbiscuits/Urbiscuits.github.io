@@ -909,8 +909,9 @@
                             <p style="font-size:0.85rem; color:#6c757d; margin-top:4px; margin-left:24px;">勾选后：材料共用，可连续录入多道小题，每题单独题干/选项/答案/解析</p>
                         </div>
                         <div class="filter-controls">
-                            <div><label>大类</label><select id="singleSection" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
+                            <div><label>大类</label><select id="singleSection" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                             <div><label>小类</label><select id="singleSubcategory" style="width:100%; padding:10px; margin-top:5px;"></select></div>
+                            <div style="flex:1;"><label>或自定义小类</label><input type="text" id="singleSubcategoryCustom" placeholder="可填任意小类，不限于下拉" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
                             <div style="flex:1;"><label>来源</label><input type="text" id="singleSource" placeholder="如：2025年5月11日重庆A类" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
                         </div>
                         <div id="singleNormalFields">
@@ -1650,8 +1651,9 @@
                                 </label>
                             </div>
                             <div class="filter-controls">
-                                <div><label>大类</label><select id="adminSingleSection" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
+                                <div><label>大类</label><select id="adminSingleSection" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                                 <div><label>小类</label><select id="adminSingleSubcategory" style="width:100%; padding:10px; margin-top:5px;"></select></div>
+                                <div style="flex:1;"><label>或自定义小类</label><input type="text" id="adminSingleSubcategoryCustom" placeholder="可填任意小类，不限于下拉" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
                                 <div style="flex:1;"><label>来源</label><input type="text" id="adminSingleSource" placeholder="如：2025年5月11日重庆A类" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
                             </div>
                             <div id="adminSingleNormalFields">
@@ -1916,13 +1918,26 @@
         }
 
         function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9); }
+        // 确保大类存在（批量/单题可录入 JSON 中不存在的大类，不再限制为仅已存在分类）
+        function ensureCategory(category) {
+            if (!category || typeof category !== 'string') return;
+            var c = category.trim();
+            if (!c) return;
+            if (!MAIN_SECTIONS.includes(c)) { MAIN_SECTIONS.push(c); SUBCATEGORIES[c] = SUBCATEGORIES[c] || []; }
+            if (!SUBCATEGORIES[c]) SUBCATEGORIES[c] = [];
+        }
         function ensureSubcategory(category, subcategory) {
-            if (!MAIN_SECTIONS.includes(category) || !subcategory) return;
-            if (!SUBCATEGORIES[category]) SUBCATEGORIES[category] = [];
-            if (SUBCATEGORIES[category].indexOf(subcategory) === -1) SUBCATEGORIES[category].push(subcategory);
-            if (PARSER_SUB) {
-                if (!PARSER_SUB[category]) PARSER_SUB[category] = [];
-                if (PARSER_SUB[category].indexOf(subcategory) === -1) PARSER_SUB[category].push(subcategory);
+            if (!category || typeof category !== 'string') return;
+            var c = category.trim();
+            if (!c) return;
+            ensureCategory(c);
+            if (subcategory && typeof subcategory === 'string' && subcategory.trim()) {
+                var sub = subcategory.trim();
+                if (SUBCATEGORIES[c].indexOf(sub) === -1) SUBCATEGORIES[c].push(sub);
+                if (PARSER_SUB) {
+                    if (!PARSER_SUB[c]) PARSER_SUB[c] = [];
+                    if (PARSER_SUB[c].indexOf(sub) === -1) PARSER_SUB[c].push(sub);
+                }
             }
         }
     </script>
@@ -4621,8 +4636,9 @@
             store.save();
             renderTree();
             fillSetSelects();
-            // 批量导入可能引入新“小类”，需同步刷新各处按类筛选
+            // 批量导入可能引入新“大类/小类”，需同步刷新各处
             rebuildSubcategoriesFromStore();
+            if (typeof fillSectionDropdowns === 'function') fillSectionDropdowns();
             updateSingleSub();
             updateManageSub();
             updatePracticeSub();
@@ -4718,6 +4734,18 @@
         function removeSingleZiliaoQuestion(qId) {
             var card = document.querySelector('.single-ziliao-q[data-zq-id="' + qId + '"]');
             if (card) card.remove();
+        }
+        function fillSectionDropdowns() {
+            var sections = MAIN_SECTIONS || [];
+            ['singleSection', 'adminSingleSection'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                var cur = el.value;
+                el.innerHTML = sections.map(function(s) { return '<option value="' + (s || '').replace(/"/g, '&quot;') + '">' + (s || '').replace(/</g, '&lt;') + '</option>'; }).join('');
+                if (cur && sections.indexOf(cur) !== -1) el.value = cur; else if (sections.length) el.value = sections[0];
+            });
+            if (typeof updateSingleSub === 'function') updateSingleSub();
+            if (typeof updateAdminSingleSub === 'function') updateAdminSingleSub();
         }
         function updateSingleSub() {
             var section = document.getElementById('singleSection').value;
@@ -4855,7 +4883,9 @@
             var setId = document.getElementById('singleSetId').value;
             if (!setId) { showMsg('singleStatus', '请先选择套卷', 'error'); return; }
             var section = document.getElementById('singleSection').value;
-            var subcategory = document.getElementById('singleSubcategory').value;
+            var subCustom = (document.getElementById('singleSubcategoryCustom') && document.getElementById('singleSubcategoryCustom').value || '').trim();
+            var subcategory = subCustom || (document.getElementById('singleSubcategory').value || '');
+            if (subcategory) ensureSubcategory(section, subcategory);
             var source = (document.getElementById('singleSource').value || '').trim();
             var ziliaoMode = document.getElementById('singleZiliaoMode') && document.getElementById('singleZiliaoMode').checked;
             if (ziliaoMode) {
@@ -7930,6 +7960,7 @@
             adminStore.save();
             fillAdminSetSelects();
             adminFilterSetList();
+            if (typeof fillSectionDropdowns === 'function') fillSectionDropdowns();
             // 如果当前正在查看该套卷的详情页，刷新详情页
             if (adminCurrentViewSetId === setId) {
                 adminViewSetDetails(setId);
@@ -8048,7 +8079,9 @@
                 var optA = getEditableContent('adminSingleOptA'), optB = getEditableContent('adminSingleOptB'), optC = getEditableContent('adminSingleOptC'), optD = getEditableContent('adminSingleOptD');
                 if (!stemData.text && !stemData.images.length) { showMsg('adminSingleStatus', '请填写题干', 'error'); return; }
                 var section = document.getElementById('adminSingleSection').value;
-                var subcategory = document.getElementById('adminSingleSubcategory').value;
+                var subCustom = (document.getElementById('adminSingleSubcategoryCustom') && document.getElementById('adminSingleSubcategoryCustom').value || '').trim();
+                var subcategory = subCustom || (document.getElementById('adminSingleSubcategory').value || '');
+                if (subcategory) ensureSubcategory(section, subcategory);
                 var source = (document.getElementById('adminSingleSource').value || '').trim();
                 var options = [
                     { label: 'A', text: optA.text, images: optA.images },
@@ -8088,6 +8121,7 @@
             if (typeof profileUpdateLoginUI === 'function') profileUpdateLoginUI();
             if (getCurrentUser()) mergeUserQuestionStatsIntoStore();
             rebuildSubcategoriesFromStore();
+            if (typeof fillSectionDropdowns === 'function') fillSectionDropdowns();
             if (!store.sets.length) { store.addSet('默认套卷'); store.save(); }
             document.getElementById('tab-home').classList.add('active');
             renderTree();
@@ -8112,7 +8146,8 @@
             if (location.hash === '#single') switchTab('single');
             else if (location.hash === '#batch') switchTab('batch');
             else if (location.hash === '#admin') switchTab('admin');
-            document.getElementById('singleSection').value = '判断推理';
+            var singleSec = document.getElementById('singleSection');
+            if (singleSec && MAIN_SECTIONS.indexOf('判断推理') !== -1) singleSec.value = '判断推理';
             updateSingleSub();
             document.getElementById('singleSubcategory').value = '图形推理';
             document.getElementById('singleSection').addEventListener('change', updateSingleSub);
