@@ -859,17 +859,14 @@
                     <div class="card">
                         <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-file-import"></i> 批量导入</h2>
                         <div class="format-example">
-                            <p><strong>格式：</strong>题与题之间以单独一行的 <code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 区分，来源可要可不要。同一道题内可任意换行。<br><code>[言语理解-片段阅读](26CG超大杯刷题)
-题号29： 题干…（可多行）
+                            <p><strong>格式：</strong>题与题之间以单独一行的 <code>[大类-小类]</code>、<code>[大类-小类](来源)</code> 或 <code>[政治理论]</code>/<code>[常识判断]</code>（无小类）区分。小类可自定义。<br><code>[政治理论]题号1：关于习近平新时代中国特色社会主义思想… A.xxx B.xxx C.xxx D.xxx 答案：A
 
-A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
-
-[言语理解-片段阅读](26CG超大杯刷题)
-题号30： 下一道题…</code></p>
-                            <p>支持 <code>考点：xxx</code> 或 <code>考点：a、b、c</code> 多考点。言语理解、判断推理等同上。资料分析：<code>[资料分析-文字类](2026国考)</code> 材料+题目1/2/3… 智能识别。</p>
+[言语理解-中心理解](2025年重庆A类)题干…
+[言语理解-自定义小类](来源)题干…</code></p>
+                            <p>支持 <code>考点：xxx</code> 或 <code>考点：a、b、c</code> 多考点。六大类均可自定义小类。政治理论、常识判断支持无小类 <code>[政治理论]</code>。资料分析：<code>[资料分析-文字类](2026国考)</code> 材料+题目1/2/3… 智能识别。</p>
                         </div>
                         <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="batchSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
-                        <p style="margin-bottom:12px; color:#6c757d;">智能识别：<code>[资料分析-文字类]</code> 等块自动按「材料+多小题」解析；遇到 <code>[言语理解-xx]</code> 等其他题型则结束资料分析、按单题解析。每道题必须以 <code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 开头；题干与选项中 <code>$$...$$</code> 或 <code>\( \)</code> 会自动识别为公式。<strong>支持图片</strong>：在题干或选项中使用 <code>![](data:image/png;base64,...)</code> 或 <code>[IMG:data:image/xxx;base64,...]</code> 插入图片。</p>
+                        <p style="margin-bottom:12px; color:#6c757d;">智能识别：<code>[资料分析-文字类]</code> 等块自动按「材料+多小题」解析；遇到 <code>[言语理解-xx]</code> 等其他题型则结束资料分析、按单题解析。每道题必须以 <code>[大类-小类](来源)</code>、<code>[言语理解-自定义小类]</code> 或 <code>[政治理论]</code>（无小类）开头；题干与选项中 <code>$$...$$</code> 或 <code>\( \)</code> 会自动识别为公式。<strong>支持图片</strong>：在题干或选项中使用 <code>![](data:image/png;base64,...)</code> 或 <code>[IMG:data:image/xxx;base64,...]</code> 插入图片。</p>
                         <div class="control-group" style="margin-bottom: 12px;">
                             <label>从 TXT 导入：</label>
                             <input type="file" id="batchTxtFile" accept=".txt,text/plain" multiple onchange="onBatchTxtFileChange()" style="margin-right: 12px;">
@@ -911,7 +908,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <p style="font-size:0.85rem; color:#6c757d; margin-top:4px; margin-left:24px;">勾选后：材料共用，可连续录入多道小题，每题单独题干/选项/答案/解析</p>
                         </div>
                         <div class="filter-controls">
-                            <div><label>大类</label><select id="singleSection" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
+                            <div><label>大类</label><select id="singleSection" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
                             <div><label>小类</label><select id="singleSubcategory" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                             <div style="flex:1;"><label>来源</label><input type="text" id="singleSource" placeholder="如：2025年5月11日重庆A类" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
                         </div>
@@ -956,7 +953,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                         <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-list"></i> 题目管理</h2>
                         <div class="filter-controls">
                             <div><label>套卷</label><select id="manageSetId" onchange="filterManage()" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option></select></div>
-                            <div><label>大类</label><select id="manageSection" onchange="updateManageSub(); filterManage();" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
+                            <div><label>大类</label><select id="manageSection" onchange="updateManageSub(); filterManage();" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
                             <div><label>小类</label><select id="manageSubcategory" onchange="filterManage()" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option></select></div>
                             <div style="flex:1; min-width: 160px;"><label>搜索</label><input type="text" id="searchInput" placeholder="搜索题干…" oninput="filterManage()" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
                             <label style="display: flex; align-items: center; gap: 8px; margin-top: 24px;"><input type="checkbox" id="manageShowAnswer" onchange="filterManage()"> 显示答案与解析</label>
@@ -989,7 +986,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 <p class="practice-mode-desc" id="setupModeHint" style="margin-top:8px; color:#6c757d; font-size:0.9rem;">练习模式：做完所有题后提交，在新页面查看答案与正确率</p>
                             </div>
                             <div id="practiceByCategory" class="filter-controls">
-                                <div style="margin-bottom:12px;"><label>大类（可多选）</label><div id="practiceSectionsWrap" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:12px;"><label><input type="checkbox" name="practiceSection" value="言语理解"> 言语理解</label><label><input type="checkbox" name="practiceSection" value="数量关系"> 数量关系</label><label><input type="checkbox" name="practiceSection" value="判断推理"> 判断推理</label><label><input type="checkbox" name="practiceSection" value="资料分析"> 资料分析</label></div></div>
+                                <div style="margin-bottom:12px;"><label>大类（可多选）</label><div id="practiceSectionsWrap" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:12px;"><label><input type="checkbox" name="practiceSection" value="言语理解"> 言语理解</label><label><input type="checkbox" name="practiceSection" value="数量关系"> 数量关系</label><label><input type="checkbox" name="practiceSection" value="判断推理"> 判断推理</label><label><input type="checkbox" name="practiceSection" value="资料分析"> 资料分析</label><label><input type="checkbox" name="practiceSection" value="政治理论"> 政治理论</label><label><input type="checkbox" name="practiceSection" value="常识判断"> 常识判断</label></div></div>
                                 <div><label>小类（下方为已选大类的合并，可多选，不选即全部）</label><div id="practiceSubcategoriesWrap" style="margin-top:8px; max-height:120px; overflow-y:auto; display:flex; flex-wrap:wrap; gap:8px;"></div></div>
                                 <div><label>题数</label><input type="number" id="practiceCount" value="10" min="1" max="200" style="width:80px; padding:10px; margin-top:5px;"></div>
                                 <div style="align-self: flex-end;"><button class="btn btn-primary" onclick="startPractice()"><i class="fas fa-play"></i> 开始</button></div>
@@ -1517,7 +1514,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-tags"></i> 小类名称维护/合并</h2>
                             <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">相当于对 data 里的所有题库文件做查找替换：仅替换题目的 <code>subcategory</code> 字段，<strong>不修改题干 content</strong>，题干中的小类关键词不会被替换。题目在其所在文件中就地更新，不写入 store.json。</p>
                             <div class="filter-controls" style="margin-bottom:12px;">
-                                <div><label>大类</label><select id="adminSubcategorySection" onchange="adminLoadSubcategories()" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
+                                <div><label>大类</label><select id="adminSubcategorySection" onchange="adminLoadSubcategories()" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
                             </div>
                             <div id="adminSubcategoryList" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; min-height:40px;"></div>
                             <!-- 重命名/合并模态 -->
@@ -1568,7 +1565,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                             <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-book"></i> 知识管理</h2>
                             <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">在 data/zhishikaodian/ 文件夹下创建知识点 JSON 文件。支持多页面，每个页面单独编辑，小程序端可左右滑动切换。富文本、LaTeX、图片均支持。单页不超过 800KB。</p>
                             <div class="filter-controls" style="margin-bottom:12px;">
-                                <div><label>大类</label><select id="adminKnowledgeSection" onchange="adminKnowledgeLoadSubcategories()" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
+                                <div><label>大类</label><select id="adminKnowledgeSection" onchange="adminKnowledgeLoadSubcategories()" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
                                 <div style="flex:1;"><label>小类</label><select id="adminKnowledgeSubcategory" onchange="adminKnowledgeLoadNote()" style="width:100%; padding:10px; margin-top:5px;"><option value="">选择小类</option></select></div>
                             </div>
                             <div class="filter-controls" style="margin-bottom:12px;">
@@ -1647,7 +1644,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 </label>
                             </div>
                             <div class="filter-controls">
-                                <div><label>大类</label><select id="adminSingleSection" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option></select></div>
+                                <div><label>大类</label><select id="adminSingleSection" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
                                 <div><label>小类</label><select id="adminSingleSubcategory" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                                 <div style="flex:1;"><label>来源</label><input type="text" id="adminSingleSource" placeholder="如：2025年5月11日重庆A类" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
                             </div>
@@ -1774,11 +1771,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
     </div>
 
     <script>
-        var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析'];
-        // 言语理解仅限：逻辑填空、中心理解、细节判断、标题填入、语句排序、接语选择
-        // 判断推理仅限：类比推理、加强题型、削弱题型、真假推理、翻译推理、定义判断
-        var SUBCATEGORIES = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择'], '数量关系': ['数量关系'], '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断'], '资料分析': ['资料分析'] };
-        var PARSER_SUB = { '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择'], '数量关系': ['数量关系'], '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断'], '资料分析': ['资料分析'] };
+        var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
+        // 小类改为动态：批量录入时可任意自定义，ensureSubcategory 会实时添加
+        var SUBCATEGORIES = { '言语理解': [], '数量关系': [], '判断推理': [], '资料分析': [], '政治理论': [], '常识判断': [] };
+        var PARSER_SUB = null; // 不再限制，解析器接受任意小类
         // GitHub 上托管的在线题库（JSON），默认 data/store.json，可按需修改
         var ENABLE_REMOTE_STORE = true;
         var REMOTE_STORE_URL = './data/store.json';
@@ -4225,7 +4221,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                     return rawText;
                 }).then(function(rawText) {
                     if (!rawText) return;
-                    var prompt = '请将以下 PDF 中提取的行测题目文本，转换为本系统的批量录入格式。\n\n格式要求（必须严格遵守）：\n1. 每道题必须以单独一行的 [大类-小类] 或 [大类-小类](来源) 开头\n2. 大类仅限：言语理解、数量关系、判断推理、资料分析\n3. 言语理解的小类仅限：逻辑填空、中心理解、细节判断、标题填入、语句排序、接语选择\n4. 判断推理的小类仅限：类比推理、加强题型、削弱题型、真假推理、翻译推理、定义判断\n5. 数量关系小类为：数量关系；资料分析小类为：资料分析\n6. 题干后换行，四个选项必须各占一行，格式为：\n   A. 选项A内容\n   B. 选项B内容\n   C. 选项C内容\n   D. 选项D内容\n7. 答案单独一行，格式：答案：A（或 B、C、D 四个字母之一）\n8. 解析单独一行，格式：解析：xxx（解析以最简洁为主，一句话即可）\n9. 考点单独一行可选：考点：xxx（多个用顿号分隔）\n10. 资料分析类：用 材料： 题目： 区分材料和题目\n11. 只输出转换后的文本，不要任何其他说明\n\nPDF 原文：\n' + rawText;
+                    var prompt = '请将以下 PDF 中提取的行测题目文本，转换为本系统的批量录入格式。\n\n格式要求（必须严格遵守）：\n1. 每道题必须以单独一行的 [大类-小类] 或 [大类-小类](来源) 开头；政治理论、常识判断可用 [政治理论] 或 [常识判断]（无小类）\n2. 大类：言语理解、数量关系、判断推理、资料分析、政治理论、常识判断\n3. 小类可自定义，如 [言语理解-中心理解](2025年重庆A类)、[言语理解-片段阅读](来源)\n4. 政治理论、常识判断可无小类，如 [政治理论]题号1：…\n5. 题干后换行，四个选项必须各占一行，格式为：\n   A. 选项A内容\n   B. 选项B内容\n   C. 选项C内容\n   D. 选项D内容\n6. 答案单独一行，格式：答案：A（或 B、C、D 四个字母之一）\n7. 解析单独一行，格式：解析：xxx（解析以最简洁为主，一句话即可）\n8. 考点单独一行可选：考点：xxx（多个用顿号分隔）\n9. 资料分析类：用 材料： 题目： 区分材料和题目\n10. 只输出转换后的文本，不要任何其他说明\n\nPDF 原文：\n' + rawText;
                     return fetch('https://api.deepseek.com/chat/completions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (typeof DEEPSEEK_API_KEY !== 'undefined' ? DEEPSEEK_API_KEY : 'sk-0c154dd4e49a471492ffd96e8de2091e') },
@@ -4395,10 +4391,11 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 return;
             }
             container.innerHTML = list.map(function(s) {
-                var y = (s['言语理解']||[]).length, s2 = (s['数量关系']||[]).length, p = (s['判断推理']||[]).length, z = (s['资料分析']||[]).length;
-                var total = y + s2 + p + z;
+                var secCounts = {};
+                var total = 0;
+                (MAIN_SECTIONS || []).forEach(function(sec) { var c = (s[sec]||[]).length; secCounts[sec] = c; total += c; });
                 var catTag = (s.category) ? '<span class="set-category-tag">' + (s.category).replace(/</g,'&lt;') + '</span>' : '';
-                var meta = '言语理解 ' + y + ' · 数量关系 ' + s2 + ' · 判断推理 ' + p + ' · 资料分析 ' + z;
+                var meta = (MAIN_SECTIONS || []).map(function(sec) { return sec + ' ' + (secCounts[sec]||0); }).join(' · ');
                 var catOpts = getSetCategories().map(function(c) { return '<option value="' + (c||'') + '"' + ((s.category||'') === c ? ' selected' : '') + '>' + (c || '不分类') + '</option>'; }).join('');
                 return '<div class="set-item" id="set-row-' + s.id + '">' +
                     '<div class="set-view" id="set-view-' + s.id + '">' +
@@ -4452,7 +4449,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function deleteSet(setId) {
             var set = store.getSet(setId);
             if (!set) return;
-            var total = (set['言语理解']||[]).length + (set['数量关系']||[]).length + (set['判断推理']||[]).length + (set['资料分析']||[]).length;
+            var total = (MAIN_SECTIONS || []).reduce(function(sum, sec) { return sum + (set[sec]||[]).length; }, 0);
             if (!confirm('确定删除套卷「' + (set.name || '') + '」吗？将同时删除该套卷下 ' + total + ' 道题目，且不可恢复。')) return;
             store.deleteSet(setId);
             store.save();
@@ -4712,7 +4709,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function updateSingleSub() {
             var section = document.getElementById('singleSection').value;
             var sub = document.getElementById('singleSubcategory');
-            sub.innerHTML = (SUBCATEGORIES[section] || []).map(function(s) { return '<option value="' + s + '">' + s + '</option>'; }).join('');
+            var opts = SUBCATEGORIES[section] || [];
+            var noSubAllowed = ['政治理论', '常识判断'];
+            var html = (noSubAllowed.indexOf(section) !== -1 ? '<option value="">（无）</option>' : '') + opts.map(function(s) { return '<option value="' + s + '">' + s + '</option>'; }).join('');
+            sub.innerHTML = html || '<option value="">（无）</option>';
             setSingleOptionDefaults();
         }
         function setSingleOptionDefaults() {
@@ -5294,7 +5294,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 } else {
                     var id = genId();
                     setIds[s.id] = id;
-                    store.sets.push({ id: id, name: name || '未命名', category: s.category || '', '言语理解': s['言语理解'] || [], '数量关系': s['数量关系'] || [], '判断推理': s['判断推理'] || [], '资料分析': s['资料分析'] || [] });
+                    var init = { id: id, name: name || '未命名', category: s.category || '' };
+                    (MAIN_SECTIONS || []).forEach(function(sec) { init[sec] = s[sec] || []; });
+                    store.sets.push(init);
                 }
             });
             Object.keys(questions).forEach(function(qid) {
@@ -5718,7 +5720,9 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                 var n = (name || '未命名套卷').trim();
                 if (this.setExistsByName(n, null)) return null;
                 var id = genId();
-                this.sets.push({ id: id, name: n || '未命名套卷', category: category || '', '言语理解': [], '数量关系': [], '判断推理': [], '资料分析': [] });
+                var init = { id: id, name: n || '未命名套卷', category: category || '' };
+                MAIN_SECTIONS.forEach(function(s) { init[s] = []; });
+                this.sets.push(init);
                 return id;
             },
             getSet: function(setId) { return this.sets.find(function(s) { return s.id === setId; }); },
@@ -6846,12 +6850,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
             }
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
             container.innerHTML = filtered.map(function(s) {
-                var y = (s['言语理解']||[]).length;
-                var n = (s['数量关系']||[]).length;
-                var p = (s['判断推理']||[]).length;
-                var z = (s['资料分析']||[]).length;
-                var total = y + n + p + z;
-                var meta = '言语理解 ' + y + ' · 数量关系 ' + n + ' · 判断推理 ' + p + ' · 资料分析 ' + z;
+                var secCounts = {};
+                var total = 0;
+                (MAIN_SECTIONS || []).forEach(function(sec) { var c = (s[sec]||[]).length; secCounts[sec] = c; total += c; });
+                var meta = (MAIN_SECTIONS || []).map(function(sec) { return sec + ' ' + (secCounts[sec]||0); }).join(' · ');
                 return '<div class="set-item" style="padding:12px; border:1px solid var(--border-color); border-radius:var(--border-radius); margin-bottom:8px;">' +
                     '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
                     '<div><strong>' + esc(s.name) + '</strong> <span style="color:#6c757d; margin-left:8px;">' + esc(s.category || '不分类') + '</span> <span style="color:#6c757d; margin-left:8px;">共 ' + total + ' 题</span><div style="margin-top:4px; font-size:0.85rem; color:#6c757d;">' + meta + '</div></div>' +
@@ -7039,7 +7041,7 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         function adminDeleteSet(setId) {
             var set = adminStore.getSet(setId);
             if (!set) return;
-            var total = (set['言语理解']||[]).length + (set['数量关系']||[]).length + (set['判断推理']||[]).length + (set['资料分析']||[]).length;
+            var total = (MAIN_SECTIONS || []).reduce(function(sum, sec) { return sum + (set[sec]||[]).length; }, 0);
             if (!confirm('确定删除套卷「' + (set.name || '') + '」吗？将同时删除该套卷下 ' + total + ' 道题目，且不可恢复。')) return;
             adminStore.deleteSet(setId);
             adminStore.save();
