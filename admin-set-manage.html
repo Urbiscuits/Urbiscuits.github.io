@@ -50,6 +50,12 @@
                     </div>
                 </div>
                 <p class="muted" style="margin-top:10px;">说明：此页面仅管理本地管理员题库（`localStorage`），需要同步到 GitHub 请回到管理员后台操作。</p>
+                <div style="margin-bottom:12px; display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="checkbox" id="checkAll" onchange="onCheckAllChange()"> 全选
+                    </label>
+                    <button type="button" class="btn btn-danger btn-sm" id="btnBatchDelete" onclick="doBatchDelete()" style="display:none;">批量删除</button>
+                </div>
                 <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
                     <div>
                         <label class="muted">按大类筛选</label>
@@ -59,6 +65,8 @@
                             <option value="数量关系">数量关系</option>
                             <option value="判断推理">判断推理</option>
                             <option value="资料分析">资料分析</option>
+                            <option value="政治理论">政治理论</option>
+                            <option value="常识判断">常识判断</option>
                         </select>
                     </div>
                     <div>
@@ -183,7 +191,7 @@
     </div>
 
     <script>
-        var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析'];
+        var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
         var filterSection = '';
         var filterSubcategory = '';
         var filterKeyword = '';
@@ -330,17 +338,20 @@
                 Object.keys(bySection[sec]).sort().forEach(function(sub) {
                     bySection[sec][sub].forEach(function(q) {
                         var qid = String(q.id || '');
-                        html += '<div class="question-item">' +
+                        html += '<div class="question-item" style="display:flex; align-items:flex-start; gap:8px;">' +
+                            '<label style="flex-shrink:0; cursor:pointer; margin-top:4px;"><input type="checkbox" class="q-check" value="' + esc(qid) + '"></label>' +
+                            '<div style="flex:1; min-width:0;">' +
                             '<span class="question-category">' + esc(sub) + '</span> ' + esc((q.content||'').slice(0, 80)) + '… ' +
                             '<button type="button" class="btn btn-info btn-sm" data-action="view" data-qid="' + esc(qid) + '">查看</button> ' +
                             '<button type="button" class="btn btn-default btn-sm" data-action="edit" data-qid="' + esc(qid) + '">编辑</button> ' +
                             '<button type="button" class="btn btn-danger btn-sm" data-action="delete" data-qid="' + esc(qid) + '">删除</button>' +
-                            '</div>';
+                            '</div></div>';
                     });
                 });
                 html += '</div>';
             });
             document.getElementById('questionList').innerHTML = html || '<p style="color:#6c757d;">暂无题目</p>';
+            updateBatchDeleteVisibility();
         }
 
         function showDetail(qid) {
@@ -569,6 +580,45 @@
             renderSubcategoryOptions();
             renderList();
         }
+        function onCheckAllChange() {
+            var checkAll = document.getElementById('checkAll');
+            if (!checkAll) return;
+            var checked = checkAll.checked;
+            document.querySelectorAll('.q-check').forEach(function(cb) { cb.checked = checked; });
+            updateBatchDeleteVisibility();
+        }
+        function updateBatchDeleteVisibility() {
+            var btn = document.getElementById('btnBatchDelete');
+            var checkAll = document.getElementById('checkAll');
+            if (!btn || !checkAll) return;
+            var n = document.querySelectorAll('.q-check:checked').length;
+            btn.style.display = n > 0 ? 'inline-flex' : 'none';
+            btn.textContent = '批量删除' + (n > 0 ? ' (' + n + ')' : '');
+            checkAll.checked = n > 0 && n === document.querySelectorAll('.q-check').length;
+            checkAll.indeterminate = n > 0 && n < document.querySelectorAll('.q-check').length;
+        }
+        function doBatchDelete() {
+            var ids = [];
+            document.querySelectorAll('.q-check:checked').forEach(function(cb) {
+                if (cb.value) ids.push(cb.value);
+            });
+            if (!ids.length) return;
+            if (!confirm('确定删除选中的 ' + ids.length + ' 道题目？此操作不可恢复。')) return;
+            var data = loadStore();
+            ids.forEach(function(qid) {
+                var q = data.questions[qid];
+                if (!q || !q.setId) return;
+                var set = data.sets.filter(function(s) { return s.id === q.setId; })[0];
+                if (set && set[q.section]) set[q.section] = set[q.section].filter(function(id) { return id !== qid; });
+                delete data.questions[qid];
+            });
+            saveStore(data);
+            currentSet = getSet(currentSetId);
+            renderSubcategoryOptions();
+            renderList();
+            updateBatchDeleteVisibility();
+            document.getElementById('checkAll').checked = false;
+        }
 
         function goAddQuestion() {
             try { sessionStorage.setItem('xingce_admin_add_to_set_id', currentSetId); } catch (e) {}
@@ -614,18 +664,23 @@
             }
             renderList();
 
-            // 事件委托：处理查看/编辑/删除
+            // 事件委托：处理查看/编辑/删除、批量勾选
             var listEl = document.getElementById('questionList');
             if (listEl) {
                 listEl.addEventListener('click', function(ev) {
                     var btn = ev.target && ev.target.closest ? ev.target.closest('button[data-action]') : null;
-                    if (!btn) return;
-                    var action = btn.getAttribute('data-action');
-                    var qid = btn.getAttribute('data-qid');
-                    if (!qid) return;
-                    if (action === 'view') return showDetail(qid);
-                    if (action === 'edit') return openEdit(qid);
-                    if (action === 'delete') return doDelete(qid);
+                    if (btn) {
+                        var action = btn.getAttribute('data-action');
+                        var qid = btn.getAttribute('data-qid');
+                        if (qid) {
+                            if (action === 'view') return showDetail(qid);
+                            if (action === 'edit') return openEdit(qid);
+                            if (action === 'delete') return doDelete(qid);
+                        }
+                    }
+                    if (ev.target && ev.target.classList && ev.target.classList.contains('q-check')) {
+                        setTimeout(updateBatchDeleteVisibility, 0);
+                    }
                 });
             }
 
