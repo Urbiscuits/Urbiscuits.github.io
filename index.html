@@ -1782,6 +1782,16 @@
         var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
         // 小类改为动态：批量录入时可任意自定义，ensureSubcategory 会实时添加
         var SUBCATEGORIES = { '言语理解': [], '数量关系': [], '判断推理': [], '资料分析': [], '政治理论': [], '常识判断': [] };
+        // 题目统计（管理员题库）固定显示的六大类及小类，无论 JSON 是否有数据都展示
+        var ADMIN_STATS_ORDER = ['政治理论', '常识判断', '言语理解', '判断推理', '数量关系', '资料分析'];
+        var ADMIN_STATS_SUBS = {
+            '政治理论': [],
+            '常识判断': [],
+            '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择'],
+            '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断', '图形推理'],
+            '数量关系': ['和差倍比', '工程问题', '数量问题', '最值问题', '利润问题', '几何问题', '概率问题', '排列组合', '行程问题'],
+            '资料分析': ['现期比重', '基期比重', '两期比重', '混合比重', '基期平均数', '现期平均数', '平均数增长率', '平均数的增长量', '两期平均数', '比值计算', '基期倍数', '现期倍数', '比值比较', '倍数比较', '间隔基期', '基期比较', '基期和差', '间隔增长率', '一般增长率', '年均增长率', '混合增长率', '增长量']
+        };
         var PARSER_SUB = null; // 不再限制，解析器接受任意小类
         // GitHub 上托管的在线题库（JSON），默认 data/store.json，可按需修改
         var ENABLE_REMOTE_STORE = true;
@@ -3484,17 +3494,20 @@
             var st = adminComputeStats();
             var stats = st.tree;
             var total = st.total;
-            if (total === 0) { container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-pie"></i><p>暂无统计数据</p></div>'; return; }
             var aliases = getAdminSectionAliases();
+            var order = (typeof ADMIN_STATS_ORDER !== 'undefined' && ADMIN_STATS_ORDER.length) ? ADMIN_STATS_ORDER.slice() : MAIN_SECTIONS.slice();
+            (MAIN_SECTIONS || []).forEach(function(s) { if (order.indexOf(s) === -1) order.push(s); });
+            var predefinedSubs = (typeof ADMIN_STATS_SUBS === 'object') ? ADMIN_STATS_SUBS : {};
             var html = '<ul class="tree-node">';
-            MAIN_SECTIONS.forEach(function(section) {
+            order.forEach(function(section) {
                 var subCounts = stats[section] || {};
                 var sectionTotal = Object.keys(subCounts).reduce(function(a, k) { return a + subCounts[k]; }, 0);
-                if (sectionTotal === 0) return;
-                var subs = Object.keys(subCounts).sort(function(a,b){ return String(a).localeCompare(String(b)); });
+                var baseSubs = predefinedSubs[section] || [];
+                var extraSubs = Object.keys(subCounts).filter(function(k) { return baseSubs.indexOf(k) === -1; }).sort(function(a,b){ return String(a).localeCompare(String(b)); });
+                var subs = baseSubs.concat(extraSubs);
                 var label = aliases[section] || section;
                 html += '<li class="tree-node collapsed"><div class="tree-toggle"><i class="fas fa-chevron-right"></i><i class="fas fa-chevron-down"></i><span>' + label + '</span><span class="tree-count">' + sectionTotal + '</span></div><ul class="tree-children">';
-                subs.forEach(function(sub) { html += '<li class="tree-leaf"><span>' + sub + '</span><span class="tree-count">' + subCounts[sub] + '</span></li>'; });
+                subs.forEach(function(sub) { var cnt = subCounts[sub] || 0; html += '<li class="tree-leaf"><span>' + sub + '</span><span class="tree-count">' + cnt + '</span></li>'; });
                 html += '</ul></li>';
             });
             html += '<li class="tree-leaf" style="margin-top:8px; font-weight:bold;"><span>题目总数</span><span class="tree-count" style="background: var(--accent-color);">' + total + '</span></li></ul>';
