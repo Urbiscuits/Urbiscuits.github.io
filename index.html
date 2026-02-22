@@ -1914,8 +1914,10 @@
             if (!MAIN_SECTIONS.includes(category) || !subcategory) return;
             if (!SUBCATEGORIES[category]) SUBCATEGORIES[category] = [];
             if (SUBCATEGORIES[category].indexOf(subcategory) === -1) SUBCATEGORIES[category].push(subcategory);
-            if (!PARSER_SUB[category]) PARSER_SUB[category] = [];
-            if (PARSER_SUB[category].indexOf(subcategory) === -1) PARSER_SUB[category].push(subcategory);
+            if (PARSER_SUB) {
+                if (!PARSER_SUB[category]) PARSER_SUB[category] = [];
+                if (PARSER_SUB[category].indexOf(subcategory) === -1) PARSER_SUB[category].push(subcategory);
+            }
         }
     </script>
     <script src="js/parser.js"></script>
@@ -4481,8 +4483,15 @@
             var listEl = document.getElementById('batchPreviewList');
             var countEl = document.getElementById('batchPreviewCount');
             if (!text) { showMsg('importStatus', '请先填入题目内容', 'error'); return; }
-            var list = parseBatchText(text);
-            if (!list.length) { showMsg('importStatus', '未解析到有效题目，请检查格式与分类', 'error'); wrap.style.display = 'none'; return; }
+            var list;
+            try {
+                list = typeof parseBatchText === 'function' ? parseBatchText(text) : [];
+            } catch (e) {
+                showMsg('importStatus', '解析出错：' + (e && e.message || String(e)), 'error');
+                if (wrap) wrap.style.display = 'none';
+                return;
+            }
+            if (!list || !list.length) { showMsg('importStatus', '未解析到有效题目，请检查格式：每道题需以 [大类] 或 [大类-小类] 开头，可加 (来源)，如 [政治理论](2026超格)题号1：...', 'error'); if (wrap) wrap.style.display = 'none'; return; }
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
             listEl.innerHTML = list.map(function(q, i) {
                 var optHtml = (q.options || []).map(function(o) { return '<div class="option"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + '</div>'; }).join('');
@@ -7864,8 +7873,15 @@
             var listEl = document.getElementById('adminBatchPreviewList');
             var countEl = document.getElementById('adminBatchPreviewCount');
             if (!text) { showMsg('adminImportStatus', '请先填入题目内容', 'error'); return; }
-            var list = parseBatchText(text);
-            if (!list.length) { showMsg('adminImportStatus', '未解析到有效题目，请检查格式与分类', 'error'); wrap.style.display = 'none'; return; }
+            var list;
+            try {
+                list = typeof parseBatchText === 'function' ? parseBatchText(text) : [];
+            } catch (e) {
+                showMsg('adminImportStatus', '解析出错：' + (e && e.message || String(e)), 'error');
+                if (wrap) wrap.style.display = 'none';
+                return;
+            }
+            if (!list || !list.length) { showMsg('adminImportStatus', '未解析到有效题目，请检查格式：每道题需以 [大类] 或 [大类-小类] 开头，可加 (来源)，如 [政治理论](2026超格)题号1：...', 'error'); if (wrap) wrap.style.display = 'none'; return; }
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
             listEl.innerHTML = list.map(function(q, i) {
                 var optHtml = (q.options || []).map(function(o) { return '<div class="option"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + '</div>'; }).join('');
