@@ -104,10 +104,11 @@
         </div>
     </div>
 
-    <!-- 编辑题目弹层 -->
+    <!-- 编辑题目弹层（独立于主页，仅在此页完成编辑与同步） -->
     <div id="editOverlay" class="overlay" style="display:none;">
         <div class="overlay-inner" style="max-width:900px;">
             <h3 style="margin-bottom:16px; color:var(--primary-color);">编辑题目</h3>
+            <p class="muted" style="margin-bottom:12px; font-size:0.9rem;">保存后会将当前套卷同步到所选 JSON 文件；同步完成后才可编辑下一题。</p>
             <div style="margin-bottom:16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <label style="font-weight:500;">题干（支持LaTeX公式：$公式$ 或 $$公式$$，支持Ctrl+V粘贴图片）</label>
@@ -185,7 +186,25 @@
                     <div id="editExplanationPreview" style="padding:8px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#f9f9f9; min-height:80px; overflow:auto;"></div>
                 </div>
             </div>
-            <div style="margin-top:16px;"><button type="button" class="btn btn-success" onclick="saveEdit()">保存</button> <button type="button" class="btn btn-default" onclick="closeEdit()">取消</button></div>
+            <div style="margin-top:16px;">
+                <button type="button" class="btn btn-success" id="btnSaveEdit" onclick="saveEdit()">保存并同步到 JSON</button>
+                <button type="button" class="btn btn-default" onclick="closeEdit()">取消</button>
+            </div>
+            <div style="margin-top:16px;">
+                <label class="muted">同步到 JSON 文件</label>
+                <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                    <select id="syncTargetJson" style="padding:8px; border-radius:4px; border:1px solid #ced4da; min-width:200px;">
+                        <option value="data/store.json">data/store.json</option>
+                    </select>
+                    <button type="button" class="btn btn-sm btn-default" onclick="refreshSyncJsonList()" title="从 GitHub 刷新 data 目录下的 JSON 列表">刷新列表</button>
+                </div>
+            </div>
+            <div id="syncProgressWrap" style="display:none; margin-top:14px;">
+                <div style="font-size:0.9rem; color:var(--primary-color); margin-bottom:6px;" id="syncProgressText">正在同步…</div>
+                <div id="syncProgressBar" style="height:20px; background:#e0e0e0; border-radius:4px; overflow:hidden;">
+                    <div id="syncProgressFill" style="height:100%; width:0%; background:var(--success-color); transition:width 0.3s;"></div>
+                </div>
+            </div>
             <input type="file" id="imageUploadInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
         </div>
     </div>
@@ -200,6 +219,113 @@
         var editQid = null;
         var detailQid = null;
         var currentImageUploadTarget = null;
+        var syncInProgress = false;
+
+        // GitHub 配置（与 index 管理员一致，token 从 localStorage 读取）
+        var GITHUB_CONFIG = { owner: 'urbiscuits', repo: 'urbiscuits.github.io', branch: 'main', token: '' };
+        function decryptToken(encryptedToken) {
+            if (!encryptedToken || typeof encryptedToken !== 'string') return '';
+            var raw = encryptedToken.trim();
+            if (!raw) return '';
+            try {
+                var base64Regex = /^[A-Za-z0-9+/]+=*$/;
+                if (!base64Regex.test(raw.replace(/\s/g, ''))) return raw;
+                var decoded;
+                try { decoded = decodeURIComponent(escape(atob(raw))); } catch (e1) { try { decoded = atob(raw); } catch (e2) { return raw; } }
+                var key = 'xingce_github_token_key_2024';
+                var result = '';
+                for (var i = 0; i < decoded.length; i++) {
+                    result += String.fromCharCode(decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+                }
+                return result;
+            } catch (e) { return raw; }
+        }
+        try {
+            var savedToken = localStorage.getItem('github_token');
+            if (savedToken) GITHUB_CONFIG.token = decryptToken(savedToken) || savedToken;
+        } catch (e) {}
+
+        function base64ToUtf8(b64) {
+            b64 = (b64 || '').replace(/\s/g, '');
+            if (!b64) return '';
+            try {
+                var binary = atob(b64);
+                if (typeof TextDecoder !== 'undefined') {
+                    var bytes = new Uint8Array(binary.length);
+                    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                    return new TextDecoder('utf-8').decode(bytes);
+                }
+                return decodeURIComponent(escape(binary));
+            } catch (e) { try { return atob(b64); } catch (e2) { return ''; } }
+        }
+        function utf8ToBase64(str) {
+            try { return btoa(unescape(encodeURIComponent(str))); } catch (e) { return btoa(String(str || '')); }
+        }
+        function repairMojibakeString(s) {
+            if (typeof s !== 'string' || !s) return s;
+            if (!/[ÃÂâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ]/.test(s)) return s;
+            try {
+                var fixed = decodeURIComponent(escape(s));
+                if (fixed && /[\u4e00-\u9fff]/.test(fixed)) return fixed;
+            } catch (e) {}
+            return s;
+        }
+        function deepRepairMojibake(v) {
+            if (Array.isArray(v)) return v.map(deepRepairMojibake);
+            if (v && typeof v === 'object') {
+                var out = {};
+                Object.keys(v).forEach(function(k) { out[repairMojibakeString(k)] = deepRepairMojibake(v[k]); });
+                return out;
+            }
+            return (typeof v === 'string') ? repairMojibakeString(v) : v;
+        }
+
+        function setSyncProgress(percent, text) {
+            var wrap = document.getElementById('syncProgressWrap');
+            var fill = document.getElementById('syncProgressFill');
+            var txt = document.getElementById('syncProgressText');
+            if (wrap) wrap.style.display = 'block';
+            if (fill) fill.style.width = (percent || 0) + '%';
+            if (txt) txt.textContent = text || '';
+        }
+        function hideSyncProgress() {
+            var wrap = document.getElementById('syncProgressWrap');
+            if (wrap) wrap.style.display = 'none';
+        }
+
+        function refreshSyncJsonList() {
+            var sel = document.getElementById('syncTargetJson');
+            if (!sel) return;
+            if (!GITHUB_CONFIG.token) {
+                alert('请先在管理员后台配置 GitHub Token');
+                return;
+            }
+            var cur = (sel.value || '').trim() || 'data/store.json';
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data?ref=' + GITHUB_CONFIG.branch;
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+            fetch(apiUrl, { method: 'GET', headers: headers })
+                .then(function(r) {
+                    if (!r.ok) throw new Error('获取列表失败');
+                    return r.json();
+                })
+                .then(function(items) {
+                    var jsonPaths = [];
+                    (items || []).forEach(function(it) {
+                        if (!it.path || it.type !== 'file') return;
+                        if (!/\.json$/i.test(it.path)) return;
+                        if (it.path === 'data/files.json' || it.path === 'data/users.json' || it.path === 'data/user.json' || it.path === 'data/remark.json') return;
+                        if (/^data\/user\//i.test(it.path)) return;
+                        jsonPaths.push(it.path);
+                    });
+                    if (jsonPaths.indexOf('data/store.json') === -1) jsonPaths.unshift('data/store.json');
+                    jsonPaths.sort(function(a, b) { return a.localeCompare(b); });
+                    sel.innerHTML = jsonPaths.map(function(p) { return '<option value="' + esc(p) + '">' + esc(p) + '</option>'; }).join('');
+                    sel.value = (jsonPaths.indexOf(cur) >= 0) ? cur : 'data/store.json';
+                })
+                .catch(function(err) {
+                    alert('刷新 JSON 列表失败：' + (err.message || '未知错误'));
+                });
+        }
 
         function showDebug(text, isError) {
             var box = document.getElementById('debugBox');
@@ -525,6 +651,7 @@
             document.getElementById('editAnswer').value = q.answer || 'A';
             setEditableContent('editExplanation', q.explanation || '', []);
             document.getElementById('editOverlay').style.display = 'block';
+            hideSyncProgress();
             setTimeout(function() {
                 updatePreview('editContent');
                 updatePreview('editA');
@@ -538,9 +665,12 @@
             document.getElementById('editOverlay').style.display = 'none';
             editQid = null;
             currentImageUploadTarget = null;
+            hideSyncProgress();
+            var btnSave = document.getElementById('btnSaveEdit');
+            if (btnSave) btnSave.disabled = false;
         }
         function saveEdit() {
-            if (!editQid) return;
+            if (!editQid || syncInProgress) return;
             var data = loadStore();
             var q = data.questions[editQid];
             if (!q) return;
@@ -561,10 +691,124 @@
             var explanationData = getEditableContent('editExplanation');
             q.explanation = explanationData.text;
             saveStore(data);
-            closeEdit();
-            currentSet = getSet(currentSetId);
-            renderSubcategoryOptions();
-            renderList();
+
+            var btnSave = document.getElementById('btnSaveEdit');
+            var targetPath = (document.getElementById('syncTargetJson') && document.getElementById('syncTargetJson').value) || 'data/store.json';
+
+            if (!GITHUB_CONFIG.token) {
+                closeEdit();
+                currentSet = getSet(currentSetId);
+                renderSubcategoryOptions();
+                renderList();
+                alert('已保存到本地。同步到 JSON 需在管理员后台配置 GitHub Token。');
+                return;
+            }
+
+            syncInProgress = true;
+            if (btnSave) btnSave.disabled = true;
+            setSyncProgress(5, '正在准备同步…');
+
+            syncCurrentQuestionToJson(targetPath, function() {
+                setSyncProgress(100, '同步完成');
+                syncInProgress = false;
+                if (btnSave) btnSave.disabled = false;
+                hideSyncProgress();
+                closeEdit();
+                currentSet = getSet(currentSetId);
+                renderSubcategoryOptions();
+                renderList();
+            }, function(errMsg) {
+                setSyncProgress(0, '同步失败：' + (errMsg || '未知错误'));
+                syncInProgress = false;
+                if (btnSave) btnSave.disabled = false;
+            });
+        }
+
+        /** 将当前套卷（含已编辑题目）合并到远程 JSON 文件 */
+        function syncCurrentQuestionToJson(targetPath, onSuccess, onError) {
+            var data = loadStore();
+            var set = currentSetId ? data.sets.filter(function(s) { return s.id === currentSetId; })[0] : null;
+            if (!set) {
+                if (onError) onError('当前套卷不存在');
+                return;
+            }
+            var questionIds = {};
+            MAIN_SECTIONS.forEach(function(sec) {
+                (set[sec] || []).forEach(function(qid) { questionIds[qid] = true; });
+            });
+            var selectedQuestions = {};
+            Object.keys(questionIds).forEach(function(qid) {
+                if (data.questions[qid]) selectedQuestions[qid] = data.questions[qid];
+            });
+            var selectedSets = [set];
+
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+
+            setSyncProgress(15, '正在获取远程文件…');
+            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                .then(function(resp) {
+                    if (resp.status === 404) return null;
+                    if (!resp.ok) throw new Error('获取失败: ' + resp.status);
+                    return resp.json();
+                })
+                .then(function(fileInfo) {
+                    setSyncProgress(40, '正在合并数据…');
+                    var finalData;
+                    if (fileInfo && fileInfo.content) {
+                        try {
+                            var existingContent = base64ToUtf8(fileInfo.content);
+                            var existingData = deepRepairMojibake(JSON.parse(existingContent));
+                            var mergedSets = [];
+                            var setIdMap = {};
+                            (existingData.sets || []).forEach(function(s) {
+                                var existing = selectedSets.find(function(ss) { return (ss.name || '').trim() === (s.name || '').trim(); });
+                                if (existing) {
+                                    setIdMap[s.id] = existing.id;
+                                    mergedSets.push(existing);
+                                } else {
+                                    setIdMap[s.id] = s.id;
+                                    mergedSets.push(s);
+                                }
+                            });
+                            selectedSets.forEach(function(s) {
+                                if (!mergedSets.find(function(ms) { return ms.id === s.id; })) mergedSets.push(s);
+                            });
+                            var mergedQuestions = {};
+                            Object.keys(existingData.questions || {}).forEach(function(qid) {
+                                var q = existingData.questions[qid];
+                                if (q.setId && setIdMap[q.setId]) {
+                                    q.setId = setIdMap[q.setId];
+                                    mergedQuestions[qid] = q;
+                                }
+                            });
+                            Object.keys(selectedQuestions).forEach(function(qid) {
+                                mergedQuestions[qid] = selectedQuestions[qid];
+                            });
+                            finalData = { sets: mergedSets, questions: mergedQuestions, exportTime: new Date().toISOString() };
+                        } catch (e) {
+                            finalData = { sets: selectedSets, questions: selectedQuestions, exportTime: new Date().toISOString() };
+                        }
+                    } else {
+                        finalData = { sets: selectedSets, questions: selectedQuestions, exportTime: new Date().toISOString() };
+                    }
+                    setSyncProgress(70, '正在上传…');
+                    var content = JSON.stringify(finalData, null, 2);
+                    var encodedContent = utf8ToBase64(content);
+                    var commitData = { message: '套卷题目编辑同步到 ' + targetPath + ' - ' + new Date().toLocaleString('zh-CN'), content: encodedContent, branch: GITHUB_CONFIG.branch };
+                    if (fileInfo && fileInfo.sha) commitData.sha = fileInfo.sha;
+                    return fetch(apiUrl, { method: 'PUT', headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }), body: JSON.stringify(commitData) });
+                })
+                .then(function(resp) {
+                    if (!resp.ok) return resp.json().then(function(err) { throw new Error(err.message || '同步失败'); });
+                    return resp.json();
+                })
+                .then(function() {
+                    if (onSuccess) onSuccess();
+                })
+                .catch(function(err) {
+                    if (onError) onError(err && err.message ? err.message : String(err));
+                });
         }
 
         function doDelete(qid) {
