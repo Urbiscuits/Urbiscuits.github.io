@@ -1427,7 +1427,10 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
                                 <div style="align-self:flex-end;"><button class="btn btn-primary" onclick="adminAddUser()"><i class="fas fa-plus"></i> 新建用户</button></div>
                             </div>
                             <div id="adminUserList" style="border:1px solid var(--border-color); border-radius:var(--border-radius); overflow:hidden;"></div>
-                            <div style="margin-top:12px;"><button class="btn btn-info btn-sm" onclick="adminSyncUsersToGitHub()"><i class="fas fa-cloud-upload-alt"></i> 同步用户列表到 GitHub (data/users.json)</button></div>
+                            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="btn btn-info btn-sm" onclick="adminSyncUsersToGitHub()"><i class="fas fa-cloud-upload-alt"></i> 同步用户列表到 GitHub (data/users.json)</button>
+                                <button class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminPullUsersFromGitHub()"><i class="fas fa-cloud-download-alt"></i> 从 GitHub 拉取用户列表</button>
+                            </div>
                             <div id="adminUserStatus" class="status-message" style="margin-top:8px;"></div>
                         </div>
                         
@@ -6032,22 +6035,73 @@ A.xxx  B.xxx  C.xxx  D.xxx  答案：A  解析：无
         }
         function adminSyncUsersToGitHub() {
             if (!GITHUB_CONFIG.token) { showMsg('adminUserStatus', '请先配置 GitHub Token', 'error'); return; }
+            if (!GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo) { showMsg('adminUserStatus', '请先配置 GitHub 仓库 owner 与 repo', 'error'); return; }
             var users = getAdminUsers();
             var data = { users: users, exportTime: new Date().toISOString() };
             var content = JSON.stringify(data, null, 2);
+            var branch = GITHUB_CONFIG.branch || 'main';
             var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data/users.json';
             var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
-            showMsg('adminUserStatus', '正在同步用户列表到 GitHub...', 'info');
-            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
-                .then(function(r) { if (r.status === 404) return null; if (!r.ok) throw new Error('获取失败 ' + r.status); return r.json(); })
+            showMsg('adminUserStatus', '正在同步用户列表到 GitHub (分支: ' + branch + ')...', 'info');
+            fetch(apiUrl + '?ref=' + branch, { method: 'GET', headers: headers })
+                .then(function(r) { if (r.status === 404) return null; if (!r.ok) throw new Error('获取文件失败 ' + r.status); return r.json(); })
                 .then(function(fileInfo) {
-                    var commitData = { message: '同步用户列表 - ' + new Date().toLocaleString('zh-CN'), content: btoa(unescape(encodeURIComponent(content))), branch: GITHUB_CONFIG.branch };
+                    var encodedContent;
+                    try { encodedContent = utf8ToBase64(content); } catch (e) { encodedContent = btoa(unescape(encodeURIComponent(content))); }
+                    var commitData = { message: 'Sync users list - ' + new Date().toISOString(), content: encodedContent, branch: branch };
                     if (fileInfo && fileInfo.sha) commitData.sha = fileInfo.sha;
                     return fetch(apiUrl, { method: 'PUT', headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }), body: JSON.stringify(commitData) });
                 })
-                .then(function(r) { if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || '同步失败'); }); return r.json(); })
-                .then(function() { showMsg('adminUserStatus', '已同步用户列表到 data/users.json', 'success'); })
-                .catch(function(err) { showMsg('adminUserStatus', '同步失败：' + (err.message || '未知错误'), 'error'); });
+                .then(function(r) {
+                    if (r.status === 422) {
+                        return r.json().then(function(body) {
+                            if (body && body.message && body.message.indexOf('same') !== -1) {
+                                showMsg('adminUserStatus', '用户列表无变化，已与 GitHub 一致', 'success');
+                                return { _noNewCommit: true };
+                            }
+                            throw new Error(body.message || '同步失败(422)');
+                        });
+                    }
+                    if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || '同步失败 ' + r.status); });
+                    return r.json();
+                })
+                .then(function(result) {
+                    if (result && result._noNewCommit) return;
+                    if (result && result.commit) showMsg('adminUserStatus', '已同步用户列表到 data/users.json（分支: ' + branch + '），小程序可登录', 'success');
+                    else if (!result || !result._noNewCommit) showMsg('adminUserStatus', '已同步用户列表到 data/users.json', 'success');
+                })
+                .catch(function(err) { showMsg('adminUserStatus', '同步失败：' + (err.message || '未知错误') + '。请确认 Token 有 repo 权限、仓库与分支正确。', 'error'); });
+        }
+        function adminPullUsersFromGitHub() {
+            if (!GITHUB_CONFIG.token) { showMsg('adminUserStatus', '请先配置 GitHub Token', 'error'); return; }
+            var branch = GITHUB_CONFIG.branch || 'main';
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data/users.json?ref=' + branch;
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+            showMsg('adminUserStatus', '正在从 GitHub 拉取用户列表...', 'info');
+            fetch(apiUrl, { method: 'GET', headers: headers })
+                .then(function(r) {
+                    if (r.status === 404) { showMsg('adminUserStatus', 'GitHub 上暂无 data/users.json，请先同步', 'error'); return null; }
+                    if (!r.ok) throw new Error('获取失败 ' + r.status);
+                    return r.json();
+                })
+                .then(function(fileInfo) {
+                    if (!fileInfo) return;
+                    var raw = (fileInfo.content || '').replace(/\s/g, '');
+                    if (!raw) { showMsg('adminUserStatus', '文件内容为空', 'error'); return; }
+                    var jsonStr = typeof base64ToUtf8 === 'function' ? base64ToUtf8(raw) : decodeURIComponent(escape(atob(raw)));
+                    var data = JSON.parse(jsonStr);
+                    var remote = Array.isArray(data && data.users) ? data.users : [];
+                    var local = getAdminUsers();
+                    var byName = {};
+                    local.forEach(function(u) { if (u && u.username) byName[u.username] = u; });
+                    remote.forEach(function(u) { if (u && u.username) byName[u.username] = u; });
+                    var merged = Object.keys(byName).map(function(k) { return byName[k]; });
+                    merged.sort(function(a, b) { return (a.createdAt || '').localeCompare(b.createdAt || ''); });
+                    saveAdminUsers(merged);
+                    adminRenderUserList();
+                    showMsg('adminUserStatus', '已从 GitHub 拉取并合并用户列表，共 ' + merged.length + ' 个用户', 'success');
+                })
+                .catch(function(err) { showMsg('adminUserStatus', '拉取失败：' + (err.message || '未知错误'), 'error'); });
         }
         function getAdminRemarkLocal() {
             try {
