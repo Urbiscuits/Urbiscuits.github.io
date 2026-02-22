@@ -6317,6 +6317,32 @@
             if (ua) ua.textContent = '最近更新：' + now;
             showMsg('adminRemarkStatus', '已保存到本地', 'success');
         }
+        /** 追加一条「套卷→JSON」记录到管理员记事本并实时同步到 GitHub */
+        function appendSetSyncLogToRemarkAndSyncToGitHub(setNames, targetPath) {
+            var now = new Date().toLocaleString('zh-CN');
+            var namesStr = (setNames || '').trim() || '未命名';
+            var line = '[' + now + '] 套卷「' + namesStr + '」已同步到 ' + (targetPath || '');
+            var d = getAdminRemarkLocal();
+            var newText = (line + '\n' + (d.text || '')).trim();
+            var data = { text: newText, updatedAt: now };
+            saveAdminRemarkLocal(data);
+            var ta = document.getElementById('adminRemarkText');
+            if (ta) ta.value = data.text;
+            if (!GITHUB_CONFIG.token) return;
+            var payload = { text: newText, updatedAt: now, exportTime: new Date().toISOString() };
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data/remark.json';
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                .then(function(r) { if (r.status === 404) return null; if (!r.ok) throw new Error('获取失败 ' + r.status); return r.json(); })
+                .then(function(fileInfo) {
+                    var commitData = { message: '管理员记事本：记录套卷同步 - ' + now, content: utf8ToBase64(JSON.stringify(payload, null, 2)), branch: GITHUB_CONFIG.branch };
+                    if (fileInfo && fileInfo.sha) commitData.sha = fileInfo.sha;
+                    return fetch(apiUrl, { method: 'PUT', headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }), body: JSON.stringify(commitData) });
+                })
+                .then(function(r) { if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || '同步失败'); }); return r.json(); })
+                .then(function() { showMsg('adminRemarkStatus', '已记录并同步到 data/remark.json', 'success'); })
+                .catch(function(err) { showMsg('adminRemarkStatus', '记事本同步失败：' + (err.message || '未知错误'), 'error'); });
+        }
         function adminSyncRemarkToGitHub() {
             if (!GITHUB_CONFIG.token) {
                 showMsg('adminRemarkStatus', '请先配置 GitHub Token', 'error');
@@ -6574,6 +6600,8 @@
                 })
                 .then(function(result) {
                     showMsg('adminSelectedSetsSyncStatus', '成功同步 ' + selectedSets.length + ' 个套卷到 ' + targetPath + ' (' + (result.commit.html_url || '') + ')', 'success');
+                    var setNames = selectedSets.map(function(s) { return s.name || '未命名'; }).join('」「');
+                    appendSetSyncLogToRemarkAndSyncToGitHub(setNames, targetPath);
                 });
             }).catch(function(err) {
                 showMsg('adminSelectedSetsSyncStatus', '同步失败：' + (err && err.message ? err.message : '未知错误'), 'error');
