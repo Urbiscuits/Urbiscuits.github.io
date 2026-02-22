@@ -859,14 +859,15 @@
                     <div class="card">
                         <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-file-import"></i> 批量导入</h2>
                         <div class="format-example">
-                            <p><strong>格式：</strong>题与题之间以单独一行的 <code>[大类-小类]</code>、<code>[大类-小类](来源)</code> 或 <code>[政治理论]</code>/<code>[常识判断]</code>（无小类）区分。小类可自定义。<br><code>[政治理论]题号1：关于习近平新时代中国特色社会主义思想… A.xxx B.xxx C.xxx D.xxx 答案：A
+                            <p><strong>格式：</strong>题与题之间以单独一行的 <code>[大类]</code>、<code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 区分。六大类均支持无小类。<br><code>[政治理论](2026超格)题号1：… A.xxx B.xxx C.xxx D.xxx 答案：A
 
+[数量关系]题号1：… 
 [言语理解-中心理解](2025年重庆A类)题干…
-[言语理解-自定义小类](来源)题干…</code></p>
-                            <p>支持 <code>考点：xxx</code> 或 <code>考点：a、b、c</code> 多考点。六大类均可自定义小类。政治理论、常识判断支持无小类 <code>[政治理论]</code>。资料分析：<code>[资料分析-文字类](2026国考)</code> 材料+题目1/2/3… 智能识别。</p>
+[资料分析](来源)题干…</code></p>
+                            <p>支持 <code>考点：xxx</code> 或 <code>考点：a、b、c</code> 多考点。六大类均可自定义小类，也可无小类如 <code>[政治理论]</code>、<code>[数量关系]</code>、<code>[资料分析]</code>。资料分析：<code>[资料分析-文字类](2026国考)</code> 材料+题目1/2/3… 智能识别；若无材料/题目格式则按单题解析。</p>
                         </div>
                         <div style="margin-bottom: 12px;"><label>选择套卷</label><select id="batchSetId" style="width:100%; padding:10px; margin-top:5px;"></select></div>
-                        <p style="margin-bottom:12px; color:#6c757d;">智能识别：<code>[资料分析-文字类]</code> 等块自动按「材料+多小题」解析；遇到 <code>[言语理解-xx]</code> 等其他题型则结束资料分析、按单题解析。每道题必须以 <code>[大类-小类](来源)</code>、<code>[言语理解-自定义小类]</code> 或 <code>[政治理论]</code>（无小类）开头；题干与选项中 <code>$$...$$</code> 或 <code>\( \)</code> 会自动识别为公式。<strong>支持图片</strong>：在题干或选项中使用 <code>![](data:image/png;base64,...)</code> 或 <code>[IMG:data:image/xxx;base64,...]</code> 插入图片。</p>
+                        <p style="margin-bottom:12px; color:#6c757d;">智能识别：<code>[资料分析-文字类]</code> 等块自动按「材料+多小题」解析；若无材料/题目则按单题解析。每道题必须以 <code>[大类]</code>、<code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 开头，如 <code>[政治理论]</code>、<code>[数量关系-数学运算]</code>、<code>[资料分析](2026国考)</code>；题干与选项中 <code>$$...$$</code> 或 <code>\( \)</code> 会自动识别为公式。<strong>支持图片</strong>：在题干或选项中使用 <code>![](data:image/png;base64,...)</code> 或 <code>[IMG:data:image/xxx;base64,...]</code> 插入图片。</p>
                         <div class="control-group" style="margin-bottom: 12px;">
                             <label>从 TXT 导入：</label>
                             <input type="file" id="batchTxtFile" accept=".txt,text/plain" multiple onchange="onBatchTxtFileChange()" style="margin-right: 12px;">
