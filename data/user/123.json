@@ -1,4 +1,259 @@
 {
+  "history": [
+    {
+      "date": "2026-02-22T02:55:12.814Z",
+      "mode": "practice",
+      "challengeLevel": null,
+      "total": 5,
+      "correct": 0,
+      "score": 0,
+      "details": [
+        {
+          "qid": "id_1771473668435_m1j7ov4",
+          "selected": "D",
+          "correct": false,
+          "timeSpent": 6,
+          "answer": "A"
+        },
+        {
+          "qid": "id_1771650117050_jsb66s9",
+          "selected": "C",
+          "correct": false,
+          "timeSpent": 8,
+          "answer": "D"
+        }
+      ],
+      "completed": false,
+      "answeredCount": 2,
+      "currentIndex": 1,
+      "practiceStyle": "instant",
+      "id": "s1771728912815"
+    },
+    {
+      "date": "2026-02-22T02:47:51.726Z",
+      "mode": "practice",
+      "challengeLevel": null,
+      "total": 5,
+      "correct": 0,
+      "score": 0,
+      "details": [],
+      "completed": false,
+      "answeredCount": 0,
+      "currentIndex": 0,
+      "practiceStyle": "instant",
+      "id": "s1771728471727"
+    },
+    {
+      "date": "2026-02-22T02:25:39.365Z",
+      "mode": "smartpaper",
+      "challengeLevel": null,
+      "total": 50,
+      "correct": 0,
+      "score": 0,
+      "details": [],
+      "completed": false,
+      "answeredCount": 1,
+      "currentIndex": 1,
+      "practiceStyle": "deferred",
+      "id": "s1771727139366"
+    },
+    {
+      "date": "2026-02-22T02:14:33.818Z",
+      "mode": "challenge",
+      "challengeLevel": 1,
+      "total": 15,
+      "correct": 0,
+      "score": 0,
+      "details": [],
+      "completed": false,
+      "answeredCount": 0,
+      "currentIndex": 0,
+      "practiceStyle": "instant",
+      "id": "s1771726473818"
+    },
+    {
+      "date": "2026-02-22T02:14:30.134Z",
+      "mode": "challenge",
+      "challengeLevel": 1,
+      "total": 15,
+      "correct": 0,
+      "score": 0,
+      "details": [],
+      "completed": false,
+      "answeredCount": 0,
+      "currentIndex": 0,
+      "practiceStyle": "instant",
+      "id": "s1771726470135"
+    },
+    {
+      "date": "2026-02-22T02:14:08.063Z",
+      "mode": "miniexam",
+      "challengeLevel": null,
+      "total": 10,
+      "correct": 0,
+      "score": 0,
+      "details": [],
+      "completed": false,
+      "answeredCount": 0,
+      "currentIndex": 0,
+      "practiceStyle": "deferred",
+      "id": "s1771726448064"
+    },
+    {
+      "date": "2026-02-22T02:11:19.456Z",
+      "mode": "smartpaper",
+      "challengeLevel": null,
+      "total": 50,
+      "correct": 0,
+      "score": 0,
+      "details": [],
+      "completed": false,
+      "answeredCount": 1,
+      "currentIndex": 1,
+      "practiceStyle": "deferred",
+      "id": "s1771726279457"
+    },
+    {
+      "date": "2026-02-22T02:09:47.404Z",
+      "mode": "miniexam",
+      "challengeLevel": null,
+      "total": 20,
+      "correct": 0,
+      "score": 0,
+      "details": [],
+      "completed": false,
+      "answeredCount": 0,
+      "currentIndex": 0,
+      "practiceStyle": "deferred",
+      "id": "s1771726187404"
+    },
+    {
+      "date": "2026-02-22T02:09:32.784Z",
+      "mode": "miniexam",
+      "challengeLevel": null,
+      "total": 20,
+      "correct": 0,
+      "score": 0,
+      "details": [],
+      "completed": false,
+      "answeredCount": 0,
+      "currentIndex": 0,
+      "practiceStyle": "deferred",
+      "id": "s1771726172785"
+    },
+    {
+      "date": "2026-02-22T02:09:10.814Z",
+      "mode": "smartpaper",
+      "challengeLevel": null,
+      "total": 50,
+      "correct": 0,
+      "score": 0,
+      "details": [],
+      "completed": false,
+      "answeredCount": 0,
+      "currentIndex": 49,
+      "practiceStyle": "deferred",
+      "id": "s1771726150814"
+    },
+    {
+      "date": "2026-02-22T02:08:57.775Z",
+      "mode": "smartpaper",
+      "challengeLevel": null,
+      "total": 50,
+      "correct": 0,
+      "score": 0,
+      "details": [],
+      "completed": false,
+      "answeredCount": 2,
+      "currentIndex": 49,
+      "practiceStyle": "deferred",
+      "id": "s1771726137775"
+    }
+  ],
+  "points": 4,
+  "signInDate": "2026-02-22",
+  "pointsLog": [],
+  "challengeCache": {
+    "1": [
+      "id_1771572234687_prykohq",
+      "id_1771477638318_80k7q3l",
+      "id_1771473684251_0ectool",
+      "id_1771650209663_eyk8z4q",
+      "id_1771650209663_l5v3wet",
+      "id_1771477638318_bx4wz6q",
+      "id_1771477638318_93awq9t",
+      "id_1771650209663_n1ygne8",
+      "id_1771497620310_pjd1aip",
+      "id_1771473684251_6we7syg",
+      "id_1771473668435_2b56sur",
+      "id_1771473684251_jecjfi3",
+      "id_1771650209664_a38444t",
+      "id_1771477638318_azi5345",
+      "id_1771572234686_vzp0x1u"
+    ],
+    "2": [],
+    "3": [
+      "id_1771473668434_iu8zqc4",
+      "id_1771650117049_yp2jd30",
+      "id_1771650209664_x25f9pm",
+      "id_1771473684251_8wjenae",
+      "id_1771473668434_z3eyyw1",
+      "id_1771473684251_ri0pd9u",
+      "id_1771497620309_fwnl9z1",
+      "id_1771497620309_5tsunbz",
+      "id_1771473684251_6gymf0w",
+      "id_1771473684251_xwkymnn"
+    ],
+    "4": [],
+    "5": [],
+    "6": [
+      "id_1771489622728_k1y5trs",
+      "id_1771489622728_8z9my73",
+      "id_1771473706595_4hkmv1o",
+      "id_1771489622728_khua0i1",
+      "id_1771473706595_dgmtl27",
+      "id_1771473724618_30ms1iq",
+      "id_1771473724619_63g97f7",
+      "id_1771489622728_2b4vubx",
+      "id_1771489622727_nf0m5kl",
+      "id_1771489622727_zysy5yl",
+      "id_1771489622727_j1dli7z",
+      "id_1771489622727_ontziyf",
+      "id_1771473724618_2ndcyzb",
+      "id_1771489622727_ouubuo0",
+      "id_1771489622727_svo0gn3",
+      "id_1771489622728_n2jog3z",
+      "id_1771473724618_c9d6hjy",
+      "id_1771473706595_dpija0i",
+      "id_1771473724619_ogw5qlo",
+      "id_1771489622727_2qxqd7g",
+      "id_1771489622727_camhslh",
+      "id_1771489622727_8wqq3fl",
+      "id_1771489622727_sgi4406",
+      "id_1771489622727_6xub2ef",
+      "id_1771489622727_j4erott"
+    ]
+  },
+  "challengePassed": [],
+  "challengeUnlocked": [
+    2
+  ],
+  "favorites": [
+    "id_1771473668435_m1j7ov4",
+    "id_1771650117050_jsb66s9"
+  ],
+  "notes": [],
   "questionStatsFiles": [],
-  "questionStats": {}
+  "questionStats": {
+    "id_1771650117050_jsb66s9": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771473668435_m1j7ov4": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    }
+  }
 }
