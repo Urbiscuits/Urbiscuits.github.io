@@ -4,7 +4,7 @@
  */
 (function(window) {
     'use strict';
-    var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析'];
+    var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
     var genId = window.genId || function() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9); };
 
     var store = {
@@ -18,7 +18,9 @@
             var n = (name || '未命名套卷').trim();
             if (this.setExistsByName(n, null)) return null;
             var id = genId();
-            this.sets.push({ id: id, name: n || '未命名套卷', category: category || '', '言语理解': [], '数量关系': [], '判断推理': [], '资料分析': [] });
+            var init = { id: id, name: n || '未命名套卷', category: category || '' };
+            MAIN_SECTIONS.forEach(function(s) { init[s] = []; });
+            this.sets.push(init);
             return id;
         },
         getSet: function(setId) { return this.sets.find(function(s) { return s.id === setId; }); },
@@ -49,7 +51,10 @@
             q.knowledgePoints = Array.isArray(q.knowledgePoints) ? q.knowledgePoints : (q.knowledgePoint ? [q.knowledgePoint] : []);
             this.questions[q.id] = q;
             var set = this.getSet(setId);
-            if (set && set[section]) set[section].push(q.id);
+            if (set) {
+                if (!set[section]) set[section] = [];
+                set[section].push(q.id);
+            }
             return q.id;
         },
         recordAnswer: function(qid, selected, correct) {
