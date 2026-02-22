@@ -56,6 +56,7 @@
                         <input type="checkbox" id="checkAll" onchange="onCheckAllChange()"> 全选
                     </label>
                     <button type="button" class="btn btn-danger btn-sm" id="btnBatchDelete" onclick="doBatchDelete()" style="display:none;">批量删除</button>
+                    <button type="button" class="btn btn-info btn-sm" id="btnMergeZiliao" onclick="openMerge()" style="display:none;" title="将选中的多道资料分析题合并为一材料多题">合并（一材料多题）</button>
                 </div>
                 <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
                     <div>
@@ -195,6 +196,36 @@
         </div>
     </div>
 
+    <!-- 资料分析多题合并：共用材料编辑 + 保留各题题干/选项/答案/解析 -->
+    <div id="mergeOverlay" class="overlay" style="display:none;">
+        <div class="overlay-inner" style="max-width:900px;">
+            <h3 style="margin-bottom:12px; color:var(--primary-color);">合并为「一材料多题」</h3>
+            <p class="muted" style="margin-bottom:16px; font-size:0.9rem;">为下方选中的题目设置共同材料（支持 LaTeX、多图、文图穿插）。各题的题干、选项、答案、解析将保留不变。</p>
+            <div style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <label style="font-weight:500;">共同材料</label>
+                    <button type="button" class="btn btn-sm btn-info" onclick="insertImageToEditor('mergeMaterial')">插入图片</button>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div>
+                        <div id="mergeMaterial" contenteditable="true" class="editable-area" style="min-height:180px; max-height:360px; overflow-y:auto; padding:10px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#fff; white-space:pre-wrap; word-wrap:break-word;"></div>
+                        <div style="margin-top:6px; font-size:0.8rem; color:#666;">LaTeX：$公式$ 或 $$公式$$；图片：Ctrl+V 粘贴或点击「插入图片」</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.85rem; color:#666; margin-bottom:4px;">预览</div>
+                        <div id="mergeMaterialPreview" style="min-height:180px; padding:10px; border:2px solid #eaeaea; border-radius:var(--border-radius); background:#f9f9f9; overflow:auto; max-height:360px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-bottom:12px; font-weight:500;">已选题目（共 <span id="mergeCount">0</span> 题，题干/选项/答案/解析将保留）</div>
+            <div id="mergeQuestionList" style="max-height:320px; overflow-y:auto; margin-bottom:16px; padding:8px; background:#f8f9fa; border-radius:var(--border-radius);"></div>
+            <div>
+                <button type="button" class="btn btn-success" id="btnSaveMerge" onclick="saveMerge()">保存合并</button>
+                <button type="button" class="btn btn-default" onclick="closeMerge()">取消</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
         var filterSection = '';
@@ -205,6 +236,7 @@
         var editQid = null;
         var detailQid = null;
         var currentImageUploadTarget = null;
+        var mergeQids = [];
 
         // GitHub 配置（与 index 管理员一致，token 从 localStorage 读取；本页仅做保存到本地，同步请在管理员后台操作）
         var GITHUB_CONFIG = { owner: 'urbiscuits', repo: 'urbiscuits.github.io', branch: 'main', token: '' };
@@ -565,7 +597,8 @@
                 'editB': 'editBPreview',
                 'editC': 'editCPreview',
                 'editD': 'editDPreview',
-                'editExplanation': 'editExplanationPreview'
+                'editExplanation': 'editExplanationPreview',
+                'mergeMaterial': 'mergeMaterialPreview'
             };
             var previewId = previewMap[fieldId];
             if (previewId) renderPreviewFromEditable(fieldId, document.getElementById(previewId));
@@ -607,7 +640,7 @@
             reader.readAsDataURL(file);
         }
         function bindEditablePaste() {
-            ['editContent', 'editA', 'editB', 'editC', 'editD', 'editExplanation'].forEach(function(id) {
+            ['editContent', 'editA', 'editB', 'editC', 'editD', 'editExplanation', 'mergeMaterial'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (!el) return;
                 el.addEventListener('paste', function(e) {
@@ -737,13 +770,27 @@
             document.querySelectorAll('.q-check').forEach(function(cb) { cb.checked = checked; });
             updateBatchDeleteVisibility();
         }
+        /** 获取当前勾选且属于资料分析的题目 id 列表（用于合并一材料多题） */
+        function getCheckedZiliaoQids() {
+            var data = loadStore();
+            var ids = [];
+            document.querySelectorAll('.q-check:checked').forEach(function(cb) {
+                if (!cb.value) return;
+                var q = data.questions[cb.value];
+                if (q && (q.section === '资料分析' || q.category === '资料分析')) ids.push(cb.value);
+            });
+            return ids;
+        }
         function updateBatchDeleteVisibility() {
             var btn = document.getElementById('btnBatchDelete');
+            var mergeBtn = document.getElementById('btnMergeZiliao');
             var checkAll = document.getElementById('checkAll');
             if (!btn || !checkAll) return;
             var n = document.querySelectorAll('.q-check:checked').length;
             btn.style.display = n > 0 ? 'inline-flex' : 'none';
             btn.textContent = '批量删除' + (n > 0 ? ' (' + n + ')' : '');
+            var ziliaoIds = getCheckedZiliaoQids();
+            if (mergeBtn) mergeBtn.style.display = ziliaoIds.length >= 2 ? 'inline-flex' : 'none';
             checkAll.checked = n > 0 && n === document.querySelectorAll('.q-check').length;
             checkAll.indeterminate = n > 0 && n < document.querySelectorAll('.q-check').length;
         }
@@ -768,6 +815,86 @@
             renderList();
             updateBatchDeleteVisibility();
             document.getElementById('checkAll').checked = false;
+        }
+
+        function openMerge() {
+            var ids = getCheckedZiliaoQids();
+            if (ids.length < 2) {
+                alert('请至少勾选 2 道资料分析题目后再点击「合并」。');
+                return;
+            }
+            var orderInSet = (currentSet && currentSet['资料分析']) ? currentSet['资料分析'] : [];
+            mergeQids = ids.slice().sort(function(a, b) {
+                var ia = orderInSet.indexOf(a);
+                var ib = orderInSet.indexOf(b);
+                if (ia === -1 && ib === -1) return String(a).localeCompare(String(b));
+                if (ia === -1) return 1;
+                if (ib === -1) return -1;
+                return ia - ib;
+            });
+            setEditableContent('mergeMaterial', '', []);
+            var countEl = document.getElementById('mergeCount');
+            if (countEl) countEl.textContent = mergeQids.length;
+            var listEl = document.getElementById('mergeQuestionList');
+            if (listEl) {
+                var data = loadStore();
+                var html = '';
+                mergeQids.forEach(function(qid, idx) {
+                    var q = data.questions[qid];
+                    if (!q) return;
+                    var optHtml = (q.options || []).map(function(o) {
+                        var c = o.label === (q.answer || 'A') ? 'correct' : '';
+                        return '<div class="option ' + c + '" style="margin:4px 0;">' + o.label + '. ' + esc(o.text || '') + '</div>';
+                    }).join('');
+                    html += '<div class="question-item" style="margin-bottom:12px;">' +
+                        '<div style="font-weight:600; color:var(--primary-color); margin-bottom:6px;">题目' + (idx + 1) + '</div>' +
+                        '<div style="margin-bottom:6px;">' + esc((q.content || '').slice(0, 200)) + (q.content && q.content.length > 200 ? '…' : '') + '</div>' +
+                        '<div style="margin-bottom:6px;">' + optHtml + '</div>' +
+                        '<div style="font-size:0.9rem; color:#666;">答案：' + esc(q.answer || 'A') + '</div>' +
+                        (q.explanation ? '<div style="margin-top:4px; font-size:0.9rem;">解析：' + esc((q.explanation || '').slice(0, 150)) + (q.explanation.length > 150 ? '…' : '') + '</div>' : '') +
+                        '</div>';
+                });
+                listEl.innerHTML = html || '<p class="muted">无题目</p>';
+            }
+            document.getElementById('mergeOverlay').style.display = 'block';
+            setTimeout(function() { updatePreview('mergeMaterial'); }, 50);
+        }
+        function closeMerge() {
+            document.getElementById('mergeOverlay').style.display = 'none';
+            mergeQids = [];
+        }
+        function saveMerge() {
+            if (!mergeQids.length) return;
+            var materialData = getEditableContent('mergeMaterial');
+            var blockId = 'ziliao_' + Date.now();
+            var data = loadStore();
+            mergeQids.forEach(function(qid, idx) {
+                var q = data.questions[qid];
+                if (!q) return;
+                var updated = {};
+                for (var k in q) if (Object.prototype.hasOwnProperty.call(q, k)) updated[k] = q[k];
+                updated.material = materialData.text || '';
+                updated.materialImages = Array.isArray(materialData.images) ? materialData.images : [];
+                updated.ziliaoBlockId = blockId;
+                updated.ziliaoSubIndex = idx;
+                data.questions[qid] = updated;
+            });
+            try {
+                saveStore(data);
+            } catch (e) {
+                alert('保存失败：' + (e.message || '写入本地异常'));
+                return;
+            }
+            var num = mergeQids.length;
+            closeMerge();
+            currentSet = getSet(currentSetId);
+            renderSubcategoryOptions();
+            renderList();
+            updateBatchDeleteVisibility();
+            document.querySelectorAll('.q-check:checked').forEach(function(cb) { cb.checked = false; });
+            var checkAll = document.getElementById('checkAll');
+            if (checkAll) checkAll.checked = false;
+            alert('已合并为「一材料多题」，共 ' + num + ' 道小题，共用材料已写入。');
         }
 
         function goAddQuestion() {
@@ -834,7 +961,7 @@
                     });
                 }
 
-                ['editContent', 'editA', 'editB', 'editC', 'editD', 'editExplanation'].forEach(function(fieldId) {
+                ['editContent', 'editA', 'editB', 'editC', 'editD', 'editExplanation', 'mergeMaterial'].forEach(function(fieldId) {
                     var el = document.getElementById(fieldId);
                     if (el) el.addEventListener('input', function() { updatePreview(fieldId); });
                 });
