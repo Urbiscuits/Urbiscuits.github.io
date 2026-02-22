@@ -4487,7 +4487,7 @@
             listEl.innerHTML = list.map(function(q, i) {
                 var optHtml = (q.options || []).map(function(o) { return '<div class="option"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + '</div>'; }).join('');
                 var kp = (q.knowledgePoints && q.knowledgePoints.length) ? ('考点：' + q.knowledgePoints.join('、')) : '';
-                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.category) + ' - ' + esc(q.subcategory) + '</span> <span style="color:#6c757d;">' + (i+1) + '.</span>' + (kp ? ' <span style="font-size:0.9rem; color:var(--primary-color);">' + esc(kp) + '</span>' : '') + '</div><div class="question-content">' + esc(q.content || '') + '</div><div class="options-grid">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') + '</div>';
+                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.category) + (q.subcategory ? ' - ' + esc(q.subcategory) : '') + '</span> <span style="color:#6c757d;">' + (i+1) + '.</span>' + (kp ? ' <span style="font-size:0.9rem; color:var(--primary-color);">' + esc(kp) + '</span>' : '') + '</div><div class="question-content">' + esc(q.content || '') + '</div><div class="options-grid">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') + '</div>';
             }).join('');
             if (countEl) countEl.textContent = list.length;
             wrap.style.display = 'block';
@@ -4604,7 +4604,11 @@
             var added = 0;
             list.forEach(function(q) {
                 var section = q.category;
-                if (store.getSet(setId)[section]) { store.addQuestion(setId, section, Object.assign({}, q)); added++; }
+                var set = store.getSet(setId);
+                if (set && MAIN_SECTIONS && MAIN_SECTIONS.includes(section)) {
+                    if (!set[section]) set[section] = [];
+                    store.addQuestion(setId, section, Object.assign({}, q)); added++;
+                }
             });
             store.save();
             renderTree();
@@ -4646,7 +4650,8 @@
             list.forEach(function(q) {
                 var section = q.category;
                 var set = store.getSet(setId);
-                if (set && set[section]) {
+                if (set && MAIN_SECTIONS && MAIN_SECTIONS.includes(section)) {
+                    if (!set[section]) set[section] = [];
                     store.addQuestion(setId, section, Object.assign({}, q));
                 }
             });
@@ -7865,7 +7870,7 @@
             listEl.innerHTML = list.map(function(q, i) {
                 var optHtml = (q.options || []).map(function(o) { return '<div class="option"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + '</div>'; }).join('');
                 var kp = (q.knowledgePoints && q.knowledgePoints.length) ? ('考点：' + q.knowledgePoints.join('、')) : '';
-                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.category) + ' - ' + esc(q.subcategory) + '</span> <span style="color:#6c757d;">' + (i+1) + '.</span>' + (kp ? ' <span style="font-size:0.9rem; color:var(--primary-color);">' + esc(kp) + '</span>' : '') + '</div><div class="question-content">' + esc(q.content || '') + '</div><div class="options-grid">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') + '</div>';
+                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.category) + (q.subcategory ? ' - ' + esc(q.subcategory) : '') + '</span> <span style="color:#6c757d;">' + (i+1) + '.</span>' + (kp ? ' <span style="font-size:0.9rem; color:var(--primary-color);">' + esc(kp) + '</span>' : '') + '</div><div class="question-content">' + esc(q.content || '') + '</div><div class="options-grid">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') + '</div>';
             }).join('');
             if (countEl) countEl.textContent = list.length;
             wrap.style.display = 'block';
@@ -7883,7 +7888,11 @@
             var added = 0;
             list.forEach(function(q) {
                 var section = q.category;
-                if (adminStore.getSet(setId)[section]) { adminStore.addQuestion(setId, section, Object.assign({}, q)); added++; }
+                var set = adminStore.getSet(setId);
+                if (set && MAIN_SECTIONS && MAIN_SECTIONS.includes(section)) {
+                    if (!set[section]) set[section] = [];
+                    adminStore.addQuestion(setId, section, Object.assign({}, q)); added++;
+                }
             });
             adminStore.save();
             fillAdminSetSelects();
