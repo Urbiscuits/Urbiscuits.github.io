@@ -4,27 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理员题目编辑</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root { --primary-color: #4a6baf; --success-color: #28a745; --border-radius: 8px; --box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
+        .container { max-width: 960px; margin: 0 auto; }
         .card { background:#fff; border-radius:var(--border-radius); box-shadow:var(--box-shadow); padding:24px; margin-bottom:20px; }
         h1 { font-size:1.4rem; color:var(--primary-color); margin-bottom:12px; }
         .muted { color:#6c757d; font-size:0.9rem; }
         label { display:block; font-weight:500; margin-top:12px; margin-bottom:6px; }
-        textarea { width:100%; min-height:80px; padding:10px; border-radius:6px; border:1px solid #ced4da; resize:vertical; font-family:inherit; line-height:1.6; }
-        select { padding:8px 10px; border-radius:6px; border:1px solid #ced4da; }
         .btn { padding:10px 20px; border:none; border-radius:var(--border-radius); font-weight:500; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
         .btn-primary { background:var(--primary-color); color:#fff; }
         .btn-default { background:#eaeaea; color:#333; }
         .btn-success { background:var(--success-color); color:#fff; }
+        .btn-info { background:#17a2b8; color:#fff; }
         .btn-sm { padding:6px 12px; font-size:0.85rem; }
         .actions { margin-top:20px; display:flex; flex-wrap:wrap; gap:10px; }
         .status { margin-top:12px; font-size:0.9rem; }
         .status.success { color:var(--success-color); }
         .status.error { color:#dc3545; }
         .badge { display:inline-block; padding:2px 8px; border-radius:999px; background:#eef2ff; color:var(--primary-color); font-size:0.8rem; margin-left:8px; }
+        .editable-area { outline:none; min-height:80px; padding:10px; border:2px solid #eaeaea; border-radius:6px; background:#fff; white-space:pre-wrap; word-wrap:break-word; }
+        .editable-area:focus { border-color:var(--primary-color); }
+        .editable-area img { max-width:100%; margin:6px 0; display:block; }
+        .preview-box { padding:10px; border:1px solid #eaeaea; border-radius:6px; background:#f9f9f9; min-height:60px; margin-top:6px; font-size:0.95rem; line-height:1.6; }
+        .preview-box img { max-width:100%; margin:6px 0; }
+        .row-edit-preview { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start; }
+        @media (max-width: 700px) { .row-edit-preview { grid-template-columns:1fr; } }
+        select { padding:8px 10px; border-radius:6px; border:1px solid #ced4da; }
+        .sync-row { margin-top:16px; }
+        .sync-progress { margin-top:8px; display:none; }
+        .sync-progress .bar { height:20px; background:#e0e0e0; border-radius:4px; overflow:hidden; }
+        .sync-progress .fill { height:100%; width:0%; background:var(--success-color); transition:width 0.3s; }
     </style>
 </head>
 <body>
@@ -32,24 +46,54 @@
         <div class="card">
             <h1>管理员题目编辑</h1>
             <p class="muted" id="metaInfo"></p>
-            <p class="muted" style="margin-top:4px;">说明：本页仅编辑<strong>本地管理员题库</strong>中的题目；确认全部修改无误后，请回到管理员后台使用「选择套卷同步到指定 JSON」将套卷统一更新到云端。</p>
+            <p class="muted" style="margin-top:4px;">支持 Ctrl+V 粘贴图片；LaTeX 公式：$公式$ 或 $$公式$$；下方为实时预览。保存到本地后，可点击「同步到 JSON」将该题所在套卷更新到云端对应文件。</p>
         </div>
 
         <div class="card" id="editCard" style="display:none;">
             <label>题干</label>
-            <textarea id="fieldContent" placeholder="请输入题干"></textarea>
+            <div class="row-edit-preview">
+                <div>
+                    <div id="fieldContent" contenteditable="true" class="editable-area" data-preview="previewContent"></div>
+                    <button type="button" class="btn btn-info btn-sm" style="margin-top:6px;" data-insert="fieldContent">插入图片</button>
+                </div>
+                <div><div class="preview-box" id="previewContent">预览</div></div>
+            </div>
 
             <label>选项 A</label>
-            <textarea id="fieldA" placeholder="请输入选项 A"></textarea>
+            <div class="row-edit-preview">
+                <div>
+                    <div id="fieldA" contenteditable="true" class="editable-area" data-preview="previewA"></div>
+                    <button type="button" class="btn btn-info btn-sm" style="margin-top:6px;" data-insert="fieldA">插入图片</button>
+                </div>
+                <div><div class="preview-box" id="previewA">预览</div></div>
+            </div>
 
             <label>选项 B</label>
-            <textarea id="fieldB" placeholder="请输入选项 B"></textarea>
+            <div class="row-edit-preview">
+                <div>
+                    <div id="fieldB" contenteditable="true" class="editable-area" data-preview="previewB"></div>
+                    <button type="button" class="btn btn-info btn-sm" style="margin-top:6px;" data-insert="fieldB">插入图片</button>
+                </div>
+                <div><div class="preview-box" id="previewB">预览</div></div>
+            </div>
 
             <label>选项 C</label>
-            <textarea id="fieldC" placeholder="请输入选项 C"></textarea>
+            <div class="row-edit-preview">
+                <div>
+                    <div id="fieldC" contenteditable="true" class="editable-area" data-preview="previewC"></div>
+                    <button type="button" class="btn btn-info btn-sm" style="margin-top:6px;" data-insert="fieldC">插入图片</button>
+                </div>
+                <div><div class="preview-box" id="previewC">预览</div></div>
+            </div>
 
             <label>选项 D</label>
-            <textarea id="fieldD" placeholder="请输入选项 D"></textarea>
+            <div class="row-edit-preview">
+                <div>
+                    <div id="fieldD" contenteditable="true" class="editable-area" data-preview="previewD"></div>
+                    <button type="button" class="btn btn-info btn-sm" style="margin-top:6px;" data-insert="fieldD">插入图片</button>
+                </div>
+                <div><div class="preview-box" id="previewD">预览</div></div>
+            </div>
 
             <label>正确答案</label>
             <select id="fieldAnswer">
@@ -60,13 +104,34 @@
             </select>
 
             <label>解析</label>
-            <textarea id="fieldExplanation" placeholder="请输入解析（可留空）"></textarea>
+            <div class="row-edit-preview">
+                <div>
+                    <div id="fieldExplanation" contenteditable="true" class="editable-area" data-preview="previewExplanation"></div>
+                    <button type="button" class="btn btn-info btn-sm" style="margin-top:6px;" data-insert="fieldExplanation">插入图片</button>
+                </div>
+                <div><div class="preview-box" id="previewExplanation">预览</div></div>
+            </div>
 
             <div class="actions">
                 <button type="button" class="btn btn-success" id="btnSave">保存到本地</button>
                 <button type="button" class="btn btn-default" id="btnBack">返回套卷题目列表</button>
             </div>
             <div id="status" class="status"></div>
+
+            <div class="sync-row">
+                <label>同步到 JSON 文件（将该题所在套卷更新到云端）</label>
+                <div style="display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap;">
+                    <select id="syncTargetJson" style="min-width:200px; padding:8px;">
+                        <option value="data/store.json">data/store.json</option>
+                    </select>
+                    <button type="button" class="btn btn-sm btn-default" id="btnRefreshJsonList">刷新列表</button>
+                    <button type="button" class="btn btn-primary" id="btnSync">同步到 JSON</button>
+                </div>
+                <div id="syncProgress" class="sync-progress">
+                    <div id="syncProgressText" style="font-size:0.9rem; margin-bottom:4px;"></div>
+                    <div class="bar"><div id="syncProgressFill" class="fill"></div></div>
+                </div>
+            </div>
         </div>
 
         <div class="card" id="errorCard" style="display:none;">
@@ -77,7 +142,12 @@
         </div>
     </div>
 
+    <input type="file" id="imageUploadInput" accept="image/*" style="display:none;">
+
     <script>
+        var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
+        var currentImageTarget = null;
+
         function getParam(name) {
             var m = new RegExp('[?&]' + name + '=([^&]+)').exec(location.search);
             return m ? decodeURIComponent(m[1]) : '';
@@ -103,6 +173,282 @@
             return d.innerHTML;
         }
 
+        function getEditableContent(id) {
+            var el = document.getElementById(id);
+            if (!el) return { text: '', images: [] };
+            var images = [];
+            function walk(node) {
+                if (node.nodeName === 'IMG' && node.src) {
+                    images.push(node.src);
+                    return '';
+                }
+                if (node.nodeType === 3) return node.textContent || '';
+                if (node.nodeType === 1) {
+                    if (node.nodeName === 'BR') return '\n';
+                    return [].map.call(node.childNodes, walk).join('');
+                }
+                return '';
+            }
+            return { text: walk(el).trim(), images: images };
+        }
+        function setEditableContent(id, text, images) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var html = (text || '').replace(/\n/g, '<br>');
+            if (images && images.length) {
+                html += images.map(function(src) {
+                    return '<img src="' + esc(src) + '" style="max-width:100%; margin:8px 0;" />';
+                }).join('');
+            }
+            el.innerHTML = html;
+        }
+        function renderLaTeX(el) {
+            if (!el || !window.renderMathInElement) return;
+            try {
+                renderMathInElement(el, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '\\(', right: '\\)', display: false },
+                        { left: '$', right: '$', display: false }
+                    ],
+                    throwOnError: false
+                });
+            } catch (e) {}
+        }
+        function updatePreview(fieldId) {
+            var el = document.getElementById(fieldId);
+            if (!el) return;
+            var previewId = el.getAttribute('data-preview');
+            var previewEl = previewId ? document.getElementById(previewId) : null;
+            if (!previewEl) return;
+            var content = getEditableContent(fieldId);
+            var html = esc(content.text || '').replace(/\n/g, '<br>');
+            if (content.images && content.images.length) {
+                html += content.images.map(function(src) {
+                    return '<img src="' + esc(src) + '" style="max-width:100%; margin:6px 0;" />';
+                }).join('');
+            }
+            previewEl.innerHTML = html || '<span class="muted">暂无内容</span>';
+            renderLaTeX(previewEl);
+        }
+
+        function insertImageToEditor(targetId) {
+            currentImageTarget = targetId;
+            document.getElementById('imageUploadInput').click();
+        }
+        document.getElementById('imageUploadInput').onchange = function(ev) {
+            var file = ev.target.files[0];
+            ev.target.value = '';
+            if (!file || !file.type.startsWith('image/')) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var targetEl = document.getElementById(currentImageTarget);
+                if (!targetEl) { currentImageTarget = null; return; }
+                var img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '100%';
+                img.style.margin = '6px 0';
+                img.style.display = 'block';
+                targetEl.focus();
+                var sel = window.getSelection();
+                if (sel.rangeCount > 0) {
+                    var range = sel.getRangeAt(0);
+                    range.deleteContents();
+                    range.insertNode(img);
+                    range.setStartAfter(img);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } else {
+                    targetEl.appendChild(img);
+                }
+                updatePreview(currentImageTarget);
+                currentImageTarget = null;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        function bindPaste(ids) {
+            (ids || []).forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('paste', function(e) {
+                    var items = e.clipboardData && e.clipboardData.items;
+                    if (!items) return;
+                    for (var i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            e.preventDefault();
+                            var file = items[i].getAsFile();
+                            var reader = new FileReader();
+                            reader.onload = function() {
+                                var img = document.createElement('img');
+                                img.src = reader.result;
+                                img.style.maxWidth = '100%';
+                                img.style.margin = '6px 0';
+                                img.style.display = 'block';
+                                var target = document.getElementById(id);
+                                if (!target) return;
+                                var sel = window.getSelection();
+                                if (sel.rangeCount > 0) {
+                                    var range = sel.getRangeAt(0);
+                                    range.deleteContents();
+                                    range.insertNode(img);
+                                    range.setStartAfter(img);
+                                    sel.removeAllRanges();
+                                    sel.addRange(range);
+                                } else {
+                                    target.appendChild(img);
+                                }
+                                updatePreview(id);
+                            };
+                            reader.readAsDataURL(file);
+                            break;
+                        }
+                    }
+                });
+            });
+        }
+
+        // GitHub 同步
+        var GITHUB_CONFIG = { owner: 'urbiscuits', repo: 'urbiscuits.github.io', branch: 'main', token: '' };
+        function decryptToken(encrypted) {
+            if (!encrypted || typeof encrypted !== 'string') return '';
+            var raw = encrypted.trim();
+            try {
+                var key = 'xingce_github_token_key_2024';
+                var decoded;
+                try { decoded = decodeURIComponent(escape(atob(raw))); } catch (e1) { try { decoded = atob(raw); } catch (e2) { return raw; } }
+                var result = '';
+                for (var i = 0; i < decoded.length; i++)
+                    result += String.fromCharCode(decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+                return result;
+            } catch (e) { return raw; }
+        }
+        try {
+            var t = localStorage.getItem('github_token');
+            if (t) GITHUB_CONFIG.token = decryptToken(t) || t;
+        } catch (e) {}
+        function base64ToUtf8(b64) {
+            b64 = (b64 || '').replace(/\s/g, '');
+            if (!b64) return '';
+            try {
+                var binary = atob(b64);
+                if (typeof TextDecoder !== 'undefined') {
+                    var bytes = new Uint8Array(binary.length);
+                    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                    return new TextDecoder('utf-8').decode(bytes);
+                }
+                return decodeURIComponent(escape(binary));
+            } catch (e) { try { return atob(b64); } catch (e2) { return ''; } }
+        }
+        function utf8ToBase64(str) {
+            try { return btoa(unescape(encodeURIComponent(str))); } catch (e) { return btoa(String(str || '')); }
+        }
+        function repairMojibakeString(s) {
+            if (typeof s !== 'string' || !s) return s;
+            if (!/[ÃÂâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ]/.test(s)) return s;
+            try {
+                var fixed = decodeURIComponent(escape(s));
+                if (fixed && /[\u4e00-\u9fff]/.test(fixed)) return fixed;
+            } catch (e) {}
+            return s;
+        }
+        function deepRepairMojibake(v) {
+            if (Array.isArray(v)) return v.map(deepRepairMojibake);
+            if (v && typeof v === 'object') {
+                var out = {};
+                Object.keys(v).forEach(function(k) { out[repairMojibakeString(k)] = deepRepairMojibake(v[k]); });
+                return out;
+            }
+            return (typeof v === 'string') ? repairMojibakeString(v) : v;
+        }
+
+        function setSyncProgress(percent, text) {
+            var wrap = document.getElementById('syncProgress');
+            var fill = document.getElementById('syncProgressFill');
+            var txt = document.getElementById('syncProgressText');
+            if (wrap) wrap.style.display = 'block';
+            if (fill) fill.style.width = (percent || 0) + '%';
+            if (txt) txt.textContent = text || '';
+        }
+
+        function doSyncToJson(setId, targetPath, onSuccess, onError) {
+            var data = loadStore();
+            var set = getSet(data, setId);
+            if (!set) {
+                if (onError) onError('套卷不存在');
+                return;
+            }
+            var questionIds = {};
+            MAIN_SECTIONS.forEach(function(sec) {
+                (set[sec] || []).forEach(function(qid) { questionIds[qid] = true; });
+            });
+            var selectedQuestions = {};
+            Object.keys(questionIds).forEach(function(qid) {
+                if (data.questions[qid]) selectedQuestions[qid] = data.questions[qid];
+            });
+            var selectedSets = [set];
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+
+            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                .then(function(resp) {
+                    if (resp.status === 404) return null;
+                    if (!resp.ok) throw new Error('获取失败: ' + resp.status);
+                    return resp.json();
+                })
+                .then(function(fileInfo) {
+                    var finalData;
+                    if (fileInfo && fileInfo.content) {
+                        try {
+                            var existingContent = base64ToUtf8(fileInfo.content);
+                            var existingData = deepRepairMojibake(JSON.parse(existingContent));
+                            var mergedSets = [];
+                            var setIdMap = {};
+                            (existingData.sets || []).forEach(function(s) {
+                                var existing = selectedSets.find(function(ss) { return (ss.name || '').trim() === (s.name || '').trim(); });
+                                if (existing) {
+                                    setIdMap[s.id] = existing.id;
+                                    mergedSets.push(existing);
+                                } else {
+                                    setIdMap[s.id] = s.id;
+                                    mergedSets.push(s);
+                                }
+                            });
+                            selectedSets.forEach(function(s) {
+                                if (!mergedSets.find(function(ms) { return ms.id === s.id; })) mergedSets.push(s);
+                            });
+                            var mergedQuestions = {};
+                            Object.keys(existingData.questions || {}).forEach(function(qid) {
+                                var q = existingData.questions[qid];
+                                if (q.setId && setIdMap[q.setId]) {
+                                    q.setId = setIdMap[q.setId];
+                                    mergedQuestions[qid] = q;
+                                }
+                            });
+                            Object.keys(selectedQuestions).forEach(function(qid) {
+                                mergedQuestions[qid] = selectedQuestions[qid];
+                            });
+                            finalData = { sets: mergedSets, questions: mergedQuestions, exportTime: new Date().toISOString() };
+                        } catch (e) {
+                            finalData = { sets: selectedSets, questions: selectedQuestions, exportTime: new Date().toISOString() };
+                        }
+                    } else {
+                        finalData = { sets: selectedSets, questions: selectedQuestions, exportTime: new Date().toISOString() };
+                    }
+                    var content = JSON.stringify(finalData, null, 2);
+                    var commitData = { message: '题目编辑同步到 ' + targetPath + ' - ' + new Date().toLocaleString('zh-CN'), content: utf8ToBase64(content), branch: GITHUB_CONFIG.branch };
+                    if (fileInfo && fileInfo.sha) commitData.sha = fileInfo.sha;
+                    return fetch(apiUrl, { method: 'PUT', headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }), body: JSON.stringify(commitData) });
+                })
+                .then(function(resp) {
+                    if (!resp) return;
+                    if (!resp.ok) return resp.json().then(function(err) { throw new Error(err.message || '同步失败'); });
+                    return resp.json();
+                })
+                .then(function() { if (onSuccess) onSuccess(); })
+                .catch(function(err) { if (onError) onError(err && err.message ? err.message : String(err)); });
+        }
+
         (function init() {
             var setId = getParam('setId');
             var qid = getParam('qid');
@@ -113,18 +459,10 @@
             var statusEl = document.getElementById('status');
 
             document.getElementById('btnBack').onclick = function() {
-                if (setId) {
-                    location.href = 'admin-set-manage.html?setId=' + encodeURIComponent(setId);
-                } else {
-                    location.href = 'admin-set-manage.html';
-                }
+                location.href = setId ? ('admin-set-manage.html?setId=' + encodeURIComponent(setId)) : 'admin-set-manage.html';
             };
             document.getElementById('btnBackFromError').onclick = function() {
-                if (setId) {
-                    location.href = 'admin-set-manage.html?setId=' + encodeURIComponent(setId);
-                } else {
-                    location.href = 'admin-set-manage.html';
-                }
+                location.href = setId ? ('admin-set-manage.html?setId=' + encodeURIComponent(setId)) : 'admin-set-manage.html';
             };
 
             var data = loadStore();
@@ -133,20 +471,19 @@
             var q = qKey ? data.questions[qKey] || data.questions[qid] : null;
 
             if (!setId || !qid) {
-                metaEl.textContent = '';
-                errorText.textContent = '缺少套卷或题目参数（setId / qid）。请从管理员页面的套卷管理中点击「编辑」进入本页。';
+                errorText.textContent = '缺少套卷或题目参数（setId / qid）。请从套卷管理中点击「编辑」进入本页。';
                 errorCard.style.display = 'block';
                 return;
             }
             if (!set) {
-                metaEl.innerHTML = '套卷：<span class="badge">未找到（ID: ' + esc(setId) + '）</span>';
-                errorText.textContent = '未找到对应套卷，无法编辑题目。';
+                metaEl.innerHTML = '套卷：<span class="badge">未找到</span>';
+                errorText.textContent = '未找到对应套卷。';
                 errorCard.style.display = 'block';
                 return;
             }
             if (!q) {
                 metaEl.innerHTML = '套卷：<strong>' + esc(set.name || '未命名套卷') + '</strong>';
-                errorText.textContent = '未在管理员题库中找到该题目（ID: ' + esc(qid) + '）。';
+                errorText.textContent = '未找到该题目。';
                 errorCard.style.display = 'block';
                 return;
             }
@@ -156,72 +493,138 @@
                 '<span class="badge">题目 ID：' + esc(qid) + '</span>' +
                 (q.section ? '<span class="badge">' + esc(q.section) + (q.subcategory ? ' - ' + esc(q.subcategory) : '') + '</span>' : '');
 
-            document.getElementById('fieldContent').value = q.content || '';
+            setEditableContent('fieldContent', q.content || '', q.stemImages || []);
             var opts = q.options || [];
-            document.getElementById('fieldA').value = (opts[0] && opts[0].text) || '';
-            document.getElementById('fieldB').value = (opts[1] && opts[1].text) || '';
-            document.getElementById('fieldC').value = (opts[2] && opts[2].text) || '';
-            document.getElementById('fieldD').value = (opts[3] && opts[3].text) || '';
+            setEditableContent('fieldA', (opts[0] && opts[0].text) || '', (opts[0] && opts[0].images) || []);
+            setEditableContent('fieldB', (opts[1] && opts[1].text) || '', (opts[1] && opts[1].images) || []);
+            setEditableContent('fieldC', (opts[2] && opts[2].text) || '', (opts[2] && opts[2].images) || []);
+            setEditableContent('fieldD', (opts[3] && opts[3].text) || '', (opts[3] && opts[3].images) || []);
             document.getElementById('fieldAnswer').value = q.answer || 'A';
-            document.getElementById('fieldExplanation').value = q.explanation || '';
+            setEditableContent('fieldExplanation', q.explanation || '', []);
 
-            editCard.style.display = 'block';
+            var fieldIds = ['fieldContent', 'fieldA', 'fieldB', 'fieldC', 'fieldD', 'fieldExplanation'];
+            setTimeout(function() {
+                fieldIds.forEach(function(id) { updatePreview(id); });
+            }, 50);
+
+            fieldIds.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', function() { updatePreview(id); });
+                    el.addEventListener('keyup', function() { updatePreview(id); });
+                }
+            });
+            bindPaste(fieldIds);
+
+            document.querySelectorAll('[data-insert]').forEach(function(btn) {
+                var targetId = btn.getAttribute('data-insert');
+                if (targetId) btn.onclick = function() { insertImageToEditor(targetId); };
+            });
 
             document.getElementById('btnSave').onclick = function() {
                 statusEl.textContent = '';
                 statusEl.className = 'status';
 
-                var newContent = document.getElementById('fieldContent').value || '';
-                var newA = document.getElementById('fieldA').value || '';
-                var newB = document.getElementById('fieldB').value || '';
-                var newC = document.getElementById('fieldC').value || '';
-                var newD = document.getElementById('fieldD').value || '';
-                var newAnswer = document.getElementById('fieldAnswer').value || 'A';
-                var newExplanation = document.getElementById('fieldExplanation').value || '';
+                var contentData = getEditableContent('fieldContent');
+                var optA = getEditableContent('fieldA');
+                var optB = getEditableContent('fieldB');
+                var optC = getEditableContent('fieldC');
+                var optD = getEditableContent('fieldD');
+                var newAnswer = (document.getElementById('fieldAnswer').value || 'A');
+                var explanationData = getEditableContent('fieldExplanation');
 
                 var fresh = loadStore();
                 var set2 = getSet(fresh, setId);
                 if (!set2) {
-                    statusEl.textContent = '保存失败：套卷已不存在，请刷新页面后重试。';
+                    statusEl.textContent = '保存失败：套卷已不存在。';
                     statusEl.className = 'status error';
                     return;
                 }
                 var q2Key = String(qid);
                 var q2 = fresh.questions[q2Key] || fresh.questions[qid];
                 if (!q2) {
-                    statusEl.textContent = '保存失败：题目已不存在或已被删除。';
+                    statusEl.textContent = '保存失败：题目已不存在。';
                     statusEl.className = 'status error';
                     return;
                 }
 
                 var updated = {};
                 for (var k in q2) if (Object.prototype.hasOwnProperty.call(q2, k)) updated[k] = q2[k];
-                updated.content = newContent;
-                // 保留原有图片不丢失，仅更新文字
-                updated.stemImages = Array.isArray(q2.stemImages) ? q2.stemImages : [];
+                updated.content = contentData.text || '';
+                updated.stemImages = Array.isArray(contentData.images) ? contentData.images : [];
                 updated.options = [
-                    { label: 'A', text: newA, images: (q2.options && q2.options[0] && q2.options[0].images) || [] },
-                    { label: 'B', text: newB, images: (q2.options && q2.options[1] && q2.options[1].images) || [] },
-                    { label: 'C', text: newC, images: (q2.options && q2.options[2] && q2.options[2].images) || [] },
-                    { label: 'D', text: newD, images: (q2.options && q2.options[3] && q2.options[3].images) || [] }
+                    { label: 'A', text: (optA && optA.text) || '', images: (optA && optA.images) || [] },
+                    { label: 'B', text: (optB && optB.text) || '', images: (optB && optB.images) || [] },
+                    { label: 'C', text: (optC && optC.text) || '', images: (optC && optC.images) || [] },
+                    { label: 'D', text: (optD && optD.text) || '', images: (optD && optD.images) || [] }
                 ];
                 updated.answer = newAnswer;
-                updated.explanation = newExplanation;
+                updated.explanation = (explanationData && explanationData.text) || '';
 
                 fresh.questions[q2Key] = updated;
                 try {
                     saveStore(fresh);
                 } catch (e) {
-                    statusEl.textContent = '保存失败：' + (e && e.message ? e.message : '写入本地存储异常');
+                    statusEl.textContent = '保存失败：' + (e && e.message ? e.message : '写入异常');
                     statusEl.className = 'status error';
                     return;
                 }
-
-                statusEl.textContent = '已保存到本地管理员题库，可返回套卷管理页面查看效果。';
+                statusEl.textContent = '已保存到本地管理员题库，可返回套卷管理查看，或点击「同步到 JSON」更新云端。';
                 statusEl.className = 'status success';
             };
+
+            document.getElementById('btnRefreshJsonList').onclick = function() {
+                if (!GITHUB_CONFIG.token) {
+                    alert('请先在管理员后台配置 GitHub Token');
+                    return;
+                }
+                var sel = document.getElementById('syncTargetJson');
+                var cur = (sel.value || '').trim() || 'data/store.json';
+                var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data?ref=' + GITHUB_CONFIG.branch;
+                var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+                fetch(apiUrl, { method: 'GET', headers: headers })
+                    .then(function(r) {
+                        if (!r.ok) throw new Error('获取失败');
+                        return r.json();
+                    })
+                    .then(function(items) {
+                        var paths = [];
+                        (items || []).forEach(function(it) {
+                            if (!it.path || it.type !== 'file' || !/\.json$/i.test(it.path)) return;
+                            if (['data/files.json','data/users.json','data/user.json','data/remark.json'].indexOf(it.path) >= 0) return;
+                            if (/^data\/user\//i.test(it.path)) return;
+                            paths.push(it.path);
+                        });
+                        if (paths.indexOf('data/store.json') === -1) paths.unshift('data/store.json');
+                        paths.sort(function(a,b){ return a.localeCompare(b); });
+                        sel.innerHTML = paths.map(function(p) { return '<option value="' + esc(p) + '">' + esc(p) + '</option>'; }).join('');
+                        sel.value = paths.indexOf(cur) >= 0 ? cur : 'data/store.json';
+                    })
+                    .catch(function(err) { alert('刷新列表失败：' + (err.message || '未知错误')); });
+            };
+
+            document.getElementById('btnSync').onclick = function() {
+                if (!GITHUB_CONFIG.token) {
+                    statusEl.textContent = '请先在管理员后台配置 GitHub Token 后再同步。';
+                    statusEl.className = 'status error';
+                    return;
+                }
+                var targetPath = (document.getElementById('syncTargetJson').value || '').trim() || 'data/store.json';
+                setSyncProgress(10, '正在获取远程文件…');
+                doSyncToJson(setId, targetPath, function() {
+                    setSyncProgress(100, '同步完成');
+                    statusEl.textContent = '已同步到 ' + targetPath;
+                    statusEl.className = 'status success';
+                }, function(errMsg) {
+                    setSyncProgress(0, '');
+                    document.getElementById('syncProgress').style.display = 'none';
+                    statusEl.textContent = '同步失败：' + (errMsg || '未知错误');
+                    statusEl.className = 'status error';
+                });
+            };
+
+            editCard.style.display = 'block';
         })();
     </script>
 </body>
 </html>
-
