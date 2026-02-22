@@ -1359,7 +1359,12 @@
                             <!-- 选择套卷同步到指定 JSON -->
                             <div style="margin-bottom: 20px; padding: 16px; background: var(--light-bg); border-radius: var(--border-radius); border: 1px solid var(--border-color);">
                                 <h4 style="margin-bottom: 12px; color: var(--primary-color); font-size: 1rem;"><i class="fas fa-check-square"></i> 选择套卷同步到指定 JSON</h4>
-                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">勾选要同步的套卷，选择目标 JSON 文件，将选中套卷及其题目上传到该文件。</p>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">勾选要同步的套卷，选择目标 JSON 文件，将选中套卷及其题目上传到该文件。批量导入、单题录入的结果保存在<strong>本地试卷</strong>中。</p>
+                                <div class="control-group" style="margin-bottom: 12px;">
+                                    <label style="min-width: 90px;">数据来源：</label>
+                                    <label style="margin-right: 16px;"><input type="radio" name="adminSyncSource" value="store" checked onchange="adminRenderSelectedSetsList()"> 本地试卷（批量导入/单题录入保存的数据）</label>
+                                    <label><input type="radio" name="adminSyncSource" value="admin" onchange="adminRenderSelectedSetsList()"> 管理员题库</label>
+                                </div>
                                 <div class="control-group" style="margin-bottom: 12px; align-items: center;">
                                     <label style="min-width: 90px;">目标文件：</label>
                                     <select id="adminSelectedSetsTargetJson" style="flex: 1; max-width: 420px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius);">
@@ -6274,10 +6279,12 @@
         }
         function adminRenderSelectedSetsList() {
             var listEl = document.getElementById('adminSelectedSetsList');
-            if (!listEl || !adminStore || !adminStore.sets) return;
-            var sets = adminStore.sets;
+            if (!listEl) return;
+            var useStore = (document.querySelector('input[name="adminSyncSource"]:checked') || {}).value !== 'admin';
+            var src = useStore ? store : adminStore;
+            var sets = (src && src.sets) ? src.sets : [];
             if (!sets.length) {
-                listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-secondary);">暂无套卷</div>';
+                listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-secondary);">暂无套卷（' + (useStore ? '请先在批量导入或单题录入中添加' : '请先在管理员题库中添加') + '）</div>';
                 return;
             }
             var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
@@ -6303,9 +6310,15 @@
             }
             var targetPath = document.getElementById('adminSelectedSetsTargetJson').value || 'data/store.json';
             var mode = (document.querySelector('input[name="adminSelectedSetsSyncMode"]:checked') || {}).value || 'merge';
+            var useStore = (document.querySelector('input[name="adminSyncSource"]:checked') || {}).value !== 'admin';
+            var src = useStore ? store : adminStore;
+            if (!src || !src.sets) {
+                showMsg('adminSelectedSetsSyncStatus', '数据源不可用', 'error');
+                return;
+            }
             showMsg('adminSelectedSetsSyncStatus', '正在同步选中套卷到 ' + targetPath + ' ...', 'info');
             var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
-            var selectedSets = adminStore.sets.filter(function(s) { return selected.indexOf(s.id) !== -1; });
+            var selectedSets = src.sets.filter(function(s) { return selected.indexOf(s.id) !== -1; });
             var selectedQuestionIds = {};
             selectedSets.forEach(function(s) {
                 MAIN_SECTIONS.forEach(function(sec) {
@@ -6314,7 +6327,7 @@
             });
             var selectedQuestions = {};
             Object.keys(selectedQuestionIds).forEach(function(qid) {
-                if (adminStore.questions[qid]) selectedQuestions[qid] = adminStore.questions[qid];
+                if (src.questions && src.questions[qid]) selectedQuestions[qid] = src.questions[qid];
             });
             var exportData = { sets: selectedSets, questions: selectedQuestions, exportTime: new Date().toISOString() };
             var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
