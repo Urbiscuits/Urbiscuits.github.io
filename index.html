@@ -1972,15 +1972,8 @@
                 var localSet = oldSets.find(function(ls) { return ls.id === rs.id || (ls.name && ls.name.trim() === (rs.name || '').trim()); });
                 if (localSet) {
                     // 合并题目ID：保留远程的题目ID列表，但也要检查是否有本地独有的题目
-                    var mergedSet = {
-                        id: rs.id,
-                        name: rs.name || localSet.name,
-                        category: rs.category || localSet.category || '',
-                        '言语理解': [],
-                        '数量关系': [],
-                        '判断推理': [],
-                        '资料分析': []
-                    };
+                    var mergedSet = { id: rs.id, name: rs.name || localSet.name, category: rs.category || localSet.category || '' };
+                    (MAIN_SECTIONS || []).forEach(function(sec) { mergedSet[sec] = []; });
                     // 先添加远程题目
                     MAIN_SECTIONS.forEach(function(sec) {
                         (rs[sec] || []).forEach(function(qid) {
@@ -5791,6 +5784,14 @@
                     var q = localStorage.getItem('xingce_admin_questions');
                     if (s) this.sets = JSON.parse(s);
                     if (q) this.questions = JSON.parse(q);
+                    // 迁移：确保每个套卷都包含全部大类（政治理论、常识判断等），修复旧数据只有4类导致的录入失败
+                    if (this.sets && MAIN_SECTIONS) {
+                        this.sets.forEach(function(set) {
+                            MAIN_SECTIONS.forEach(function(sec) {
+                                if (!Array.isArray(set[sec])) set[sec] = [];
+                            });
+                        });
+                    }
                 } catch (e) {}
             }
         };
@@ -6279,7 +6280,7 @@
                 listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-secondary);">暂无套卷</div>';
                 return;
             }
-            var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析'];
+            var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
             listEl.innerHTML = sets.map(function(s) {
                 var count = 0;
                 MAIN_SECTIONS.forEach(function(sec) { count += (s[sec] || []).length; });
@@ -6303,7 +6304,7 @@
             var targetPath = document.getElementById('adminSelectedSetsTargetJson').value || 'data/store.json';
             var mode = (document.querySelector('input[name="adminSelectedSetsSyncMode"]:checked') || {}).value || 'merge';
             showMsg('adminSelectedSetsSyncStatus', '正在同步选中套卷到 ' + targetPath + ' ...', 'info');
-            var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析'];
+            var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
             var selectedSets = adminStore.sets.filter(function(s) { return selected.indexOf(s.id) !== -1; });
             var selectedQuestionIds = {};
             selectedSets.forEach(function(s) {
@@ -6612,6 +6613,7 @@
                     if (existing) {
                         setIdMap[s.id] = existing.id;
                         MAIN_SECTIONS.forEach(function(sec) {
+                            if (!Array.isArray(existing[sec])) existing[sec] = [];
                             (s[sec] || []).forEach(function(qid) {
                                 if (mergedQuestions[qid] && existing[sec].indexOf(qid) === -1) existing[sec].push(qid);
                             });
@@ -6619,15 +6621,9 @@
                     } else {
                         var id = genId();
                         setIdMap[s.id] = id;
-                        store.sets.push({
-                            id: id,
-                            name: name || '未命名',
-                            category: s.category || '',
-                            '言语理解': s['言语理解'] || [],
-                            '数量关系': s['数量关系'] || [],
-                            '判断推理': s['判断推理'] || [],
-                            '资料分析': s['资料分析'] || []
-                        });
+                        var newSet = { id: id, name: name || '未命名', category: s.category || '' };
+                        (MAIN_SECTIONS || []).forEach(function(sec) { newSet[sec] = (s[sec] || []).slice(); });
+                        store.sets.push(newSet);
                     }
                 });
 
@@ -6829,6 +6825,13 @@
                     });
                 });
                 adminStore.sets = mergedSets;
+                if (adminStore.sets && MAIN_SECTIONS) {
+                    adminStore.sets.forEach(function(set) {
+                        MAIN_SECTIONS.forEach(function(sec) {
+                            if (!Array.isArray(set[sec])) set[sec] = [];
+                        });
+                    });
+                }
                 adminStore.questions = mergedQuestions;
                 adminStore.save();
                 fillAdminSetSelects();
