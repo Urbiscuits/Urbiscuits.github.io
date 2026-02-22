@@ -160,8 +160,57 @@
             } catch (e) { return { sets: [], questions: {} }; }
         }
         function saveStore(data) {
-            localStorage.setItem('xingce_admin_sets', JSON.stringify(data.sets || []));
-            localStorage.setItem('xingce_admin_questions', JSON.stringify(data.questions || {}));
+            try {
+                localStorage.setItem('xingce_admin_sets', JSON.stringify(data.sets || []));
+                localStorage.setItem('xingce_admin_questions', JSON.stringify(data.questions || {}));
+            } catch (e) {
+                if (e && e.name === 'QuotaExceededError') {
+                    var err = new Error('QUOTA_EXCEEDED');
+                    err.original = e;
+                    throw err;
+                }
+                throw e;
+            }
+        }
+
+        /** 压缩图片 data URL，减小占用，避免 localStorage 超限。maxWidth 默认 900，quality 0.85 */
+        function compressImageDataUrl(dataUrl, maxWidth, quality) {
+            maxWidth = maxWidth || 900;
+            quality = quality || 0.85;
+            return new Promise(function(resolve) {
+                var img = new Image();
+                img.onload = function() {
+                    var w = img.width;
+                    var h = img.height;
+                    if (w <= maxWidth && w * h <= 1200000) {
+                        resolve(dataUrl);
+                        return;
+                    }
+                    if (w > maxWidth) {
+                        h = Math.round(h * maxWidth / w);
+                        w = maxWidth;
+                    }
+                    if (w * h > 1200000) {
+                        var scale = Math.sqrt(1200000 / (w * h));
+                        w = Math.round(w * scale);
+                        h = Math.round(h * scale);
+                    }
+                    try {
+                        var canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        var ctx = canvas.getContext('2d');
+                        if (!ctx) { resolve(dataUrl); return; }
+                        ctx.drawImage(img, 0, 0, w, h);
+                        var out = canvas.toDataURL('image/jpeg', quality);
+                        resolve(out || dataUrl);
+                    } catch (e2) {
+                        resolve(dataUrl);
+                    }
+                };
+                img.onerror = function() { resolve(dataUrl); };
+                img.src = dataUrl;
+            });
         }
         function getSet(data, setId) {
             return (data.sets || []).filter(function(s) { return s.id === setId; })[0] || null;
@@ -240,29 +289,32 @@
             var file = ev.target.files[0];
             ev.target.value = '';
             if (!file || !file.type.startsWith('image/')) return;
+            var targetId = currentImageTarget;
             var reader = new FileReader();
             reader.onload = function(e) {
-                var targetEl = document.getElementById(currentImageTarget);
-                if (!targetEl) { currentImageTarget = null; return; }
-                var img = document.createElement('img');
-                img.src = e.target.result;
-                img.style.maxWidth = '100%';
-                img.style.margin = '6px 0';
-                img.style.display = 'block';
-                targetEl.focus();
-                var sel = window.getSelection();
-                if (sel.rangeCount > 0) {
-                    var range = sel.getRangeAt(0);
-                    range.deleteContents();
-                    range.insertNode(img);
-                    range.setStartAfter(img);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                } else {
-                    targetEl.appendChild(img);
-                }
-                updatePreview(currentImageTarget);
-                currentImageTarget = null;
+                compressImageDataUrl(e.target.result).then(function(dataUrl) {
+                    var targetEl = document.getElementById(targetId);
+                    if (!targetEl) { currentImageTarget = null; return; }
+                    var img = document.createElement('img');
+                    img.src = dataUrl;
+                    img.style.maxWidth = '100%';
+                    img.style.margin = '6px 0';
+                    img.style.display = 'block';
+                    targetEl.focus();
+                    var sel = window.getSelection();
+                    if (sel.rangeCount > 0) {
+                        var range = sel.getRangeAt(0);
+                        range.deleteContents();
+                        range.insertNode(img);
+                        range.setStartAfter(img);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    } else {
+                        targetEl.appendChild(img);
+                    }
+                    updatePreview(targetId);
+                    currentImageTarget = null;
+                });
             };
             reader.readAsDataURL(file);
         };
@@ -278,27 +330,30 @@
                         if (items[i].type.indexOf('image') !== -1) {
                             e.preventDefault();
                             var file = items[i].getAsFile();
+                            var fieldId = id;
                             var reader = new FileReader();
                             reader.onload = function() {
-                                var img = document.createElement('img');
-                                img.src = reader.result;
-                                img.style.maxWidth = '100%';
-                                img.style.margin = '6px 0';
-                                img.style.display = 'block';
-                                var target = document.getElementById(id);
-                                if (!target) return;
-                                var sel = window.getSelection();
-                                if (sel.rangeCount > 0) {
-                                    var range = sel.getRangeAt(0);
-                                    range.deleteContents();
-                                    range.insertNode(img);
-                                    range.setStartAfter(img);
-                                    sel.removeAllRanges();
-                                    sel.addRange(range);
-                                } else {
-                                    target.appendChild(img);
-                                }
-                                updatePreview(id);
+                                compressImageDataUrl(reader.result).then(function(dataUrl) {
+                                    var img = document.createElement('img');
+                                    img.src = dataUrl;
+                                    img.style.maxWidth = '100%';
+                                    img.style.margin = '6px 0';
+                                    img.style.display = 'block';
+                                    var target = document.getElementById(fieldId);
+                                    if (!target) return;
+                                    var sel = window.getSelection();
+                                    if (sel.rangeCount > 0) {
+                                        var range = sel.getRangeAt(0);
+                                        range.deleteContents();
+                                        range.insertNode(img);
+                                        range.setStartAfter(img);
+                                        sel.removeAllRanges();
+                                        sel.addRange(range);
+                                    } else {
+                                        target.appendChild(img);
+                                    }
+                                    updatePreview(fieldId);
+                                });
                             };
                             reader.readAsDataURL(file);
                             break;
@@ -565,7 +620,11 @@
                 try {
                     saveStore(fresh);
                 } catch (e) {
-                    statusEl.textContent = '保存失败：' + (e && e.message ? e.message : '写入异常');
+                    if (e && e.message === 'QUOTA_EXCEEDED') {
+                        statusEl.innerHTML = '本地存储已满，无法保存。建议：<br>1) 先点击「同步到 JSON」将当前套卷备份到云端；<br>2) 返回套卷管理，删除暂不需要的题目或套卷以释放空间；<br>3) 或减少本题中的图片数量/尺寸后重试（新插入的图片已自动压缩）。';
+                    } else {
+                        statusEl.textContent = '保存失败：' + (e && e.message ? e.message : '写入异常');
+                    }
                     statusEl.className = 'status error';
                     return;
                 }
