@@ -6445,6 +6445,12 @@
                     promises.push(adminCompressImageDataUrl(src).then(function(c) { out.stemImages[i] = c; }));
                 });
             }
+            if (Array.isArray(out.materialImages)) {
+                out.materialImages = out.materialImages.slice();
+                out.materialImages.forEach(function(src, i) {
+                    promises.push(adminCompressImageDataUrl(src).then(function(c) { out.materialImages[i] = c; }));
+                });
+            }
             if (Array.isArray(out.options)) {
                 out.options = out.options.slice();
                 out.options.forEach(function(opt, oi) {
@@ -6483,31 +6489,31 @@
             var targetPath = document.getElementById('adminSelectedSetsTargetJson').value || 'data/store.json';
             var mode = (document.querySelector('input[name="adminSelectedSetsSyncMode"]:checked') || {}).value || 'merge';
             var useStore = (document.querySelector('input[name="adminSyncSource"]:checked') || {}).value !== 'admin';
-            var src = useStore ? store : adminStore;
-            if (!src || !src.sets) {
-                showMsg('adminSelectedSetsSyncStatus', '数据源不可用', 'error');
-                return;
-            }
-            showMsg('adminSelectedSetsSyncStatus', '正在压缩题目图片以减小 JSON 体积…', 'info');
             var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
-            var selectedSets = src.sets.filter(function(s) { return selected.indexOf(s.id) !== -1; });
-            var selectedQuestionIds = {};
-            selectedSets.forEach(function(s) {
-                MAIN_SECTIONS.forEach(function(sec) {
-                    (s[sec] || []).forEach(function(qid) { selectedQuestionIds[qid] = true; });
+            function doSync(src) {
+                if (!src || !src.sets) {
+                    showMsg('adminSelectedSetsSyncStatus', '数据源不可用', 'error');
+                    return;
+                }
+                showMsg('adminSelectedSetsSyncStatus', '正在压缩题目图片以减小 JSON 体积…', 'info');
+                var selectedSets = src.sets.filter(function(s) { return selected.indexOf(s.id) !== -1; });
+                var selectedQuestionIds = {};
+                selectedSets.forEach(function(s) {
+                    MAIN_SECTIONS.forEach(function(sec) {
+                        (s[sec] || []).forEach(function(qid) { selectedQuestionIds[qid] = true; });
+                    });
                 });
-            });
-            var selectedQuestions = {};
-            Object.keys(selectedQuestionIds).forEach(function(qid) {
-                if (src.questions && src.questions[qid]) selectedQuestions[qid] = src.questions[qid];
-            });
-            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
-            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
-            adminCompressQuestionsObject(selectedQuestions).then(function(compressedQuestions) {
-                selectedQuestions = compressedQuestions;
-                showMsg('adminSelectedSetsSyncStatus', '正在同步选中套卷到 ' + targetPath + ' ...', 'info');
-                var exportData = { sets: selectedSets, questions: selectedQuestions, exportTime: new Date().toISOString() };
-                return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                var selectedQuestions = {};
+                Object.keys(selectedQuestionIds).forEach(function(qid) {
+                    if (src.questions && src.questions[qid]) selectedQuestions[qid] = src.questions[qid];
+                });
+                var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
+                var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+                adminCompressQuestionsObject(selectedQuestions).then(function(compressedQuestions) {
+                    selectedQuestions = compressedQuestions;
+                    showMsg('adminSelectedSetsSyncStatus', '正在同步选中套卷到 ' + targetPath + ' ...', 'info');
+                    var exportData = { sets: selectedSets, questions: selectedQuestions, exportTime: new Date().toISOString() };
+                    return fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
                 .then(function(resp) {
                     if (resp.status === 404) return null;
                     if (!resp.ok) throw new Error('获取文件信息失败: ' + resp.status);
@@ -6572,6 +6578,17 @@
             }).catch(function(err) {
                 showMsg('adminSelectedSetsSyncStatus', '同步失败：' + (err && err.message ? err.message : '未知错误'), 'error');
             });
+            }
+            if (useStore) {
+                doSync(store);
+            } else {
+                showMsg('adminSelectedSetsSyncStatus', '正在从本地管理员题库重新加载…', 'info');
+                adminStore.load().then(function() {
+                    doSync(adminStore);
+                }).catch(function(err) {
+                    showMsg('adminSelectedSetsSyncStatus', '加载管理员题库失败：' + (err && err.message ? err.message : '未知错误'), 'error');
+                });
+            }
         }
         /** 从小程序复制的题库数据：粘贴后保存到 data/store.json（免后端） */
         function adminSyncPastedStoreToGitHub() {
