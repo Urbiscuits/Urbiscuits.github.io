@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员题目编辑</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary-color: #4a6baf; --success-color: #28a745; --border-radius: 8px; --box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background:#fff; border-radius:var(--border-radius); box-shadow:var(--box-shadow); padding:24px; margin-bottom:20px; }
+        h1 { font-size:1.4rem; color:var(--primary-color); margin-bottom:12px; }
+        .muted { color:#6c757d; font-size:0.9rem; }
+        label { display:block; font-weight:500; margin-top:12px; margin-bottom:6px; }
+        textarea { width:100%; min-height:80px; padding:10px; border-radius:6px; border:1px solid #ced4da; resize:vertical; font-family:inherit; line-height:1.6; }
+        select { padding:8px 10px; border-radius:6px; border:1px solid #ced4da; }
+        .btn { padding:10px 20px; border:none; border-radius:var(--border-radius); font-weight:500; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+        .btn-primary { background:var(--primary-color); color:#fff; }
+        .btn-default { background:#eaeaea; color:#333; }
+        .btn-success { background:var(--success-color); color:#fff; }
+        .btn-sm { padding:6px 12px; font-size:0.85rem; }
+        .actions { margin-top:20px; display:flex; flex-wrap:wrap; gap:10px; }
+        .status { margin-top:12px; font-size:0.9rem; }
+        .status.success { color:var(--success-color); }
+        .status.error { color:#dc3545; }
+        .badge { display:inline-block; padding:2px 8px; border-radius:999px; background:#eef2ff; color:var(--primary-color); font-size:0.8rem; margin-left:8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>管理员题目编辑</h1>
+            <p class="muted" id="metaInfo"></p>
+            <p class="muted" style="margin-top:4px;">说明：本页仅编辑<strong>本地管理员题库</strong>中的题目；确认全部修改无误后，请回到管理员后台使用「选择套卷同步到指定 JSON」将套卷统一更新到云端。</p>
+        </div>
+
+        <div class="card" id="editCard" style="display:none;">
+            <label>题干</label>
+            <textarea id="fieldContent" placeholder="请输入题干"></textarea>
+
+            <label>选项 A</label>
+            <textarea id="fieldA" placeholder="请输入选项 A"></textarea>
+
+            <label>选项 B</label>
+            <textarea id="fieldB" placeholder="请输入选项 B"></textarea>
+
+            <label>选项 C</label>
+            <textarea id="fieldC" placeholder="请输入选项 C"></textarea>
+
+            <label>选项 D</label>
+            <textarea id="fieldD" placeholder="请输入选项 D"></textarea>
+
+            <label>正确答案</label>
+            <select id="fieldAnswer">
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+            </select>
+
+            <label>解析</label>
+            <textarea id="fieldExplanation" placeholder="请输入解析（可留空）"></textarea>
+
+            <div class="actions">
+                <button type="button" class="btn btn-success" id="btnSave">保存到本地</button>
+                <button type="button" class="btn btn-default" id="btnBack">返回套卷题目列表</button>
+            </div>
+            <div id="status" class="status"></div>
+        </div>
+
+        <div class="card" id="errorCard" style="display:none;">
+            <p id="errorText" class="status error"></p>
+            <div class="actions">
+                <button type="button" class="btn btn-default" id="btnBackFromError">返回套卷题目列表</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getParam(name) {
+            var m = new RegExp('[?&]' + name + '=([^&]+)').exec(location.search);
+            return m ? decodeURIComponent(m[1]) : '';
+        }
+        function loadStore() {
+            try {
+                var s = localStorage.getItem('xingce_admin_sets');
+                var q = localStorage.getItem('xingce_admin_questions');
+                return { sets: s ? JSON.parse(s) : [], questions: q ? JSON.parse(q) : {} };
+            } catch (e) { return { sets: [], questions: {} }; }
+        }
+        function saveStore(data) {
+            localStorage.setItem('xingce_admin_sets', JSON.stringify(data.sets || []));
+            localStorage.setItem('xingce_admin_questions', JSON.stringify(data.questions || {}));
+        }
+        function getSet(data, setId) {
+            return (data.sets || []).filter(function(s) { return s.id === setId; })[0] || null;
+        }
+        function esc(s) {
+            if (s == null) return '';
+            var d = document.createElement('div');
+            d.textContent = String(s);
+            return d.innerHTML;
+        }
+
+        (function init() {
+            var setId = getParam('setId');
+            var qid = getParam('qid');
+            var metaEl = document.getElementById('metaInfo');
+            var editCard = document.getElementById('editCard');
+            var errorCard = document.getElementById('errorCard');
+            var errorText = document.getElementById('errorText');
+            var statusEl = document.getElementById('status');
+
+            document.getElementById('btnBack').onclick = function() {
+                if (setId) {
+                    location.href = 'admin-set-manage.html?setId=' + encodeURIComponent(setId);
+                } else {
+                    location.href = 'admin-set-manage.html';
+                }
+            };
+            document.getElementById('btnBackFromError').onclick = function() {
+                if (setId) {
+                    location.href = 'admin-set-manage.html?setId=' + encodeURIComponent(setId);
+                } else {
+                    location.href = 'admin-set-manage.html';
+                }
+            };
+
+            var data = loadStore();
+            var set = setId ? getSet(data, setId) : null;
+            var qKey = qid ? String(qid) : '';
+            var q = qKey ? data.questions[qKey] || data.questions[qid] : null;
+
+            if (!setId || !qid) {
+                metaEl.textContent = '';
+                errorText.textContent = '缺少套卷或题目参数（setId / qid）。请从管理员页面的套卷管理中点击「编辑」进入本页。';
+                errorCard.style.display = 'block';
+                return;
+            }
+            if (!set) {
+                metaEl.innerHTML = '套卷：<span class="badge">未找到（ID: ' + esc(setId) + '）</span>';
+                errorText.textContent = '未找到对应套卷，无法编辑题目。';
+                errorCard.style.display = 'block';
+                return;
+            }
+            if (!q) {
+                metaEl.innerHTML = '套卷：<strong>' + esc(set.name || '未命名套卷') + '</strong>';
+                errorText.textContent = '未在管理员题库中找到该题目（ID: ' + esc(qid) + '）。';
+                errorCard.style.display = 'block';
+                return;
+            }
+
+            metaEl.innerHTML =
+                '套卷：<strong>' + esc(set.name || '未命名套卷') + '</strong>' +
+                '<span class="badge">题目 ID：' + esc(qid) + '</span>' +
+                (q.section ? '<span class="badge">' + esc(q.section) + (q.subcategory ? ' - ' + esc(q.subcategory) : '') + '</span>' : '');
+
+            document.getElementById('fieldContent').value = q.content || '';
+            var opts = q.options || [];
+            document.getElementById('fieldA').value = (opts[0] && opts[0].text) || '';
+            document.getElementById('fieldB').value = (opts[1] && opts[1].text) || '';
+            document.getElementById('fieldC').value = (opts[2] && opts[2].text) || '';
+            document.getElementById('fieldD').value = (opts[3] && opts[3].text) || '';
+            document.getElementById('fieldAnswer').value = q.answer || 'A';
+            document.getElementById('fieldExplanation').value = q.explanation || '';
+
+            editCard.style.display = 'block';
+
+            document.getElementById('btnSave').onclick = function() {
+                statusEl.textContent = '';
+                statusEl.className = 'status';
+
+                var newContent = document.getElementById('fieldContent').value || '';
+                var newA = document.getElementById('fieldA').value || '';
+                var newB = document.getElementById('fieldB').value || '';
+                var newC = document.getElementById('fieldC').value || '';
+                var newD = document.getElementById('fieldD').value || '';
+                var newAnswer = document.getElementById('fieldAnswer').value || 'A';
+                var newExplanation = document.getElementById('fieldExplanation').value || '';
+
+                var fresh = loadStore();
+                var set2 = getSet(fresh, setId);
+                if (!set2) {
+                    statusEl.textContent = '保存失败：套卷已不存在，请刷新页面后重试。';
+                    statusEl.className = 'status error';
+                    return;
+                }
+                var q2Key = String(qid);
+                var q2 = fresh.questions[q2Key] || fresh.questions[qid];
+                if (!q2) {
+                    statusEl.textContent = '保存失败：题目已不存在或已被删除。';
+                    statusEl.className = 'status error';
+                    return;
+                }
+
+                var updated = {};
+                for (var k in q2) if (Object.prototype.hasOwnProperty.call(q2, k)) updated[k] = q2[k];
+                updated.content = newContent;
+                // 保留原有图片不丢失，仅更新文字
+                updated.stemImages = Array.isArray(q2.stemImages) ? q2.stemImages : [];
+                updated.options = [
+                    { label: 'A', text: newA, images: (q2.options && q2.options[0] && q2.options[0].images) || [] },
+                    { label: 'B', text: newB, images: (q2.options && q2.options[1] && q2.options[1].images) || [] },
+                    { label: 'C', text: newC, images: (q2.options && q2.options[2] && q2.options[2].images) || [] },
+                    { label: 'D', text: newD, images: (q2.options && q2.options[3] && q2.options[3].images) || [] }
+                ];
+                updated.answer = newAnswer;
+                updated.explanation = newExplanation;
+
+                fresh.questions[q2Key] = updated;
+                try {
+                    saveStore(fresh);
+                } catch (e) {
+                    statusEl.textContent = '保存失败：' + (e && e.message ? e.message : '写入本地存储异常');
+                    statusEl.className = 'status error';
+                    return;
+                }
+
+                statusEl.textContent = '已保存到本地管理员题库，可返回套卷管理页面查看效果。';
+                statusEl.className = 'status success';
+            };
+        })();
+    </script>
+</body>
+</html>
+

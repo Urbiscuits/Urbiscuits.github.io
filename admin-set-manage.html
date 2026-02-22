@@ -469,6 +469,18 @@
             updateBatchDeleteVisibility();
         }
 
+        // 从套卷题目列表/详情跳转到独立编辑页（避免在本页内编辑导致误操作）
+        function openEditPage(qid) {
+            var q = getQuestion(qid);
+            var sid = q && q.setId ? q.setId : currentSetId;
+            if (!sid) {
+                alert('未找到该题目所属的套卷，无法跳转到编辑页。');
+                return;
+            }
+            var url = 'admin-question-edit.html?setId=' + encodeURIComponent(sid) + '&qid=' + encodeURIComponent(String(qid));
+            window.open(url, '_blank');
+        }
+
         function showDetail(qid) {
             detailQid = qid;
             var q = getQuestion(qid);
@@ -490,7 +502,7 @@
             renderLaTeX(document.getElementById('detailBody'));
             document.getElementById('btnEditFromDetail').onclick = function() {
                 closeDetail();
-                openEdit(qid);
+                openEditPage(qid);
             };
             document.getElementById('detailOverlay').style.display = 'block';
         }
@@ -806,7 +818,7 @@
                         var qid = btn.getAttribute('data-qid');
                         if (qid) {
                             if (action === 'view') return showDetail(qid);
-                            if (action === 'edit') return openEdit(qid);
+                            if (action === 'edit') return openEditPage(qid);
                             if (action === 'delete') return doDelete(qid);
                         }
                     }
