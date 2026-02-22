@@ -1780,8 +1780,6 @@
 
     <script>
         var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
-        // 小类改为动态：批量录入时可任意自定义，ensureSubcategory 会实时添加
-        var SUBCATEGORIES = { '言语理解': [], '数量关系': [], '判断推理': [], '资料分析': [], '政治理论': [], '常识判断': [] };
         // 题目统计（管理员题库）固定显示的六大类及小类，无论 JSON 是否有数据都展示
         var ADMIN_STATS_ORDER = ['政治理论', '常识判断', '言语理解', '判断推理', '数量关系', '资料分析'];
         var ADMIN_STATS_SUBS = {
@@ -1792,6 +1790,12 @@
             '数量关系': ['和差倍比', '工程问题', '数量问题', '最值问题', '利润问题', '几何问题', '概率问题', '排列组合', '行程问题'],
             '资料分析': ['现期比重', '基期比重', '两期比重', '混合比重', '基期平均数', '现期平均数', '平均数增长率', '平均数的增长量', '两期平均数', '比值计算', '基期倍数', '现期倍数', '比值比较', '倍数比较', '间隔基期', '基期比较', '基期和差', '间隔增长率', '一般增长率', '年均增长率', '混合增长率', '增长量']
         };
+        // 小类初始化：使用 ADMIN_STATS_SUBS 作为默认值，部署后单题/批量下拉立即可用，ensureSubcategory 会追加新小类
+        var SUBCATEGORIES = {};
+        (ADMIN_STATS_ORDER || MAIN_SECTIONS).forEach(function(sec) {
+            SUBCATEGORIES[sec] = (ADMIN_STATS_SUBS[sec] || []).slice();
+        });
+        MAIN_SECTIONS.forEach(function(sec) { if (!SUBCATEGORIES[sec]) SUBCATEGORIES[sec] = []; });
         var PARSER_SUB = null; // 不再限制，解析器接受任意小类
         // GitHub 上托管的在线题库（JSON），默认 data/store.json，可按需修改
         var ENABLE_REMOTE_STORE = true;
@@ -1951,7 +1955,7 @@
             }
         }
     </script>
-    <script src="js/parser.js"></script>
+    <script src="js/parser.js?v=2"></script>
     <script src="js/store.js"></script>
     <script>
         // 从已存题目中重建/补齐小分类，确保批量导入/数据导入后筛选项立即可见
@@ -3523,8 +3527,14 @@
         }
         function adminLoadSubcategoriesConfigIntoGlobal() {
             var cfg = getAdminSubcategoriesConfig();
-            MAIN_SECTIONS.forEach(function(sec) {
-                if (Array.isArray(cfg[sec])) SUBCATEGORIES[sec] = cfg[sec].slice();
+            (MAIN_SECTIONS || []).forEach(function(sec) {
+                var fromCfg = Array.isArray(cfg[sec]) ? cfg[sec] : [];
+                var current = SUBCATEGORIES[sec] || [];
+                if (fromCfg.length > 0) {
+                    var merged = fromCfg.slice();
+                    current.forEach(function(s) { if (merged.indexOf(s) === -1) merged.push(s); });
+                    SUBCATEGORIES[sec] = merged;
+                }
             });
         }
         function adminPersistCurrentSubcategoriesConfig() {
@@ -4640,8 +4650,10 @@
             var added = 0;
             list.forEach(function(q) {
                 var section = q.category;
+                if (!section) return;
                 var set = store.getSet(setId);
-                if (set && MAIN_SECTIONS && MAIN_SECTIONS.includes(section)) {
+                if (set) {
+                    if (typeof ensureCategory === 'function') ensureCategory(section);
                     if (!set[section]) set[section] = [];
                     store.addQuestion(setId, section, Object.assign({}, q)); added++;
                 }
@@ -4686,8 +4698,10 @@
             if (!list.length) return;
             list.forEach(function(q) {
                 var section = q.category;
+                if (!section) return;
                 var set = store.getSet(setId);
-                if (set && MAIN_SECTIONS && MAIN_SECTIONS.includes(section)) {
+                if (set) {
+                    if (typeof ensureCategory === 'function') ensureCategory(section);
                     if (!set[section]) set[section] = [];
                     store.addQuestion(setId, section, Object.assign({}, q));
                 }
@@ -7964,8 +7978,10 @@
             var added = 0;
             list.forEach(function(q) {
                 var section = q.category;
+                if (!section) return;
                 var set = adminStore.getSet(setId);
-                if (set && MAIN_SECTIONS && MAIN_SECTIONS.includes(section)) {
+                if (set) {
+                    if (typeof ensureCategory === 'function') ensureCategory(section);
                     if (!set[section]) set[section] = [];
                     adminStore.addQuestion(setId, section, Object.assign({}, q)); added++;
                 }
