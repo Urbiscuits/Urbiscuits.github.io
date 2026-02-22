@@ -1457,9 +1457,10 @@
                         <div class="card" style="margin-bottom: 20px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <h2 style="margin: 0; color: var(--primary-color);"><i class="fas fa-folder-open"></i> 套卷管理</h2>
-                                <div style="display: flex; gap: 8px;">
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                     <button class="btn btn-info" onclick="adminRefreshSetList()"><i class="fas fa-sync-alt"></i> 刷新</button>
                                     <button class="btn btn-success" onclick="adminShowLoadFromDataModal()"><i class="fas fa-download"></i> 从 data 加载</button>
+                                    <button class="btn btn-danger" onclick="adminClearLocalStore()" title="清空本地管理员题库（IndexedDB），不影响云端"><i class="fas fa-trash-alt"></i> 清空本地储存</button>
                                 </div>
                             </div>
                             
@@ -1957,6 +1958,7 @@
     </script>
     <script src="js/parser.js?v=4"></script>
     <script src="js/store.js"></script>
+    <script src="js/admin-store-idb.js"></script>
     <script>
         // 从已存题目中重建/补齐小分类，确保批量导入/数据导入后筛选项立即可见
         function rebuildSubcategoriesFromStore() {
@@ -5835,18 +5837,36 @@
             },
             getQuestion: function(qid) { return this.questions[qid]; },
             save: function() {
-                try {
-                    localStorage.setItem('xingce_admin_sets', JSON.stringify(this.sets));
-                    localStorage.setItem('xingce_admin_questions', JSON.stringify(this.questions));
-                } catch (e) {}
+                if (typeof XingceAdminIDB !== 'undefined' && XingceAdminIDB.set) {
+                    XingceAdminIDB.set({ sets: this.sets, questions: this.questions }).catch(function() {});
+                } else {
+                    try {
+                        localStorage.setItem('xingce_admin_sets', JSON.stringify(this.sets));
+                        localStorage.setItem('xingce_admin_questions', JSON.stringify(this.questions));
+                    } catch (e) {}
+                }
             },
             load: function() {
+                var self = this;
+                if (typeof XingceAdminIDB !== 'undefined' && XingceAdminIDB.load) {
+                    return XingceAdminIDB.load().then(function(data) {
+                        self.sets = data.sets || [];
+                        self.questions = data.questions || {};
+                        if (self.sets && MAIN_SECTIONS) {
+                            self.sets.forEach(function(set) {
+                                MAIN_SECTIONS.forEach(function(sec) {
+                                    if (!Array.isArray(set[sec])) set[sec] = [];
+                                });
+                            });
+                        }
+                        return self;
+                    });
+                }
                 try {
                     var s = localStorage.getItem('xingce_admin_sets');
                     var q = localStorage.getItem('xingce_admin_questions');
                     if (s) this.sets = JSON.parse(s);
                     if (q) this.questions = JSON.parse(q);
-                    // 迁移：确保每个套卷都包含全部大类（政治理论、常识判断等），修复旧数据只有4类导致的录入失败
                     if (this.sets && MAIN_SECTIONS) {
                         this.sets.forEach(function(set) {
                             MAIN_SECTIONS.forEach(function(sec) {
@@ -5855,6 +5875,7 @@
                         });
                     }
                 } catch (e) {}
+                return Promise.resolve(this);
             }
         };
         
@@ -5875,8 +5896,8 @@
         
         function initAdminPage() {
             if (!adminAuthenticated) return;
-            adminStore.load(); // 加载管理员数据
-            if (typeof adminRenderUserList === 'function') adminRenderUserList();
+            adminStore.load().then(function() {
+                if (typeof adminRenderUserList === 'function') adminRenderUserList();
             updateAdminGithubTokenStatus();
             // 读取 data 目录下的 JSON 文件列表（用于选择同步/重置目标）
             try { adminRefreshDataJsonFileList(); } catch (e) {}
@@ -5940,6 +5961,36 @@
                 });
             }
             document.getElementById('adminSingleSection').addEventListener('change', updateAdminSingleSub);
+            });
+        }
+
+        function adminClearLocalStore() {
+            if (!confirm('确定要清空本地管理员题库吗？\n\n将删除 IndexedDB 及本地缓存中的套卷与题目数据，不影响云端 JSON。清空后可重新从「从 data 加载」拉取。')) return;
+            if (typeof XingceAdminIDB !== 'undefined' && XingceAdminIDB.clear) {
+                XingceAdminIDB.clear().then(function() {
+                    adminStore.sets = [];
+                    adminStore.questions = {};
+                    adminFilterSetList();
+                    fillAdminSetSelects();
+                    renderAdminStatsTree();
+                    showMsg('adminSetStatus', '已清空本地储存', 'success');
+                }).catch(function() {
+                    showMsg('adminSetStatus', '清空失败', 'error');
+                });
+            } else {
+                try {
+                    localStorage.removeItem('xingce_admin_sets');
+                    localStorage.removeItem('xingce_admin_questions');
+                    adminStore.sets = [];
+                    adminStore.questions = {};
+                    adminFilterSetList();
+                    fillAdminSetSelects();
+                    renderAdminStatsTree();
+                    showMsg('adminSetStatus', '已清空本地储存', 'success');
+                } catch (e) {
+                    showMsg('adminSetStatus', '清空失败', 'error');
+                }
+            }
         }
 
         function getAdminSelectedGitHubJsonPath() {

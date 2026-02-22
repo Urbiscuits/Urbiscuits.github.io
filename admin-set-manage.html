@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script src="js/admin-store-idb.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root { --primary-color: #4a6baf; --success-color: #28a745; --border-radius: 8px; --box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -338,7 +339,9 @@
             return m ? decodeURIComponent(m[1]) : '';
         }
 
+        var _adminCache = null;
         function loadStore() {
+            if (_adminCache) return _adminCache;
             try {
                 var s = localStorage.getItem('xingce_admin_sets');
                 var q = localStorage.getItem('xingce_admin_questions');
@@ -346,12 +349,15 @@
             } catch (e) { return { sets: [], questions: {} }; }
         }
         function saveStore(data) {
+            _adminCache = data;
+            if (typeof XingceAdminIDB !== 'undefined' && XingceAdminIDB.set) {
+                XingceAdminIDB.set(data).catch(function() {});
+                return;
+            }
             try {
                 localStorage.setItem('xingce_admin_sets', JSON.stringify(data.sets));
                 localStorage.setItem('xingce_admin_questions', JSON.stringify(data.questions));
-            } catch (e) {
-                throw e;
-            }
+            } catch (e) { throw e; }
         }
         function getSet(setId) {
             var data = loadStore();
@@ -770,69 +776,78 @@
         }
 
         window.onload = function() {
-            currentSetId = getSetIdFromUrl();
             var urlSection = getSectionFromUrl();
             var urlSubcategory = getSubcategoryFromUrl();
-            currentSet = currentSetId ? getSet(currentSetId) : null;
-            if (!currentSetId && urlSection && urlSubcategory) {
-                filterSection = urlSection;
-                filterSubcategory = urlSubcategory;
-                document.getElementById('mainBlock').style.display = 'block';
-                document.getElementById('setTitle').textContent = '按小类查看：' + urlSection + ' - ' + urlSubcategory + '（管理员题库）';
-                document.getElementById('btnAddQuestion').style.display = 'none';
-            } else if (!currentSetId) {
-                document.getElementById('noSet').style.display = 'block';
-                return;
-            } else if (!currentSet) {
-                document.getElementById('noSet').style.display = 'block';
-                document.querySelector('#noSet p').textContent = '套卷不存在或已删除。';
-                return;
-            } else {
-                document.getElementById('mainBlock').style.display = 'block';
-                document.getElementById('setTitle').textContent = (currentSet.name || '未命名套卷') + '（管理员题库）';
-                document.getElementById('btnAddQuestion').style.display = 'inline-flex';
-                document.getElementById('btnAddQuestion').onclick = goAddQuestion;
-            }
-            try {
-                var data = loadStore();
-                var setCount = (data.sets || []).length;
-                var qCount = data.questions ? Object.keys(data.questions).length : 0;
-                showDebug('当前 setId=' + currentSetId + '；管理员套卷数=' + setCount + '；管理员题目数=' + qCount + '。若这里为 0，说明你打开此页面的域名/协议与管理员后台不一致（localStorage 不共享）。', false);
-            } catch (e) {}
-            renderSubcategoryOptions();
-            if (urlSection && urlSubcategory) {
-                var se = document.getElementById('filterSection');
-                var su = document.getElementById('filterSubcategory');
-                if (se) se.value = urlSection;
-                if (su) su.value = urlSubcategory;
-            }
-            renderList();
+            var run = function() {
+                currentSetId = getSetIdFromUrl();
+                currentSet = currentSetId ? getSet(currentSetId) : null;
+                if (!currentSetId && urlSection && urlSubcategory) {
+                    filterSection = urlSection;
+                    filterSubcategory = urlSubcategory;
+                    document.getElementById('mainBlock').style.display = 'block';
+                    document.getElementById('setTitle').textContent = '按小类查看：' + urlSection + ' - ' + urlSubcategory + '（管理员题库）';
+                    document.getElementById('btnAddQuestion').style.display = 'none';
+                } else if (!currentSetId) {
+                    document.getElementById('noSet').style.display = 'block';
+                    return;
+                } else if (!currentSet) {
+                    document.getElementById('noSet').style.display = 'block';
+                    document.querySelector('#noSet p').textContent = '套卷不存在或已删除。';
+                    return;
+                } else {
+                    document.getElementById('mainBlock').style.display = 'block';
+                    document.getElementById('setTitle').textContent = (currentSet.name || '未命名套卷') + '（管理员题库）';
+                    document.getElementById('btnAddQuestion').style.display = 'inline-flex';
+                    document.getElementById('btnAddQuestion').onclick = goAddQuestion;
+                }
+                try {
+                    var data = loadStore();
+                    var setCount = (data.sets || []).length;
+                    var qCount = data.questions ? Object.keys(data.questions).length : 0;
+                    showDebug('当前 setId=' + currentSetId + '；管理员套卷数=' + setCount + '；管理员题目数=' + qCount + '。（数据来自 IndexedDB，容量充足）', false);
+                } catch (e) {}
+                renderSubcategoryOptions();
+                if (urlSection && urlSubcategory) {
+                    var se = document.getElementById('filterSection');
+                    var su = document.getElementById('filterSubcategory');
+                    if (se) se.value = urlSection;
+                    if (su) su.value = urlSubcategory;
+                }
+                renderList();
 
-            // 事件委托：处理查看/编辑/删除、批量勾选
-            var listEl = document.getElementById('questionList');
-            if (listEl) {
-                listEl.addEventListener('click', function(ev) {
-                    var btn = ev.target && ev.target.closest ? ev.target.closest('button[data-action]') : null;
-                    if (btn) {
-                        var action = btn.getAttribute('data-action');
-                        var qid = btn.getAttribute('data-qid');
-                        if (qid) {
-                            if (action === 'view') return showDetail(qid);
-                            if (action === 'edit') return openEditPage(qid);
-                            if (action === 'delete') return doDelete(qid);
+                var listEl = document.getElementById('questionList');
+                if (listEl) {
+                    listEl.addEventListener('click', function(ev) {
+                        var btn = ev.target && ev.target.closest ? ev.target.closest('button[data-action]') : null;
+                        if (btn) {
+                            var action = btn.getAttribute('data-action');
+                            var qid = btn.getAttribute('data-qid');
+                            if (qid) {
+                                if (action === 'view') return showDetail(qid);
+                                if (action === 'edit') return openEditPage(qid);
+                                if (action === 'delete') return doDelete(qid);
+                            }
                         }
-                    }
-                    if (ev.target && ev.target.classList && ev.target.classList.contains('q-check')) {
-                        setTimeout(updateBatchDeleteVisibility, 0);
-                    }
-                });
-            }
+                        if (ev.target && ev.target.classList && ev.target.classList.contains('q-check')) {
+                            setTimeout(updateBatchDeleteVisibility, 0);
+                        }
+                    });
+                }
 
-            ['editContent', 'editA', 'editB', 'editC', 'editD', 'editExplanation'].forEach(function(fieldId) {
-                var el = document.getElementById(fieldId);
-                if (el) el.addEventListener('input', function() { updatePreview(fieldId); });
+                ['editContent', 'editA', 'editB', 'editC', 'editD', 'editExplanation'].forEach(function(fieldId) {
+                    var el = document.getElementById(fieldId);
+                    if (el) el.addEventListener('input', function() { updatePreview(fieldId); });
+                });
+                bindEditablePaste();
+            };
+            var loadPromise = (typeof XingceAdminIDB !== 'undefined' && XingceAdminIDB.load) ? XingceAdminIDB.load() : Promise.resolve({ sets: [], questions: {} });
+            loadPromise.then(function(data) {
+                _adminCache = data && data.sets ? data : { sets: [], questions: {} };
+                run();
+            }).catch(function() {
+                _adminCache = { sets: [], questions: {} };
+                run();
             });
-            bindEditablePaste();
         };
     </script>
 </body>

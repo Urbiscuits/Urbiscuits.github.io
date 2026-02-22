@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script src="js/admin-store-idb.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root { --primary-color: #4a6baf; --success-color: #28a745; --border-radius: 8px; --box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
@@ -152,7 +153,9 @@
             var m = new RegExp('[?&]' + name + '=([^&]+)').exec(location.search);
             return m ? decodeURIComponent(m[1]) : '';
         }
+        var _adminCache = null;
         function loadStore() {
+            if (_adminCache) return _adminCache;
             try {
                 var s = localStorage.getItem('xingce_admin_sets');
                 var q = localStorage.getItem('xingce_admin_questions');
@@ -160,6 +163,10 @@
             } catch (e) { return { sets: [], questions: {} }; }
         }
         function saveStore(data) {
+            _adminCache = data;
+            if (typeof XingceAdminIDB !== 'undefined' && XingceAdminIDB.set) {
+                return XingceAdminIDB.set(data);
+            }
             try {
                 localStorage.setItem('xingce_admin_sets', JSON.stringify(data.sets || []));
                 localStorage.setItem('xingce_admin_questions', JSON.stringify(data.questions || {}));
@@ -520,6 +527,7 @@
                 location.href = setId ? ('admin-set-manage.html?setId=' + encodeURIComponent(setId)) : 'admin-set-manage.html';
             };
 
+            var runInit = function() {
             var data = loadStore();
             var set = setId ? getSet(data, setId) : null;
             var qKey = qid ? String(qid) : '';
@@ -618,7 +626,17 @@
 
                 fresh.questions[q2Key] = updated;
                 try {
-                    saveStore(fresh);
+                    var saveResult = saveStore(fresh);
+                    if (saveResult && typeof saveResult.then === 'function') {
+                        saveResult.then(function() {
+                            statusEl.textContent = '已保存到本地管理员题库，可返回套卷管理查看，或点击「同步到 JSON」更新云端。';
+                            statusEl.className = 'status success';
+                        }).catch(function() {
+                            statusEl.textContent = '保存失败：写入异常';
+                            statusEl.className = 'status error';
+                        });
+                        return;
+                    }
                 } catch (e) {
                     if (e && e.message === 'QUOTA_EXCEEDED') {
                         statusEl.innerHTML = '本地存储已满，无法保存。建议：<br>1) 先点击「同步到 JSON」将当前套卷备份到云端；<br>2) 返回套卷管理，删除暂不需要的题目或套卷以释放空间；<br>3) 或减少本题中的图片数量/尺寸后重试（新插入的图片已自动压缩）。';
@@ -683,6 +701,15 @@
             };
 
             editCard.style.display = 'block';
+            };
+            var loadPromise = (typeof XingceAdminIDB !== 'undefined' && XingceAdminIDB.load) ? XingceAdminIDB.load() : Promise.resolve({ sets: [], questions: {} });
+            loadPromise.then(function(data) {
+                _adminCache = data && data.sets ? data : { sets: [], questions: {} };
+                runInit();
+            }).catch(function() {
+                _adminCache = { sets: [], questions: {} };
+                runInit();
+            });
         })();
     </script>
 </body>
