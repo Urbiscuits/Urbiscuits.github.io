@@ -1,5 +1,4219 @@
 {
-  "sets": [],
-  "questions": {},
-  "exportTime": "2026-02-23T06:01:39.669Z"
+  "sets": [
+    {
+      "id": "id_1771826511621_ozczvum",
+      "name": "郭熙言语2025",
+      "category": "粉笔",
+      "言语理解": [
+        "id_1771826523473_89ezv9a",
+        "id_1771826523473_o2vys4e",
+        "id_1771826523473_3ta5eg0",
+        "id_1771826523473_osvjai5",
+        "id_1771826523473_k6bu2pi",
+        "id_1771826523473_jvdal90",
+        "id_1771826523473_ytcpuvg",
+        "id_1771826523473_at5k0eb",
+        "id_1771826523473_vaqra7t",
+        "id_1771826523473_xywoqfs",
+        "id_1771826523473_b96c0ef",
+        "id_1771826523473_jx2l033",
+        "id_1771826523473_1dteomo",
+        "id_1771826523473_vb27msb",
+        "id_1771826523473_klk13oe",
+        "id_1771826523473_6ubncsy",
+        "id_1771826523473_8h7w2o0",
+        "id_1771826523473_fth0qp6",
+        "id_1771826523473_8u6gphv",
+        "id_1771826523473_sunf81j",
+        "id_1771826523473_700cqrr",
+        "id_1771826523473_kr4pxx8",
+        "id_1771826523473_jxczryr",
+        "id_1771826523473_3i1n0zh",
+        "id_1771826523473_4jxkpyn",
+        "id_1771826523473_rlyzgwx",
+        "id_1771826523473_9gq00pa",
+        "id_1771826523473_pbn8n7i",
+        "id_1771826523473_4la0xhd",
+        "id_1771826523473_vp06hwv",
+        "id_1771826523473_a0wmu7n",
+        "id_1771826523473_hccjwbw",
+        "id_1771826523473_4navkae",
+        "id_1771826523473_s8x3abr",
+        "id_1771826523473_zk29fl9",
+        "id_1771826523473_n8frjv9",
+        "id_1771826523473_t2obc2l",
+        "id_1771826523473_ggprnjg",
+        "id_1771826523473_0yirl2l",
+        "id_1771826523473_atlvk55",
+        "id_1771826523473_1q5a6yk",
+        "id_1771826523473_yydq6j4",
+        "id_1771826523473_sa28hw1",
+        "id_1771826523473_c4zh1s4",
+        "id_1771826523473_pbrikg1",
+        "id_1771826523473_b5bx81o",
+        "id_1771826523473_vmuxju9",
+        "id_1771826523473_zhs117h",
+        "id_1771826523473_x4elqhp",
+        "id_1771826523473_c6ewq1g",
+        "id_1771826523473_vzbotg7",
+        "id_1771826523473_9jxtbch",
+        "id_1771826523473_olo4g4a",
+        "id_1771826523473_51byqnz",
+        "id_1771826523473_sjta2ek",
+        "id_1771826523473_zzr1gew",
+        "id_1771826523473_g2y7tj1",
+        "id_1771826523473_r3gpq31",
+        "id_1771826523473_d0troq5",
+        "id_1771826523473_xh0n577",
+        "id_1771826523473_xbvxzc6",
+        "id_1771826523473_mgupy73",
+        "id_1771826523473_9h8zi26",
+        "id_1771826523473_jcq3j9k",
+        "id_1771826523473_qihjqne",
+        "id_1771826523473_kjgqx77",
+        "id_1771826523473_jg5l2jd",
+        "id_1771826523473_bwcluye",
+        "id_1771826523473_h64mh1s",
+        "id_1771826523473_zq1la0l",
+        "id_1771826523473_5vem32n",
+        "id_1771826523473_61efs3u",
+        "id_1771826523473_e9pyljv",
+        "id_1771826523473_4lzq7aw",
+        "id_1771826523473_vd675xj",
+        "id_1771826523473_ohkfz44",
+        "id_1771826523473_ref3ntw",
+        "id_1771826523473_ezgi286",
+        "id_1771826523473_gocflpm",
+        "id_1771826523473_jcbkqff",
+        "id_1771826523473_29ytetu",
+        "id_1771826523473_gkwiqwr",
+        "id_1771826523473_2qivcvy",
+        "id_1771826523473_q19f1l3",
+        "id_1771826523473_8lcbhqm",
+        "id_1771826523473_whbv4b6",
+        "id_1771826523473_5p6qml6",
+        "id_1771826523473_0o4lmd2",
+        "id_1771826523473_hfqi06t",
+        "id_1771826523473_8widqaw",
+        "id_1771826523473_eipvcmk",
+        "id_1771826523473_fzqhtcv",
+        "id_1771826523473_asb5usy",
+        "id_1771826523473_gb50cf4",
+        "id_1771826523473_s1ia5fx",
+        "id_1771826523473_l0tix0p",
+        "id_1771826523473_jxduvhf",
+        "id_1771826523473_1h330if",
+        "id_1771826523473_wrhwl7b",
+        "id_1771826523473_yoo7l6y"
+      ],
+      "数量关系": [],
+      "判断推理": [],
+      "资料分析": [],
+      "政治理论": [],
+      "常识判断": []
+    }
+  ],
+  "questions": {
+    "id_1771826523473_89ezv9a": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号1：在普通人看来,法律都是______的,自己一辈子都不会和法律打交道。但在瞬息万变的社会里,人们随时可能触及法律的红线。很多人平时法律观念和意识不强,柔性执法不仅可以起到______作用,而且有利于提高群众的学法懂法意识。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "高高在上 教育",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "高深莫测 预防",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "遥不可及 警戒",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "事不关己 提醒",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "第一空体现普通人觉得法律离自己远，“遥不可及”契合；第二空柔性执法对潜在违法行有警示作用，“警戒”合适，其余选项搭配或语义不符。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_89ezv9a",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_o2vys4e": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号2：植物科学画和摄影是完全不同的门类。我们有时候称赞照片,说它美得像幅画,但其实绘画和摄影在艺术上______。哪怕再好的画师,也无法像摄影那样全面______那一瞬间的景象;而有时候,摄影又无法像植物科学画那样表达出一棵绿绒蒿盛开时那种对生命和繁衍的渴望。摄影当然可以呈现某一物种的全貌,但是乍一看,特征不会那么明显,植物科学画则可以着重呈现物种特征,更加______。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "相辅相成 捕获 纤毫毕现",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "各擅胜场 凝固 栩栩如生",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "大相径庭 定格 有的放矢",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "各有千秋 还原 一目了然",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空指绘画和摄影各有优势，“各有千秋”符合；第二空摄影能还原瞬间景象，“还原”恰当；第三空植物科学画让物种特征清晰，“一目了然”契合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_o2vys4e",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_3ta5eg0": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号3：先秦儒学传世文献与出土文献中,存在着大量的引诗叙事。这些引诗叙事或因其义理方式不够“纯粹”,或因其文献形态不够“经典”,往往被______,甚至被忽视乃至遗忘其思想价值。然而这些引诗叙事,并不是先秦儒学诸子的______。研究先秦儒学的引诗叙事,是还原先秦儒学的原始生命、______先秦儒学的诗性智慧、彰显先秦儒学的中国哲学特质的重要路径。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "轻描淡写 率性而为 突出",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "一带而过 随意而为 昭示",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "弃如敝屣 随心所欲 揭示",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "熟视无睹 随其所宜 凸显",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空程度轻于“忽视”，“一带而过”合适；第二空指引诗叙事非诸子随意为之，“随意而为”契合；第三空“昭示”与“诗性智慧”搭配，体现彰显价值。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_3ta5eg0",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_osvjai5": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号4：我们在网上经常看见一些误导性消息,这些信息可能______,但其背后的操纵策略往往______。因此,对心理学家而言,它们都______,研究表明,让观众了解误导信息的操纵策略,就能帮助人们提升分辨误导信息的能力。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "五花八门 如出一辙 不过尔尔",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "千奇百怪 千篇一律 有迹可循",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "故弄玄虚 机关算尽 不足为奇",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "煞有介事 平平无奇 别有用心",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空形容误导信息样式多，“千奇百怪”契合；第二空指操纵策略套路相近，“千篇一律”合适；第三空指这些信息有规律可研究，“有迹可循”符合文意。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_osvjai5",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_k6bu2pi": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号5：识才爱才敬才用才,是我们党的优秀传统。我们必须积极营造尊重人才、______的社会环境,公正平等、竞争择优的制度环境,待遇适当、保障______的生活环境,为人才______钻研业务创造良好条件。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "唯才是举 合理 坚定不移",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "任人唯贤 全面 凝神聚力",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "求贤若渴 有力 心无旁骛",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "量才录用 完善 竭尽所能",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "第一空与“尊重人才”并列，体现对人才的渴求，“求贤若渴”契合；第二空“保障有力”为固定搭配；第三空“心无旁骛”形容人才专心钻研，恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_k6bu2pi",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_jvdal90": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号6：土壤中的蚯蚓、蚂蚁等动物和真菌、细菌等微生物被称为土壤生物,这些生物在土壤中并不是______,而是通过“吃”与“被吃”的关系建成一张食物网,在这一过程中,生物种类、数量和所占比例保持在相对稳定的状态,从而维持了土壤中的生物______。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "各行其是 稳定性",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "杂乱无章 多样性",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "相安无事 安全性",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "盘根错节 复杂性",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "B",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_jvdal90",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_ytcpuvg": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号7：没有中华文化沃土的滋养,就不可能有中国特色社会主义制度的______。我们过去对制度的实践基础强调比较多,对制度的文化支撑关注不够。其实,制度绝不只是一系列外在的______行为规范,还是内在的文化思维价值认同。这种文化不可能是外来的强加或移植,必须是内在的演化和______。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "勃勃生机 强制性 积淀",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "枝繁叶茂 约束性 渗透",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "历久弥新 指导性 转化",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "欣欣向荣 系统性 升华",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "第一空指制度的生命力，“勃勃生机”契合；第二空制度的行为规范具有外在强制属性，“强制性”合适；第三空文化的发展是内在积累，“积淀”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_ytcpuvg",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_at5k0eb": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号8：未成年人网络游戏防沉迷机制是否有效,不只取决于平台管控是否严格,也取决于是否存在其他______。对此,为绕开防沉迷机制而设计出来的种种方法,都应予以______清理和整治。对于落实未成年人保护责任,运营商唯有诚心正意而非______,才能真正完善未成年人网络游戏防沉迷机制。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "干扰 全面 口是心非",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "短板 严厉 漫不经心",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "盲区 彻底 虚张声势",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "漏洞 系统 虚与委蛇",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空指防沉迷机制的缺陷，“漏洞”契合；第二空“系统清理”体现整治的全面性；第三空与“诚心正意”相反，指假意应对，“虚与委蛇”合适。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_at5k0eb",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_vaqra7t": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号9：许多老大难问题之所以长期无解,重要原因是调查研究流于形式,导致情况吃得不透、病根找得不准。有的是“盲人摸象”式调研,眼中只有一个个孤立的“盆景”,得出的结论往往是______;有的是“刻舟求剑”式调研,对新情况多凭主观判断下结论,导致出台的政策______不强。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "以偏概全 针对性",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "老生常谈 科学性",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "一孔之见 时效性",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "闭门造车 可行性",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "第一空“盲人摸象”对应结论片面，“以偏概全”契合；第二空凭主观判断出政策，对问题的针对性不足，“针对性”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_vaqra7t",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_xywoqfs": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号10：守正是创新的前提,创新是守正的路径。守正不是______、循规蹈矩,而是守住本和源、根和魂;创新也不是凭空幻想、______,而是在把握事物发展规律的基础上充分发挥主观能动性。只有守正,才能恪守正道、______;只有创新,才能与时俱进、推陈出新。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "陈陈相因 纸上谈兵 正本清源",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "抱残守缺 天马行空 返璞归真",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "食古不化 向壁虚造 拨乱反正",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "墨守成规 恣意妄为 固本强基",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空与“循规蹈矩”并列，指守旧不变通，“墨守成规”契合；第二空与“凭空幻想”并列，指随意妄为，“恣意妄为”合适；第三空守正能稳固根本，“固本强基”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_xywoqfs",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_b96c0ef": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号11：构建新发展格局的关键在于经济循环的______,就像人们讲的要调理好统摄全身阴阳气血的任督二脉。经济活动需要各种生产要素的组合在生产、分配、流通、消费各环节有机衔接,从而实现循环流转。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "行之有效",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "环环相扣",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "畅通无阻",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "井然有序",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "由“各环节有机衔接、循环流转”可知，核心是经济循环没有阻碍，“畅通无阻”契合文意，其余选项未体现“流转顺畅无阻碍”的核心。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_b96c0ef",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_jx2l033": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号12：公正司法是维护社会公平正义的最后一道防线。在社会关系调节和纠纷解决中,司法具有______作用。党的十八大以来,我们着力深化司法体制改革,加快建设公正高效权威的社会主义司法制度。让人民群众与司法“零距离”,使公平正义更加可见、可感、可______。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "强制性 信任",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "预防性 贴近",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "指导性 实现",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "终局性 触及",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空“最后一道防线”体现司法的最终裁决属性，“终局性”契合；第二空与“零距离”“可见、可感”并列，指公平正义能被接触到，“触及”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_jx2l033",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_1dteomo": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号13：蜱虫具有恐怖的吸血能力,它会找到皮肤上隐蔽的角落______地吸血好几天,人却无法察觉。这是因为蜱虫的唾液就像鸡尾酒一样,由各种蛋白质______而成,其中一些让人不痛不痒,一些让血液不会凝固,还有一些保证不会______人的免疫系统。多种病原体便会趁机入侵人体。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "不声不响 搅拌 启动",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "堂而皇之 调配 惊扰",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "明目张胆 凝结 触发",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "有恃无恐 混合 唤醒",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空蜱虫毫无顾忌地吸血，“堂而皇之”契合；第二空唾液由蛋白质搭配而成，“调配”与“鸡尾酒”比喻呼应；第三空指不打扰免疫系统，“惊扰”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_1dteomo",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_vb27msb": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号14：“巴赫金对话”理论的概念经过西方社会学的发展,被______成一种克服现代性危机、重构认同与共同体的有效手段。具体到政治传播的______里,强调政府与公众的“垂直对话”,其本质是政府紧密围绕民生民意与社会需求,通过及时的信息公开______不确定性,弥合不同意见并最终确认共同价值的手段。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "推演 领域 消灭",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "演绎 语境 消弭",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "论证 情境 消损",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "归纳 环境 消解",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空理论被发展演绎为具体手段，“演绎”契合；第二空“政治传播的语境”为固定搭配；第三空“消弭不确定性”指消除疑虑，搭配恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_vb27msb",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_klk13oe": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号15：秦国的强大在一定程度上得益于都江堰水利工程。秦国蜀守李冰为解决岷江的泛滥问题,考其地势,采用中流作堰的方法,因势利导,成功制服______的岷江,将其分为内江和外江。如此______的工程布局,堪称人类水利史上的奇迹。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "波澜壮阔 出神入化",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "势不可当 鬼斧神工",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "一泻千里 匠心独具",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "桀骜不驯 巧夺天工",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空形容岷江泛滥难以驯服，“桀骜不驯”拟人化契合；第二空形容工程布局精巧，“巧夺天工”指人工技艺胜过天然，符合都江堰属性。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_klk13oe",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_6ubncsy": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号16：国潮正当时,是中国经济迅猛发展、文化自信不断增强的必然结果,这自然是让人欣喜的。但任何潮流,难免有______者,也不无泥沙俱下时。有一些创作者对国潮的理解出现偏差,剔除文化背后的历史语境与深刻内涵,将文化简化为民族符号的堆砌、传统元素的拼贴,浮于表面、______,缺乏真正的文化内涵。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "名不副实 走马观花",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "乘虚而入 囫囵吞枣",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "急功近利 不求甚解",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "浑水摸鱼 浅尝辄止",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空与“泥沙俱下”呼应，指趁潮流捞取利益的人，“浑水摸鱼”契合；第二空与“浮于表面”并列，指对文化理解不深入，“浅尝辄止”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_6ubncsy",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_8h7w2o0": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号17：近年来,以云计算、大数据、人工智能等技术引领的新一代数字化浪潮______。数字化转型按下“加速键”,数字技术应用深度和广度不断拓展,新技术新业态新模式______,数字经济日渐成为继农业经济、工业经济之后的新兴经济形态。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "汹涌澎湃 此起彼伏",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "浩浩荡荡 层出不穷",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "波澜壮阔 生生不息",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "气壮山河 方兴未艾",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空形容数字化浪潮规模大，“浩浩荡荡”契合；第二空指新事物不断出现，“层出不穷”符合技术发展的特点。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_8h7w2o0",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_fth0qp6": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号18：药品安全事关广大人民群众身体健康和生命安全。不筑牢药品的安全底线,安全根基不稳,再多的创新也是______。持续强化药品全生命周期质量监管,落实药品安全“四个最严”要求,才能有效______药品安全形势的总体稳定。药品安全是设计出来的,也是生产出来的,更是监管出来的。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "纸上谈兵 保障",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "徒劳无功 提升",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "空中楼阁 维护",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "本末倒置 控制",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "第一空指无安全基础的创新不切实际，“空中楼阁”契合；第二空“维护稳定”为固定搭配，体现保持药品安全形势的稳定状态。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_fth0qp6",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_8u6gphv": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号19：红树林的地下部分长期处于厌氧环境,减缓了根系和凋落物的分解速率,加速了碳埋藏速率。此外,红树林大多分布于沉积型海岸河口,由上游河流和海洋潮汐共同作用带来的大量外源性碳,被它们固定并快速沉积下来。这______的组合拳使得红树林成为海岸带蓝碳碳汇的主要贡献者。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "取长补短",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "标本兼治",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "开源节流",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "一举两得",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "红树林既通过自身机制减少碳分解（节流），又固定外源性碳（开源），“开源节流”精准概括这两种方式，其余选项未体现该双重特点。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_8u6gphv",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_sunf81j": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号20：所谓环境影响评价,是指对规划和建设项目实施后可能造成的环境影响进行分析、预测和评估,提出预防或减轻不良环境影响的对策和措施,进行跟踪监测的方法与制度。可以说,环境影响评价是控制环境风险的“______”,也是在发展中守住绿水青山的第一道防线,对协同推进经济高质量发展和生态环境高水平保护发挥着重要作用。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "预警机",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "安全阀",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "试金石",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "缓冲器",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "“第一道防线”体现环境影响评价对环境风险的防范保障作用，“安全阀”指保障安全的装置，契合文意，其余选项无“防护保障”之意。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_sunf81j",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_700cqrr": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号21：“木刻分水”是哈尼族在长期梯田农耕活动中形成的______分配水源的制度,具体做法是:根据沟渠所能灌溉的梯田面积,经过集体协商,确定每份梯田应得水量,刻在横木上,作为分配水源的尺子。哈尼人用其量水、分水,取之有度,用之有节,既体现出对大自然的崇敬,也实现了对水资源的______。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "公平 精打细算",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "便捷 物尽其用",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "科学 量入为出",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "精确 开源节流",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "第一空集体协商确定水量，体现分配的公平性，“公平”契合；第二空“取之有度，用之有节”体现对水资源的精细使用，“精打细算”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_700cqrr",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_kr4pxx8": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号22：大运河是一本很厚的书,厚到可以用上一个词--“______”。成千上万的人是这本书的作者,他们用智慧和汗水写了两千五百年。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "汗牛充栋",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "浩如烟海",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "卷帙浩繁",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "博大精深",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "将大运河比作书，“卷帙浩繁”形容书籍篇章多、篇幅长，契合“很厚的书”的比喻；A形容藏书多，B形容文献多，D形容内涵深，均不契合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_kr4pxx8",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_jxczryr": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号23：补齐公共服务短板,首先要善于发现深层次问题。要深入调研、综合分析、精准掌握,弄清问题的本质和关键,做到______。同时,补齐公共服务短板不是简单的打打补丁,也不会______。有一些短板和弱项是随着时代发展而凸显的系统性问题,只有通过推动经济社会高质量发展才能从根本上解决。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "循序渐进 一成不变",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "细致入微 完美无缺",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "一针见血 水到渠成",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "有的放矢 一劳永逸",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空弄清问题本质关键，指解决问题有针对性，“有的放矢”契合；第二空与“不是简单打补丁”呼应，指不能一次解决所有问题，“一劳永逸”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_jxczryr",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_3i1n0zh": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号24：应急情境下妥善治理谣言,考验的是应急处置能力的临场发挥,更是应急处置能力的建设。网络谣言治理主要有治标与治本两条路径,前者针对既成事实,______,即时奏效;后者侧重于“治未病”,______,久久为功。两条路径有机结合,方可有效遏制互联网谣言的生产与传播。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "亡羊补牢 曲突徙薪",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "双管齐下 未雨绸缪",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "惩前毖后 深谋远虑",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "补偏救弊 先发制人",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "第一空“治标”针对既成事实，指事后补救，“亡羊补牢”契合；第二空“治本”治未病，指事前预防，“曲突徙薪”指提前防范风险，恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_3i1n0zh",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_4jxkpyn": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号25：中国汉字经历岁月洗礼,______,如今已发展出成熟而多样的字体系统。随着科学技术的______,激光照排技术替代活字印刷,让汉字的传播方式发生了革命性变化,而数字媒体的______使汉字字体的设计迎来了质的飞跃。当我们以全新的视角重新审视汉字时,会发现其创新的设计方法如万花筒般千姿百态、绚丽多彩。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "久久为功 提升 创新",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "历久弥新 增长 融合",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "薪火相传 更迭 介入",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "厚积薄发 普及 应用",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "第一空汉字历经洗礼传承至今，“薪火相传”契合；第二空科学技术不断更新，“更迭”恰当；第三空数字媒体参与进来推动字体设计，“介入”符合文意。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_4jxkpyn",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_rlyzgwx": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号26：对于热议的“网约车订单饱和”情况不能______,部分城市部分时段或部分月份可能出现短暂性动态饱和,回归到市场供求来说,网约车平台的多少,尤其是网约车车辆的多少,最终还是取决于公众出行需求多寡。市场具有自主调节能力,相关部门适时______风险,对于动态调整市场供求关系也将发挥积极作用。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "简而言之 防范",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "一概而论 预警",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "予以臧否 调控",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "妄下结论 评估",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空指不能对饱和情况笼统判断，“一概而论”契合；第二空相关部门对市场风险提前警示，“预警风险”为固定搭配，恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_rlyzgwx",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_9gq00pa": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号27：宋词应该怎么读?传统的阅读,往往按词人生平和时代背景介绍、字词训诂、文意串讲、艺术赏析这样的程式进行,______,但读者跟文本、词人之间总有一层隔膜。如今也有不少创新性解读,加入各种大胆的演绎、戏说,能抓住读者的眼球,但往往偏离历史事实,消费古人,______。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "按部就班 追名逐利",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "分门别类 不伦不类",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "一板一眼 夸大其词",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "中规中矩 哗众取宠",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空传统阅读按固定程式进行，“中规中矩”契合；第二空创新解读博眼球、偏离事实，指用浮夸方式吸引关注，“哗众取宠”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_9gq00pa",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_pbn8n7i": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号28：电影黄金档期票房以及年度总票房在整个经济总量中占比不高,但电影产业的经济影响______,因为人们会通过这一数字,来______经济、社会的运转状况,尝试从中寻找规律、得到启发。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "毋庸置喙 分析",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "不容小觑 管窥",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "举足轻重 估量",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "兹事体大 洞察",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空指电影产业经济影响虽占比低但不可忽视，“不容小觑”契合；第二空指通过票房窥见经济社会状况，“管窥”指从小处看整体，恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_pbn8n7i",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_4la0xhd": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号29：马克思主义中国化时代化这个重大命题本身就决定,我们决不能抛弃马克思主义这个魂脉,决不能抛弃中华优秀传统文化这个根脉。______好这个魂和根,是理论创新的基础和前提。理论创新必须讲新话,但不能丢了老祖宗,______就等于割断了魂脉和根脉,最终会犯失去魂脉和根脉的颠覆性错误。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "维系 见异思迁",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "培育 崇洋媚外",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "保护 喜新厌旧",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "坚守 数典忘祖",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空与“不抛弃”呼应，指坚定守护魂和根，“坚守”契合；第二空与“丢了老祖宗”呼应，指忘掉本源，“数典忘祖”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_4la0xhd",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_vp06hwv": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号30：越来越多的古籍向公众开放,得益于古籍数字化的不断推进。对古籍进行数字化______,不仅方便学者研究,也能降低普通读者接触古籍的门槛。在数字技术条件下,开放共享的资源规模更庞大,渠道也更便捷,有利于实现古籍与数字化时代______,比如,在“中华古籍资源库”平台,公众无需注册登录,就可以直接阅览敦煌遗书等珍贵资料。不只是国内的古籍,那些流布海外、国内缺藏的珍贵汉籍,其数字化______也令人期待。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "改进 融合 阐释",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "升级 协同 完善",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "革新 适应 发展",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "转换 共振 回归",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空指将古籍转化为数字形式，“转换”契合；第二空指古籍与数字化时代相融共生，“共振”体现相互呼应；第三空海外汉籍数字化后重回国内视野，“回归”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_vp06hwv",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_a0wmu7n": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号31：“报得准”是气象监测预报预警的生命力。天气预报准确率高,防灾减灾才能______,为有关部门正确决策提供科学客观的支撑,应急处置才能有力有效。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "有条不紊",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "有的放矢",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "全力以赴",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "万无一失",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "准确率高让防灾减灾有明确的目标和方向，“有的放矢”指做事有针对性，契合文意，其余选项未体现“精准对应灾害”的特点。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_a0wmu7n",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_hccjwbw": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号32：年轻干部要提高抓落实能力。干事业不能做样子,必须脚踏实地,抓工作落实要以上率下、______。特别是主要领导干部,既要带领大家一起定好盘子、理清路子、开对方子,又要做到重要任务亲自部署、关键环节亲自把关、落实情况亲自督查,不能高高在上、______,不能只挂帅不出征。干事业就要有钉钉子精神,抓铁有痕、踏石留印,______向前走,过了一山再登一峰,跨过一沟再越一壑,不断通过化解难题开创工作新局面。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "一马当先 刚愎自用 披荆斩棘",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "真抓实干 凌空蹈虚 稳扎稳打",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "掷地有声 好高骛远 久久为功",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "责无旁贷 坐而论道 兢兢业业",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空与“脚踏实地”并列，指实实在在做事，“真抓实干”契合；第二空与“亲自部署、把关”相反，指脱离实际，“凌空蹈虚”恰当；第三空与“钉钉子精神”呼应，指一步一个脚印，“稳扎稳打”合适。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_hccjwbw",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_4navkae": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号33：“AI考官”面对的大多是互联网时代的“原住民”,他们伴随着互联网一起成长,______于线上授课、经历过线上招聘,早就习惯了互联网上的生活。尽管年轻人对AI面试的接受程度普遍较高,但仍有不少人对此表示不适应。缺乏互动性只是其中原因之一,除此之外,屏幕上的倒计时提示、面对镜头时的紧张和惶恐,都是一些年轻人对“AI考官”______的现实因素。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "熟稔 望而生畏",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "沉浸 心有余悸",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "习惯 惊慌失措",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "适应 局促不安",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "第一空与“习惯了”呼应，指对线上授课很熟悉，“熟稔”契合；第二空指年轻人因紧张惶恐对AI面试有畏惧心理，“望而生畏”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_4navkae",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_s8x3abr": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号34：音乐诗画《听此青绿--乐咏千里江山》以十三幅______图景展现传世名画《千里江山图》中的景观和风情,借鉴《高山流水》《渔舟唱晚》《梅花三弄》等古曲的艺术表达,融合编钟、箜篌、筑等民族乐器和西洋铜管乐,加入绘画、书法、意境化舞蹈等表现方式,为千山万壑、江河交错的盛景注入______而深邃、浑厚而轻盈的悠远神韵。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "壮丽 磅礴",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "华丽 壮阔",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "宏伟 清雅",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "绮丽 恢宏",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "第一空形容《千里江山图》的图景雄伟壮丽，“壮丽”契合；第二空与“深邃”“浑厚”呼应，形容神韵气势大，“磅礴”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_s8x3abr",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_zk29fl9": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号35：“读万卷书,行万里路”虽是明代董其昌提出的观点,但却是中国历代许多文人所______的。在没有现代交通工具的古代,文人在著书立说之外,用简易的交通工具和双脚丈量大地,给我们留下了丰厚的文化遗存。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "推崇备至",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "身体力行",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "全力以赴",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "孜孜以求",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "后文文人亲自丈量大地的行为，体现对该观点的亲身实践，“身体力行”指亲身去做，契合文意，其余选项仅体现态度，未体现行动。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_zk29fl9",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_n8frjv9": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号36：睡眠经济的崛起,会让我们睡得更好吗?虽然尚未有严谨的统计或研究,但就日常体验来说似乎______。在铺天盖地的睡眠经济营销中,在医学话语的叙事下,在各类助眠产品成为睡眠这件事的“神助攻”中,睡眠成为一种稀缺而宝贵的资源,反倒更加______了人们的睡眠焦虑。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "差强人意 唤起",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "乏善可陈 催生",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "事与愿违 凸显",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "适得其反 放大",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空睡眠经济本应助眠，却让睡眠成稀缺资源，指结果与预期相反，“适得其反”契合；第二空指让睡眠焦虑更严重，“放大”恰当体现程度加深。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_n8frjv9",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_t2obc2l": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号37：数字经济事关国家发展大局,服务好数字经济发展,金融业______。抓住机遇,赢得主动,金融业要放手拥抱数字经济时代,把握数字经济发展趋势和规律,把更多金融资源配置到数字经济发展的前沿领域、关键环节和重要产业,不断为中国经济高质量发展增添新动能、培育新优势。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "责无旁贷",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "机不可失",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "义不容辞",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "大有可为",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "数字经济关乎国家大局，金融业有责任为其服务，“责无旁贷”指应尽的责任不能推卸，契合文意；C侧重道义上的责任，此处为行业职责，更适合用A。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_t2obc2l",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_ggprnjg": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号38：从语言学角度来说,词反映的是人们对客观世界的认知结果,由于认知具有明显的主观性,所以不同的人对同一事物的认识就有可能存在明显差异。“美”与“丑”、“胖”与“瘦”等概念区分,体现的就是人们对所表达对象的不同看法和评价,“短”亦如此。2014年,中国科协开展“公众喜爱的科普作品”推介活动,短视频时长要求为30秒至20分钟。8年来,各场次大赛、不同平台先后对短视频作出“自定义”,截至目前仍未能形成完全统一的观点,这也侧面证明人们对短视频的“短”的______差异之大。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "判断标准",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "量化指标",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "个性解读",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "主观认识",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "前文强调认知的主观性，后文对短视频“短”的定义不统一，正是这种主观认识差异的体现，“主观认识”与前文呼应，契合文意。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_ggprnjg",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_0yirl2l": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号39：要解决一个大问题,往往要有好的工具。工具的发展是一个______的过程,新工具能够促进学问的继续发展,提升我们看待问题的深度,又反过来促进我们进一步发展工具。每一次工具的进步,都会带动有意义的、重要的、突破性的学问的发展。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "锦上添花",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "精益求精",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "千锤百炼",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "精雕细琢",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "工具发展是不断完善、变得更好的过程，且新工具又推动工具进一步发展，“精益求精”指追求更好，契合这一持续提升的过程。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_0yirl2l",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_atlvk55": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号40：通常深度大于6000米的深海被称为深渊,科学家认为其有着______的科考和科研价值。下潜到1万米深度,相当于在1个手指甲大小的面积上承受约1吨的重量。气压、光照、盐度的逐级变化,造就了地球这个最深处的特殊性。在此开展科学研究,能够获取地球物理、地质构造等______的科学资料。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "不可替代 独一无二",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "无与伦比 不胜枚举",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "难以估量 丰富多彩",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "前所未有 错综复杂",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "第一空深渊的特殊性使其科考价值无法被取代，“不可替代”契合；第二空深渊的独特性让获取的资料是独有的，“独一无二”与“特殊性”呼应，恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_atlvk55",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_1q5a6yk": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号41：一款零食以前能靠独特口味畅销十几年,这在今天几乎是天方夜谭。新爆款横空出世,模仿者很快______,消费者的新鲜感被迅速透支。当朝生暮死成为网红食品的常态,相比于______的零食巨头,轻资产的中小品牌反而更容易在时代变幻莫测的风向中______。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "蜂拥而至 尾大不掉 闪转腾挪",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "后来居上 作茧自缚 捷足先登",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "青出于蓝 因循守旧 稳操胜券",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "龙争虎斗 老气横秋 脱颖而出",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "第一空爆款出现后模仿者纷纷到来，“蜂拥而至”契合；第二空零食巨头体量大连转困难，“尾大不掉”恰当；第三空中小品牌灵活应对变化，“闪转腾挪”体现灵活性。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_1q5a6yk",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_yydq6j4": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号42：AI(人工智能)的技术内核虽然______,但“模拟人类智慧”这一理念本身却并不______。因此,该理念就很容易被一些______的思想先驱者转化为一些艺术形象,由此形成对于技术形态本身的“抢跑”态势。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "深奥 超前 敏感",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "先进 抽象 前卫",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "艰深 晦涩 敏锐",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "高端 艰涩 睿智",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "第一空形容技术内核难懂，“艰深”契合；第二空理念并不难理解，“晦涩”指隐晦难懂，否定后契合文意；第三空思想先驱者能敏锐捕捉理念，“敏锐”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_yydq6j4",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_sa28hw1": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号43：地方政府要以民众利益、公共利益、国家利益为重,不能只追求短期利益,只追求政绩,而做出______的事情来,对官员的政绩考核、对政府的绩效评估,更要注重民生,注重社会的长远发展。这样才能从根本上避免破坏可持续发展大局、损害民众利益等“______”现象的继续发生。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "本末倒置 抱薪救火",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "饮鸩止渴 掩耳盗铃",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "扬汤止沸 移花接木",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "竭泽而渔 杀鸡取卵",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空指追求短期利益损害长远发展，“竭泽而渔”契合；第二空与“破坏可持续发展”呼应，指为眼前利益牺牲长远，“杀鸡取卵”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_sa28hw1",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_c4zh1s4": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号44：推动长江经济带发展,必须加快新旧动能转换。这既需要有破的勇气,敢于“______”,破除旧的落后产能;也要有立的智慧,善于“腾笼换鸟”,培养新的绿色产能。破除旧动能与培育新动能______、相辅相成。只有______破除无效产能,才能给新产业发展创造条件,增加有效供给。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "脱胎换骨 齐头并进 果断",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "破釜沉舟 互为表里 直接",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "另起炉灶 双管齐下 彻底",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "壮士断腕 并行不悖 坚决",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "C",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_c4zh1s4",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_pbrikg1": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号45：开展未成年人网络环境整治,势在必行且______。网络上可能存在的色情、暴力、过度娱乐等有害信息,会对普遍拥有智能设备、全面触网的未成年人产生潜移默化的不良影响。只有______清朗洁净的网络空间,才能让青少年健康成长。实现这一愿景,需要发挥多主体多领域联动优势,______合力,撑起清朗网络蓝天。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "蓄势待发 创设 形成",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "刻不容缓 营造 凝聚",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "迫在眉睫 构筑 集成",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "任重道远 共建 汇聚",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空与“势在必行”呼应，指整治刻不容缓，“刻不容缓”契合；第二空“营造网络空间”为固定搭配；第三空“凝聚合力”为固定搭配，恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_pbrikg1",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_b5bx81o": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号46：干部一定要知敬畏、存戒惧、守底线,敬畏党、敬畏人民、敬畏法纪,不能在“月黑风高无人见”的______中乱了心智,不能在“你知我知天知地知”的花言巧语中迷了方向,不能在“富贵险中求”的侥幸心理中铤而走险,不能在“法不责众”的错误认识中______。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "威逼利诱 误入歧途",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "自欺欺人 恣意妄为",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "欲盖弥彰 徇私枉法",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "掩耳盗铃 渐行渐远",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空“月黑风高无人见”指自以为无人知晓的自欺行为，“自欺欺人”契合；第二空与“铤而走险”呼应，指肆意妄为，“恣意妄为”恰当。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_b5bx81o",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_vmuxju9": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号47：时至今日,人工智能已经在音乐、绘画、棋艺等方面取得了______的进步,之所以在文学创作领域比较______,也从另一方面______了文学是人类最高智慧的结晶之一。人类读者对有意义的书面语中大量的句法和语义有更强的感知能力。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "叹为观止 滞缓 证实",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "令人惊叹 滞后 验证",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "令人瞩目 落伍 明确",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "有目共睹 迟缓 证明",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一空形容AI的进步让人惊讶，“令人惊叹”契合；第二空指AI在文学创作领域发展落后，“滞后”恰当；第三空用这一现象证明文学的价值，“验证”指通过事实证实，合适。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_vmuxju9",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_zhs117h": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号48：许多自媒体采取“流量至上”的经营模式,为追求流量,可能并不会审查所推送的信息是否失真,但对于大量面临“信息茧房”障碍的读者来说,一般不会去思考和辨别言论的真伪,即便有疑虑也难以去辨别,所以,实践中______的情形较多。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "偏听偏信",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "亦步亦趋",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "人云亦云",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "盲从盲信",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "读者不辨别信息真伪，即便有疑虑也跟着相信，“盲从盲信”指盲目跟从、相信，精准概括该行为；A侧重偏听一方，C侧重跟着别人说，均不如D契合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_zhs117h",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_x4elqhp": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号49：通过拓展农业多种功能、挖掘乡村多元价值,重点发展农产品加工、乡村休闲旅游、农村电商等乡村产业,推进农村一、二、三产业______发展。科学布局生产、加工、销售、消费等环节,形成县城、乡镇、中心村分工合理的产业空间结构,打造城乡______的优势特色产业集群。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "融合 联动",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "错位 联结",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "协同 联合",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "集聚 联手",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "第一空指农村一二三产业相互融合发展，“融合”契合；第二空指城乡产业相互配合、联动发展，“联动”恰当体现相互协作的关系。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_x4elqhp",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_c6ewq1g": {
+      "category": "言语理解",
+      "subcategory": "逻辑填空",
+      "source": "2025郭熙100题",
+      "content": "题号50：国家文化公园的建设将展示最具有独特性、生命力、影响力和传播力的文化______,人们在游览体验中感受文化、领悟文化,进而增强文化自信心和提升文化认同感,在心意相通里让文脉______流淌。在这一过程中国家文化公园实现了文化资源保护、利用和传承的统一。\n依次填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "风景 永远",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "地标 持续",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "景物 长远",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "景观 永续",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "第一空指文化展现的景象和景观，“景观”契合；第二空文脉的流淌是永久持续的，“永续”指永久延续，比“永远”“持续”更契合文脉传承的语境。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_c6ewq1g",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_vzbotg7": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号51：要推动老旧小区的适老化改造和无障碍环境建设,关键是提升整个社会对适老化改造的思想认识,实现适老化改造特别是居家适老化改造“心理无障碍”。要多渠道、全方位宣传引导居家适老化改造的政策与价值,转变老人、子女和社会对居家适老化改造的认知;同时,要通过养老服务中心、居家养老服务中心等载体,打造居家适老化改造样板房,强化直观感受,转变老人的传统观念,让老人逐步形成“为养老服务买单”、让子女形成更加关注父母居家养老环境的社会意识,提升适老化改造的家庭主观能动性。\n这段文字强调要：",
+      "options": [
+        {
+          "label": "A",
+          "text": "平衡主体利益,因地制宜推动适老化改造",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "统筹各方资源,激活适老化改造的多元力量",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "补位标准规范,提升适老化改造的品质与效率",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "加强宣传引导,做到适老化改造“心理无障碍”",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "文段首句点明核心：推动适老化改造的关键是提升思想认识，实现“心理无障碍”，后文具体阐述宣传引导的方式，均围绕核心展开，D项精准概括主旨。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_vzbotg7",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_9jxtbch": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号52：从行政管理链条看,制度建设处于前端,行政复议处于末端。行政复议案件的产生,必然经过一般性行政管理规定、行政机关具体实施、产生具体行政行为、不服行政行为申请行政复议等环节。每个复议案件或多或少反映了行政管理中存在的问题。行政机关,特别是作为行政复议被申请人的行政机关,要善于“抓末端、治已病”。如果是个案具体实施问题,可以个案纠正;如果是制度性、普遍性问题,则要对制度进行查漏补缺;如果是制定制度时不曾预见的新问题,更要予以关注,适时进行规范,避免小问题变成大问题。\n作者通过这段文字想说的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "善用行政复议可以提升行政管理水平",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "对行政复议案件要具体问题具体分析",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "行政管理链条是环环相扣的有机整体",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "行政复议案件是行政管理问题的外化",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "文段指出行政复议案件反映行政管理问题，行政机关应通过处理复议案件，针对性解决不同类型问题，最终提升行政管理水平，A项为文段核心意图；B、D为文段细节，C非重点。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_9jxtbch",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_olo4g4a": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号53：个人信息保护案件往往涉及非法收集、获取、提供、出售、购买、使用个人信息等多个环节,责任主体除了已被追究刑事责任的犯罪者外,还可能包括下游的违法处理信息者。在民事公益诉讼案件办理中,是否可以连带追究下游违法者的赔偿责任,在司法实践中存在争议。根据民法典,认定连带责任必须遵循法定或约定原则,在此原则指导下,个人信息保护法规定了共同处理者的连带责任。因此,当不同侵权主体主观具有共同过错,客观上实施了共同侵害个人信息权益的行为时,可以依法追究各侵权人的连带责任。\n关于个人信息保护案件,作者认为：",
+      "options": [
+        {
+          "label": "A",
+          "text": "应该强化对犯罪者民事责任的追究",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "应当依法追究下游违法者的赔偿责任",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "认定连带责任须在法定原则指导下进行",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "法律应明确案件中各侵权人的相关责任",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "B",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_olo4g4a",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_51byqnz": {
+      "category": "言语理解",
+      "subcategory": "标题填入",
+      "source": "2025郭熙100题",
+      "content": "题号54：最高人民法院对近年来生效裁判进行系统化、常态化梳理,深入总结提炼在审理过程中形成的价值理念、司法经验和裁判规则,推动形成体系完备、门类齐全、科学权威、便捷适用的裁判要旨提炼编撰体系。最高人民法院还出台了法律适用分歧解决机制的实施办法和统一法律适用工作实施办法,有效解决生效裁判之间存在的法律适用分歧问题,创新“点对点”法律适用分歧解决机制,推动法律适用分歧解决机制运行更加精准有效、灵活快捷,切实防止司法正义因地域、城乡、行业差异而打折扣。\n最适合做这段文字标题的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "统一裁判尺度,维护社会公平",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "以法律适用统一提升执法水平",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "用良法善治夯实法治之基",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "消除“同案不同判”迫在眉睫",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "文段主要讲最高法通过梳理裁判、出台办法等方式统一法律适用，解决裁判分歧，避免司法正义打折扣，核心是“统一裁判尺度，维护公平”，A项契合主旨；B“执法水平”偷换概念，C无中生有，D“迫在眉睫”非文段语境。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_51byqnz",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_sjta2ek": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号55：草原生态系统通过生物多样性,发挥着支持、供给、调节等服务功能:土壤形成、水文、生物代谢、化学循环以及其他生态学过程,都是由草原生物多样性参与和支撑的;草原持续为我们供应大量动物产品(如畜产品)和植物产品(如食品、药品等),河流和湖泊的淡水也有赖于草原涵养水源的功能;草原上的植物通过蒸腾作用、光合作用,调节气候,还可配合土壤发挥调蓄作用。\n这段文字意在说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "草原生态系统具有生物多样性",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "草原具有涵养水源的重要作用",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "草原与我们日常生活密不可分",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "草原植物具有降温和调蓄作用",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "文段首句总述草原生态系统通过生物多样性发挥多种服务功能，后文分述其在生态支撑、产品供给、气候调节等方面的作用，均体现草原对人类生活和生态的重要性，C项全面概括；A为前提，B、D为分述细节。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_sjta2ek",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_zzr1gew": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号56：在历史长河中,敦煌始终以中华传统文明为根基,不断吸纳着来自其他地域和民族的文明成果。早在公元前2000年前后,属于青铜时代的四坝文化火烧沟类型的先民,就已经开始了对敦煌地区的开发。前121年汉武帝开疆扩土,敦煌地区正式纳入汉王朝版图,为西域的经营拉开了序幕,进而使中西交流成为汉王朝的国家行为。前111年设敦煌郡以后,不少内地的世家大族迁入敦煌定居,这些世家大族带来的中原文化与当地少量原居民所积淀的与西域、中亚千丝万缕的文化因素,共同构成坚实的汉晋敦煌文化土壤。\n这段文字意在说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "敦煌文化始终传承着中华传统文化的精华",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "敦煌是了解异域文明和文化交融的窗口",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "敦煌文化是各种文明长期交流融汇的结晶",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "敦煌地区向来具有与时俱进的文化基因",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "文段首句点明核心：敦煌以中华传统文明为根基，吸纳其他地域民族文明成果，后文以历史史实佐证这一观点，最终形成敦煌文化，C项精准概括主旨；A仅提中华传统文化，片面；B非核心，D“与时俱进”无中生有。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_zzr1gew",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_g2y7tj1": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号57：对旅游城市而言,游客的口碑就是发展的生命线。优化旅游环境,提升服务质量,让每一位游客安心旅游、放心消费,是打造高水平旅游业的关键。把精细化治理的“麻烦”留给自己,把畅快出游的方便留给游客,定能不断增强旅游吸引力、产业竞争力,更好谱写旅游高质量发展新篇章。\n这段文字意在说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "旅游城市的生命力在于不断地优化环境",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "旅游城市需以精细化治理提升服务质量",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "好的游客口碑对旅游城市发展至关重要",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "游客的感受是影响旅游发展的重要因素",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "文段先强调口碑和服务质量的重要性，核心落脚点在“精细化治理”，指出通过精细化治理提升游客体验，实现旅游高质量发展，B项为核心意图；A、C、D均为铺垫，非重点。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_g2y7tj1",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_r3gpq31": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号58：对文字信息被对方立即回复的期待,移植于面对面交谈里彼此及时回应的规则。但将现实规则转换到线上双方并不容易。交流不仅需要信息,还需要双方的面部表情、肢体语言、用词停顿、语音语调等等,这些现实里的“语境”是文字信息难以传达的。这时候,作为为数不多的语境--每条信息的间隔--就显得意味深长,特别是当我们认为对方有能力支配回复时机时。\n这段文字意在说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "面对面交流中的“语境”难以移植到文字交流中",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "文字交流中每条信息的间隔对信息交流影响较大",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "交流时的肢体语言表达比文字的信息更重要",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "文字信息交流的“语境”是每条信息的间隔",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "文段先指出线上文字交流难以传达现实语境，后强调信息间隔作为线上为数不多的语境，意义重大",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_r3gpq31",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_d0troq5": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号60：我国经济已由高速增长阶段转向高质量发展阶段,这是一个重要转变。一个时期以来,传统投资驱动的经济增长模式已经难以为继,同时经济全球化遭遇逆流,大进大出的环境条件已经变化,不可能单纯依靠出口实现经济发展质的提升。因此,必须根据我国经济发展实际情况,建立起扩大内需的有效制度,特别是要更好更充分释放消费潜力。消费作用的不断强化,能有效降低我们对出口和投资的依赖,有利于经济长远发展,促进经济内外平衡发展,实现提质增效。\n这段文字意在说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "高质量的经济发展需重点平衡好质与量的关系",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "单纯依靠出口实现经济发展的模式亟待改变",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "释放消费潜力有利于推动经济高质量发展",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "优化扩大内需制度是经济长远发展的关键",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "文段先指出经济发展阶段转变及传统模式、外部环境的变化，进而得出核心结论：需释放消费潜力，后文阐述消费潜力释放的意义，核心围绕“释放消费潜力与经济高质量发展”展开，C项精准概括；A无中生有，B、D为部分前提或细节。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_d0troq5",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_xh0n577": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号61：社会心理学先驱所罗门·阿希通过一系列著名的阿希从众实验证明,即使是判断“三段线段谁最长”这样的简单任务,人们的回答也会受到他人的强烈影响,进而在并无胁迫的情况下服从某种群体规范。人们为什么会服从规范?这可能源于群体中的个人害怕被其他成员视为“一匹离群之马(越轨者)”而遭到孤立。人的这种顺从行为在动物身上也有所体现。比较心理学家本内特·加利夫的研究发现,挪威大鼠会忽视自己的偏好转而选择同伴偏爱的食物味道,尽管有时这种味道并不怎么好。\n这段话所要表达的中心思想是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "人的行为活动容易受到他人的影响",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "离群之马都会遭到社会群体的孤立",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "人们在无胁迫下往往会服从群体规范",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "挪威大鼠会忽视自己偏好而选择顺从",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "C",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_xh0n577",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_xbvxzc6": {
+      "category": "言语理解",
+      "subcategory": "标题填入",
+      "source": "2025郭熙100题",
+      "content": "题号62：开发前沿技术应用场景的实践价值在于,通过将前沿技术落地转化为生产力。高技能人才的可贵之处不在于突破核心技术,而在于为产业痛点、难点问题找到核心技术的最佳实践运用场景。例如,将智能技术引入水、电、煤等公用事业领域,但不同行业在应用场景选择上存在差异,电力企业重点推进智能电网建设,燃气行业的建设重点是智能表具系统……这些前沿技术的应用场景不是原始创新,而是技术的跨界融合,需要一线技术人员基于行业特点寻找适合的前沿技术实现赋能和融合。\n最适合做这段文字标题的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "智能技术的开发与利用具有行业选择性",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "技术落地的基础--突破创新,跨界融合",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "找准问题--开发前沿技术应用场景的核心",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "高技能人才--前沿技术应用落地的“嫁接者”",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "文段核心强调高技能人才在前沿技术应用场景落地中的关键作用——找到最佳实践场景、实现技术跨界融合，D项以“嫁接者”比喻高技能人才的衔接作用，契合主旨；A、B、C均未突出“高技能人才”这一核心主体。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_xbvxzc6",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_mgupy73": {
+      "category": "言语理解",
+      "subcategory": "标题填入",
+      "source": "2025郭熙100题",
+      "content": "题号63：随着大数据、物联网、云计算等现代智能技术的发展,人类社会进入了智慧治理时代。智慧治理对于推进国家治理体系和治理能力现代化具有重要现实意义。当前正在推进的智慧治理面临治理效率低下、数据信息安全存在隐患等困境和风险。对智慧治理面临新任务新期待的理论认识不足、主动适应不够,以及过度依赖智能技术对智慧治理的定位不准是导致困境和风险的重要原因。解决智慧治理中存在的问题,需要实现从智能技术赋能到技术融合的转变,理念融合、过程融合及目标融合是实现这一转变的重要路径。\n假如这是一篇文章的摘要,那么这篇文章的标题可能是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "迈向技术融合的智慧治理",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "理论认识不足制约智慧治理",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "智能技术赋能的智慧治理路径",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "智慧治理存在的问题及成因分析",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "文段先介绍智慧治理的意义、困境及成因，核心落脚点在“解决问题的路径——实现技术融合”，A项契合“智慧治理”与“技术融合”的核心关联；B、D仅涉及问题和成因，C偏离“技术融合”的核心对策。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_mgupy73",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_9h8zi26": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号64：中华民族自古崇尚读书,讲究格物致知、诚意正心。我们走过书信时代,经过电邮时代,来到读“屏”时代,网页挤占书页,“输写”代替书写。我们无法回到“从前慢”的过去,但也不能丢失知识的传承、文化的涵养、精神的赓续。加强数字资源平台建设,开展青少年学生读书活动,是把数字技术这一“最大变量”转化为阅读提质“最大增量”的关键一招。\n这段文字意在强调：",
+      "options": [
+        {
+          "label": "A",
+          "text": "提供优质数字化阅读资源势在必行",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "数字阅读是青少年阅读的重要方式",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "数字化阅读时代更要重视文化传承",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "数字化技术是影响阅读的最大变量",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "A",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_9h8zi26",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_jcq3j9k": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号65：公共法律服务是全面依法治国的基础性、服务性和保障性工作,承担着为全民提供法律知识普及以及教育和法治文化活动等职能。随着经济社会发展,人们法律意识增强,服务需求增长,但公共法律服务体系建设中发展不平衡、设施不完善的短板日益凸显,一些地区尚存在法律服务资源紧张、人才经费保障不足、公众知晓率低等问题。因此,建设法治社会,亟待加快建设覆盖城乡、便捷高效、均等普惠的现代公共法律服务体系,提升法律服务的社会公信力,让人民群众共享公共法律服务成果。\n这段文字意在强调：",
+      "options": [
+        {
+          "label": "A",
+          "text": "全面依法治国,离不开现代公共法律服务体系建设",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "健全的公共法律服务体系有利于法律意识的增强",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "公共法律服务体系建设,要注重弥合地区发展鸿沟",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "应以人民群众需求为导向,建设公共法律服务体系",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "文段先阐述公共法律服务的重要性及当前存在的问题，进而得出核心结论：建设法治社会需加快完善现代公共法律服务体系，A项体现“依法治国”与“公共法律服务体系”的核心关联；B因果倒置，C为部分问题的对策，D未突出“法治社会”的核心背景。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_jcq3j9k",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_qihjqne": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号66：国家实施文化数字化战略,出发点和落脚点之一都是为了满足人民日益增长的精神文化需要,这也决定了,尽管文化数字资源可以在市场上“开展数据交易”,但也要依法依规向民众开放,公共文化资源数据开发后的交易也要把社会效益放在首位。文化是实现共同富裕的重要变量,数字化无疑为这个变量增加了权重,文化数字化战略秉持以人为本、全民共享,坚持以文化公平促共同富裕。\n这段文字意在强调：",
+      "options": [
+        {
+          "label": "A",
+          "text": "文化数字化是人们精神文化需求的结果",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "文化资源数据的开发与交易要以人为本",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "文化数字化所带来的利益应由民众共享",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "数字化是促进民众共同富裕的新动力",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "文段核心强调文化数字化战略的核心是“以人为本、全民共享”，数据交易需兼顾社会效益，最终实现共同富裕，C项契合“利益共享”的核心；A为背景，B未突出“共享”，D偏离“文化数字化”核心。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_qihjqne",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_kjgqx77": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号67：汉代农业生产水平逐渐提高,生活物资较为丰富,上层社会在饮食上更加考究,饮食文化随之蓬勃发展。这一时期,烹饪技艺也大幅提升,尤其是中原地区与周边民族的饮食文化交流频繁,一些新的烹饪方法如“羌煮貊炙”即被引入。“羌煮”即煮或涮羊肉、鹿肉;而“貊炙”则类似于烤全羊,较之中原烤法,所烤之物更大。《释名》中说:“貊炙,全体炙之,各自以刀割,出于胡貊之为也。”“羌煮貊炙”做出的肉食,鲜嫩味美,此类烹饪方法在黄河流域逐渐流传开来,受到人们的青睐。\n这段文字重在说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "社会发展是汉代饮食文化蓬勃发展的重要因素",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "“羌煮貊炙”一词是胡汉饮食文化交流的表征",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "汉代中原地区吸收了不少其他民族的烹饪方法",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "汉代烹饪技艺的提升与民族文化交融密切相关",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "文段先指出汉代饮食文化蓬勃发展，核心强调烹饪技艺提升的重要原因是“中原与周边民族的饮食文化交流”，“羌煮貊炙”是具体例子，D项全面概括“烹饪技艺提升”与“文化交融”的关联；A为部分原因，B、C为例子层面的细节。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_kjgqx77",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_jg5l2jd": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号68：大脑腺苷是细胞耗能后的产物。当我们一觉醒来认真工作时,由葡萄糖等物质合成的三磷酸腺苷会为大脑提供能量,供能过程中,三磷酸腺苷会逐级水解为二磷酸腺苷和单磷酸腺苷,并最终水解为大脑腺苷。大脑腺苷会抑制下丘脑中神经元的兴奋水平,催促神经系统进入睡眠状态,大脑腺苷积累得越多,人越感到困倦。一般来说,当我们晚上睡觉时,大脑会自动清理腺苷。当我们紧张工作时,大脑的高强度运转会让人暂时保持清醒,一旦忙完工作,进入一个相对安静的环境,此时为大脑清理腺苷提供了舒适的环境,人的困意便越来越浓。\n这段文字主要回答的问题是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "大脑腺苷是怎么产生的",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "为什么忙完工作安静下来会犯困",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "如何让大脑保持清醒的工作状态",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "大脑腺苷是怎么影响人的睡眠的",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "文段详细解释了大脑腺苷的产生、作用机制，核心落脚点在“忙完工作后安静环境下，大脑清理腺苷导致困意”，B项是文段最终要回答的核心问题；A、D为解释过程中的细节，C无中生有。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_jg5l2jd",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_bwcluye": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号69：影视作品凝结的不只是创作者们的灵感和创意,还有时代文化形成的集体无意识的投射和缩影。就影视作品而言,一方面,对社会文化的传承来说,经典作品承载着丰厚的文化价值,对经典的重复呈现既是一种文化延续,也是一种文化确认,与我国传统文化联系密切的经典影视作品尤为如此。另一方面,对影视文化的发展来说,经典作品原有版本的魅力会逐渐褪色,用新的视听技术、新的时代美学和新的演员演绎将经典重新阐释一遍,则是赋予这些作品与时俱进的新生命力,其本身是重塑经典甚至创造新经典的过程。\n这段文字主要说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "经典影视作品生命力的来源",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "对待经典影视作品的正确态度",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "经典影视作品与传统文化的关系",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "新时代翻拍经典影视作品的意义",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "D",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_bwcluye",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_h64mh1s": {
+      "category": "言语理解",
+      "subcategory": "标题填入",
+      "source": "2025郭熙100题",
+      "content": "题号70：科学家门捷列夫说:“科学是从测量开始的。”“现代热力学之父”开尔文有一条著名结论:“只有测量出来,才能制造出来。”人类科学研究的革命,工业制造的迭代升级,都离不开测量技术的精进。在当代科技和工业领域,高水平的精密测量技术和精密仪器制造能力,是一个国家科学研究和整体工业领先程度的重要指标,更是发展高端制造业的必备条件。随着精密测量技术不断进步,其在科学研究、工程科技、现代工业、现代农业、医疗卫生和环境保护等领域发挥着越来越重要的作用。\n最适合做这段文字标题的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "测量技术发展助力我国工业制造升级",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "测量技术和精密仪器制造亟须融合发展",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "我国超精密测量技术亟须冲破“封锁线”",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "科学探索的“眼睛” 高端制造的“尺子”",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "文段核心强调测量技术在科学研究和高端制造中的基础作用，D项以“眼睛”比喻其对科学探索的重要性，以“尺子”比喻其对高端制造的衡量作用，生动契合主旨；A仅涉及工业制造，片面；B、C无中生有。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_h64mh1s",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_zq1la0l": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号71：人类特别喜欢读到和关注有关他人和社会的负面信息,媒体从业者则是顺应这种喜好,这使人们接触到更多的负面信息而非正面信息。这种“有偏见的暴露效应”解释了为什么人们认为当前的道德水平相对较低。而当人们回忆过去时,负面事件更可能被遗忘,这是由于大脑的内在机制要求不良事件引起的负面反应情绪必须被平复,因此时过境迁,再大的悲剧也可以慢慢放下。这种“有偏见的记忆效应”又解释了为什么人们认为过去的道德水平相对较高。\n这段文字意在说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "“世风日下”可能是一种群体心理错觉",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "心理层面人们更愿记住过去美好的事件",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "道德水平的高低取决于负面事件的影响",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "媒体传播强化了人们对负面信息的接收",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "文段指出“有偏见的暴露效应”让人们觉得当下道德水平低，“有偏见的记忆效应”让人们觉得过去道德水平高，核心强调“世风日下”的认知是两种心理效应导致的错觉，A项精准概括；B、D为部分原因，C表述绝对。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_zq1la0l",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_5vem32n": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号72：如何精准评估生态产品的受益主体与范围,准确核算产品的价值量,是实现生态产品价值绕不开的问题,鼓励研发自然资源资产信息化管理平台是主要途径之一。将自然资源资产负债表所涉及的资源信息和评估核算模块录入系统,依托技术、数据,叠加功能图形信息,形成自然资源资产“一张图”信息化管理平台。还应鼓励有条件的城市建设生态系统生产总值数字化服务平台,利用大数据、云计算技术,系统反映生态资源的数量、质量、分布、权属等信息,绘制生态产品价值地图,实现精细化动态核算。\n这段文字主要讲的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "开发信息化管理平台,提升生态产品监管水平",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "利用数字技术,增强生态产品价值的核算效能",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "建设统一的服务平台,实现生态资源系统管理",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "整合自然资源资产,推动数字化管理平台建构",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "文段核心围绕“生态产品价值核算”展开，强调通过研发信息化平台、利用数字技术实现精准核算，B项契合“数字技术”与“生态产品价值核算”的核心关联；A“监管水平”偷换概念，C“统一平台”无中生有，D侧重“平台建构”，未突出“核算”核心。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_5vem32n",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_61efs3u": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号73：在关于灵活就业的讨论中,还有一种论调认为,灵活就业门槛过低、技能要求不高,年轻人投身其中是短视行为,不利于个人以及社会整体人力资本的积累。这种忧虑的初衷可以理解,但事实上,灵活就业进入的门槛确实不高,但要留存的门槛却并不低,也需要一定的技能支撑,灵活就业并不一定意味着“低能”。\n这段文字意在强调：",
+      "options": [
+        {
+          "label": "A",
+          "text": "并非所有灵活就业都是低门槛",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "应摒弃对灵活就业形式的偏见",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "灵活就业在职越久越要技能傍身",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "年轻人对灵活就业无须过度忧虑",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "文段先指出对灵活就业的偏见，再通过“但事实上”转折，说明灵活就业留存需技能支撑，核心是反驳偏见，B项契合主旨；A为转折后部分细节，C无中生有，D未突出“摒弃偏见”的核心。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_61efs3u",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_e9pyljv": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号74：要通过标准化把分散的农户组织起来,进行无公害、绿色、有机生产,构建起标准化、常态化的供应链体系,这是农货变网货的基础。当务之急是要通过市场倒逼,实现产业链的标准化、数字化变革,引导龙头企业、合作社等新型经营主体,带动农户形成生产标准统一、利益分配共享的共同体,实现农产品从种到销全程标准化,拧紧“安全阀”。要借助数字技术,尽快实现农产品从地头到餐桌质量安全全程可追溯,让消费者放心买单的同时增加销量、提高附加值。\n这段文字意在强调：",
+      "options": [
+        {
+          "label": "A",
+          "text": "形成农户利益分配共享共同体至关重要",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "新型农业经营主体应该由市场机制催生",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "应利用数字化技术加快农货变网货进程",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "构建标准化产业链确保农产品质量安全",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "D",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_e9pyljv",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_4lzq7aw": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号75：目前,我国“三农”工作重心已历史性转向全面推进乡村振兴。其中,保障粮食和重要农副产品有效供给是重中之重。大力发展农业保险,有助于应对农业领域的重大风险挑战,提升粮食和重要农产品供给保障能力,为乡村全面振兴保驾护航。通过发展农业保险对农业进行支持保护是国际惯例,也是许多国家农业支持保护政策的支柱。大力发展和运用农业保险工具,既是促进我国农业支持政策向国际看齐、更好适应世界贸易组织规则的现实选择,也是保障我国农业产业稳定发展、维护粮食安全、保护农民利益的长远需要。\n这段文字意在说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "乡村振兴需要健全的农业支持保护政策",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "农业保险有助于“三农”工作顺利推进",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "农业政策既要立足国内也要有国际视野",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "发展农业保险是保障粮食安全的必选项",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "文段核心强调农业保险在保障农产品供给、助力乡村振兴、适应国际规则等方面的重要作用，即农业保险对“三农”工作的支撑，B项全面概括；A未突出“农业保险”，C为部分原因，D“必选项”表述绝对。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_4lzq7aw",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_vd675xj": {
+      "category": "言语理解",
+      "subcategory": "标题填入",
+      "source": "2025郭熙100题",
+      "content": "题号76：晋侯鸟尊是中国历史文化的经典名片,它的尾巴为什么是个象鼻?是做什么用的?主人是谁?在今天还有什么价值?现在,我们开展一场跨越时空的展览。此次展览分为四个单元:第一单元“一梦三千年”讲述了在地下沉睡3000年的晋侯鸟尊被发现、发掘到修复完整的故事;第二单元“故国梦重归”用类似破案的方式,展示考古学家根据出土文物和痕迹,结合文献资料一步步推理出晋侯鸟尊的主人是第一代晋侯燮父;第三单元“百鸟共朝凤”主要探讨鸟尊的功能、造型以及鸟型文物的文化内涵;第四单元“引吭歌新曲”讲述文博部门围绕晋侯鸟尊所开展的教育、文创、研究等工作。\n这段文字出自一个展览的前言,这个展览的主题最可能是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "且听凤鸣--鸟尊的前世今生",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "追根溯源--跨越时空的对话",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "守护经典--文化基因的传承",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "革故鼎新--鸟尊的文创开发",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "展览四个单元分别涉及鸟尊的发掘修复（过去）、主人考证、文化内涵、当代价值（现在），核心是鸟尊的过去与现在，A项“前世今生”精准概括；B未突出“鸟尊”，C侧重“文化传承”，D侧重“文创开发”，均片面。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_vd675xj",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_ohkfz44": {
+      "category": "言语理解",
+      "subcategory": "标题填入",
+      "source": "2025郭熙100题",
+      "content": "题号77：1859年,达尔文完成旷世巨作《物种起源》,随后着迷于对兰花的研究,他在一本关于兰花的著作中写到:“兰花结构的多样性都是基于同一个目的:一朵花接受另一朵花的授粉。在对兰花的研究中,几乎再没有别的事实让我如此震惊。”达尔文为何对兰花如此痴迷?因为研究形态多样的兰花,可以帮助他进一步完善自然选择和进化方面的理论,但是达尔文并没有找到他想要的答案,由此,兰花的起源、进化和多样性的形成,被达尔文称为“令人讨厌之谜”。一百多年来,全世界无数科学家不断致力于解开这一谜团,均未取得突破性进展。\n最适合做这段文字标题的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "《物种起源》的续篇",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "“自然选择论”的挑战",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "兰花进化的百年谜团",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "达尔文与兰花的传奇故事",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "文段核心围绕“兰花的起源、进化和多样性”这一达尔文留下的谜团，以及百年间科学家未能破解的情况展开，C项精准概括“兰花进化”与“百年谜团”的核心；A、B、D均偏离核心谜团。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_ohkfz44",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_ref3ntw": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号78：原始体育的萌芽与日复一日地生产劳动分不开,跳绳运动也不例外。古时,跳绳所用的绳被称为“绳索”,它是由古人编结而成的,人们在编绳索的过程中,通常会有一些跨越的动作,这些下意识的行为吸引了活泼好动的孩子,他们就用短的绳子在旁边反复模仿,并逐渐摸索出一些简单的跨越绳子的方法,当成一种游戏来玩,于是跳绳这一活动就产生了。对于跳绳的明确起源众说纷纭。最早出现的史料是汉代画像石上的跳绳图,证明当时已有了跳绳活动。南朝《荆楚岁时记》中有“飞百索”的记载,正是后来的跳绳游戏。\n这段文字重在说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "跳绳运动文化的内涵",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "跳绳运动的悠久历史",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "原始体育起源于“模仿”",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "原始体育起源于生产劳动",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "文段先介绍跳绳运动的起源与生产劳动、模仿的关联，再通过汉代史料、南朝记载佐证其历史悠久，核心是强调跳绳运动的历史渊源，B项契合；A无中生有，C、D为部分前提，偏离“跳绳运动”核心。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_ref3ntw",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_ezgi286": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号79：大力倡导绿色消费方式是实现经济高质量发展和生态环境高水平保护共赢的重要推动力。要进一步引导全社会认同绿色消费,使绿色消费方式成为公众自觉选择;引导促进绿色产品消费,为促进经济社会发展全面绿色转型创造条件;全面推动各领域消费绿色转型升级,形成节约适度、绿色低碳、文明健康的生活方式和消费模式。\n本段文字主要讲了：",
+      "options": [
+        {
+          "label": "A",
+          "text": "如何倡导绿色消费方式",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "如何实现经济高质量发展",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "为什么要倡导绿色消费方式",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "为什么要实现经济高质量发展",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "文段先指出倡导绿色消费的意义，后文以三个“引导/推动”具体阐述倡导绿色消费的方法，核心是“如何倡导绿色消费”，A项精准概括；B、D偏离“绿色消费”核心，C为文段开头的背景铺垫。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_ezgi286",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_gocflpm": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号80：在数字经济时代,因为用工关系的多样化、灵活化、去组织化、去劳动关系化等特征,市场配置劳动力资源的一面更加凸显,就更需要回到市场经济的一般法律体系,从数字经济协同治理的角度考虑新就业形态劳动者权益保护的问题。劳动法的制度和思路处于兜底保障的位置,是一种末端解决问题的思路;其他市场经济的法律处于优化产业和市场秩序的位置,是一种前端解决问题的思路。源头治理与兜底保障相结合,才能更好实现产业有序发展与新就业形态劳动者权益维护的平衡。\n这段文字意在说明：",
+      "options": [
+        {
+          "label": "A",
+          "text": "劳动法与市场经济的其他法律是相辅相成的",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "新就业形态下劳动者权益维护思路亟待更新",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "数字经济时代劳动保障需加强法律体系协同",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "维护劳动者权益才能更好促进数字经济发展",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "文段指出数字经济时代新就业形态的特点，强调需结合劳动法（兜底）与其他市场经济法律（前端），通过法律体系协同实现权益保护与产业发展的平衡，C项精准概括；A为部分细节，B未突出“法律体系协同”，D因果倒置。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_gocflpm",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_jcbkqff": {
+      "category": "言语理解",
+      "subcategory": "中心理解",
+      "source": "2025郭熙100题",
+      "content": "题号81：二十世纪六七十年代,世界上香菇、木耳、灵芝等食用菌和药用菌人工栽培基本都以木材为原料,在我国每年仅栽培香菇一项就要砍伐阔叶林1000万立方米以上,从而产生了严重的生态问题和“菌林矛盾”。由此我国开始了“以草代木”栽培食药用菌研究,1986年,终于成功培育出可做栽培食药用菌培养基的草本植物--菌草,并逐渐摸索出一套运用菌草栽培食药用菌和生产菌物饲料、菌物肥料的综合技术。菌草技术开辟了“菌”与“草”交叉科学研究与应用新领域,为保护生态环境,促进可持续发展开辟了新途径。\n这段文字意在说明,菌草技术：",
+      "options": [
+        {
+          "label": "A",
+          "text": "有助于解决“菌林矛盾”的难题",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "是我国食药用菌栽培的原创技术",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "为食药用菌栽培提供了新的思路",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "为保护阔叶林资源开辟了新途径",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "文段先指出“菌林矛盾”的问题，再介绍菌草技术的研发及应用，核心强调菌草技术对“菌林矛盾”的解决作用，A项契合主旨；B“原创技术”无中生有，C、D为部分作用，片面。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_jcbkqff",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_29ytetu": {
+      "category": "言语理解",
+      "subcategory": "语句排序",
+      "source": "2025郭熙100题",
+      "content": "题号82：①然而,苦口婆心的劝告收效甚微\n②健康专家一再提示,睡前刷手机会使大脑持续兴奋、打破睡眠氛围\n③调查显示,84.8%的受访青年都有睡前刷手机的习惯\n④“睡前刷手机”依然是大部分年轻人难以改变的生活习惯\n⑤容易带来入睡难、入睡延迟等睡眠问题,造成更广泛的健康损害\n⑥即便感到困意,84.1%的受访青年还是会继续刷手机\n将以上6个句子重新排列,语序正确的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "③⑥②⑤①④",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "②⑤①④⑥③",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "④③⑥②⑤①",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "①⑥④③②⑤",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "③以调查数据引出“青年睡前刷手机”的话题，⑥承接③进一步说明青年刷手机的执着，②⑤阐述睡前刷手机的危害，①转折说明劝告无效，④总结“睡前刷手机难以改变”，逻辑顺序为“引出话题→具体表现→危害→劝告无效→总结”，A项符合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_29ytetu",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_gkwiqwr": {
+      "category": "言语理解",
+      "subcategory": "语句排序",
+      "source": "2025郭熙100题",
+      "content": "题号83：①已经投入应用的主要是针对健康人群开发的、精准性稍差一些的非植入式设备\n②到目前为止,科学家们已经发明了多种获取脑电波的设备\n③近些年来,科学家们则在开发用于特殊病人的植入式设备上花费了大量精力\n④但基于安全性、伦理性等方面的考虑,一直没有在人类的临床上取得突破\n⑤这类设备被称为脑机芯片或干脆简称为脑机接口,它能获得更加精准的脑电信息,也能将外界电信号更加精准地输入大脑\n⑥然而随着人工智能相关技术和工程技术、材料技术的飞速发展,不少科学家又开始了这类尝试\n将以上6个句子重新排列,语序正确的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "③②①⑥⑤④",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "③⑥④①②⑤",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "②①③⑤④⑥",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "②④①③⑤⑥",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "②总述“发明多种获取脑电波的设备”，①介绍已应用的“非植入式设备”，③转折引出“植入式设备”的开发，⑤解释“植入式设备”的优势，④说明其临床未突破的原因，⑥以“然而”引出新尝试，逻辑顺序为“总述设备→已应用设备→新开发设备→设备优势→未突破原因→新尝试”，C项符合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_gkwiqwr",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_2qivcvy": {
+      "category": "言语理解",
+      "subcategory": "语句排序",
+      "source": "2025郭熙100题",
+      "content": "题号84：①例如位于我国四川的深地核天体物理实验室,其上覆盖的垂直岩石厚达2400米\n②因此,旨在直接探测暗物质的实验室通常会建于极深的地下或山里,尽最大可能屏蔽掉这些干扰\n③直接探测暗物质的方式类似于守株待兔\n④当然,这种能量波动极其微弱,而且宇宙中的各种射线同样也有机会与这个原子核来一场亲密的邂逅,从而对实验结果产生干扰\n⑤专家解释说,我们生活在一团暗物质云中,每秒钟可能有几百万甚至上千万的暗物质粒子穿过我们的身体\n⑥直接探测暗物质的方法之一,就是利用精密的仪器密切观察大量的原子核,如果足够幸运,某一时刻暗物质碰撞到某个原子核,会在原子核上留下残余能量\n将以上6个句子重新排列,语序正确的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "⑥②①⑤③④",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "⑥④⑤②③①",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "③⑤⑥④②①",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "③⑥②⑤①④",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "③总述“直接探测暗物质的方式”，⑤解释暗物质的存在，⑥介绍具体探测方法，④指出探测面临的干扰，②得出“实验室建于极深地下/山里”的结论，①举例佐证，逻辑顺序为“探测方式→暗物质存在→具体方法→面临干扰→解决对策→举例”，C项符合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_2qivcvy",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_q19f1l3": {
+      "category": "言语理解",
+      "subcategory": "语句排序",
+      "source": "2025郭熙100题",
+      "content": "题号85：①据有关机构估算,每年损失浪费的食物超过22.7%,约9200亿斤,若能挽回一半的损失,就够1.9亿人吃一年\n②食物节约减损既可有效减轻供给压力,也可减少资源使用,善莫大焉\n③我国居民食用油和“红肉”人均消费量,分别超过膳食指南推荐标准约1倍和2倍\n④当前,食物采收、储运、加工、销售、消费每个环节都有“跑冒滴漏”,情况还相当严重\n⑤要树立节约减损就是增产的理念,推进全链条节约减损,健全常态化、长效化工作机制,每个环节都要有具体抓手,越是损失浪费严重的环节越要抓得实\n⑥消费环节大有文章可做,不仅要制止“舌尖上的浪费”,深入开展“光盘行动”,还要提倡健康饮食\n将以上6个句子重新排列,语序正确的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "①⑥③②④⑤",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "①③④⑤②⑥",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "④①⑥③②⑤",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "④②⑤③①⑥",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "④指出食物各环节浪费严重的问题，①用数据佐证浪费程度，⑥聚焦消费环节的节约措施，③补充居民消费过量的情况，②阐述节约减损的意义，⑤提出全链条节约的对策，逻辑顺序为“提出问题→数据佐证→具体环节措施→补充情况→阐述意义→全链条对策”，C项符合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_q19f1l3",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_8lcbhqm": {
+      "category": "言语理解",
+      "subcategory": "语句排序",
+      "source": "2025郭熙100题",
+      "content": "题号86：①比如以珠峰为核心的珠穆朗玛峰国家级自然保护区内有高等植物2550种,动物509种\n②作为世界之巅,珠峰给人的印象往往是很“高冷”的\n③不过正因为珠峰太过高耸,喜马拉雅山脉北坡巨大的海拔落差也为各种动植物提供了良好的栖居地\n④的确,山顶的高度已不适合任何动植物生活\n⑤从“征服”珠峰,到了解珠峰、保护珠峰,我们一次又一次造访世界之巅的最终目的就是能更好地守护它\n⑥是西藏生物多样性最为丰富的区域之一,值得我们倍加珍惜\n将以上6个句子重新排列,语序正确的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "②③④⑥①⑤",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "②④③①⑥⑤",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "⑤①⑥③②④",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "⑤②④③①⑥",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "D",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_8lcbhqm",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_whbv4b6": {
+      "category": "言语理解",
+      "subcategory": "语句排序",
+      "source": "2025郭熙100题",
+      "content": "题号87：①设施农业大有可为,要发展日光温室、植物工厂和集约化畜禽养殖,推进陆基和深远海养殖渔场建设,拓宽农业生产空间领域\n②要构建多元化食物供给体系,在保护好生态环境前提下,从耕地资源向整个国土资源拓展,从传统农作物和畜禽资源向更丰富的生物资源拓展\n③“吃饭”不仅仅是消费粮食,肉蛋奶、果菜鱼、菌菇笋等样样都是美食\n④向森林、草原、江河湖海要食物,向植物动物微生物要热量、要蛋白,多途径开发食物来源\n⑤耕地以外,我国还有40多亿亩林地、近40亿亩草地和大量的江河湖海等资源\n⑥解决吃饭问题,不能光盯着有限的耕地,要把思路打开,树立大食物观\n将以上6个句子重新排列,语序正确的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "①⑥⑤③②④",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "⑥①②④③⑤",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "⑥③⑤②④①",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "①⑥②④③⑤",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "⑥提出“树立大食物观”的核心观点，③解释“大食物”的内涵，⑤说明我国丰富的非耕地资源，②阐述构建多元化食物供给体系的方向，④进一步说明多途径开发食物来源，①列举设施农业的具体形式，逻辑顺序为“提出观点→解释内涵→资源基础→体系方向→开发途径→具体形式”，C项符合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_whbv4b6",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_5p6qml6": {
+      "category": "言语理解",
+      "subcategory": "语句排序",
+      "source": "2025郭熙100题",
+      "content": "题号88：①所以,未来乡村旅游精品线路的升级,一方面需要加强对乡村地区的文化资源整合和挖掘,将其有机融入乡村旅游产品和活动中,打造具有浓厚文化氛围的旅游体验\n②文旅融合下的乡村旅游对于传承中华文明具有重要意义,在增进文化交流与理解的同时,也使人们更能意识到中华文明的独特性和卓越贡献,增强对中华文明的自豪感和认同感\n③此外,乡村旅游在发展过程中存在一定的同质化现象,没有深入挖掘自身的差异化优势,形成品牌效应\n④通过对文化属性的强调,乡村旅游可以更好地传承和展示中华文明的丰富内涵,吸引更多游客参与和体验,同时促进乡村的经济发展和文化传承\n⑤不过,从整体来看,目前乡村旅游发展并不均衡,一、二线城市近郊发展比较好,但仍有相当多乡村的文化资源禀赋和场景价值还没有得到充分释放\n⑥另一方面,还要有意识地借助文化品牌来凸显文化属性,打造独特的乡村旅游品牌形象,提高其在市场上的知名度和吸引力\n将以上6个句子重新排列,语序正确的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "②①⑥④⑤③",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "②⑤③①⑥④",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "④⑤③②①⑥",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "④②⑤③①⑥",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "B。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_5p6qml6",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_0o4lmd2": {
+      "category": "言语理解",
+      "subcategory": "语句排序",
+      "source": "2025郭熙100题",
+      "content": "题号89：①流亡到江南的侨姓士族,也不可避免面临私家藏书的散失\n②永嘉之乱导致的文献典籍流失非常严重\n③西晋荀勖《中经新簿》著录秘阁藏书有29945卷,东晋之初“渐更鸠聚”,仅存3014卷,这是朝廷藏书流失的情况\n④如藏书丰富的张嶷、傅颖根两家,永嘉之乱中“避难南行”,最初携带不少书籍,由于逃难不便,只好“料简世所稀有者,各各保录”。这种情况在当时南渡士族中是很普遍的\n⑤因此,东晋初期实际的文献状况,不像朝廷藏书的亡散那么严重\n⑥至于江南旧族的藏书,受到战乱影响相对较小,如钱塘范氏“家世好学,有书七千余卷,远近来读者恒有百余人”\n将以上6个句子重新排序,语序正确的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "②④①③⑥⑤",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "②③①④⑥⑤",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "③②①④⑥⑤",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "①④②③⑥⑤",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "②总述永嘉之乱导致文献流失严重，③举例说明朝廷藏书流失情况，①转向私家藏书（侨姓士族）的流失，④举例佐证侨姓士族藏书流失，⑥说明江南旧族藏书受影响较小，⑤总结东晋初期文献状况，逻辑顺序为“总述流失→朝廷藏书流失（举例）→私家藏书流失（侨姓士族+举例）→江南旧族藏书情况→总结”，B项符合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_0o4lmd2",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_hfqi06t": {
+      "category": "言语理解",
+      "subcategory": "语句排序",
+      "source": "2025郭熙100题",
+      "content": "题号90：①但人类对于发酵本质形成认识,并发展形成发酵工业,却只有近几百年的历史\n②有需求就有进步,发酵工业的进步与人类需求息息相关,社会需求的增加推动着发酵技术的进一步发展\n③发酵不是古今人类智慧的体现,而是地球历史上20亿年前就存在的自然现象,是微生物送给人类的礼物\n④食物发酵是一项既古老又崭新的人类饮食行为,它经历了漫长的岁月,得到了不断的发展和充实\n⑤几乎在地球上诞生生命的同时,发酵现象就已经存在了\n将以上5个句子组成语意连贯的一段文字,排序正确的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "⑤①③②④",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "④⑤③①②",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "③⑤①④②",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "④⑤③②①",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "④总述“食物发酵既古老又崭新”，⑤解释“古老”（发酵现象早于人类），③进一步说明发酵是自然现象，①转折指出人类认识发酵、发展工业的历史短（体现“崭新”），②阐述发酵工业的进步与需求的关系，逻辑顺序为“总述（古老+崭新）→解释古老→补充自然属性→转折说明崭新→工业进步与需求”，B项符合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_hfqi06t",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_8widqaw": {
+      "category": "言语理解",
+      "subcategory": "语句排序",
+      "source": "2025郭熙100题",
+      "content": "题号91：①我们通常看到的悬索桥的基本特征是:加劲梁悬吊在钢缆上,钢缆两端用锚碇固定\n②地锚因地制宜放置在不同的空间里,有的直接安置在地面或者深藏在地下,有的固结于沉井的基础之内或利用桥头地形锚固定在山崖岩层中\n③悬索桥通常还会建造两个高塔,目的是为钢缆提供中间支承,使塔、墩固结,融为一体\n④悬索桥上部结构包括钢缆、塔、加劲梁及吊杆,下部结构包括支承塔的桥墩、锚固钢缆的锚碇及锚台\n⑤锚碇用大体积混凝土做成,有地锚和自锚两种\n⑥自锚通常是将钢缆锚固定在加劲梁表面\n将以上6个句子重新排列,语序正确的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "①⑤②④⑥③",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "③①④⑤②⑥",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "④①⑤②⑥③",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "①⑤⑥④②③",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "④总述悬索桥的上下部结构，①介绍悬索桥的基本特征（与上部结构相关），⑤具体说明锚碇的材质和类型，②⑥分别解释地锚和自锚的特点，③补充悬索桥高塔的作用，逻辑顺序为“总述结构→基本特征→锚碇细节（类型→地锚→自锚）→补充高塔作用”，C项符合。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_8widqaw",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_eipvcmk": {
+      "category": "言语理解",
+      "subcategory": "语句填空",
+      "source": "2025郭熙100题",
+      "content": "题号92：________,让绿水青山充分发挥经济社会效益,关键是要树立正确的发展思路,因地制宜选择好发展产业。在内蒙古大兴安岭的北岸林场,林业工人在护林的同时,围绕“林”字做活“绿文章”,发展森林旅游,实现了“不砍树照样能致富”;在陕西延安,依托自然生态优势,“小苹果”形成大产业,助村民挑起“金扁担”……思路一变天地宽。生态保护和经济发展不是矛盾对立关系,积极探索绿水青山转化为金山银山的新路径,利用自然优势发展特色产业,因地制宜壮大“美丽经济”,就能创造更多“点绿成金”的新奇迹。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "党旗红,引领生态绿",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "思路决定出路",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "农业发展要因地制宜",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "美丽经济是发展新出路",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "C",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_eipvcmk",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_fzqhtcv": {
+      "category": "言语理解",
+      "subcategory": "语句填空",
+      "source": "2025郭熙100题",
+      "content": "题号93：良法是善治的前提。“法非从天下,非从地出,发于人间,合乎人心而已。”________,发挥好人大及其常委会在立法工作中的主导作用,坚持尊重和体现客观规律,坚持为了人民、依靠人民,坚持严格依照法定权限和法定程序,深入推进科学立法、民主立法、依法立法。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "要抓住提高立法质量这个关键",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "人大要统筹运用法定监督方式",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "法律体系须与时俱进加以完善",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "治国理政要保障人民当家作主",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "B",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_fzqhtcv",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_asb5usy": {
+      "category": "言语理解",
+      "subcategory": "语句填空",
+      "source": "2025郭熙100题",
+      "content": "题号94：信息化深入发展,使社会交往范围扩大,________。传统的社会交往主要局限于相对狭小的熟人范围,人们之所以遵守伦理道德很大程度上是因为相对狭小的熟人圈子中无所不在的外在监督。现代社会交往基于强大信息技术的互联网,进一步打破传统交往的时空限制,成为了普遍性的社会交往。这就要求人们具备更高程度的道德自律、更高程度的宽容与尊重,从而促进形成以普遍的诚实、守信为价值基础的现代社会公德。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "与传统社会交往相对单一的熟人社会有较大区别",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "只有守信的人才能在社会交往中赢得他人的尊重",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "这对社会交往中的人提出了更高的伦理道德要求",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "形成了以普遍的诚实守信为价值基础的社会公德",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "横线后对比传统与现代社会交往，核心强调现代社会交往对人们道德自律等提出更高要求，C项“更高的伦理道德要求”精准概括后文核心，与后文衔接紧密；A仅强调区别，未点出核心要求，B无中生有，D是结果，非横线处的总起。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_asb5usy",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_gb50cf4": {
+      "category": "言语理解",
+      "subcategory": "语句填空",
+      "source": "2025郭熙100题",
+      "content": "题号95：众所周知,南朝是一个皇权重新集中、士庶升降变化剧烈的时代。皇帝为了削弱和限制高门士族,必定要扶持次等士族和寒门。后两者为了政治进身也必然依附皇权。在南朝,文学才能是衡量世族的一条重要标准,出身寒门庶族的帝王为全方位强化权威形象而努力跻身文人行列,同时拔擢与其门第身份相近的次等士族和寒门文士。正是在这样的背景下,________。彭城刘氏、兰陵萧氏、彭城到氏、吴兴沈氏、吴兴陈氏等家族,他们在通过武力夺取政权或靠积累军功获取了足够的政治资源后,都表现出生活方式“士大夫化”的倾向。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "皇权重振加速了次等士族的迅速兴起",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "寒门庶族大都参与到激烈的权力争斗",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "提升文化修养成了所有寒门庶族的共同追求",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "庶族不满足于对门阀大族手中政治权力的分享",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "横线前强调南朝“文学才能是衡量世族的重要标准”，寒门和次等士族依附皇权、跻身文人行列，横线后举例说明庶族家族“士大夫化”（即提升文化修养），C项“提升文化修养成了寒门庶族的共同追求”契合上下文逻辑；A“次等士族兴起”非核心，B“权力争斗”无中生有，D“不满足权力分享”未体现“文化修养”核心。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_gb50cf4",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_s1ia5fx": {
+      "category": "言语理解",
+      "subcategory": "语句填空",
+      "source": "2025郭熙100题",
+      "content": "题号96：众多民间手艺、戏曲等非物质文化遗产的遗失,与文化传承人缺乏丰厚的收入有关。即便以外部力量进行保护性抢救,往往也只是将其“标本化”,难以恢复其原生活力。________。比如,《中国通史》等纪录片在视频平台上收费观看,使传统文化释放出可观的商业价值,纪录片创作方、版权方、播出方实现商业共赢;有花丝镶嵌技艺非遗传承人入驻电商平台,一年多来售出超20万件工艺产品。\n填入画横线部分最恰当的一项是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "文化产业在新的发展能量集聚下将释放出更多精彩",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "正是对传统文化的创新演绎成就了文化产业的发展",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "只有新媒体技术的加持,才能推动传统文化的传播",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "只有文化消费市场活跃,传统文化创作才能有动力",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "C",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_s1ia5fx",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_l0tix0p": {
+      "category": "言语理解",
+      "subcategory": "接语选择",
+      "source": "2025郭熙100题",
+      "content": "题号97：随着户籍制度改革深入推进,全国31个省份都出台了户籍改革意见,全面取消农业户口。这标志着二元户籍制度退出历史舞台,意味着在中国存在了半个多世纪的“城里人”和“乡下人”户口身份识别将不复存在,农民不再是身份,而是职业。当农民成为一种职业,新的理念、新的经营知识等将会培育和造就数以亿计的有文化、懂技术、善经营、会管理的新型职业农民。\n这段文字接下来最有可能讲述的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "与传统农民相比新型职业农民的素养与能力",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "户籍制度改革给新型职业农民带来的便利",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "国家给新型职业农民提供的政策支持",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "新型职业农民面临的挑战与发展困境",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "文段结尾强调新型职业农民“有文化、懂技术、善经营、会管理”，后文最可能围绕新型职业农民的具体素养和能力展开，A项契合；B“户籍改革的便利”前文已提及，C“政策支持”、D“挑战与困境”无直接衔接，不如A紧密。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_l0tix0p",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_jxduvhf": {
+      "category": "言语理解",
+      "subcategory": "接语选择",
+      "source": "2025郭熙100题",
+      "content": "题号98：人类往往对快速暴发的直接威胁非常敏感,但却不擅长识别缓慢进展的潜在威胁。人工智能的出现让人类拥有了能够预测自然灾害并采取预防措施的工具。王暾对记者表示,一般我们所说的“预测”,包括人工智能的预测,并不是“空穴来风”,而是基于监测数据的预测。利用卫星图像、地面基站等手段,科研人员可以在自然灾害即将发生、有自然灾害发生风险或自然灾害正在发生但并未造成严重破坏的情况下,及时发布预警信息,最大限度地降低损失。\n这段文字接下来最可能说的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "人类为什么对潜在的威胁反应迟钝",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "人类预测自然灾害技术的发展历史",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "人工智能如何进行自然灾害的预测",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "人工智能对抗自然灾害的前景",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "文段结尾强调人工智能预测自然灾害“基于监测数据”，并提及卫星图像、地面基站等手段，后文最可能具体阐述人工智能预测的具体过程和方法，C项契合；A前文已提及，B“发展历史”无衔接，D“前景”过于遥远，不如C紧密。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_jxduvhf",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_1h330if": {
+      "category": "言语理解",
+      "subcategory": "接语选择",
+      "source": "2025郭熙100题",
+      "content": "题号99：过去二十多年来,有关中国文明起源的考古发现迎来了前所未有的高潮,良渚、陶寺、石峁、石家河等古城及相关考古遗存的揭示,充分展现了早期中国文明丰富多样的发展模式。考古发现与研究显示,早期中国文明是一个存在密切联系的互动圈,是一个相对独立且完整的体系,但并不封闭。不过,“中原中心论”并没有完全消失,它的升级版就是“华夏-边缘”论,即认为农耕区的中国文明才是华夏中心,其余是边缘。这种考察视角有失偏颇,与真实历史不符,我们应该从更大范围的互动中来考察中国文明的形成过程。\n这是一篇文章的引言部分,这篇文章主要讨论的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "早期中国文明的互动和演进模式",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "“中原中心论”观点的来源和缺陷",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "考古对追溯中国文明起源的重要价值",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "地理环境对中国文明演进的重要影响",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "引言结尾强调“应从更大范围的互动中考察中国文明的形成过程”，后文核心应围绕早期中国文明的互动机制、演进模式展开，A项契合；B“中原中心论”是批判对象，非核心，C“考古的价值”前文已提及，D“地理环境”无衔接。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_1h330if",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_wrhwl7b": {
+      "category": "言语理解",
+      "subcategory": "标题填入",
+      "source": "2025郭熙100题",
+      "content": "题号100：隋唐盛世的形成主要得益于制度创新。东晋南朝以来,世家大族把持朝政,皇权极不稳定。隋文帝取代北周后,为防止关陇集团等势力过分强大,威胁大一统的中央集权,废除了察举制这一士族赖以维系的选举工具,打破了以门第和军功为主的选拔标准,通过考核治理国家的专门知识,选拔人才参与新政权的管理,实现了贵族官僚政治向文官政治的转变,为成就隋唐盛世打下了坚实基础,奠定了后世王朝选官的基本格局,在中国选举制史上具有重大意义。\n这是一篇文章的引言,文章标题应该是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "科举制度在唐代政治中的利与弊",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "贵族官僚政治瓦解的制度原因探析",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "中国古代选官制度的变迁及启示",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "科举制度创建对选官制度变革的影响",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "引言核心强调隋文帝废除察举制、创新选官制度（为科举制奠定基础），及其对隋唐盛世、后世选官的影响，D项契合“科举制度创建”与“选官制度变革”的核心关联；A“利与弊”无中生有，B“贵族官僚政治瓦解”非核心，C“选官制度变迁”范围过广，未突出“制度创新”的影响。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_wrhwl7b",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1771826523473_yoo7l6y": {
+      "category": "言语理解",
+      "subcategory": "接语选择",
+      "source": "2025郭熙100题",
+      "content": "题号101：作为新型生产要素,数据已成为数字化、网络化、智能化的基础性资源,并快速融入生产、分配、流通、消费和社会服务管理等各环节。通过数据,可以更好地理解自然和社会的运行规律,推动生产力发展,优化生产关系,促进国家和社会治理。但数据并非自在之物,而是人类协作与互动的结果。数据不仅承载着个人、市场主体与国家的大量信息,关系到公民个体人格权益、市场主体财产权益以及国家安全和社会公共利益,还呈现出不同于传统知识产权的全新特点。如何既鼓励数据的充分流通利用,又通过制度设计进行科学合理的权益配置和风险防控,就成为信息时代制度创新的重大课题。\n关于数据,接下来最不可能谈的是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "与传统生产要素的区别",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "流通中涉及的权益主体",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "流通中风险产生的原因",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "对相关制度创新的要求",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771826523473_yoo7l6y",
+      "setId": "id_1771826511621_ozczvum",
+      "section": "言语理解",
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    }
+  },
+  "exportTime": "2026-02-23T06:02:31.605Z"
 }
