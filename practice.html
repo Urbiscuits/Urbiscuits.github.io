@@ -33,6 +33,7 @@
         .practice-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid #eaeaea; flex-wrap: wrap; gap: 10px; }
         .practice-done-msg { text-align: center; padding: 24px; color: var(--success-color); font-weight: bold; }
         .practice-question-nav { margin-top: 16px; padding: 12px; background: #f8f9fa; border-radius: var(--border-radius); }
+        .practice-question-nav-btns-wrapper { max-height: 200px; overflow-y: auto; overflow-x: hidden; }
         .nav-btn { min-width: 36px; height: 36px; padding: 0 8px; border: 1px solid #dee2e6; border-radius: 6px; background: #fff; cursor: pointer; font-size: 0.9rem; }
         .nav-btn.answered { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
         .nav-btn.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
@@ -95,7 +96,9 @@
             </div>
             <div id="practiceQuestionNav" class="practice-question-nav" style="display:none;">
                 <div style="margin-bottom:8px; font-weight:500; color:#6c757d;">题号导航</div>
-                <div id="practiceQuestionNavBtns" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                <div class="practice-question-nav-btns-wrapper">
+                    <div id="practiceQuestionNavBtns" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                </div>
             </div>
             <div id="practiceResultWrap" style="display:none;" class="card">
                 <div id="practiceResultSummary" style="margin-bottom:16px; padding:16px; background:linear-gradient(135deg,#f0f5ff,#e8f4fd); border-radius:var(--border-radius);">
@@ -282,6 +285,16 @@
                 questionStartTime = null;
             }
         }
+        function getZiliaoBlockQuestions(q) {
+            if (!q || !q.ziliaoBlockId) return null;
+            var blockQs = [];
+            practiceQuestions.forEach(function(pq, idx) {
+                if (pq.ziliaoBlockId === q.ziliaoBlockId) {
+                    blockQs.push({ q: pq, idx: idx });
+                }
+            });
+            return blockQs.length > 1 ? blockQs.sort(function(a, b) { return (a.q.ziliaoSubIndex || 0) - (b.q.ziliaoSubIndex || 0); }) : null;
+        }
         function renderPracticeQuestion() {
             recordCurrentQuestionTime();
             var q = practiceQuestions[practiceIndex];
@@ -290,10 +303,31 @@
             var selected = practiceUserSelections[practiceIndex];
             var setName = setNames[q.setId] || '';
             document.getElementById('practiceQuestionSource').textContent = setName ? '题目出处：' + setName : '';
-            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
-            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+            // 检查是否是资料分析捆绑题型
+            var blockQs = getZiliaoBlockQuestions(q);
+            var materialHtml = '';
+            var stemHtml = '';
+            if (blockQs && blockQs.length > 1) {
+                // 资料分析捆绑题型：显示材料+所有题目，当前题目高亮
+                var firstQ = blockQs[0].q;
+                materialHtml = (firstQ.material ? '<p>' + esc(firstQ.material) + '</p>' : '') + (firstQ.materialImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+                stemHtml = '<div style="margin-bottom:16px;"><strong>材料：</strong></div>' + (materialHtml ? '<div style="margin-bottom:16px; padding:12px; background:#f8f9fa; border-radius:8px; border-left:4px solid var(--primary-color);">' + materialHtml + '</div>' : '');
+                stemHtml += '<div style="margin-bottom:12px;"><strong>题目导航：</strong>';
+                blockQs.forEach(function(item, idx) {
+                    var isCurrent = item.idx === practiceIndex;
+                    var num = idx + 1;
+                    stemHtml += '<button type="button" onclick="jumpToQuestion(' + item.idx + ')" style="margin-right:8px; margin-bottom:8px; padding:6px 12px; border:1px solid var(--primary-color); border-radius:6px; background:' + (isCurrent ? 'var(--primary-color); color:#fff' : '#fff; color:var(--primary-color)') + '; cursor:pointer;">题目' + num + '</button>';
+                });
+                stemHtml += '</div>';
+                // 显示当前题目
+                stemHtml += '<div style="margin-top:16px; padding:12px; background:' + (blockQs.find(function(item) { return item.idx === practiceIndex; }) ? '#fff3cd' : '#fff') + '; border-radius:8px; border-left:4px solid var(--primary-color);"><strong>第' + (blockQs.findIndex(function(item) { return item.idx === practiceIndex; }) + 1) + '题：</strong><div style="margin-top:8px;">' + esc(q.content || '') + (q.stemImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('') + '</div></div>';
+            } else {
+                // 普通题目
+                materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+                stemHtml = esc(q.content || '') + (q.stemImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
+            }
             var practiceQuestionEl = document.getElementById('practiceQuestion');
-            practiceQuestionEl.innerHTML = '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || q.timeRegion || '') + '</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div>';
+            practiceQuestionEl.innerHTML = '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || q.timeRegion || '') + '</div>' + (blockQs && blockQs.length > 1 ? stemHtml : ((materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div>'));
             renderLaTeXInElement(practiceQuestionEl);
             var optWrap = document.getElementById('practiceOptionsWrap');
             var options = q.options || [];
@@ -391,6 +425,7 @@
             var q = practiceQuestions[practiceIndex];
             if (!q) return;
             practiceUserSelections[practiceIndex] = label;
+            savePracticeProgress(); // 保存进度
             if (practiceMode === 'memorize') {
                 // 背题模式：选答案后立刻显示本题答案与解析，不跳题，由用户手动下一题
                 renderPracticeQuestion();  // 内部会因 selected 存在而调用 revealCurrentAnswer
@@ -402,11 +437,12 @@
                 renderPracticeQuestion();
             }
         }
-        function prevQuestion() { if (practiceIndex > 0) { practiceIndex--; renderPracticeQuestion(); } }
-        function nextQuestion() { if (practiceIndex < practiceQuestions.length - 1) { practiceIndex++; renderPracticeQuestion(); } }
+        function prevQuestion() { if (practiceIndex > 0) { practiceIndex--; savePracticeProgress(); renderPracticeQuestion(); } }
+        function nextQuestion() { if (practiceIndex < practiceQuestions.length - 1) { practiceIndex++; savePracticeProgress(); renderPracticeQuestion(); } }
         function jumpToQuestion(idx) {
             if (idx < 0 || idx >= practiceQuestions.length) return;
             practiceIndex = idx;
+            savePracticeProgress();
             renderPracticeQuestion();
         }
         function getHistory() { try { var h = localStorage.getItem('xingce_history'); return h ? JSON.parse(h) : []; } catch (e) { return []; } }
@@ -440,6 +476,15 @@
         }
         function submitPractice() {
             recordCurrentQuestionTime();
+            // 清除保存的进度
+            try {
+                var raw = sessionStorage.getItem('xingce_practice_session');
+                if (raw) {
+                    var session = JSON.parse(raw);
+                    var progressKey = 'xingce_practice_progress_' + (session.challengeLevel || 'normal') + '_' + (session.dateStr || getTodayStr());
+                    localStorage.removeItem(progressKey);
+                }
+            } catch (e) {}
             var total = practiceQuestions.length;
             var correctCount = 0;
             var bySubcategory = {};
@@ -603,6 +648,38 @@
             link.click();
         }
 
+        function savePracticeProgress() {
+            try {
+                var raw = sessionStorage.getItem('xingce_practice_session');
+                if (!raw) return;
+                var session = JSON.parse(raw);
+                var progressKey = 'xingce_practice_progress_' + (session.challengeLevel || 'normal') + '_' + (session.dateStr || getTodayStr());
+                var progress = {
+                    questions: practiceQuestions.map(function(q) { return q.id; }),
+                    selections: practiceUserSelections,
+                    currentIndex: practiceIndex,
+                    questionTimes: questionTimes,
+                    dateStr: session.dateStr || getTodayStr(),
+                    challengeLevel: session.challengeLevel || null
+                };
+                localStorage.setItem(progressKey, JSON.stringify(progress));
+            } catch (e) {}
+        }
+        function loadPracticeProgress() {
+            try {
+                var raw = sessionStorage.getItem('xingce_practice_session');
+                if (!raw) return null;
+                var session = JSON.parse(raw);
+                var progressKey = 'xingce_practice_progress_' + (session.challengeLevel || 'normal') + '_' + (session.dateStr || getTodayStr());
+                var progressStr = localStorage.getItem(progressKey);
+                if (!progressStr) return null;
+                var progress = JSON.parse(progressStr);
+                // 检查日期是否匹配（对于智能组卷，需要是同一天的题目）
+                if (progress.dateStr !== (session.dateStr || getTodayStr())) return null;
+                return progress;
+            } catch (e) { return null; }
+        }
+        function getTodayStr() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
         window.onload = function() {
             try {
                 var raw = sessionStorage.getItem('xingce_practice_session');
@@ -611,6 +688,31 @@
                 practiceQuestions = session.questions || [];
                 setNames = session.setNames || {};
                 practiceMode = session.practiceMode || 'practice';
+                // 尝试恢复之前的答题进度
+                var progress = loadPracticeProgress();
+                if (progress && progress.questions && progress.questions.length === practiceQuestions.length) {
+                    // 验证题目ID是否匹配
+                    var match = true;
+                    for (var i = 0; i < practiceQuestions.length; i++) {
+                        if (practiceQuestions[i].id !== progress.questions[i]) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match) {
+                        practiceUserSelections = progress.selections || {};
+                        practiceIndex = progress.currentIndex || 0;
+                        questionTimes = progress.questionTimes || {};
+                        if (confirm('检测到之前的答题进度，是否继续？')) {
+                            // 继续答题
+                        } else {
+                            // 重新开始
+                            practiceUserSelections = {};
+                            practiceIndex = 0;
+                            questionTimes = {};
+                        }
+                    }
+                }
             } catch (e) { practiceQuestions = []; setNames = {}; practiceMode = 'practice'; }
             if (!practiceQuestions.length) { document.getElementById('noData').style.display = 'block'; return; }
             document.getElementById('practiceWrap').style.display = 'block';
@@ -618,6 +720,10 @@
             if (badge) { badge.style.display = practiceMode === 'memorize' ? 'inline-block' : 'none'; }
             renderPracticeQuestion();
             renderPracticeQuestionNav();
+            // 定期保存进度
+            setInterval(savePracticeProgress, 30000); // 每30秒保存一次
+            // 页面关闭前保存
+            window.addEventListener('beforeunload', savePracticeProgress);
         };
     </script>
 </body>

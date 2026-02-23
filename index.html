@@ -798,6 +798,7 @@
         .practice-result-item.correct { border-left: 4px solid var(--success-color); background: #f0fff4; }
         .practice-result-item.wrong { border-left: 4px solid #dc3545; background: #fff5f5; }
         .practice-question-nav .nav-btn, .practice-result-wrap .nav-btn { min-width:36px; height:36px; padding:0 8px; border:1px solid #dee2e6; border-radius:6px; background:#fff; cursor:pointer; font-size:0.9rem; transition:all 0.2s; }
+        .practice-question-nav-btns-wrapper { max-height: 200px; overflow-y: auto; overflow-x: hidden; }
         .practice-question-nav .nav-btn:hover, .practice-result-wrap .nav-btn:hover { border-color:var(--primary-color); color:var(--primary-color); }
         .practice-question-nav .nav-btn.answered { background:var(--primary-color); color:#fff; border-color:var(--primary-color); }
         .practice-question-nav .nav-btn.active { background:var(--primary-color); color:#fff; border-color:var(--primary-color); }
@@ -957,7 +958,7 @@
                             <div><label>套卷</label><select id="manageSetId" onchange="filterManage()" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option></select></div>
                             <div><label>大类</label><select id="manageSection" onchange="updateManageSub(); filterManage();" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
                             <div><label>小类</label><select id="manageSubcategory" onchange="filterManage()" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option></select></div>
-                            <div style="flex:1; min-width: 160px;"><label>搜索</label><input type="text" id="searchInput" placeholder="搜索题干…" oninput="filterManage()" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
+                            <div style="flex:1; min-width: 160px;"><label>搜索</label><input type="text" id="searchInput" placeholder="搜索题干…" oninput="filterManage()" style="width:100%; padding:15px 10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius); min-height: 50px; line-height: 1.5;"></div>
                             <label style="display: flex; align-items: center; gap: 8px; margin-top: 24px;"><input type="checkbox" id="manageShowAnswer" onchange="filterManage()"> 显示答案与解析</label>
                         </div>
                         <div id="questionsList">
@@ -2636,6 +2637,40 @@
             }
             return a;
         }
+        // 处理资料分析捆绑题型：如果题目有ziliaoBlockId，则包含同一材料下的所有题目
+        function expandZiliaoBlockQuestions(questions) {
+            var result = [];
+            var addedBlockIds = {};
+            var addedQids = {};
+            questions.forEach(function(q) {
+                if (q.ziliaoBlockId && !addedBlockIds[q.ziliaoBlockId]) {
+                    // 这是一个资料分析捆绑题，需要包含所有相关题目
+                    var blockQs = store.getQuestionsByZiliaoBlockId ? store.getQuestionsByZiliaoBlockId(q.ziliaoBlockId) : null;
+                    if (blockQs && blockQs.length > 1) {
+                        addedBlockIds[q.ziliaoBlockId] = true;
+                        blockQs.forEach(function(bq) {
+                            if (bq && !addedQids[bq.id]) {
+                                result.push(bq);
+                                addedQids[bq.id] = true;
+                            }
+                        });
+                    } else {
+                        // 单个题目或找不到捆绑题，直接添加
+                        if (!addedQids[q.id]) {
+                            result.push(q);
+                            addedQids[q.id] = true;
+                        }
+                    }
+                } else {
+                    // 普通题目，直接添加
+                    if (!addedQids[q.id]) {
+                        result.push(q);
+                        addedQids[q.id] = true;
+                    }
+                }
+            });
+            return result;
+        }
         function generateChallengeQuestions(level, opts) {
             opts = opts || {};
             var l4Count = parseInt((opts.l4Count || 10), 10) || 10;
@@ -2686,22 +2721,52 @@
                     result = result.concat(ids.slice(0, s.n).map(function(qid) { return store.questions[qid]; }).filter(Boolean));
                 });
             }
+            // 处理资料分析捆绑题型
+            result = expandZiliaoBlockQuestions(result);
             return result;
         }
         function ensureChallengeCache() {
+            var now = new Date();
             var today = getTodayStr();
+            var hour = now.getHours();
+            // 如果当前时间已经过了6点，使用今天的日期；否则使用昨天的日期（因为6点前还是算昨天的题目）
+            var effectiveDate = (hour >= 6) ? today : (function() {
+                var d = new Date(now);
+                d.setDate(d.getDate() - 1);
+                return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            })();
             var cached = getChallengeCache();
             var cachedDate = getChallengeDate();
-            if (cachedDate !== today || !cached['1']) {
+            // 检查是否需要刷新：日期不同或缓存为空，或者当前时间已经过了6点且缓存日期不是今天的有效日期
+            var shouldRefresh = false;
+            if (!cachedDate || !cached['1']) {
+                shouldRefresh = true;
+            } else {
+                // 如果当前时间>=6点，且缓存日期不是今天的有效日期，需要刷新
+                if (hour >= 6 && cachedDate !== effectiveDate) {
+                    shouldRefresh = true;
+                } else if (hour < 6) {
+                    // 如果当前时间<6点，检查缓存日期是否是昨天的有效日期
+                    var yesterday = (function() {
+                        var d = new Date(now);
+                        d.setDate(d.getDate() - 1);
+                        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    })();
+                    if (cachedDate !== yesterday && cachedDate !== effectiveDate) {
+                        shouldRefresh = true;
+                    }
+                }
+            }
+            if (shouldRefresh) {
                 var l4 = (document.querySelector('input[name="challengeL4Count"]:checked') || {}).value || '10';
                 var l5 = (document.querySelector('input[name="challengeL5Count"]:checked') || {}).value || '5';
                 cached = {};
                 for (var L = 1; L <= 6; L++) {
-                    var qs = generateChallengeQuestions(L, { dateStr: today, l4Count: l4, l5Count: l5 });
+                    var qs = generateChallengeQuestions(L, { dateStr: effectiveDate, l4Count: l4, l5Count: l5 });
                     cached[String(L)] = qs.map(function(q) { return q.id; });
                 }
                 setChallengeCache(cached);
-                setChallengeDate(today);
+                setChallengeDate(effectiveDate);
             }
             return cached;
         }
@@ -2995,7 +3060,12 @@
             updateFavoriteButtonState();
             document.getElementById('questionDetailOverlay').style.display = 'block';
         }
-        function closeQuestionDetail() { document.getElementById('questionDetailOverlay').style.display = 'none'; detailQid = null; }
+        function closeQuestionDetail() { 
+            document.getElementById('questionDetailOverlay').style.display = 'none'; 
+            detailQid = null;
+            // 保留之前选择的大类和小类，不重置
+            // 不再调用 filterManage()，因为选择已经保留
+        }
         function openEditPoints() {
             var q = detailQid && store.getQuestion(detailQid);
             var inputEl = document.getElementById('questionDetailPointsInput');
@@ -3293,6 +3363,8 @@
         function startPracticeByPoint(kp) {
             if (!kp) return;
             var questions = store.getRandomQuestionsByKnowledgePoints([kp], 20);
+            // 处理资料分析捆绑题型
+            questions = expandZiliaoBlockQuestions(questions);
             if (!questions.length) { alert('该考点下暂无题目'); return; }
             var setNames = {}; store.sets.forEach(function(s) { setNames[s.id] = s.name || ''; });
             try { sessionStorage.setItem('xingce_practice_session', JSON.stringify({ questions: questions, setNames: setNames, practiceMode: practiceMode })); } catch (e) { alert('无法保存'); return; }
@@ -5007,17 +5079,51 @@
             if (!list.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无题目</p></div>'; return; }
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
             function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />'; }
-            container.innerHTML = list.map(function(q, i) {
-                var histRate = (q.totalAttempts || 0) > 0 ? (q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)' : '—';
-                var pts = (q.knowledgePoints || []).join('、') || '—';
-                var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
-                var stemHtml = esc(q.content || '(无题干)') + (q.stemImages || []).map(imgTag).join('');
-                var optHtml = (q.options || []).map(function(o) {
-                    var optImgs = (o.images || []).map(imgTag).join('');
-                    return '<div class="option ' + (showAnswer && o.label === q.answer ? 'correct' : '') + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + optImgs + '</div>';
-                }).join('');
-                return '<div class="question-item"><div class="question-header"><span class="question-category">' + esc(q.section) + ' - ' + esc(q.subcategory || q.section) + '</span> <span style="color:#6c757d;">' + esc(q.source || q.timeRegion || '') + '</span> <span style="font-size:0.9rem;">历史正确率 ' + histRate + '</span> 考点：' + esc(pts) + ' <button class="btn btn-info btn-sm" onclick="showQuestionDetail(\'' + q.id + '\')">题目详情</button> <button class="btn" style="padding:4px 10px; background:#f8d7da;" onclick="deleteQuestion(\'' + q.id + '\')"><i class="fas fa-trash"></i></button></div>' + (materialHtml ? '<div class="question-content" style="margin-bottom:8px;">材料：' + materialHtml + '</div>' : '') + '<div class="question-content">' + (i+1) + '. ' + stemHtml + '</div><div class="options-grid">' + optHtml + '</div>' + (showAnswer && q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') + (showAnswer ? '<div class="answer-block">答案：' + esc(q.answer) + '</div>' : '') + '</div>';
-            }).join('');
+            // 按大类分组
+            var groupedBySection = {};
+            list.forEach(function(q) {
+                var sec = q.section || '未分类';
+                if (!groupedBySection[sec]) groupedBySection[sec] = [];
+                groupedBySection[sec].push(q);
+            });
+            var html = '';
+            // 按照MAIN_SECTIONS的顺序显示，然后显示其他
+            MAIN_SECTIONS.forEach(function(sec) {
+                if (groupedBySection[sec] && groupedBySection[sec].length > 0) {
+                    html += '<div style="margin-bottom:24px;"><h3 style="margin-bottom:12px; padding:12px; background:var(--light-bg); border-left:4px solid var(--primary-color); border-radius:var(--border-radius); color:var(--primary-color); font-size:1.1rem;">' + esc(sec) + ' (' + groupedBySection[sec].length + '题)</h3>';
+                    groupedBySection[sec].forEach(function(q, i) {
+                        var histRate = (q.totalAttempts || 0) > 0 ? (q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)' : '—';
+                        var pts = (q.knowledgePoints || []).join('、') || '—';
+                        var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+                        var stemHtml = esc(q.content || '(无题干)') + (q.stemImages || []).map(imgTag).join('');
+                        var optHtml = (q.options || []).map(function(o) {
+                            var optImgs = (o.images || []).map(imgTag).join('');
+                            return '<div class="option ' + (showAnswer && o.label === q.answer ? 'correct' : '') + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + optImgs + '</div>';
+                        }).join('');
+                        html += '<div class="question-item" style="margin-left:16px; margin-bottom:16px;"><div class="question-header"><span class="question-category">' + esc(q.subcategory || q.section) + '</span> <span style="color:#6c757d;">' + esc(q.source || q.timeRegion || '') + '</span> <span style="font-size:0.9rem;">历史正确率 ' + histRate + '</span> 考点：' + esc(pts) + ' <button class="btn btn-info btn-sm" onclick="showQuestionDetail(\'' + q.id + '\')">题目详情</button> <button class="btn" style="padding:4px 10px; background:#f8d7da;" onclick="deleteQuestion(\'' + q.id + '\')"><i class="fas fa-trash"></i></button></div>' + (materialHtml ? '<div class="question-content" style="margin-bottom:8px;">材料：' + materialHtml + '</div>' : '') + '<div class="question-content">' + (i+1) + '. ' + stemHtml + '</div><div class="options-grid">' + optHtml + '</div>' + (showAnswer && q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') + (showAnswer ? '<div class="answer-block">答案：' + esc(q.answer) + '</div>' : '') + '</div>';
+                    });
+                    html += '</div>';
+                }
+            });
+            // 显示其他未分类的
+            Object.keys(groupedBySection).forEach(function(sec) {
+                if (MAIN_SECTIONS.indexOf(sec) === -1 && groupedBySection[sec] && groupedBySection[sec].length > 0) {
+                    html += '<div style="margin-bottom:24px;"><h3 style="margin-bottom:12px; padding:12px; background:var(--light-bg); border-left:4px solid var(--primary-color); border-radius:var(--border-radius); color:var(--primary-color); font-size:1.1rem;">' + esc(sec) + ' (' + groupedBySection[sec].length + '题)</h3>';
+                    groupedBySection[sec].forEach(function(q, i) {
+                        var histRate = (q.totalAttempts || 0) > 0 ? (q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)' : '—';
+                        var pts = (q.knowledgePoints || []).join('、') || '—';
+                        var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
+                        var stemHtml = esc(q.content || '(无题干)') + (q.stemImages || []).map(imgTag).join('');
+                        var optHtml = (q.options || []).map(function(o) {
+                            var optImgs = (o.images || []).map(imgTag).join('');
+                            return '<div class="option ' + (showAnswer && o.label === q.answer ? 'correct' : '') + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + optImgs + '</div>';
+                        }).join('');
+                        html += '<div class="question-item" style="margin-left:16px; margin-bottom:16px;"><div class="question-header"><span class="question-category">' + esc(q.subcategory || q.section) + '</span> <span style="color:#6c757d;">' + esc(q.source || q.timeRegion || '') + '</span> <span style="font-size:0.9rem;">历史正确率 ' + histRate + '</span> 考点：' + esc(pts) + ' <button class="btn btn-info btn-sm" onclick="showQuestionDetail(\'' + q.id + '\')">题目详情</button> <button class="btn" style="padding:4px 10px; background:#f8d7da;" onclick="deleteQuestion(\'' + q.id + '\')"><i class="fas fa-trash"></i></button></div>' + (materialHtml ? '<div class="question-content" style="margin-bottom:8px;">材料：' + materialHtml + '</div>' : '') + '<div class="question-content">' + (i+1) + '. ' + stemHtml + '</div><div class="options-grid">' + optHtml + '</div>' + (showAnswer && q.explanation ? '<div class="answer-block">解析：<div class="explanation-body">' + explanationToHtml(q.explanation) + '</div></div>' : '') + (showAnswer ? '<div class="answer-block">答案：' + esc(q.answer) + '</div>' : '') + '</div>';
+                    });
+                    html += '</div>';
+                }
+            });
+            container.innerHTML = html;
             renderLaTeXInElement(container);
         }
         function deleteQuestion(qid) {
@@ -5076,6 +5182,8 @@
                 if (!selectedPoints.length) { alert('请至少选择一个考点'); return; }
                 var count = parseInt(document.getElementById('practicePointCount').value, 10) || 10;
                 questions = store.getRandomQuestionsByKnowledgePoints(selectedPoints, count);
+                // 处理资料分析捆绑题型
+                questions = expandZiliaoBlockQuestions(questions);
             } else {
                 var sections = [];
                 document.querySelectorAll('input[name="practiceSection"]:checked').forEach(function(cb) { sections.push(cb.value); });
@@ -5084,6 +5192,8 @@
                 document.querySelectorAll('input[name="practiceSubcategory"]:checked').forEach(function(cb) { subs.push(cb.value); });
                 var count = parseInt(document.getElementById('practiceCount').value, 10) || 10;
                 questions = store.getRandomQuestionsBySectionsAndSubs(sections, subs.length ? subs : null, count);
+                // 处理资料分析捆绑题型
+                questions = expandZiliaoBlockQuestions(questions);
             }
             if (!questions.length) { alert('当前没有符合条件的题目'); return; }
             var setNames = {};
@@ -6968,7 +7078,20 @@
             }
         }
 
-        // 渲染 JSON 文件列表
+        // 获取JSON文件分类
+        function getJsonFileCategories() {
+            try {
+                var cats = localStorage.getItem('xingce_json_file_categories');
+                return cats ? JSON.parse(cats) : {};
+            } catch (e) { return {}; }
+        }
+        // 保存JSON文件分类
+        function saveJsonFileCategories(cats) {
+            try {
+                localStorage.setItem('xingce_json_file_categories', JSON.stringify(cats));
+            } catch (e) {}
+        }
+        // 渲染 JSON 文件列表（带分类）
         function renderLoadJsonFileList(jsonPaths) {
             var listEl = document.getElementById('adminLoadJsonFileList');
             if (!listEl) return;
@@ -6976,10 +7099,96 @@
                 listEl.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:20px;">没有找到 JSON 文件</p>';
                 return;
             }
-            listEl.innerHTML = jsonPaths.map(function(path) {
+            var categories = getJsonFileCategories();
+            var filesByCategory = {};
+            var uncategorized = [];
+            jsonPaths.forEach(function(path) {
                 var fileName = path.replace(/^data\//, '');
-                return '<label style="display:flex; align-items:center; gap:8px; padding:8px; border-bottom:1px solid var(--border-color); cursor:pointer;"><input type="checkbox" class="admin-load-json-checkbox" value="' + path + '" onchange="adminUpdateLoadJsonSelection()"> <span>' + path + '</span></label>';
-            }).join('');
+                var cat = categories[fileName] || '';
+                if (cat) {
+                    if (!filesByCategory[cat]) filesByCategory[cat] = [];
+                    filesByCategory[cat].push(path);
+                } else {
+                    uncategorized.push(path);
+                }
+            });
+            var html = '<div style="margin-bottom:12px;"><label style="display:inline-flex; align-items:center; gap:8px;"><select id="adminJsonCategoryFilter" onchange="adminFilterJsonFilesByCategory()" style="padding:8px; border:1px solid var(--border-color); border-radius:var(--border-radius);"><option value="">全部分类</option>';
+            Object.keys(filesByCategory).sort().forEach(function(cat) {
+                html += '<option value="' + cat.replace(/"/g, '&quot;') + '">' + cat.replace(/</g, '&lt;') + '</option>';
+            });
+            html += '</select> <button class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminShowJsonCategoryManager()">管理分类</button></label></div>';
+            html += '<div id="adminJsonFileListContent">';
+            // 按分类显示
+            Object.keys(filesByCategory).sort().forEach(function(cat) {
+                html += '<div class="json-category-group" data-category="' + cat.replace(/"/g, '&quot;') + '"><div style="font-weight:600; padding:8px; background:var(--light-bg); border-radius:var(--border-radius); margin-bottom:4px; color:var(--primary-color);">' + cat.replace(/</g, '&lt;') + ' (' + filesByCategory[cat].length + ')</div>';
+                filesByCategory[cat].forEach(function(path) {
+                    var fileName = path.replace(/^data\//, '');
+                    html += '<label style="display:flex; align-items:center; gap:8px; padding:8px; border-bottom:1px solid var(--border-color); cursor:pointer;"><input type="checkbox" class="admin-load-json-checkbox" value="' + path + '" onchange="adminUpdateLoadJsonSelection()"> <span>' + path + '</span></label>';
+                });
+                html += '</div>';
+            });
+            // 未分类的文件
+            if (uncategorized.length > 0) {
+                html += '<div class="json-category-group" data-category=""><div style="font-weight:600; padding:8px; background:var(--light-bg); border-radius:var(--border-radius); margin-bottom:4px; color:#6c757d;">未分类 (' + uncategorized.length + ')</div>';
+                uncategorized.forEach(function(path) {
+                    var fileName = path.replace(/^data\//, '');
+                    html += '<label style="display:flex; align-items:center; gap:8px; padding:8px; border-bottom:1px solid var(--border-color); cursor:pointer;"><input type="checkbox" class="admin-load-json-checkbox" value="' + path + '" onchange="adminUpdateLoadJsonSelection()"> <span>' + path + '</span></label>';
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+            listEl.innerHTML = html;
+        }
+        // 按分类筛选文件
+        function adminFilterJsonFilesByCategory() {
+            var filter = document.getElementById('adminJsonCategoryFilter').value;
+            var groups = document.querySelectorAll('.json-category-group');
+            groups.forEach(function(group) {
+                var cat = group.getAttribute('data-category') || '';
+                if (!filter || cat === filter) {
+                    group.style.display = 'block';
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+        }
+        // 显示分类管理对话框
+        function adminShowJsonCategoryManager() {
+            var categories = getJsonFileCategories();
+            var jsonPaths = Array.from(document.querySelectorAll('.admin-load-json-checkbox')).map(function(cb) { return cb.value.replace(/^data\//, ''); });
+            var html = '<div style="max-height:60vh; overflow-y:auto;"><p style="margin-bottom:12px; color:var(--text-secondary);">为JSON文件设置分类，方便查找和管理。</p>';
+            jsonPaths.forEach(function(fileName) {
+                var currentCat = categories[fileName] || '';
+                html += '<div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; padding:8px; background:var(--light-bg); border-radius:var(--border-radius);"><span style="flex:1; font-size:0.9rem;">' + fileName.replace(/</g, '&lt;') + '</span><input type="text" data-file="' + fileName.replace(/"/g, '&quot;') + '" value="' + currentCat.replace(/"/g, '&quot;').replace(/</g, '&lt;') + '" placeholder="分类名称（留空=未分类）" style="flex:1; padding:6px; border:1px solid var(--border-color); border-radius:var(--border-radius);"></div>';
+            });
+            html += '</div><div style="margin-top:16px; display:flex; gap:8px; justify-content:flex-end;"><button class="btn" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminCloseJsonCategoryManager()">取消</button><button class="btn btn-success" onclick="adminSaveJsonCategories()">保存</button></div>';
+            var modal = document.getElementById('adminJsonCategoryManagerModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'adminJsonCategoryManagerModal';
+                modal.style.cssText = 'display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:10001; align-items:center; justify-content:center;';
+                modal.innerHTML = '<div class="card" style="max-width:700px; max-height:80vh; overflow-y:auto; margin:20px; position:relative;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid var(--border-color);"><h2 style="margin:0; color:var(--primary-color);">JSON文件分类管理</h2><button onclick="adminCloseJsonCategoryManager()" style="background:none; border:none; font-size:32px; color:var(--text-secondary); cursor:pointer; line-height:1;">×</button></div><div id="adminJsonCategoryManagerContent"></div></div>';
+                document.body.appendChild(modal);
+            }
+            document.getElementById('adminJsonCategoryManagerContent').innerHTML = html;
+            modal.style.display = 'flex';
+        }
+        function adminCloseJsonCategoryManager() {
+            var modal = document.getElementById('adminJsonCategoryManagerModal');
+            if (modal) modal.style.display = 'none';
+        }
+        function adminSaveJsonCategories() {
+            var categories = {};
+            var inputs = document.querySelectorAll('#adminJsonCategoryManagerContent input[data-file]');
+            inputs.forEach(function(inp) {
+                var fileName = inp.getAttribute('data-file');
+                var cat = (inp.value || '').trim();
+                if (cat) categories[fileName] = cat;
+            });
+            saveJsonFileCategories(categories);
+            adminCloseJsonCategoryManager();
+            adminLoadJsonFileList(); // 重新加载文件列表
+            showMsg('adminLoadFromDataStatus', '分类已保存', 'success');
         }
 
         // 切换"加载全部"
