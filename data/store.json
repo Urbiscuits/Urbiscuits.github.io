@@ -7,7 +7,8 @@
       "言语理解": [],
       "数量关系": [],
       "判断推理": [
-        "id_1771753833768_cij0ba9"
+        "id_1771753833768_cij0ba9",
+        "id_1771932538575_tpumgen"
       ],
       "资料分析": [],
       "政治理论": [],
@@ -69,8 +70,49 @@
       "correctCount": 0,
       "totalAttempts": 0,
       "knowledgePoints": []
+    },
+    "id_1771932538575_tpumgen": {
+      "category": "判断推理",
+      "subcategory": "图形推理",
+      "source": "",
+      "content": "awd",
+      "material": "awdawd",
+      "options": [
+        {
+          "label": "A",
+          "text": "",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "awd",
+      "materialImages": [],
+      "stemImages": [],
+      "knowledgePoints": [],
+      "id": "id_1771932538575_tpumgen",
+      "setId": "id_1771753741944_0iky3kn",
+      "section": "判断推理",
+      "createdAt": 1771932538575,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-24T10:32:17.745Z",
+  "exportTime": "2026-02-24T11:28:58.841Z",
   "notes": []
 }
