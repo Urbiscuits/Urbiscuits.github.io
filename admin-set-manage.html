@@ -39,14 +39,14 @@
     <div class="container">
         <div id="noSet" class="card empty-state" style="display:none;">
             <p>未指定套卷，请从管理员页面点击「查看题目」进入。</p>
-            <p style="margin-top:12px;"><a href="index.html#admin">返回管理员后台</a></p>
+            <p style="margin-top:12px;"><a href="admin.html">返回管理员后台</a></p>
         </div>
         <div id="mainBlock" style="display:none;">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                     <h2 style="color:var(--primary-color);" id="setTitle"></h2>
                     <div>
-                        <a href="index.html#admin" class="btn btn-default">返回管理员后台</a>
+                        <a href="admin.html" class="btn btn-default">返回管理员后台</a>
                         <button type="button" class="btn btn-primary" id="btnAddQuestion">在此套卷添加题目</button>
                     </div>
                 </div>
@@ -463,21 +463,29 @@
         function collectQuestionIds() {
             var data = loadStore();
             if (currentSetId && currentSet) {
-                var ids = [];
+                var pairs = [];
                 MAIN_SECTIONS.forEach(function(sec) {
-                    (currentSet[sec] || []).forEach(function(qid) { ids.push(qid); });
+                    (currentSet[sec] || []).forEach(function(qid) { pairs.push({ qid: qid, section: sec }); });
                 });
-                return ids;
+                pairs.sort(function(a, b) {
+                    var qa = data.questions[a.qid];
+                    var qb = data.questions[b.qid];
+                    var ta = (qa && (qa.createdAt != null)) ? qa.createdAt : 0;
+                    var tb = (qb && (qb.createdAt != null)) ? qb.createdAt : 0;
+                    return ta - tb;
+                });
+                return pairs;
             }
-            return Object.keys(data && data.questions ? data.questions : {});
+            return Object.keys(data && data.questions ? data.questions : {}).map(function(qid) { return { qid: qid, section: '' }; });
         }
         function renderSubcategoryOptions() {
             var sel = document.getElementById('filterSubcategory');
             if (!sel) return;
             var data = loadStore();
             var subs = {};
-            var ids = collectQuestionIds();
-            ids.forEach(function(qid) {
+            var pairs = collectQuestionIds();
+            pairs.forEach(function(p) {
+                var qid = p.qid || p;
                 var q = data.questions[qid];
                 if (!q) return;
                 var sec = q.section || q.category || '';
@@ -494,9 +502,10 @@
 
         function renderList() {
             var data = loadStore();
-            var ids = collectQuestionIds();
-            var bySection = {};
-            ids.forEach(function(qid) {
+            var pairs = collectQuestionIds();
+            var ordered = [];
+            pairs.forEach(function(p) {
+                var qid = p.qid || p;
                 var q = data.questions[qid];
                 if (!q) return;
                 var sec = q.section || q.category || '';
@@ -512,28 +521,19 @@
                 }
                 var sub = q.subcategory || sec;
                 if (filterSubcategory && sub !== filterSubcategory) return;
-                if (!bySection[sec]) bySection[sec] = {};
-                if (!bySection[sec][sub]) bySection[sec][sub] = [];
-                bySection[sec][sub].push(q);
+                ordered.push({ q: q, sec: sec, sub: sub });
             });
-            var html = '';
-            MAIN_SECTIONS.forEach(function(sec) {
-                if (!bySection[sec]) return;
-                html += '<div style="margin-bottom:16px;"><strong style="color:var(--primary-color);">' + esc(sec) + '</strong>';
-                Object.keys(bySection[sec]).sort().forEach(function(sub) {
-                    bySection[sec][sub].forEach(function(q) {
-                        var qid = String(q.id || '');
-                        html += '<div class="question-item" style="display:flex; align-items:flex-start; gap:8px;">' +
-                            '<label style="flex-shrink:0; cursor:pointer; margin-top:4px;"><input type="checkbox" class="q-check" value="' + esc(qid) + '"></label>' +
-                            '<div style="flex:1; min-width:0;">' +
-                            '<span class="question-category">' + esc(sub) + '</span> ' + esc((q.content||'').slice(0, 80)) + '… ' +
-                            '<button type="button" class="btn btn-info btn-sm" data-action="view" data-qid="' + esc(qid) + '">查看</button> ' +
-                            '<button type="button" class="btn btn-default btn-sm" data-action="edit" data-qid="' + esc(qid) + '">编辑</button> ' +
-                            '<button type="button" class="btn btn-danger btn-sm" data-action="delete" data-qid="' + esc(qid) + '">删除</button>' +
-                            '</div></div>';
-                    });
-                });
-                html += '</div>';
+            var html = '<p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">题目按录入顺序显示</p>';
+            ordered.forEach(function(item, idx) {
+                var q = item.q, sub = item.sub, qid = String(q.id || '');
+                html += '<div class="question-item" style="display:flex; align-items:flex-start; gap:8px;">' +
+                    '<label style="flex-shrink:0; cursor:pointer; margin-top:4px;"><input type="checkbox" class="q-check" value="' + esc(qid) + '"></label>' +
+                    '<div style="flex:1; min-width:0;">' +
+                    '<span class="question-category">' + esc(sub) + '</span> <span style="color:#6c757d;">' + (idx + 1) + '.</span> ' + esc((q.content||'').slice(0, 80)) + '… ' +
+                    '<button type="button" class="btn btn-info btn-sm" data-action="view" data-qid="' + esc(qid) + '">查看</button> ' +
+                    '<button type="button" class="btn btn-default btn-sm" data-action="edit" data-qid="' + esc(qid) + '">编辑</button> ' +
+                    '<button type="button" class="btn btn-danger btn-sm" data-action="delete" data-qid="' + esc(qid) + '">删除</button>' +
+                    '</div></div>';
             });
             document.getElementById('questionList').innerHTML = html || '<p style="color:#6c757d;">暂无题目</p>';
             updateBatchDeleteVisibility();
@@ -1018,7 +1018,7 @@
 
         function goAddQuestion() {
             try { sessionStorage.setItem('xingce_admin_add_to_set_id', currentSetId); } catch (e) {}
-            window.location.href = 'index.html?adminAddToSetId=' + encodeURIComponent(currentSetId) + '&adminImportType=single#admin';
+            window.location.href = 'admin.html?adminAddToSetId=' + encodeURIComponent(currentSetId) + '&adminImportType=single';
         }
 
         window.onload = function() {

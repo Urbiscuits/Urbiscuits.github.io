@@ -137,6 +137,10 @@
             font-size: 0.95rem;
         }
 
+        /* 从 admin.html 的 iframe 打开时隐藏本页导航、主区占满 */
+        body.admin-iframe-loaded .nav-sidebar { display: none !important; }
+        body.admin-iframe-loaded .main-area { margin-left: 0 !important; }
+
         /* 右侧内容区（z-index 低于左侧导航，确保导航可点击） */
         .main-area {
             flex: 1;
@@ -838,7 +842,7 @@
                 <button type="button" class="nav-item" data-tab="points" onclick="switchTab('points')"><i class="fas fa-tag"></i> 考点</button>
                 <button type="button" class="nav-item" data-tab="export" onclick="switchTab('export')"><i class="fas fa-file-pdf"></i> 导出PDF</button>
                 <button type="button" class="nav-item" data-tab="profile" onclick="switchTab('profile')"><i class="fas fa-user"></i> 个人中心</button>
-                <button type="button" class="nav-item" data-tab="admin" onclick="switchTab('admin')" style="border-top: 2px solid var(--primary-color); margin-top: 8px; padding-top: 12px;"><i class="fas fa-shield-alt"></i> 管理员题库管理</button>
+                <a href="admin.html" target="_self" class="nav-item" style="border-top: 2px solid var(--primary-color); margin-top: 8px; padding-top: 12px; text-decoration: none;"><i class="fas fa-shield-alt"></i> 管理员题库管理</a>
             </nav>
         </aside>
         
@@ -1316,7 +1320,7 @@
                         </div>
                         <div class="profile-section">
                             <h4 style="margin-bottom:12px; color:var(--text-primary); font-size:0.95rem;"><i class="fas fa-copy"></i> 题目重复检查</h4>
-                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">材料、题目、选项完全一致的题目视为重复。套卷内可重复，统计与专项练习中只计一次。</p>
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">题干和选项完全一致视为重复（忽略题号*：和中英文符号）。套卷内可重复，统计与专项练习中只计一次。</p>
                             <div id="duplicatesContent"></div>
                         </div>
                     </div>
@@ -1337,7 +1341,7 @@
                     </div>
                     <div id="adminContent" style="display:none;">
                         <!-- 数据同步操作 -->
-                        <div class="card" style="margin-bottom: 20px; border: 2px solid var(--primary-color);">
+                        <div id="admin-section-sync" class="card" style="margin-bottom: 20px; border: 2px solid var(--primary-color);">
                             <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-cloud-upload-alt"></i> 数据同步操作</h2>
                             
                             <!-- 保存到指定JSON文件 -->
@@ -1389,7 +1393,7 @@
                             </div>
                             
                             <!-- 从小程序保存题库（免后端） -->
-                            <div style="margin-bottom: 20px; padding: 16px; background: #e8f5e9; border-radius: var(--border-radius); border: 1px solid #4caf50;">
+                            <div id="admin-section-miniprogram" style="margin-bottom: 20px; padding: 16px; background: #e8f5e9; border-radius: var(--border-radius); border: 1px solid #4caf50;">
                                 <h4 style="margin-bottom: 12px; color: #2e7d32; font-size: 1rem;"><i class="fas fa-mobile-alt"></i> 从小程序保存题库</h4>
                                 <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">在小程序题目管理中点击「复制并到网页保存」后，在此粘贴并上传到 <code>data/store.json</code>。需先配置 GitHub Token。</p>
                                 <textarea id="adminPasteStoreInput" placeholder="粘贴小程序复制的题库 JSON（含 sets、questions）…" style="width:100%; min-height:100px; padding:10px; font-family:monospace; font-size:0.85rem; border:1px solid var(--border-color); border-radius:var(--border-radius); box-sizing:border-box;"></textarea>
@@ -1398,7 +1402,7 @@
                             </div>
                             
                             <!-- 危险操作：删除和重置多个 JSON 文件 -->
-                            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #dc3545;">
+                            <div id="admin-section-delete-json" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #dc3545;">
                                 <h4 style="margin-bottom: 12px; color: #dc3545; font-size: 1rem;"><i class="fas fa-exclamation-triangle"></i> 危险操作：删除和重置多个 JSON 文件</h4>
                                 <p style="font-size: 0.9rem; color: #721c24; margin-bottom: 12px;">选择 data 目录下的 JSON 文件进行重置或删除操作（需要三次确认）。</p>
                                 <div class="control-group" style="margin-bottom: 12px; align-items: center;">
@@ -1418,7 +1422,7 @@
                         </div>
                         
                         <!-- GitHub 同步配置 -->
-                        <div class="card" style="margin-bottom: 20px;">
+                        <div id="admin-section-github" class="card" style="margin-bottom: 20px;">
                             <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fab fa-github"></i> GitHub 同步配置</h2>
                             <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">配置 GitHub Personal Access Token 后，可在「数据同步操作」中手动同步数据到 GitHub 仓库。<strong style="color:var(--primary-color);">Token 将以加密形式存储，不会直接暴露。</strong></p>
                             <div class="control-group" style="margin-bottom:12px;">
@@ -1438,7 +1442,7 @@
                         </div>
                         
                         <!-- 用户管理 -->
-                        <div class="card" style="margin-bottom: 20px; border: 2px solid var(--info-color);">
+                        <div id="admin-section-users" class="card" style="margin-bottom: 20px; border: 2px solid var(--info-color);">
                             <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-users-cog"></i> 用户管理</h2>
                             <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:16px;">创建、修改、删除用户账号。用户可在个人中心使用账号密码登录，登录后做题数据将保存到 data/user/{用户名}.json。</p>
                             <div class="filter-controls" style="margin-bottom: 16px;">
@@ -1455,7 +1459,7 @@
                         </div>
                         
                         <!-- 套卷管理 -->
-                        <div class="card" style="margin-bottom: 20px;">
+                        <div id="admin-section-sets" class="card" style="margin-bottom: 20px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                 <h2 style="margin: 0; color: var(--primary-color);"><i class="fas fa-folder-open"></i> 套卷管理</h2>
                                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -1494,7 +1498,7 @@
                         </div>
 
                         <!-- 题目统计（管理员题库） -->
-                        <div class="card" style="margin-bottom: 20px;">
+                        <div id="admin-section-stats" class="card" style="margin-bottom: 20px;">
                             <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-chart-bar"></i> 题目统计（管理员题库）</h2>
                             <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">统计口径与个人中心一致，但数据源为管理员题库（adminStore）。可在下方维护统计展示名称与小类名称（支持合并）。</p>
 
@@ -1519,7 +1523,7 @@
                         </div>
 
                         <!-- 小类名称维护/合并 -->
-                        <div class="card" style="margin-bottom: 20px;">
+                        <div id="admin-section-subcategory" class="card" style="margin-bottom: 20px;">
                             <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-tags"></i> 小类名称维护/合并</h2>
                             <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">相当于对 data 里的所有题库文件做查找替换：仅替换题目的 <code>subcategory</code> 字段，<strong>不修改题干 content</strong>，题干中的小类关键词不会被替换。题目在其所在文件中就地更新，不写入 store.json。</p>
                             <div class="filter-controls" style="margin-bottom:12px;">
@@ -1570,7 +1574,7 @@
                         </div>
 
                         <!-- 知识管理 -->
-                        <div class="card" style="margin-bottom: 20px;">
+                        <div id="admin-section-knowledge" class="card" style="margin-bottom: 20px;">
                             <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-book"></i> 知识管理</h2>
                             <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">在 data/zhishikaodian/ 文件夹下创建知识点 JSON 文件。支持多页面，每个页面单独编辑，小程序端可左右滑动切换。富文本、LaTeX、图片均支持。单页不超过 800KB。</p>
                             <div class="filter-controls" style="margin-bottom:12px;">
@@ -1627,10 +1631,20 @@
                             </div>
                             <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT/PDF 填入（支持 <code>考点：xxx</code> 导入）</label>
                             <textarea id="adminInputText" rows="14" placeholder="粘贴题目内容，或选择上方 TXT/PDF 文件填入..."></textarea>
-                            <div style="margin-top: 16px; display: flex; gap: 12px;">
+                            <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="adminBatchImport()"><i class="fas fa-upload"></i> 导入</button>
+                                <button class="btn btn-success" onclick="adminBatchImportSequential()" title="按文本框题目顺序依次录入，每题间隔 0.05 秒，题目将按录入顺序显示"><i class="fas fa-sort-numeric-down"></i> 按顺序导入（0.05s/题）</button>
                                 <button class="btn btn-info" onclick="adminBatchPreview()"><i class="fas fa-eye"></i> 预览（公式渲染）</button>
-                                <button class="btn" onclick="document.getElementById('adminInputText').value=''; document.getElementById('adminBatchTxtFile').value=''; document.getElementById('adminBatchPreviewWrap').style.display='none';" style="background:#eaeaea;">清空</button>
+                                <button class="btn" onclick="document.getElementById('adminInputText').value=''; document.getElementById('adminBatchTxtFile').value=''; document.getElementById('adminBatchPreviewWrap').style.display='none'; var w=document.getElementById('adminBatchProgressWrap'); if(w) w.style.display='none';" style="background:#eaeaea;">清空</button>
+                            </div>
+                            <div id="adminBatchProgressWrap" style="display:none; margin-top:12px; padding:12px; background:var(--light-bg); border:1px solid var(--border-color); border-radius:var(--border-radius);">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.9rem;">
+                                    <span id="adminBatchProgressText">正在录入：0 / 0</span>
+                                    <span id="adminBatchProgressPercent">0%</span>
+                                </div>
+                                <div style="height:10px; background:var(--border-color); border-radius:5px; overflow:hidden;">
+                                    <div id="adminBatchProgressBar" style="height:100%; background:var(--primary-color); width:0%; transition:width 0.15s;"></div>
+                                </div>
                             </div>
                             <div id="adminImportStatus" class="status-message"></div>
                             <div id="adminBatchPreviewWrap" style="display:none; margin-top:20px; padding:16px; background:var(--light-bg); border-radius:var(--border-radius); border:1px solid var(--border-color);">
@@ -5929,6 +5943,7 @@
                 if (!q.id) q.id = genId();
                 q.setId = setId;
                 q.section = section;
+                q.createdAt = q.createdAt != null ? q.createdAt : Date.now();
                 q.done = q.done || false;
                 q.correctCount = q.correctCount != null ? q.correctCount : 0;
                 q.totalAttempts = q.totalAttempts != null ? q.totalAttempts : 0;
@@ -7309,23 +7324,28 @@
                 return;
             }
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-            container.innerHTML = filtered.map(function(s) {
+            container.innerHTML = '<div class="admin-set-list-toolbar" style="display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:0.9rem; color:var(--text-secondary);"><i class="fas fa-info-circle"></i> 共 ' + filtered.length + ' 个套卷，点击套卷名可查看题目详情</div>' +
+                filtered.map(function(s) {
                 var secCounts = {};
                 var total = 0;
                 (MAIN_SECTIONS || []).forEach(function(sec) { var c = (s[sec]||[]).length; secCounts[sec] = c; total += c; });
                 var meta = (MAIN_SECTIONS || []).map(function(sec) { return sec + ' ' + (secCounts[sec]||0); }).join(' · ');
                 var catOpts = (getAdminSetCategories() || []).filter(Boolean).map(function(c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
                 var moveHtml = catOpts ? '<select class="admin-set-move-category" data-set-id="' + esc(s.id) + '" style="max-width:140px; padding:4px 8px; font-size:0.85rem; border-radius:4px; border:1px solid var(--border-color);" onchange="adminMoveSetToCategory(\'' + esc(s.id) + '\', this.value); this.value=\'\';"><option value="">移至分类…</option>' + catOpts + '</select>' : '';
-                return '<div class="set-item" style="padding:12px; border:1px solid var(--border-color); border-radius:var(--border-radius); margin-bottom:8px;">' +
-                    '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
-                    '<div><strong>' + esc(s.name) + '</strong> <span style="color:#6c757d; margin-left:8px;">' + esc(s.category || '不分类') + '</span> <span style="color:#6c757d; margin-left:8px;">共 ' + total + ' 题</span><div style="margin-top:4px; font-size:0.85rem; color:#6c757d;">' + meta + '</div></div>' +
-                    '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">' +
+                return '<div class="admin-set-card set-item" style="padding:14px 16px; border:1px solid var(--border-color); border-radius:var(--border-radius); margin-bottom:10px; background:var(--surface); transition:var(--transition);">' +
+                    '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">' +
+                    '<div style="flex:1; min-width:200px;">' +
+                    '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;"><strong style="font-size:1rem;"><a href="javascript:void(0)" onclick="adminViewSetDetails(\'' + esc(s.id) + '\')" style="color:var(--primary-color); text-decoration:none;">' + esc(s.name) + '</a></strong>' +
+                    '<span class="set-category-tag" style="display:inline-block; padding:2px 8px; border-radius:4px; background:var(--light-bg); color:var(--text-secondary); font-size:0.8rem;">' + esc(s.category || '不分类') + '</span>' +
+                    '<span style="color:var(--primary-color); font-size:0.9rem;">共 ' + total + ' 题</span></div>' +
+                    '<div style="font-size:0.8rem; color:var(--text-secondary); line-height:1.5;">' + meta + '</div></div>' +
+                    '<div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">' +
                     (moveHtml ? moveHtml + ' ' : '') +
-                    '<button class="btn btn-sm btn-info" onclick="window.open(\'admin-set-manage.html?setId=' + s.id + '&t=' + Date.now() + '\', \'_blank\')" title="查看题目"><i class="fas fa-list"></i> 查看题目</button>' +
+                    '<button class="btn btn-sm btn-info" onclick="window.open(\'admin-set-manage.html?setId=' + s.id + '&t=' + Date.now() + '\', \'_blank\')" title="在新页查看/管理题目"><i class="fas fa-list"></i> 查看题目</button>' +
                     '<button class="btn btn-sm btn-primary" onclick="adminBatchImportToSet(\'' + s.id + '\')" title="批量导入到此套卷"><i class="fas fa-file-import"></i> 批量导入</button>' +
-                    '<button class="btn btn-sm btn-success" onclick="adminSingleImportToSet(\'' + s.id + '\')" title="单题导入到此套卷"><i class="fas fa-edit"></i> 单题录入</button>' +
-                    '<button class="btn btn-sm" style="background:#eaeaea;" onclick="adminEditSet(\'' + s.id + '\')" title="编辑"><i class="fas fa-edit"></i> 编辑</button>' +
-                    '<button class="btn btn-sm" style="background:#dc3545; color:#fff;" onclick="adminDeleteSet(\'' + s.id + '\')" title="删除"><i class="fas fa-trash"></i> 删除</button>' +
+                    '<button class="btn btn-sm btn-success" onclick="adminSingleImportToSet(\'' + s.id + '\')" title="单题录入"><i class="fas fa-edit"></i> 单题录入</button>' +
+                    '<button class="btn btn-sm" style="background:#eaeaea;" onclick="adminEditSet(\'' + s.id + '\')" title="编辑套卷名"><i class="fas fa-pen"></i> 编辑</button>' +
+                    '<button class="btn btn-sm" style="background:#dc3545; color:#fff;" onclick="adminDeleteSet(\'' + s.id + '\')" title="删除套卷及题目"><i class="fas fa-trash"></i> 删除</button>' +
                     '</div></div></div>';
             }).join('');
         }
@@ -7453,6 +7473,13 @@
             var allQids = [];
             MAIN_SECTIONS.forEach(function(sec) {
                 (set[sec] || []).forEach(function(qid) { allQids.push({ qid: qid, section: sec }); });
+            });
+            allQids.sort(function(a, b) {
+                var qa = adminStore.getQuestion(a.qid);
+                var qb = adminStore.getQuestion(b.qid);
+                var ta = (qa && qa.createdAt != null) ? qa.createdAt : 0;
+                var tb = (qb && qb.createdAt != null) ? qb.createdAt : 0;
+                return ta - tb;
             });
             function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
             function imgTag(src) { return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />'; }
@@ -8386,6 +8413,58 @@
             showMsg('adminImportStatus', '成功导入 ' + added + ' 题（已保存到本地）', 'success');
         }
         
+        function adminBatchImportSequential() {
+            var setId = document.getElementById('adminBatchSetId').value;
+            if (!setId) { showMsg('adminImportStatus', '请先选择或新建套卷', 'error'); return; }
+            var text = (document.getElementById('adminInputText').value || '').trim();
+            if (!text) { showMsg('adminImportStatus', '请输入题目内容', 'error'); return; }
+            var list = parseBatchText(text);
+            if (!list.length) { showMsg('adminImportStatus', '未解析到有效题目，请检查格式与分类', 'error'); return; }
+            var total = list.length;
+            var progressWrap = document.getElementById('adminBatchProgressWrap');
+            var progressBar = document.getElementById('adminBatchProgressBar');
+            var progressText = document.getElementById('adminBatchProgressText');
+            var progressPercent = document.getElementById('adminBatchProgressPercent');
+            if (progressWrap) progressWrap.style.display = 'block';
+            var intervalMs = 50;
+            var added = 0;
+            function updateProgress(n) {
+                var pct = total ? Math.round((n / total) * 100) : 0;
+                if (progressBar) progressBar.style.width = pct + '%';
+                if (progressText) progressText.textContent = '正在录入：' + n + ' / ' + total;
+                if (progressPercent) progressPercent.textContent = pct + '%';
+            }
+            updateProgress(0);
+            function doOne(index) {
+                if (index >= total) {
+                    adminStore.save();
+                    fillAdminSetSelects();
+                    adminFilterSetList();
+                    if (adminCurrentViewSetId === setId) adminViewSetDetails(setId);
+                    if (progressWrap) progressWrap.style.display = 'none';
+                    showMsg('adminImportStatus', '按顺序成功导入 ' + added + ' 题（已保存到本地，题目按录入顺序显示）', 'success');
+                    document.getElementById('adminInputText').value = '';
+                    document.getElementById('adminBatchTxtFile').value = '';
+                    document.getElementById('adminBatchPreviewWrap').style.display = 'none';
+                    return;
+                }
+                var q = list[index];
+                var section = q.category;
+                if (section) {
+                    var set = adminStore.getSet(setId);
+                    if (set) {
+                        if (typeof ensureCategory === 'function') ensureCategory(section);
+                        if (!set[section]) set[section] = [];
+                        adminStore.addQuestion(setId, section, Object.assign({}, q));
+                        added++;
+                    }
+                }
+                updateProgress(index + 1);
+                setTimeout(function() { doOne(index + 1); }, intervalMs);
+            }
+            doOne(0);
+        }
+        
         var adminSingleZiliaoQIndex = 0;
         function addAdminSingleZiliaoQuestion() {
             var idx = adminSingleZiliaoQIndex++;
@@ -8560,7 +8639,10 @@
             }
             if (location.hash === '#single') switchTab('single');
             else if (location.hash === '#batch') switchTab('batch');
-            else if (location.hash === '#admin') switchTab('admin');
+            else if (location.hash === '#admin') {
+                switchTab('admin');
+                if (window.self !== window.top) document.body.classList.add('admin-iframe-loaded');
+            }
             var singleSec = document.getElementById('singleSection');
             if (singleSec && MAIN_SECTIONS.indexOf('判断推理') !== -1) singleSec.value = '判断推理';
             updateSingleSub();
