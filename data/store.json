@@ -61,7 +61,7 @@
         }
       ],
       "answer": "A",
-      "explanation": "",
+      "explanation": "123",
       "id": "id_1771753833768_cij0ba9",
       "setId": "id_1771753741944_0iky3kn",
       "section": "判断推理",
@@ -71,5 +71,6 @@
       "knowledgePoints": []
     }
   },
-  "exportTime": "2026-02-24T08:46:00.779Z"
+  "exportTime": "2026-02-24T10:32:17.745Z",
+  "notes": []
 }
