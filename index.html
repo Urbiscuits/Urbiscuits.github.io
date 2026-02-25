@@ -751,10 +751,13 @@
 
         .page-question-header {
             font-size: 11px;
-            color: #4a6baf;
+            color: #555;
             margin-bottom: 8px;
             padding-bottom: 5px;
             border-bottom: 1px dashed #ddd;
+        }
+        .page-question-source {
+            color: #b927be;
         }
 
         .page-question-content {
@@ -5179,7 +5182,9 @@
             var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
             var stemHtml = esc(q.content || '') + (q.stemImages || []).map(function(src) { return '<img src="' + src + '" style="max-width:100%; margin:8px 0;" />'; }).join('');
             var practiceQuestionEl = document.getElementById('practiceQuestion');
-            practiceQuestionEl.innerHTML = '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || q.timeRegion || '') + '</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div>';
+            var srcLabel = (q.source || q.timeRegion || '').trim();
+            var headerHtml = '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】' + (srcLabel ? ' <span class="page-question-source">(' + esc(srcLabel) + ')</span>' : '') + '</div>';
+            practiceQuestionEl.innerHTML = headerHtml + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content">' + stemHtml + '</div>';
             renderLaTeXInElement(practiceQuestionEl);
             var optWrap = document.getElementById('practiceOptionsWrap');
             var options = q.options || [];
@@ -5253,8 +5258,10 @@
                 return '<div class="option ' + c + '"><span class="option-label">' + o.label + '.</span> ' + esc(o.text) + '</div>';
             }).join('');
             var resultQuestionEl = document.getElementById('practiceResultQuestion');
+            var srcLabel2 = (q.source || q.timeRegion || '').trim();
+            var headerHtml2 = '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】' + (srcLabel2 ? ' <span class="page-question-source">(' + esc(srcLabel2) + ')</span>' : '') + '</div>';
             resultQuestionEl.innerHTML =
-                '<div class="page-question-header">【' + esc(q.section) + '-' + esc(q.subcategory || q.section) + '】 ' + esc(q.source || q.timeRegion || '') + '</div>' +
+                headerHtml2 +
                 (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') +
                 '<div class="question-content">' + stemHtml + '</div>' +
                 '<div class="options-grid" style="margin-top:12px;">' + optHtml + '</div>';
@@ -6633,7 +6640,12 @@
             }
             var targetPath = document.getElementById('adminSelectedSetsTargetJson').value || 'data/store.json';
             var mode = (document.querySelector('input[name="adminSelectedSetsSyncMode"]:checked') || {}).value || 'merge';
-            var useStore = (document.querySelector('input[name="adminSyncSource"]:checked') || {}).value !== 'admin';
+            // 数据来源：当前仅支持从管理员题库同步
+            // 这里不再使用 :checked 选择器，而是直接读取隐藏字段的值，
+            // 确保使用 adminStore 作为数据源，避免出现“已勾选套卷但同步为 0 套”的问题。
+            var sourceInput = document.querySelector('input[name="adminSyncSource"]') || {};
+            var sourceValue = sourceInput.value || 'admin';
+            var useStore = sourceValue !== 'admin';
             var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
             function doSync(src) {
                 if (!src || !src.sets) {
