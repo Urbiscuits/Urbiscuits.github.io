@@ -892,7 +892,9 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/总分结构"
+      ],
       "id": "id_1771497620309_pgds6t3",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
@@ -28444,7 +28446,7 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-25T03:23:23.673Z",
+  "exportTime": "2026-02-25T03:24:04.408Z",
   "notes": [
     {
       "qid": "id_1771497620309_pgds6t3",
