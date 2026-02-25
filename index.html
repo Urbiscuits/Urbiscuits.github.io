@@ -6760,11 +6760,18 @@
             if (!text) { showMsg('adminPasteStoreStatus', '请先粘贴小程序复制的题库数据', 'error'); return; }
             var d;
             try { d = JSON.parse(text); } catch (e) { showMsg('adminPasteStoreStatus', '粘贴的不是有效 JSON', 'error'); return; }
-            if (!d || !Array.isArray(d.sets) || !d.questions || typeof d.questions !== 'object') {
-                showMsg('adminPasteStoreStatus', '数据格式错误，需包含 sets 数组和 questions 对象', 'error');
+            if (!d || typeof d !== 'object') {
+                showMsg('adminPasteStoreStatus', '数据格式错误，需包含 sets 数组和 questions/question 对象', 'error');
                 return;
             }
-            var content = JSON.stringify({ sets: d.sets, questions: d.questions, exportTime: d.exportTime || new Date().toISOString() }, null, 2);
+            // 兼容老版本/小程序端字段：支持 d.questions 或 d.question
+            var sets = Array.isArray(d.sets) ? d.sets : [];
+            var questions = d.questions || d.question || {};
+            if (!Array.isArray(sets) || !questions || typeof questions !== 'object') {
+                showMsg('adminPasteStoreStatus', '数据格式错误，需包含 sets 数组和 questions/question 对象', 'error');
+                return;
+            }
+            var content = JSON.stringify({ sets: sets, questions: questions, exportTime: d.exportTime || new Date().toISOString() }, null, 2);
             var files = [{ path: 'data/store.json', content: content, message: '小程序管理员保存题库 - ' + new Date().toLocaleString('zh-CN') }];
             showMsg('adminPasteStoreStatus', '正在保存到 GitHub…', 'info');
             uploadUserFiles(files, 0, function() {
