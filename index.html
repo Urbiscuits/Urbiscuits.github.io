@@ -1084,11 +1084,7 @@
                             <div id="questionDetailPointsHistory" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;"></div>
                             <button class="btn btn-success btn-sm" onclick="saveQuestionPoints()">保存</button> <button class="btn btn-default btn-sm" onclick="document.getElementById('questionDetailPointsEdit').style.display='none';">取消</button>
                         </div>
-                        <div style="margin-top:16px;">
-                            <button class="btn btn-info btn-sm" id="btnDeepSeek" onclick="fetchDeepSeekExplanation()">AI 解析 (DeepSeek)</button>
-                            <span id="deepSeekStatus" style="margin-left:8px; font-size:0.9rem;"></span>
-                        </div>
-                        <div id="questionDetailDeepSeekResult" style="display:none; margin-top:12px; padding:12px; background:#f0f5ff; border-radius:var(--border-radius);"></div>
+                        <!-- DeepSeek AI 解析已移除 -->
                     </div>
                 </div>
 
@@ -1362,25 +1358,36 @@
                                 <div id="adminNewFileStatus" class="status-message" style="margin-top: 12px;"></div>
                             </div>
                             
-                            <!-- 选择套卷同步到指定 JSON -->
+                            <!-- 选择套卷同步到指定 JSON（仅管理员题库） -->
                             <div style="margin-bottom: 20px; padding: 16px; background: var(--light-bg); border-radius: var(--border-radius); border: 1px solid var(--border-color);">
                                 <h4 style="margin-bottom: 12px; color: var(--primary-color); font-size: 1rem;"><i class="fas fa-check-square"></i> 选择套卷同步到指定 JSON</h4>
-                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">勾选要同步的套卷，选择目标 JSON 文件，将选中套卷及其题目上传到该文件。批量导入、单题录入的结果保存在<strong>本地试卷</strong>中。</p>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">勾选要同步的套卷，选择目标 JSON 文件，将选中套卷及其题目上传到该文件。当前仅支持从<strong>管理员题库</strong>同步。</p>
                                 <div class="control-group" style="margin-bottom: 12px;">
                                     <label style="min-width: 90px;">数据来源：</label>
-                                    <label style="margin-right: 16px;"><input type="radio" name="adminSyncSource" value="store" checked onchange="adminRenderSelectedSetsList()"> 本地试卷（批量导入/单题录入保存的数据）</label>
-                                    <label><input type="radio" name="adminSyncSource" value="admin" onchange="adminRenderSelectedSetsList()"> 管理员题库</label>
+                                    <span style="font-size: 0.9rem; color: var(--text-secondary);">管理员题库</span>
+                                    <input type="hidden" name="adminSyncSource" value="admin">
                                 </div>
-                                <div class="control-group" style="margin-bottom: 12px; align-items: center;">
+                                <div class="control-group" style="margin-bottom: 12px; align-items: center; flex-wrap: wrap; gap: 8px;">
                                     <label style="min-width: 90px;">目标文件：</label>
                                     <select id="adminSelectedSetsTargetJson" style="flex: 1; max-width: 420px; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius);">
                                         <option value="data/store.json">data/store.json</option>
                                     </select>
+                                    <input type="text" id="adminSelectedSetsJsonSearch" placeholder="搜索 JSON 文件名…" oninput="adminFilterSelectedSetsJsonList()" style="flex: 1; min-width: 160px; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius);" />
                                     <button class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color); margin-left:8px;" onclick="adminRefreshSelectedSetsJsonList()"><i class="fas fa-sync-alt"></i> 刷新</button>
                                 </div>
                                 <div style="margin-bottom: 10px;">
                                     <button type="button" class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color); margin-right:8px;" onclick="adminSelectAllSetsForSync(true)">全选</button>
                                     <button type="button" class="btn btn-sm" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminSelectAllSetsForSync(false)">取消全选</button>
+                                </div>
+                                <div class="control-group" style="margin-bottom: 10px; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                    <div style="flex: 1; min-width: 160px;">
+                                        <input type="text" id="adminSelectedSetsSearch" placeholder="搜索套卷名称…" oninput="adminRenderSelectedSetsList()" style="width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius);">
+                                    </div>
+                                    <div>
+                                        <select id="adminSelectedSetsCategoryFilter" onchange="adminRenderSelectedSetsList()" style="min-width: 160px; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: var(--border-radius);">
+                                            <option value="">全部分类</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div id="adminSelectedSetsList" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 12px; margin-bottom: 12px; background: var(--surface);"></div>
                                 <div class="control-group" style="margin-bottom: 12px;">
@@ -1620,15 +1627,7 @@
                                 <input type="file" id="adminBatchTxtFile" accept=".txt,text/plain" multiple onchange="onAdminBatchTxtFileChange()" style="margin-right: 12px;">
                                 <span style="color:#6c757d;">选择 TXT 后内容会填入下方框，可编辑后点击「预览」或「导入」</span>
                             </div>
-                            <div style="margin-bottom: 16px; padding: 16px; background: var(--light-bg); border-radius: var(--border-radius); border: 1px solid var(--border-color);">
-                                <h4 style="margin-bottom: 10px; color: var(--primary-color); font-size: 0.95rem;"><i class="fas fa-file-pdf"></i> PDF 识别导入（DeepSeek）</h4>
-                                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">上传 PDF（最大 100MB），系统通过 DeepSeek 自动识别为批量录入格式，识别结果填入下方文本框，可修改后导入。</p>
-                                <div class="control-group" style="margin-bottom: 10px;">
-                                    <input type="file" id="adminBatchPdfFile" accept=".pdf,application/pdf" onchange="onAdminBatchPdfFileChange()" style="margin-right: 12px;">
-                                    <button type="button" class="btn btn-info btn-sm" id="btnAdminPdfRecognize" onclick="adminStartPdfRecognize()"><i class="fas fa-robot"></i> 开始识别</button>
-                                    <span id="adminPdfRecognizeStatus" style="margin-left: 10px; font-size: 0.9rem; color: var(--text-secondary);"></span>
-                                </div>
-                            </div>
+                            <!-- PDF 识别导入（DeepSeek）已移除 -->
                             <label style="display:block; margin-bottom:8px;">粘贴题目或从 TXT/PDF 填入（支持 <code>考点：xxx</code> 导入）</label>
                             <textarea id="adminInputText" rows="14" placeholder="粘贴题目内容，或选择上方 TXT/PDF 文件填入..."></textarea>
                             <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
@@ -1889,15 +1888,6 @@
                 } else {
                     // 如果解密失败，可能是旧格式的未加密 token，直接使用
                     GITHUB_CONFIG.token = savedToken;
-                }
-            } else {
-                // 如果没有保存的 Token，使用默认值（首次使用时）
-                var defaultToken = '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';
-                if (defaultToken) {
-                    // 加密后保存
-                    var encryptedDefault = encryptToken(defaultToken);
-                    localStorage.setItem('github_token', encryptedDefault);
-                    GITHUB_CONFIG.token = defaultToken;
                 }
             }
         } catch(e) {}
@@ -3129,44 +3119,7 @@
                 if (typeof renderPracticePointsCheckboxes === 'function') renderPracticePointsCheckboxes();
             }
         }
-        var DEEPSEEK_API_KEY = 'sk-0c154dd4e49a471492ffd96e8de2091e';
-        function fetchDeepSeekExplanation() {
-            if (!detailQid) return;
-            var q = store.getQuestion(detailQid);
-            if (!q) return;
-            var statusEl = document.getElementById('deepSeekStatus');
-            var resultEl = document.getElementById('questionDetailDeepSeekResult');
-            var btn = document.getElementById('btnDeepSeek');
-            statusEl.textContent = '请求中…';
-            resultEl.style.display = 'none';
-            if (btn) btn.disabled = true;
-            var optStr = (q.options || []).map(function(o) { return o.label + '. ' + (o.text || ''); }).join('\n');
-            var userContent = '请对以下行测题目给出解析（为什么选正确答案，其他选项为何不选）：\n\n' + (q.content || '') + '\n\n选项：\n' + optStr + '\n\n正确答案：' + (q.answer || '');
-            fetch('https://api.deepseek.com/chat/completions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_API_KEY },
-                body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: '你是一名行测题目解析助手，用简洁清晰的中文作答。' }, { role: 'user', content: userContent }], stream: false })
-            }).then(function(res) { return res.json(); }).then(function(data) {
-                statusEl.textContent = '';
-                if (btn) btn.disabled = false;
-                var text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? data.choices[0].message.content : (data.error ? (data.error.message || '请求失败') : '无返回内容');
-                resultEl.innerHTML = '<strong>AI 解析：</strong><div style="margin-top:8px; white-space:pre-wrap;">' + text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div><p style="margin-top:8px;"><button class="btn btn-success btn-sm" onclick="saveDeepSeekToQuestion()">保存为题目解析</button></p>';
-                resultEl.style.display = 'block';
-            }).catch(function(err) {
-                statusEl.textContent = '失败';
-                if (btn) btn.disabled = false;
-                resultEl.innerHTML = '<span style="color:#dc3545;">' + (err.message || '网络错误') + '</span>';
-                resultEl.style.display = 'block';
-            });
-        }
-        function saveDeepSeekToQuestion() {
-            if (!detailQid) return;
-            var resultEl = document.getElementById('questionDetailDeepSeekResult');
-            var div = resultEl.querySelector('div[style*="white-space"]');
-            var text = div ? div.textContent : '';
-            var q = store.getQuestion(detailQid);
-            if (q) { q.explanation = (q.explanation ? q.explanation + '\n\n【AI解析】\n' : '') + text; store.save(); showQuestionDetail(detailQid); document.getElementById('questionDetailDeepSeekResult').style.display = 'none'; }
-        }
+        // DeepSeek AI 解析已移除
         var editQid = null;
         function editPreviewOnPaste() { setTimeout(updateEditPreview, 100); }
         function openEditQuestion(qid) {
@@ -4344,22 +4297,10 @@
                         btn.disabled = false;
                         return;
                     }
-                    statusEl.textContent = '正在调用 DeepSeek 识别…';
-                    return rawText;
-                }).then(function(rawText) {
-                    if (!rawText) return;
-                    var prompt = '请将以下 PDF 中提取的行测题目文本，转换为本系统的批量录入格式。\n\n格式要求（必须严格遵守）：\n1. 每道题必须以单独一行的 [大类-小类] 或 [大类-小类](来源) 开头；政治理论、常识判断可用 [政治理论] 或 [常识判断]（无小类）\n2. 大类：言语理解、数量关系、判断推理、资料分析、政治理论、常识判断\n3. 小类可自定义，如 [言语理解-中心理解](2025年重庆A类)、[言语理解-片段阅读](来源)\n4. 政治理论、常识判断可无小类，如 [政治理论]题号1：…\n5. 题干后换行，四个选项必须各占一行，格式为：\n   A. 选项A内容\n   B. 选项B内容\n   C. 选项C内容\n   D. 选项D内容\n6. 答案单独一行，格式：答案：A（或 B、C、D 四个字母之一）\n7. 解析单独一行，格式：解析：xxx（解析以最简洁为主，一句话即可）\n8. 考点单独一行可选：考点：xxx（多个用顿号分隔）\n9. 资料分析类：用 材料： 题目： 区分材料和题目\n10. 只输出转换后的文本，不要任何其他说明\n\nPDF 原文：\n' + rawText;
-                    return fetch('https://api.deepseek.com/chat/completions', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (typeof DEEPSEEK_API_KEY !== 'undefined' ? DEEPSEEK_API_KEY : 'sk-0c154dd4e49a471492ffd96e8de2091e') },
-                        body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: '你是行测题目格式转换助手。输出时：每个选项必须换行；答案单独一行且仅为 A、B、C、D 之一；解析单独一行且最简洁。' }, { role: 'user', content: prompt }], stream: false })
-                    }).then(function(res) { return res.json(); }).then(function(data) {
-                        var text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? data.choices[0].message.content.trim() : (data.error ? (data.error.message || 'DeepSeek 请求失败') : '无返回内容');
-                        document.getElementById('adminInputText').value = text;
-                        statusEl.textContent = '识别完成，已填入下方文本框，请检查后可修改后导入';
-                        statusEl.style.color = 'var(--success-color)';
-                        showMsg('adminImportStatus', 'PDF 识别完成，请在下方编辑后点击「导入」', 'success');
-                    });
+                    statusEl.textContent = 'PDF 识别导入已移除';
+                    statusEl.style.color = '#dc3545';
+                    showMsg('adminImportStatus', 'PDF 识别导入已移除', 'error');
+                    throw new Error('PDF 识别导入已移除');
                 }).catch(function(err) {
                     statusEl.textContent = '识别失败：' + (err && err.message || '未知错误');
                     statusEl.style.color = '#dc3545';
@@ -6503,12 +6444,34 @@
                 .then(function() { showMsg('adminRemarkStatus', '已同步管理员备注到 data/remark.json', 'success'); })
                 .catch(function(err) { showMsg('adminRemarkStatus', '同步失败：' + (err.message || '未知错误'), 'error'); });
         }
+        function adminApplySelectedSetsJsonFilter() {
+            var sel = document.getElementById('adminSelectedSetsTargetJson');
+            if (!sel) return;
+            var all = window._adminSelectedSetsJsonAllPaths || ['data/store.json'];
+            var searchEl = document.getElementById('adminSelectedSetsJsonSearch');
+            var kw = (searchEl && searchEl.value || '').trim().toLowerCase();
+            var filtered = all.filter(function(p) {
+                if (!kw) return true;
+                return String(p).toLowerCase().indexOf(kw) !== -1;
+            });
+            if (!filtered.length) filtered = all.slice();
+            var current = sel.value || '';
+            sel.innerHTML = filtered.map(function(p) { return '<option value="' + p + '">' + p + '</option>'; }).join('');
+            if (current && filtered.indexOf(current) >= 0) {
+                sel.value = current;
+            } else if (filtered.length) {
+                sel.value = filtered[0];
+            }
+        }
+        function adminFilterSelectedSetsJsonList() {
+            adminApplySelectedSetsJsonFilter();
+        }
         function adminRefreshSelectedSetsJsonList() {
             var sel = document.getElementById('adminSelectedSetsTargetJson');
             if (!sel) return Promise.resolve([]);
             if (!GITHUB_CONFIG.token) {
-                sel.innerHTML = '<option value="data/store.json">data/store.json</option>';
-                sel.value = 'data/store.json';
+                window._adminSelectedSetsJsonAllPaths = ['data/store.json'];
+                adminApplySelectedSetsJsonFilter();
                 return Promise.resolve(['data/store.json']);
             }
             var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/data?ref=' + GITHUB_CONFIG.branch;
@@ -6526,28 +6489,59 @@
                     });
                     if (jsonPaths.indexOf('data/store.json') === -1) jsonPaths.unshift('data/store.json');
                     jsonPaths.sort(function(a, b) { return a.localeCompare(b); });
-                    sel.innerHTML = jsonPaths.map(function(p) { return '<option value="' + p + '">' + p + '</option>'; }).join('');
-                    sel.value = (jsonPaths.indexOf(sel.value) >= 0) ? sel.value : 'data/store.json';
+                    window._adminSelectedSetsJsonAllPaths = jsonPaths.slice();
+                    adminApplySelectedSetsJsonFilter();
                     return jsonPaths;
                 })
                 .catch(function() {
-                    sel.innerHTML = '<option value="data/store.json">data/store.json</option>';
-                    sel.value = 'data/store.json';
+                    window._adminSelectedSetsJsonAllPaths = ['data/store.json'];
+                    adminApplySelectedSetsJsonFilter();
                     return ['data/store.json'];
                 });
         }
         function adminRenderSelectedSetsList() {
             var listEl = document.getElementById('adminSelectedSetsList');
             if (!listEl) return;
-            var useStore = (document.querySelector('input[name="adminSyncSource"]:checked') || {}).value !== 'admin';
-            var src = useStore ? store : adminStore;
+            var src = adminStore;
             var sets = (src && src.sets) ? src.sets : [];
+            var keywordEl = document.getElementById('adminSelectedSetsSearch');
+            var kw = (keywordEl && keywordEl.value || '').trim().toLowerCase();
+            var catEl = document.getElementById('adminSelectedSetsCategoryFilter');
+            var cat = (catEl && catEl.value) || '';
+            // 构建分类下拉
+            if (catEl) {
+                var catMap = {};
+                sets.forEach(function(s) {
+                    if (s && s.category) catMap[s.category] = true;
+                });
+                var cats = Object.keys(catMap).sort(function(a, b) { return String(a).localeCompare(String(b)); });
+                var prev = catEl.value;
+                catEl.innerHTML = '<option value=\"\">全部分类</option>' + cats.map(function(c) { return '<option value=\"' + esc(c) + '\">' + esc(c) + '</option>'; }).join('');
+                if (prev && cats.indexOf(prev) >= 0) {
+                    catEl.value = prev;
+                    cat = prev;
+                } else {
+                    catEl.value = '';
+                    cat = '';
+                }
+            }
             if (!sets.length) {
-                listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-secondary);">暂无套卷（' + (useStore ? '请先在批量导入或单题录入中添加' : '请先在管理员题库中添加') + '）</div>';
+                listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-secondary);">暂无套卷（请先在管理员题库中添加）</div>';
                 return;
             }
             var MAIN_SECTIONS = window.MAIN_SECTIONS || ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
-            listEl.innerHTML = sets.map(function(s) {
+            var filtered = sets.filter(function(s) {
+                if (!s) return false;
+                var name = String(s.name || '').toLowerCase();
+                if (kw && name.indexOf(kw) === -1) return false;
+                if (cat && String(s.category || '') !== cat) return false;
+                return true;
+            });
+            if (!filtered.length) {
+                listEl.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-secondary);">暂无匹配的套卷，请调整搜索或分类筛选。</div>';
+                return;
+            }
+            listEl.innerHTML = filtered.map(function(s) {
                 var count = 0;
                 MAIN_SECTIONS.forEach(function(sec) { count += (s[sec] || []).length; });
                 return '<label style="display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid var(--border-color); cursor:pointer;"><input type="checkbox" class="admin-selected-set-cb" value="' + (s.id || '') + '" data-set-id="' + (s.id || '') + '"> <span><strong>' + (s.name || '未命名') + '</strong> <span style="color:var(--text-secondary); font-size:0.85rem;">（' + count + ' 题' + (s.category ? '，' + s.category : '') + '）</span></span></label>';
