@@ -10369,7 +10369,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1
     },
     "id_1771497620309_680iukq": {
       "category": "言语理解",
@@ -12050,7 +12050,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1
     },
     "id_1771497620310_grptl9h": {
       "category": "言语理解",
@@ -28444,8 +28444,14 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-24T09:07:23.870Z",
+  "exportTime": "2026-02-25T03:22:09.844Z",
   "notes": [
+    {
+      "qid": "id_1771497620309_xzminjb",
+      "content": "尾段“而”递进一步，更加重要",
+      "images": [],
+      "createdAt": 1771989729743
+    },
     {
       "qid": "id_1771497620309_x26y12g",
       "content": "离不开....离不开....是重要的，都是指挥员，指挥员是主观的，“要”引出对策，产生一词与D项造呼应",
