@@ -404,7 +404,8 @@
         "id_1771497620310_x11ygxm",
         "id_1771497620310_yybe703",
         "id_1771497620310_1k0la5k",
-        "id_1771497620310_efyicqk"
+        "id_1771497620310_efyicqk",
+        "id_1772107144044_239v2u9"
       ],
       "数量关系": [],
       "判断推理": [
@@ -946,13 +947,16 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/分总结构"
+      ],
       "id": "id_1771497620309_nb64cws",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 0,
+      "subsubcategory": "分总结构"
     },
     "id_1771497620309_6xjqikj": {
       "category": "言语理解",
@@ -28455,9 +28459,47 @@
       "done": false,
       "correctCount": 0,
       "totalAttempts": 0
+    },
+    "id_1772107144044_239v2u9": {
+      "content": "题号6：(2020江苏)空气污染物对大脑造成严重影响的罪魁祸首是细颗粒物,即直径小于2.5微米的空气污染物。一旦被吸入体内,它们就能抵达肺部深处,进入血流,并随之进入大脑。细颗粒物直径极小,足够穿越为阻隔大型毒物分子而存在的血脑屏障。若细颗粒物由鼻子吸入,还可以通过鼻腔中的嗅觉神经进入大脑。这些颗粒物可能会激发炎症反应,导致严重的脑部疾病,影响认知能力。\n这段文字意在说明:",
+      "material": "",
+      "options": [
+        {
+          "label": "A",
+          "text": "空气污染物中细颗粒物进入大脑的危害",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "空气污染物是造成大脑疾病的罪魁祸首",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "空气污染物中的细颗粒物如何进入大脑",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "空气污染物中的细颗粒物危害人体健康",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "文段开篇指出细颗粒物是空气污染物中危害大脑的罪魁祸首，接着具体说明细颗粒物进入大脑的途径（血流、嗅觉神经），最后强调其会激发炎症反应、导致脑部疾病、影响认知能力。核心围绕“细颗粒物进入大脑的危害”展开，A项正确；B项“空气污染物”范围扩大，文段明确是“细颗粒物”，排除；C项“如何进入大脑”是中间过程描述，非重点，重点是“危害”，排除；D项“危害人体健康”范围扩大，文段侧重“对大脑的危害”，排除。",
+      "materialImages": [],
+      "stemImages": [],
+      "section": "言语理解",
+      "subcategory": "中心理解",
+      "subsubcategory": "",
+      "knowledgePoints": [],
+      "id": "id_1772107144044_239v2u9",
+      "setId": "id_1771489552903_ul6ooiy",
+      "totalAttempts": 0,
+      "correctCount": 0
     }
   },
-  "exportTime": "2026-02-26T11:53:50.044Z",
+  "exportTime": "2026-02-26T11:59:28.818Z",
   "notes": [
     {
       "qid": "id_1771497620309_nb64cws",
