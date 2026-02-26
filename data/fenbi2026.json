@@ -1308,13 +1308,16 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/提出对策/背景+问题+对策"
+      ],
       "id": "id_1771497620309_vgl8a5x",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 0,
+      "subsubcategory": "对策类"
     },
     "id_1771497620309_lnajkxh": {
       "category": "言语理解",
@@ -30584,7 +30587,7 @@
       "correctCount": 0
     }
   },
-  "exportTime": "2026-02-26T12:29:48.333Z",
+  "exportTime": "2026-02-26T12:31:01.538Z",
   "notes": [
     {
       "qid": "id_1771497620309_vgl8a5x",
