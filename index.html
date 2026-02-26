@@ -1506,7 +1506,7 @@
                                 <div><label>筛查分类</label><select id="adminSetFilterCategory" onchange="adminFilterSetList()" style="width:100%; padding:10px; margin-top:5px;"></select></div>
                                 <div style="flex:1; min-width: 180px;"><label>筛查名称</label><input type="text" id="adminSetFilterName" placeholder="输入套卷名称筛选…" oninput="adminFilterSetList()" style="width:100%; padding:10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius);"></div>
                             </div>
-                            <div id="adminSetList" style="margin-top: 16px;"></div>
+                            <div id="adminSetList" style="margin-top: 16px; max-height: 360px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 8px 10px; background: #ffffff;"></div>
                             <div id="adminSetStatus" class="status-message"></div>
                         </div>
 
