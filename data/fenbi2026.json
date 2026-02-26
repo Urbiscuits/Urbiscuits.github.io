@@ -687,7 +687,8 @@
       ],
       "资料分析": [],
       "政治理论": [],
-      "常识判断": []
+      "常识判断": [],
+      "策略选择": []
     }
   ],
   "questions": {
@@ -725,14 +726,15 @@
       "stemImages": [],
       "optionImages": [],
       "knowledgePoints": [
-        "中心理解/同义替换"
+        "中心理解/分总结构"
       ],
       "id": "id_1771497620309_qemz66l",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 0,
+      "subsubcategory": "分总结构"
     },
     "id_1771497620309_76jq23d": {
       "category": "言语理解",
@@ -10371,7 +10373,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 1
+      "totalAttempts": 0
     },
     "id_1771497620309_680iukq": {
       "category": "言语理解",
@@ -12052,7 +12054,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 1
+      "totalAttempts": 0
     },
     "id_1771497620310_grptl9h": {
       "category": "言语理解",
@@ -28446,7 +28448,7 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-25T03:25:58.561Z",
+  "exportTime": "2026-02-26T09:46:46.900Z",
   "notes": [
     {
       "qid": "id_1771497620309_nb64cws",
