@@ -867,7 +867,7 @@
                     <div class="card">
                         <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-file-import"></i> 批量导入</h2>
                         <div class="format-example">
-                            <p><strong>格式：</strong>题与题之间以单独一行的 <code>[大类]</code>、<code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 区分。六大类均支持无小类。<br><code>[政治理论](2026超格)题号1：… A.xxx B.xxx C.xxx D.xxx 答案：A
+                            <p><strong>格式：</strong>题与题之间以单独一行的 <code>[大类]</code>、<code>[大类-小类]</code> 或 <code>[大类-小类](来源)</code> 区分。支持无小类，如 <code>[政治理论]</code>、<code>[策略选择]</code> 或 <code>[策略选择-自定义小类]</code>。<br><code>[政治理论](2026超格)题号1：… A.xxx B.xxx C.xxx D.xxx 答案：A
 
 [数量关系]题号1：… 
 [言语理解-中心理解](2025年重庆A类)题干…
@@ -963,7 +963,7 @@
                         <h2 style="margin-bottom: 20px; color: var(--primary-color);"><i class="fas fa-list"></i> 题目管理</h2>
                         <div class="filter-controls">
                             <div><label>套卷</label><select id="manageSetId" onchange="filterManage()" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option></select></div>
-                            <div><label>大类</label><select id="manageSection" onchange="updateManageSub(); filterManage();" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
+                            <div><label>大类</label><select id="manageSection" onchange="updateManageSub(); filterManage();" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option><option value="策略选择">策略选择</option></select></div>
                             <div><label>小类</label><select id="manageSubcategory" onchange="filterManage()" style="width:100%; padding:10px; margin-top:5px;"><option value="">全部</option></select></div>
                             <div style="flex:1; min-width: 160px;"><label>搜索</label><input type="text" id="searchInput" placeholder="搜索题干…" oninput="filterManage()" style="width:100%; padding:15px 10px; margin-top:5px; border:1px solid var(--border-color); border-radius: var(--border-radius); min-height: 50px; line-height: 1.5;"></div>
                             <label style="display: flex; align-items: center; gap: 8px; margin-top: 24px;"><input type="checkbox" id="manageShowAnswer" onchange="filterManage()"> 显示答案与解析</label>
@@ -996,7 +996,7 @@
                                 <p class="practice-mode-desc" id="setupModeHint" style="margin-top:8px; color:#6c757d; font-size:0.9rem;">练习模式：做完所有题后提交，在新页面查看答案与正确率</p>
                             </div>
                             <div id="practiceByCategory" class="filter-controls">
-                                <div style="margin-bottom:12px;"><label>大类（可多选）</label><div id="practiceSectionsWrap" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:12px;"><label><input type="checkbox" name="practiceSection" value="言语理解"> 言语理解</label><label><input type="checkbox" name="practiceSection" value="数量关系"> 数量关系</label><label><input type="checkbox" name="practiceSection" value="判断推理"> 判断推理</label><label><input type="checkbox" name="practiceSection" value="资料分析"> 资料分析</label><label><input type="checkbox" name="practiceSection" value="政治理论"> 政治理论</label><label><input type="checkbox" name="practiceSection" value="常识判断"> 常识判断</label></div></div>
+                                <div style="margin-bottom:12px;"><label>大类（可多选）</label><div id="practiceSectionsWrap" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:12px;"><label><input type="checkbox" name="practiceSection" value="言语理解"> 言语理解</label><label><input type="checkbox" name="practiceSection" value="数量关系"> 数量关系</label><label><input type="checkbox" name="practiceSection" value="判断推理"> 判断推理</label><label><input type="checkbox" name="practiceSection" value="资料分析"> 资料分析</label><label><input type="checkbox" name="practiceSection" value="政治理论"> 政治理论</label><label><input type="checkbox" name="practiceSection" value="常识判断"> 常识判断</label><label><input type="checkbox" name="practiceSection" value="策略选择"> 策略选择</label></div></div>
                                 <div><label>小类（下方为已选大类的合并，可多选，不选即全部）</label><div id="practiceSubcategoriesWrap" style="margin-top:8px; max-height:120px; overflow-y:auto; display:flex; flex-wrap:wrap; gap:8px;"></div></div>
                                 <div><label>题数</label><input type="number" id="practiceCount" value="10" min="1" max="200" style="width:80px; padding:10px; margin-top:5px;"></div>
                                 <div style="align-self: flex-end;"><button class="btn btn-primary" onclick="startPractice()"><i class="fas fa-play"></i> 开始</button></div>
@@ -1142,6 +1142,9 @@
                                         <option value="数量关系">数量关系</option>
                                         <option value="判断推理">判断推理</option>
                                         <option value="资料分析">资料分析</option>
+                                        <option value="政治理论">政治理论</option>
+                                        <option value="常识判断">常识判断</option>
+                                        <option value="策略选择">策略选择</option>
                                     </select>
                                     <label>小类：</label>
                                     <select id="exportSubcategoryFilter" style="flex: 1;">
@@ -1532,12 +1535,26 @@
                             </div>
                         </div>
 
+                        <!-- 大类管理：自定义增加大类或修改大类名称 -->
+                        <div id="admin-section-main-categories" class="card" style="margin-bottom: 20px;">
+                            <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-layer-group"></i> 大类管理</h2>
+                            <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">可自定义增加大题类型或修改显示名称，批量录入格式支持 <code>[策略选择]</code> 或 <code>[策略选择-xxx]</code>（xxx 可自定义）。</p>
+                            <div class="filter-controls" style="margin-bottom:12px; flex-wrap:wrap;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <input type="text" id="adminNewSectionName" placeholder="新大类名称" style="padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius); width:160px;">
+                                    <button type="button" class="btn btn-primary" onclick="adminAddMainSection()"><i class="fas fa-plus"></i> 添加</button>
+                                </div>
+                            </div>
+                            <ul id="adminMainSectionsList" style="list-style:none; padding:0; margin:0;"></ul>
+                            <div id="adminMainSectionsStatus" class="status-message" style="margin-top:8px;"></div>
+                        </div>
+
                         <!-- 小类名称维护/合并 -->
                         <div id="admin-section-subcategory" class="card" style="margin-bottom: 20px;">
                             <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-tags"></i> 小类名称维护/合并</h2>
                             <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">相当于对 data 里的所有题库文件做查找替换：仅替换题目的 <code>subcategory</code> 字段，<strong>不修改题干 content</strong>，题干中的小类关键词不会被替换。题目在其所在文件中就地更新，不写入 store.json。</p>
                             <div class="filter-controls" style="margin-bottom:12px;">
-                                <div><label>大类</label><select id="adminSubcategorySection" onchange="adminLoadSubcategories()" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
+                                <div><label>大类</label><select id="adminSubcategorySection" onchange="adminLoadSubcategories()" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option><option value="策略选择">策略选择</option></select></div>
                             </div>
                             <div id="adminSubcategoryList" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; min-height:40px;"></div>
                             <!-- 重命名/合并模态 -->
@@ -1588,7 +1605,7 @@
                             <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-book"></i> 知识管理</h2>
                             <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">在 data/zhishikaodian/ 文件夹下创建知识点 JSON 文件。支持多页面，每个页面单独编辑，小程序端可左右滑动切换。富文本、LaTeX、图片均支持。单页不超过 800KB。</p>
                             <div class="filter-controls" style="margin-bottom:12px;">
-                                <div><label>大类</label><select id="adminKnowledgeSection" onchange="adminKnowledgeLoadSubcategories()" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option></select></div>
+                                <div><label>大类</label><select id="adminKnowledgeSection" onchange="adminKnowledgeLoadSubcategories()" style="width:100%; padding:10px; margin-top:5px;"><option value="言语理解">言语理解</option><option value="数量关系">数量关系</option><option value="判断推理">判断推理</option><option value="资料分析">资料分析</option><option value="政治理论">政治理论</option><option value="常识判断">常识判断</option><option value="策略选择">策略选择</option></select></div>
                                 <div style="flex:1;"><label>小类</label><select id="adminKnowledgeSubcategory" onchange="adminKnowledgeLoadNote()" style="width:100%; padding:10px; margin-top:5px;"><option value="">选择小类</option></select></div>
                             </div>
                             <div class="filter-controls" style="margin-bottom:12px;">
@@ -1797,18 +1814,52 @@
     </div>
 
     <script>
-        var MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
-        // 题目统计（管理员题库）固定显示的六大类及小类，无论 JSON 是否有数据都展示
-        var ADMIN_STATS_ORDER = ['政治理论', '常识判断', '言语理解', '判断推理', '数量关系', '资料分析'];
+        var DEFAULT_MAIN_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断', '策略选择'];
+        var MAIN_SECTIONS = (function() {
+            try {
+                var s = localStorage.getItem('xingce_main_sections');
+                if (s) {
+                    var arr = JSON.parse(s);
+                    if (Array.isArray(arr) && arr.length) return arr;
+                }
+            } catch (e) {}
+            return DEFAULT_MAIN_SECTIONS.slice();
+        })();
+        function saveMainSections(arr) {
+            if (!Array.isArray(arr) || !arr.length) return;
+            try {
+                localStorage.setItem('xingce_main_sections', JSON.stringify(arr));
+                MAIN_SECTIONS.length = 0;
+                arr.forEach(function(x) { MAIN_SECTIONS.push(x); });
+            } catch (e) {}
+        }
+        var SECTION_DISPLAY_NAMES = (function() {
+            try {
+                var s = localStorage.getItem('xingce_section_display_names');
+                if (s) return JSON.parse(s);
+            } catch (e) {}
+            return {};
+        })();
+        function getSectionDisplayName(sec) {
+            return (SECTION_DISPLAY_NAMES && SECTION_DISPLAY_NAMES[sec]) || sec || '';
+        }
+        function saveSectionDisplayNames() {
+            try {
+                localStorage.setItem('xingce_section_display_names', JSON.stringify(SECTION_DISPLAY_NAMES || {}));
+            } catch (e) {}
+        }
+        // 题目统计（管理员题库）固定显示的大类及小类
+        var ADMIN_STATS_ORDER = ['政治理论', '常识判断', '言语理解', '判断推理', '数量关系', '资料分析', '策略选择'];
         var ADMIN_STATS_SUBS = {
             '政治理论': [],
             '常识判断': [],
             '言语理解': ['逻辑填空', '中心理解', '细节判断', '标题填入', '语句排序', '接语选择'],
             '判断推理': ['类比推理', '加强题型', '削弱题型', '真假推理', '翻译推理', '定义判断', '图形推理'],
             '数量关系': ['和差倍比', '工程问题', '数量问题', '最值问题', '利润问题', '几何问题', '概率问题', '排列组合', '行程问题'],
-            '资料分析': ['现期比重', '基期比重', '两期比重', '混合比重', '基期平均数', '现期平均数', '平均数增长率', '平均数的增长量', '两期平均数', '比值计算', '基期倍数', '现期倍数', '比值比较', '倍数比较', '间隔基期', '基期比较', '基期和差', '间隔增长率', '一般增长率', '年均增长率', '混合增长率', '增长量']
+            '资料分析': ['现期比重', '基期比重', '两期比重', '混合比重', '基期平均数', '现期平均数', '平均数增长率', '平均数的增长量', '两期平均数', '比值计算', '基期倍数', '现期倍数', '比值比较', '倍数比较', '间隔基期', '基期比较', '基期和差', '间隔增长率', '一般增长率', '年均增长率', '混合增长率', '增长量'],
+            '策略选择': []
         };
-        // 小类初始化：使用 ADMIN_STATS_SUBS 作为默认值，部署后单题/批量下拉立即可用，ensureSubcategory 会追加新小类
+        // 小类初始化：使用 ADMIN_STATS_SUBS 作为默认值，ensureSubcategory 会追加新小类
         var SUBCATEGORIES = {};
         (ADMIN_STATS_ORDER || MAIN_SECTIONS).forEach(function(sec) {
             SUBCATEGORIES[sec] = (ADMIN_STATS_SUBS[sec] || []).slice();
@@ -3592,6 +3643,66 @@
         // 小类名称维护/合并：从 data 加载（与「从 data 加载」同源），不读 adminStore
         var _adminSubcategoryPending = null;
         var _adminSubcategoryDataCache = { questions: {} }; // 缓存从 data 合并后的题目，供合并目标列表使用
+        function adminRenderMainSectionsList() {
+            var ul = document.getElementById('adminMainSectionsList');
+            var statusEl = document.getElementById('adminMainSectionsStatus');
+            if (!ul) return;
+            var sections = MAIN_SECTIONS || [];
+            ul.innerHTML = sections.map(function(sec) {
+                var displayName = getSectionDisplayName(sec);
+                var isDefault = DEFAULT_MAIN_SECTIONS && DEFAULT_MAIN_SECTIONS.indexOf(sec) !== -1;
+                var delBtn = isDefault ? '' : ' <button type="button" class="btn btn-sm" style="margin-left:8px;" onclick="adminRemoveMainSection(\'' + (sec || '').replace(/'/g, "\\'") + '\')">删除</button>';
+                return '<li style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color);"><span>' + (displayName || sec).replace(/</g, '&lt;') + ' <code style="font-size:0.85rem; color:var(--text-secondary);">' + (sec || '').replace(/</g, '&lt;') + '</code></span><span><button type="button" class="btn btn-sm btn-info" onclick="adminRenameMainSection(\'' + (sec || '').replace(/'/g, "\\'") + '\')">修改名称</button>' + delBtn + '</span></li>';
+            }).join('');
+            if (statusEl) statusEl.textContent = '';
+        }
+        function adminAddMainSection() {
+            var input = document.getElementById('adminNewSectionName');
+            var name = (input && input.value || '').trim();
+            var statusEl = document.getElementById('adminMainSectionsStatus');
+            if (!name) {
+                if (statusEl) statusEl.textContent = '请输入新大类名称';
+                if (statusEl) statusEl.className = 'status-message error';
+                return;
+            }
+            if (MAIN_SECTIONS.indexOf(name) !== -1) {
+                if (statusEl) statusEl.textContent = '该大类已存在';
+                if (statusEl) statusEl.className = 'status-message error';
+                return;
+            }
+            MAIN_SECTIONS.push(name);
+            if (!SUBCATEGORIES[name]) SUBCATEGORIES[name] = [];
+            SECTION_DISPLAY_NAMES[name] = name;
+            saveMainSections(MAIN_SECTIONS);
+            saveSectionDisplayNames();
+            if (input) input.value = '';
+            adminRenderMainSectionsList();
+            refreshAllSectionSelects();
+            if (statusEl) { statusEl.textContent = '已添加：' + name; statusEl.className = 'status-message success'; }
+        }
+        function adminRenameMainSection(sec) {
+            var displayName = getSectionDisplayName(sec);
+            var newName = prompt('修改「' + (displayName || sec) + '」的显示名称（仅影响界面显示，数据键不变）：', displayName || sec);
+            if (newName == null || newName === '') return;
+            newName = String(newName).trim();
+            if (!newName) return;
+            SECTION_DISPLAY_NAMES[sec] = newName;
+            saveSectionDisplayNames();
+            adminRenderMainSectionsList();
+            refreshAllSectionSelects();
+        }
+        function adminRemoveMainSection(sec) {
+            if (!sec || MAIN_SECTIONS.indexOf(sec) === -1) return;
+            if (DEFAULT_MAIN_SECTIONS && DEFAULT_MAIN_SECTIONS.indexOf(sec) !== -1) return;
+            if (!confirm('确定删除大类「' + (getSectionDisplayName(sec) || sec) + '」？将从列表中移除，不会删除已有题目数据。')) return;
+            var idx = MAIN_SECTIONS.indexOf(sec);
+            MAIN_SECTIONS.splice(idx, 1);
+            saveMainSections(MAIN_SECTIONS);
+            delete SECTION_DISPLAY_NAMES[sec];
+            saveSectionDisplayNames();
+            adminRenderMainSectionsList();
+            refreshAllSectionSelects();
+        }
         function adminLoadSubcategories() {
             var el = document.getElementById('adminSubcategoryList');
             if (!el) return;
@@ -4795,16 +4906,47 @@
             if (card) card.remove();
         }
         function fillSectionDropdowns() {
+            refreshAllSectionSelects();
+        }
+        function refreshAllSectionSelects() {
             var sections = MAIN_SECTIONS || [];
+            function opt(s) {
+                var label = (typeof getSectionDisplayName === 'function' ? getSectionDisplayName(s) : s) || s;
+                return '<option value="' + (s || '').replace(/"/g, '&quot;') + '">' + (label || '').replace(/</g, '&lt;') + '</option>';
+            }
             ['singleSection', 'adminSingleSection'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (!el) return;
                 var cur = el.value;
-                el.innerHTML = sections.map(function(s) { return '<option value="' + (s || '').replace(/"/g, '&quot;') + '">' + (s || '').replace(/</g, '&lt;') + '</option>'; }).join('');
+                el.innerHTML = sections.map(opt).join('');
                 if (cur && sections.indexOf(cur) !== -1) el.value = cur; else if (sections.length) el.value = sections[0];
+            });
+            var manageSection = document.getElementById('manageSection');
+            if (manageSection) {
+                var curM = manageSection.value;
+                manageSection.innerHTML = '<option value="">全部</option>' + sections.map(opt).join('');
+                if (curM && sections.indexOf(curM) !== -1) manageSection.value = curM;
+            }
+            var practiceSectionsWrap = document.getElementById('practiceSectionsWrap');
+            if (practiceSectionsWrap) {
+                practiceSectionsWrap.innerHTML = sections.map(function(s) {
+                    var label = (typeof getSectionDisplayName === 'function' ? getSectionDisplayName(s) : s) || s;
+                    return '<label><input type="checkbox" name="practiceSection" value="' + (s || '').replace(/"/g, '&quot;') + '"> ' + (label || '').replace(/</g, '&lt;') + '</label>';
+                }).join('');
+                if (typeof updatePracticeSub === 'function') updatePracticeSub();
+            }
+            ['adminSubcategorySection', 'adminKnowledgeSection'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                var cur = el.value;
+                el.innerHTML = sections.map(opt).join('');
+                if (cur && sections.indexOf(cur) !== -1) el.value = cur; else if (sections.length) el.value = sections[0];
+                if (id === 'adminSubcategorySection' && typeof adminLoadSubcategories === 'function') adminLoadSubcategories();
+                if (id === 'adminKnowledgeSection' && typeof adminKnowledgeLoadSubcategories === 'function') adminKnowledgeLoadSubcategories();
             });
             if (typeof updateSingleSub === 'function') updateSingleSub();
             if (typeof updateAdminSingleSub === 'function') updateAdminSingleSub();
+            if (typeof updateManageSub === 'function') updateManageSub();
         }
         function updateSingleSub() {
             var section = document.getElementById('singleSection').value;
@@ -5985,6 +6127,9 @@
             adminLoadSubcategoriesConfigIntoGlobal();
             renderAdminStatsTree();
             updateAdminSingleSub();
+            // 初始化大类管理列表
+            if (typeof adminRenderMainSectionsList === 'function') adminRenderMainSectionsList();
+            refreshAllSectionSelects();
             // 初始化小类名称维护列表
             if (typeof adminLoadSubcategories === 'function') adminLoadSubcategories();
             // 初始化知识管理小类列表

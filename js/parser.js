@@ -6,7 +6,7 @@
 (function(window) {
     'use strict';
 
-    var DEFAULT_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断'];
+    var DEFAULT_SECTIONS = ['言语理解', '数量关系', '判断推理', '资料分析', '政治理论', '常识判断', '策略选择'];
     if (!window.MAIN_SECTIONS || !Array.isArray(window.MAIN_SECTIONS) || window.MAIN_SECTIONS.length < 6) {
         window.MAIN_SECTIONS = DEFAULT_SECTIONS.slice();
     }
