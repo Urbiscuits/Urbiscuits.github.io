@@ -2104,13 +2104,17 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/总分结构",
+        "中心理解/提出对策/背景+对策+对策论证"
+      ],
       "id": "id_1771497620309_nv1nxra",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 0,
+      "subsubcategory": "总分结构"
     },
     "id_1771497620309_wqpt90i": {
       "category": "言语理解",
@@ -30642,7 +30646,7 @@
       "correctCount": 0
     }
   },
-  "exportTime": "2026-02-26T12:59:28.127Z",
+  "exportTime": "2026-02-26T13:00:49.280Z",
   "notes": [
     {
       "qid": "id_1771497620309_vgl8a5x",
