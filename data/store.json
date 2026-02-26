@@ -1,8 +1,8 @@
 {
   "sets": [
     {
-      "id": "id_1771753741944_0iky3kn",
-      "name": "未命名套卷",
+      "id": "id_1771316075063_3ktm521",
+      "name": "不v",
       "category": "",
       "言语理解": [],
       "数量关系": [],
@@ -10,16 +10,13 @@
       "资料分析": [],
       "政治理论": [],
       "常识判断": [],
-      "教育类": [
-        "id_1772082506811_o6o8bz7"
-      ],
       "策略选择": [
-        "id_1772083740419_4u6yy3d"
+        "id_1772084029116_t76b71o"
       ]
     }
   ],
   "questions": {
-    "id_1772083740419_4u6yy3d": {
+    "id_1772084029116_t76b71o": {
       "category": "策略选择",
       "subcategory": "",
       "source": "2025年5月11日重庆A类",
@@ -53,14 +50,14 @@
       "stemImages": [],
       "optionImages": [],
       "knowledgePoints": [],
-      "id": "id_1772083740419_4u6yy3d",
-      "setId": "id_1771753741944_0iky3kn",
+      "id": "id_1772084029116_t76b71o",
+      "setId": "id_1771316075063_3ktm521",
       "section": "策略选择",
-      "createdAt": 1772083740419,
+      "createdAt": 1772084029116,
       "done": false,
       "correctCount": 0,
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-26T05:29:23.498Z"
+  "exportTime": "2026-02-26T05:34:11.249Z"
 }
