@@ -2281,13 +2281,16 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/转折关系"
+      ],
       "id": "id_1771497620309_ef4nqw5",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 0,
+      "subsubcategory": "转折结构"
     },
     "id_1771497620309_111eyzp": {
       "category": "言语理解",
@@ -30655,7 +30658,7 @@
       "correctCount": 0
     }
   },
-  "exportTime": "2026-02-26T13:04:04.161Z",
+  "exportTime": "2026-02-26T13:04:56.344Z",
   "notes": [
     {
       "qid": "id_1771497620309_vgl8a5x",
