@@ -6,57 +6,61 @@
       "category": "",
       "言语理解": [],
       "数量关系": [],
-      "判断推理": [
-        "id_1771934163945_fbz1gsk"
-      ],
+      "判断推理": [],
       "资料分析": [],
       "政治理论": [],
-      "常识判断": []
+      "常识判断": [],
+      "教育类": [
+        "id_1772082506811_o6o8bz7"
+      ],
+      "策略选择": [
+        "id_1772083740419_4u6yy3d"
+      ]
     }
   ],
   "questions": {
-    "id_1771934163945_fbz1gsk": {
-      "category": "判断推理",
-      "subcategory": "图形推理",
-      "source": "",
-      "content": "11",
-      "material": "",
+    "id_1772083740419_4u6yy3d": {
+      "category": "策略选择",
+      "subcategory": "",
+      "source": "2025年5月11日重庆A类",
+      "content": "从当前一些发达国家的人口发展实际来看,其人口生育率下降的趋势已经到了 ______ 。究其原因,是这些国家采取了一体化的干预政策,让育龄女性能够很好地平衡家庭和事业之间的关系,走出“ ______ ”的两难困境。育龄女性没有 ______ ,生育意愿自然会有所提高。依次填入画横线部分最恰当的一项是( )。",
       "options": [
         {
           "label": "A",
-          "text": "",
+          "text": "逆转无存 生育之痛",
           "images": []
         },
         {
           "label": "B",
-          "text": "",
+          "text": "遏制 因小失大 燃眉之急",
           "images": []
         },
         {
           "label": "C",
-          "text": "",
+          "text": "翻转 别无选择 后顾之忧",
           "images": []
         },
         {
           "label": "D",
-          "text": "",
+          "text": "扭转 左支右绌 后顾之忧",
           "images": []
         }
       ],
-      "answer": "A",
+      "answer": "D",
       "explanation": "",
+      "material": "",
       "materialImages": [],
       "stemImages": [],
+      "optionImages": [],
       "knowledgePoints": [],
-      "id": "id_1771934163945_fbz1gsk",
+      "id": "id_1772083740419_4u6yy3d",
       "setId": "id_1771753741944_0iky3kn",
-      "section": "判断推理",
-      "createdAt": 1771934163945,
+      "section": "策略选择",
+      "createdAt": 1772083740419,
       "done": false,
       "correctCount": 0,
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-24T11:56:04.156Z",
-  "notes": []
+  "exportTime": "2026-02-26T05:29:23.498Z"
 }
