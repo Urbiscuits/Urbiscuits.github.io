@@ -819,7 +819,8 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 0,
+      "subsubcategory": "对策类"
     },
     "id_1771497620309_xzminjb": {
       "category": "言语理解",
@@ -28449,7 +28450,7 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-26T10:28:45.414Z",
+  "exportTime": "2026-02-26T10:29:14.179Z",
   "notes": [
     {
       "qid": "id_1771497620309_nb64cws",
