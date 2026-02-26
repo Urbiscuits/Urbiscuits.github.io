@@ -2369,13 +2369,17 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/并列结构",
+        "中心理解/分总结构"
+      ],
       "id": "id_1771497620309_2bwgcq8",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 0,
+      "subsubcategory": "分总结构"
     },
     "id_1771497620309_zdk9e0r": {
       "category": "言语理解",
@@ -30661,7 +30665,7 @@
       "correctCount": 0
     }
   },
-  "exportTime": "2026-02-26T13:06:47.737Z",
+  "exportTime": "2026-02-26T13:08:19.215Z",
   "notes": [
     {
       "qid": "id_1771497620309_vgl8a5x",
