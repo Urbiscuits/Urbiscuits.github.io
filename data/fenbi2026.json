@@ -910,7 +910,8 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 0,
+      "subsubcategory": "总分结构"
     },
     "id_1771497620309_nb64cws": {
       "category": "言语理解",
@@ -28456,7 +28457,7 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-26T11:51:16.614Z",
+  "exportTime": "2026-02-26T11:53:50.044Z",
   "notes": [
     {
       "qid": "id_1771497620309_nb64cws",
