@@ -2679,16 +2679,13 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [
-        "中心理解/提出对策/背景+问题+对策"
-      ],
+      "knowledgePoints": [],
       "id": "id_1771497620309_9ycisyz",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0,
-      "subsubcategory": "对策类"
+      "totalAttempts": 0
     },
     "id_1771497620309_4koyuwr": {
       "category": "言语理解",
@@ -2723,17 +2720,13 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [
-        "中心理解/并列结构",
-        "中心理解/总分结构"
-      ],
+      "knowledgePoints": [],
       "id": "id_1771497620309_4koyuwr",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0,
-      "subsubcategory": "总分结构"
+      "totalAttempts": 0
     },
     "id_1771497620309_omwcouz": {
       "category": "言语理解",
@@ -30691,14 +30684,8 @@
       "correctCount": 0
     }
   },
-  "exportTime": "2026-02-26T13:22:16.697Z",
+  "exportTime": "2026-02-26T13:26:00.674Z",
   "notes": [
-    {
-      "qid": "id_1771497620309_vgl8a5x",
-      "content": "只有....才...引出对策",
-      "images": [],
-      "createdAt": 1772108988221
-    },
     {
       "qid": "id_1771497620309_nb64cws",
       "content": "结构相似——231读题法——强调细颗粒物对大脑的危害",
@@ -30734,6 +30721,12 @@
       "content": "“教育功能的充分发挥是博物馆强国建设的核心要义之一。”是中心句，意思就是要充分发挥教育功能",
       "images": [],
       "createdAt": 1771922617228
+    },
+    {
+      "qid": "id_1771497620309_vgl8a5x",
+      "content": "只有....才...引出对策",
+      "images": [],
+      "createdAt": 1772108988221
     }
   ]
 }
