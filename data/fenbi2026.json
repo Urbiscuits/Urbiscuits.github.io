@@ -857,13 +857,17 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/分总结构",
+        "中心理解/递进关系"
+      ],
       "id": "id_1771497620309_xzminjb",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 0,
+      "subsubcategory": "分总结构"
     },
     "id_1771497620309_pgds6t3": {
       "category": "言语理解",
@@ -28452,7 +28456,7 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-26T10:57:33.752Z",
+  "exportTime": "2026-02-26T11:51:16.614Z",
   "notes": [
     {
       "qid": "id_1771497620309_nb64cws",
