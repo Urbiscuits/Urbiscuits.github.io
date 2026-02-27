@@ -7474,17 +7474,23 @@
                 var setIds = new Set();
                 results.forEach(function(data, idx) {
                     if (!data) return;
-                    // 合并套卷（去重）
+                    var originFile = (selectedFiles[idx] || '').replace(/^data\//, '').trim() || 'store.json';
+                    // 在管理员题库中记录来源 JSON 文件，便于后续按文件粒度回写
                     (data.sets || []).forEach(function(s) {
-                        if (s && s.id && !setIds.has(s.id)) {
+                        if (!s) return;
+                        s._originFile = originFile;
+                        if (s.id && !setIds.has(s.id)) {
                             mergedSets.push(s);
                             setIds.add(s.id);
                         }
                     });
-                    // 合并题目（后面的覆盖前面的）
+                    // 合并题目（后面的覆盖前面的），并记录来源文件
                     var qs = data.questions || {};
                     Object.keys(qs).forEach(function(qid) {
-                        if (qs[qid]) mergedQuestions[qid] = qs[qid];
+                        var q = qs[qid];
+                        if (!q) return;
+                        q._originFile = originFile;
+                        mergedQuestions[qid] = q;
                     });
                 });
                 adminStore.sets = mergedSets;

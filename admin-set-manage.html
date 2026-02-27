@@ -591,6 +591,8 @@
                       '<input id="detailSubsubcategoryInput" type="text" style="margin-left:4px; padding:4px 8px; border-radius:4px; border:1px solid #ced4da; min-width:120px;" placeholder="次小类（可为空）">' +
                     '</label>' +
                   '</div>' +
+                  '<div id="detailSubHistory" style="margin-bottom:4px; font-size:0.8rem; color:#666;"></div>' +
+                  '<div id="detailThirdHistory" style="margin-bottom:8px; font-size:0.8rem; color:#666;"></div>' +
                   '<div style="margin-bottom:8px;">' +
                     '<label style="font-size:0.85rem; color:#555; display:block; margin-bottom:4px;">考点（用 、 或 ， 分隔）</label>' +
                     '<input id="detailKnowledgeInput" type="text" style="width:100%; padding:6px 10px; border-radius:4px; border:1px solid #ced4da;" placeholder="例如：和差倍比、工程问题">' +
@@ -620,6 +622,8 @@
                 var arr = Array.isArray(q.knowledgePoints) ? q.knowledgePoints : (q.knowledgePoint ? [q.knowledgePoint] : []);
                 kpInput.value = arr.join('、');
             }
+            renderDetailSubHistory();
+            renderDetailThirdHistory();
             renderDetailKnowledgeHistory(qid);
 
             document.getElementById('btnEditFromDetail').onclick = function() {
@@ -648,7 +652,80 @@
             if (nextId) showDetail(nextId);
         }
 
-        // 详情弹层：历史考点展示与快捷添加（基于所有题目）
+        // 详情弹层：历史小类/次小类/考点展示与快捷添加（基于所有题目）
+        function renderDetailSubHistory() {
+            var box = document.getElementById('detailSubHistory');
+            if (!box) return;
+            var secSel = document.getElementById('detailSectionSelect');
+            var section = secSel ? secSel.value : '';
+            var data = loadStore();
+            var subMap = {};
+            Object.keys(data.questions || {}).forEach(function(id) {
+                var q = data.questions[id];
+                if (!q) return;
+                var sec = (q.section || q.category || '').trim();
+                if (section && sec !== section) return;
+                var sub = (q.subcategory || '').trim();
+                if (sub) subMap[sub] = true;
+            });
+            var list = Object.keys(subMap).sort(function(a,b){return String(a).localeCompare(String(b));});
+            if (!list.length) {
+                box.innerHTML = '<span style="font-size:0.8rem; color:#999;">暂无历史小类</span>';
+                return;
+            }
+            var html = '<div style="margin-bottom:2px;">历史小类（点击可填入上方小类）：</div><div style="display:flex; flex-wrap:wrap; gap:6px;">';
+            html += list.map(function(name) {
+                var safe = esc(name);
+                return '<span style="padding:2px 8px; border-radius:999px; background:#f8f9fa; cursor:pointer;" onclick="detailApplySubcategory(\'' + safe.replace(/'/g, '\\\'') + '\')">' + safe + '</span>';
+            }).join('');
+            html += '</div>';
+            box.innerHTML = html;
+        }
+        function detailApplySubcategory(name) {
+            var input = document.getElementById('detailSubcategoryInput');
+            if (!input) return;
+            input.value = name;
+            renderDetailThirdHistory();
+        }
+
+        function renderDetailThirdHistory() {
+            var box = document.getElementById('detailThirdHistory');
+            if (!box) return;
+            var secSel = document.getElementById('detailSectionSelect');
+            var subInput = document.getElementById('detailSubcategoryInput');
+            var section = secSel ? secSel.value : '';
+            var sub = subInput ? (subInput.value || '').trim() : '';
+            var data = loadStore();
+            var map = {};
+            Object.keys(data.questions || {}).forEach(function(id) {
+                var q = data.questions[id];
+                if (!q) return;
+                var sec = (q.section || q.category || '').trim();
+                if (section && sec !== section) return;
+                var sub2 = (q.subcategory || '').trim();
+                if (sub && sub2 !== sub) return;
+                var third = (q.subsubcategory || '').trim();
+                if (third) map[third] = true;
+            });
+            var list = Object.keys(map).sort(function(a,b){return String(a).localeCompare(String(b));});
+            if (!list.length) {
+                box.innerHTML = '<span style="font-size:0.8rem; color:#999;">暂无历史次小类</span>';
+                return;
+            }
+            var html = '<div style="margin-bottom:2px;">历史次小类（点击可填入上方次小类）：</div><div style="display:flex; flex-wrap:wrap; gap:6px;">';
+            html += list.map(function(name) {
+                var safe = esc(name);
+                return '<span style="padding:2px 8px; border-radius:999px; background:#f8f9fa; cursor:pointer;" onclick="detailApplyThird(\'' + safe.replace(/'/g, '\\\'') + '\')">' + safe + '</span>';
+            }).join('');
+            html += '</div>';
+            box.innerHTML = html;
+        }
+        function detailApplyThird(name) {
+            var input = document.getElementById('detailSubsubcategoryInput');
+            if (!input) return;
+            input.value = name;
+        }
+
         function renderDetailKnowledgeHistory(qid) {
             var box = document.getElementById('detailKnowledgeHistory');
             if (!box) return;
@@ -755,7 +832,84 @@
             renderSubcategoryOptions();
             renderList();
             showDetail(detailQid);
-            alert('已保存分类与考点（本地管理员题库）。\n如需同步到远程 JSON，请在管理员首页执行「选择套卷同步到指定 JSON」。');
+
+            // 直接同步到该题所属的 JSON 文件（按 _originFile 推断）
+            syncQuestionToOriginJson(updated, data);
+        }
+
+        // 根据题目的 _originFile，将所属 JSON 文件整体回写到 GitHub
+        function syncQuestionToOriginJson(updatedQuestion, data) {
+            if (!updatedQuestion) return;
+            if (!GITHUB_CONFIG.token) {
+                alert('已保存到本地管理员题库，但尚未配置 GitHub Token，无法上传到远程。\n请在管理员首页的「GitHub 同步配置」中完成配置后再重试。');
+                return;
+            }
+            var originFile = (updatedQuestion._originFile && String(updatedQuestion._originFile).trim()) || '';
+            if (!originFile && updatedQuestion.setId) {
+                var s = (data.sets || []).filter(function(x){ return x.id === updatedQuestion.setId; })[0];
+                if (s && s._originFile) originFile = String(s._originFile).trim();
+            }
+            if (!originFile) originFile = 'store.json';
+            originFile = originFile.replace(/^data\//, '');
+            var targetPath = 'data/' + originFile;
+
+            var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + targetPath;
+            var headers = { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+
+            // 只导出来源于该 JSON 文件的套卷与题目
+            var sets = [];
+            var qidSet = {};
+            (data.sets || []).forEach(function(s) {
+                if (!s) return;
+                var of = (s._originFile && String(s._originFile).trim()) || '';
+                if (of && of.replace(/^data\//, '') !== originFile) return;
+                sets.push(s);
+                MAIN_SECTIONS.forEach(function(sec) {
+                    (s[sec] || []).forEach(function(qid) { if (qid) qidSet[qid] = true; });
+                });
+            });
+            var questions = {};
+            Object.keys(qidSet).forEach(function(qid) {
+                if (data.questions && data.questions[qid]) questions[qid] = data.questions[qid];
+            });
+            var exportData = { sets: sets, questions: questions, exportTime: new Date().toISOString() };
+
+            // 读取现有文件，拿到 sha；此处采用「以本地管理员题库为准」的覆盖写入策略
+            fetch(apiUrl + '?ref=' + GITHUB_CONFIG.branch, { method: 'GET', headers: headers })
+                .then(function(resp) {
+                    if (resp.status === 404) return null;
+                    if (!resp.ok) throw new Error('获取文件信息失败: ' + resp.status);
+                    return resp.json();
+                })
+                .then(function(fileInfo) {
+                    var content = JSON.stringify(exportData, null, 2);
+                    var encodedContent = utf8ToBase64(content);
+                    var commitData = {
+                        message: '管理员网页：更新题目分类与考点 → ' + targetPath + ' - ' + new Date().toLocaleString('zh-CN'),
+                        content: encodedContent,
+                        branch: GITHUB_CONFIG.branch
+                    };
+                    if (fileInfo && fileInfo.sha) commitData.sha = fileInfo.sha;
+                    return fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }),
+                        body: JSON.stringify(commitData)
+                    });
+                })
+                .then(function(resp) {
+                    if (!resp.ok) {
+                        return resp.json().then(function(err) {
+                            throw new Error((err && err.message) || '同步失败');
+                        });
+                    }
+                    return resp.json();
+                })
+                .then(function() {
+                    alert('已保存分类与考点，并同步到 GitHub：' + targetPath);
+                })
+                .catch(function(err) {
+                    alert('本地已保存分类与考点，但同步到 GitHub 失败：' + (err && err.message ? err.message : '未知错误'));
+                });
         }
 
         function getEditableContent(id) {
