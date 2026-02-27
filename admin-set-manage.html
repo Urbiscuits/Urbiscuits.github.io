@@ -95,13 +95,15 @@
     </div>
 
     <!-- 题目详情弹层 -->
-    <div id="detailOverlay" class="overlay" style="display:none;">
+            <div id="detailOverlay" class="overlay" style="display:none;">
         <div class="overlay-inner">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <h3 style="color:var(--primary-color);">题目详情</h3>
-                <div>
-                    <button type="button" class="btn btn-primary" id="btnEditFromDetail" style="margin-right:8px;">编辑</button>
-                    <button type="button" class="btn btn-default" onclick="closeDetail()">关闭</button>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-default btn-sm" onclick="showPrevDetail()">上一题</button>
+                    <button type="button" class="btn btn-default btn-sm" onclick="showNextDetail()">下一题</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnEditFromDetail" style="margin-left:4px;">编辑</button>
+                    <button type="button" class="btn btn-default btn-sm" onclick="closeDetail()">关闭</button>
                 </div>
             </div>
             <div id="detailBody"></div>
@@ -269,6 +271,8 @@
         var currentSet = null;
         var editQid = null;
         var detailQid = null;
+        // 当前列表顺序（查看详情时用于上一题/下一题导航）
+        var currentOrderedQids = [];
         var currentImageUploadTarget = null;
         var mergeQids = [];
 
@@ -525,6 +529,9 @@
                 if (filterSubcategory && sub !== filterSubcategory) return;
                 ordered.push({ q: q, sec: sec, sub: sub });
             });
+            // 记录当前渲染顺序，供「上一题 / 下一题」使用
+            currentOrderedQids = ordered.map(function(item) { return String(item.q.id || ''); });
+
             var html = '<p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">题目按录入顺序显示</p>';
             ordered.forEach(function(item, idx) {
                 var q = item.q, sub = item.sub, qid = String(q.id || '');
@@ -570,8 +577,47 @@
                 (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') +
                 '<div class="question-content" style="line-height:1.7;">' + stemHtml + '</div>' +
                 '<div style="margin-top:12px;">' + optHtml + '</div>' +
-                (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：' + esc(q.explanation) + '</div>' : '');
+                (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：' + esc(q.explanation) + '</div>' : '') +
+                '<div style="margin-top:16px; padding-top:12px; border-top:1px solid #e0e4ea;">' +
+                  '<div style="margin-bottom:8px; font-weight:600; color:var(--primary-color);">分类与考点</div>' +
+                  '<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;">' +
+                    '<label style="font-size:0.85rem; color:#555;">大类：' +
+                      '<select id="detailSectionSelect" style="margin-left:4px; padding:4px 8px; border-radius:4px; border:1px solid #ced4da;">' +
+                        MAIN_SECTIONS.map(function(sec){ return \'<option value="\' + esc(sec) + \'">\' + esc(sec) + \'</option>\'; }).join(\'\') +
+                      '</select>' +
+                    '</label>' +
+                    '<label style="font-size:0.85rem; color:#555;">小类：' +
+                      '<input id="detailSubcategoryInput" type="text" style="margin-left:4px; padding:4px 8px; border-radius:4px; border:1px solid #ced4da; min-width:120px;" placeholder="小类，如 逻辑填空">' +
+                    '</label>' +
+                    '<label style="font-size:0.85rem; color:#555;">次小类：' +
+                      '<input id="detailSubsubcategoryInput" type="text" style="margin-left:4px; padding:4px 8px; border-radius:4px; border:1px solid #ced4da; min-width:120px;" placeholder="次小类（可为空）">' +
+                    '</label>' +
+                  '</div>' +
+                  '<div style="margin-bottom:8px;">' +
+                    '<label style="font-size:0.85rem; color:#555; display:block; margin-bottom:4px;">考点（用 、 或 ， 分隔）</label>' +
+                    '<input id="detailKnowledgeInput" type="text" style="width:100%; padding:6px 10px; border-radius:4px; border:1px solid #ced4da;" placeholder="例如：和差倍比、工程问题">' +
+                  '</div>' +
+                  '<div id="detailKnowledgeHistory" style="margin-bottom:8px; font-size:0.8rem; color:#666;"></div>' +
+                  '<div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:8px;">' +
+                    '<button type="button" class="btn btn-sm btn-success" onclick="saveDetailCategoryAndPoints()"><i class="fas fa-save"></i> 保存分类与考点</button>' +
+                  '</div>' +
+                '</div>';
             renderLaTeX(document.getElementById('detailBody'));
+
+            // 初始化下拉与输入值
+            var secSel = document.getElementById('detailSectionSelect');
+            if (secSel) secSel.value = q.section || MAIN_SECTIONS[0] || '';
+            var subInput = document.getElementById('detailSubcategoryInput');
+            if (subInput) subInput.value = q.subcategory || '';
+            var thirdInput = document.getElementById('detailSubsubcategoryInput');
+            if (thirdInput) thirdInput.value = q.subsubcategory || '';
+            var kpInput = document.getElementById('detailKnowledgeInput');
+            if (kpInput) {
+                var arr = Array.isArray(q.knowledgePoints) ? q.knowledgePoints : (q.knowledgePoint ? [q.knowledgePoint] : []);
+                kpInput.value = arr.join('、');
+            }
+            renderDetailKnowledgeHistory(qid);
+
             document.getElementById('btnEditFromDetail').onclick = function() {
                 closeDetail();
                 openEditPage(qid);
@@ -581,6 +627,131 @@
         function closeDetail() {
             document.getElementById('detailOverlay').style.display = 'none';
             detailQid = null;
+        }
+        // 详情弹层：上一题 / 下一题导航
+        function showPrevDetail() {
+            if (!detailQid || !currentOrderedQids || !currentOrderedQids.length) return;
+            var idx = currentOrderedQids.indexOf(String(detailQid));
+            if (idx <= 0) return;
+            var prevId = currentOrderedQids[idx - 1];
+            if (prevId) showDetail(prevId);
+        }
+        function showNextDetail() {
+            if (!detailQid || !currentOrderedQids || !currentOrderedQids.length) return;
+            var idx = currentOrderedQids.indexOf(String(detailQid));
+            if (idx < 0 || idx >= currentOrderedQids.length - 1) return;
+            var nextId = currentOrderedQids[idx + 1];
+            if (nextId) showDetail(nextId);
+        }
+
+        // 详情弹层：历史考点展示与快捷添加（基于所有题目）
+        function renderDetailKnowledgeHistory(qid) {
+            var box = document.getElementById('detailKnowledgeHistory');
+            if (!box) return;
+            var data = loadStore();
+            var kpMap = {};
+            Object.keys(data.questions || {}).forEach(function(id) {
+                var q = data.questions[id];
+                if (!q) return;
+                var arr = Array.isArray(q.knowledgePoints) ? q.knowledgePoints : (q.knowledgePoint ? [q.knowledgePoint] : []);
+                (arr || []).forEach(function(kp) {
+                    var v = (kp && String(kp).trim()) || '';
+                    if (v) kpMap[v] = true;
+                });
+            });
+            var list = Object.keys(kpMap).sort(function(a,b){ return String(a).localeCompare(String(b)); });
+            if (!list.length) {
+                box.innerHTML = '<span style="font-size:0.8rem; color:#999;">暂无历史考点</span>';
+                return;
+            }
+            var html = '<div style="font-size:0.8rem; color:#666; margin-bottom:4px;">历史考点（点击可追加到当前题目的考点）：</div><div style="display:flex; flex-wrap:wrap; gap:6px;">';
+            html += list.map(function(kp) {
+                var safe = esc(kp);
+                return '<span style="padding:2px 8px; border-radius:999px; background:#f1f3f5; cursor:pointer;" onclick="detailAppendKnowledgePoint(\'' + safe.replace(/'/g, '\\\'') + '\')">' + safe + '</span>';
+            }).join('');
+            html += '</div>';
+            box.innerHTML = html;
+        }
+        function detailAppendKnowledgePoint(kp) {
+            var input = document.getElementById('detailKnowledgeInput');
+            if (!input) return;
+            var cur = (input.value || '').trim();
+            if (!cur) {
+                input.value = kp;
+                return;
+            }
+            var parts = cur.split(/[、，,。;；\s]+/).map(function(s){return s.trim();}).filter(Boolean);
+            if (parts.indexOf(kp) === -1) parts.push(kp);
+            input.value = parts.join('、');
+        }
+
+        // 详情弹层：保存大类/小类/次小类/考点，并写回本地管理员题库
+        function saveDetailCategoryAndPoints() {
+            if (!detailQid) return;
+            var data = loadStore();
+            var q = getQuestion(detailQid);
+            if (!q) return;
+
+            var secSel = document.getElementById('detailSectionSelect');
+            var subInput = document.getElementById('detailSubcategoryInput');
+            var thirdInput = document.getElementById('detailSubsubcategoryInput');
+            var kpInput = document.getElementById('detailKnowledgeInput');
+
+            var section = secSel ? secSel.value : (q.section || '');
+            var subcategory = subInput ? (subInput.value || '').trim() : (q.subcategory || '');
+            var subsubcategory = thirdInput ? (thirdInput.value || '').trim() : (q.subsubcategory || '');
+            var kpRaw = kpInput ? (kpInput.value || '').trim() : '';
+            var knowledgePoints = kpRaw
+                ? kpRaw.split(/[、，,。;；\s]+/).map(function(s){ return s.trim(); }).filter(Boolean)
+                : [];
+
+            if (!section) {
+                alert('请先选择大类');
+                return;
+            }
+
+            // 更新题目对象
+            var key = String(detailQid);
+            var orig = data.questions[key];
+            if (!orig) return;
+            var updated = {};
+            for (var k in orig) if (Object.prototype.hasOwnProperty.call(orig, k)) updated[k] = orig[k];
+            updated.section = section;
+            updated.subcategory = subcategory;
+            updated.subsubcategory = subsubcategory;
+            updated.knowledgePoints = knowledgePoints;
+
+            data.questions[key] = updated;
+
+            // 确保该题在所属套卷内的大类列表中存在且不重复
+            if (updated.setId) {
+                var set = data.sets.filter(function(s){ return s.id === updated.setId; })[0];
+                if (set) {
+                    // 从所有大类中移除旧位置
+                    MAIN_SECTIONS.forEach(function(sec){
+                        if (Array.isArray(set[sec])) {
+                            set[sec] = set[sec].filter(function(id){ return id !== key; });
+                        }
+                    });
+                    // 加入新的大类
+                    if (!Array.isArray(set[section])) set[section] = [];
+                    if (set[section].indexOf(key) === -1) set[section].push(key);
+                }
+            }
+
+            try {
+                saveStore(data);
+            } catch (e) {
+                alert('保存失败：' + (e && e.message ? e.message : '写入本地存储异常'));
+                return;
+            }
+
+            // 重新渲染列表与当前详情
+            currentSet = getSet(currentSetId);
+            renderSubcategoryOptions();
+            renderList();
+            showDetail(detailQid);
+            alert('已保存分类与考点（本地管理员题库）。\n如需同步到远程 JSON，请在管理员首页执行「选择套卷同步到指定 JSON」。');
         }
 
         function getEditableContent(id) {

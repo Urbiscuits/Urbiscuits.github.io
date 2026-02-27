@@ -7163,7 +7163,18 @@
             var beforeLen = cats.length;
             store.sets.forEach(function(s) { if (s.category && cats.indexOf(s.category) < 0) cats.push(s.category); });
             if (cats.length > beforeLen) saveSetCategories(cats);
-            store.save();
+            // 写入 localStorage 时可能因浏览器配额不足失败，此时仅提示用户，继续保留内存中的题库
+            try {
+                store.save();
+            } catch (e) {
+                showMsg(
+                    'profileLoadFromDataStatus',
+                    '题库已加载到当前页面，但保存到浏览器本地缓存失败：' +
+                        (e && e.message ? e.message : '超过浏览器存储配额') +
+                        '。建议减少单次加载的 JSON 数量，或在刷新题库前清理浏览器本地存储。',
+                    'warning'
+                );
+            }
             rebuildSubcategoriesFromStore();
             renderTree();
             fillCategorySelects();
@@ -7190,23 +7201,60 @@
                 return;
             }
 
-            showMsg('profileLoadFromDataStatus', '正在从 ' + selectedFiles.length + ' 个文件加载题库…', 'info');
+            var statusEl = document.getElementById('profileLoadFromDataStatus');
+            var total = selectedFiles.length;
+            var completed = 0;
+
+            function renderProgress() {
+                var percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+                if (!statusEl) {
+                    showMsg('profileLoadFromDataStatus', '正在从 ' + completed + '/' + total + ' 个文件加载题库…', 'info');
+                    return;
+                }
+                var text = '正在从 ' + completed + '/' + total + ' 个文件加载题库… ' + percent + '%';
+                statusEl.innerHTML =
+                    '<div style="margin-bottom:4px; font-size:0.9rem; color:var(--text-secondary);">' + text + '</div>' +
+                    '<div style="width:100%; height:6px; background:#e9ecef; border-radius:4px; overflow:hidden;">' +
+                    '<div style="width:' + percent + '%; height:100%; background:var(--primary-color); transition:width .2s;"></div>' +
+                    '</div>';
+            }
+
+            renderProgress();
+
             var urls = selectedFiles.map(function(name) { return getDataFileUrl(name) + '?t=' + Date.now(); });
             Promise.all(urls.map(function(url) {
-                return fetch(url).then(function(r) {
-                    if (!r.ok) throw new Error('无法读取：' + url);
-                    return r.json();
-                });
+                return fetch(url)
+                    .then(function(r) {
+                        if (!r.ok) throw new Error('无法读取：' + url);
+                        return r.json();
+                    })
+                    .then(function(data) {
+                        completed++;
+                        renderProgress();
+                        return data;
+                    });
             }))
-            .then(function(results) {
-                profileApplyJsonPayloadsToStore(results);
-                showMsg('profileLoadFromDataStatus', '加载成功：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
-                showMsg('dataStatus', '已加载题库：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目', 'success');
-                setTimeout(function() { profileCloseLoadFromDataModal(); }, 900);
-            })
-            .catch(function(err) {
-                showMsg('profileLoadFromDataStatus', '加载失败：' + (err && err.message || '未知错误') + '。请确保通过 HTTP 服务访问（非 file://）', 'error');
-            });
+                .then(function(results) {
+                    profileApplyJsonPayloadsToStore(results);
+                    showMsg(
+                        'profileLoadFromDataStatus',
+                        '加载成功：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目',
+                        'success'
+                    );
+                    showMsg(
+                        'dataStatus',
+                        '已加载题库：当前共有 ' + store.sets.length + ' 个套卷、' + Object.keys(store.questions).length + ' 道题目',
+                        'success'
+                    );
+                    setTimeout(function() { profileCloseLoadFromDataModal(); }, 900);
+                })
+                .catch(function(err) {
+                    showMsg(
+                        'profileLoadFromDataStatus',
+                        '加载失败：' + (err && err.message || '未知错误') + '。请确保通过 HTTP 服务访问（非 file://）',
+                        'error'
+                    );
+                });
         }
 
         // 显示从 data 加载模态框

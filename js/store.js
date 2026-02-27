@@ -159,6 +159,17 @@
             });
             return Array.from(ids);
         },
+        /** 获取所有已使用的次级小分类（subsubcategory），去重后按字典序排序 */
+        getAllSubsubcategories: function() {
+            var map = {};
+            Object.keys(this.questions || {}).forEach(function(qid) {
+                var q = (this.questions || {})[qid];
+                if (!q || !q.subsubcategory) return;
+                var v = String(q.subsubcategory).trim();
+                if (v) map[v] = true;
+            }, this);
+            return Object.keys(map).sort(function(a, b) { return String(a).localeCompare(String(b)); });
+        },
         getQuestionIdsByCategory: function(category, subcategory) {
             var ids = [];
             var self = this;
@@ -300,7 +311,20 @@
             var self = this;
             return Object.keys(this.questions).filter(function(qid) { var q = self.questions[qid]; return q && q.ziliaoBlockId === blockId; }).sort(function(a, b) { var qa = self.questions[a], qb = self.questions[b]; return (qa.ziliaoSubIndex || 0) - (qb.ziliaoSubIndex || 0); }).map(function(qid) { return self.questions[qid]; });
         },
-        save: function() { localStorage.setItem('xingce_sets', JSON.stringify(this.sets)); localStorage.setItem('xingce_questions', JSON.stringify(this.questions)); },
+        save: function() {
+            try {
+                localStorage.setItem('xingce_sets', JSON.stringify(this.sets));
+                localStorage.setItem('xingce_questions', JSON.stringify(this.questions));
+            } catch (e) {
+                // 浏览器本地存储空间不足（QuotaExceededError）：避免抛出导致刷新失败
+                // 保留内存中的题库，本次会话仍可使用；下次刷新可重新从 data 加载
+                console.error('保存题库到 localStorage 失败（可能超出浏览器配额）：', e && (e.message || e));
+                try {
+                    // 避免残留不完整的数据，下次再整体重建
+                    localStorage.removeItem('xingce_questions');
+                } catch (e2) {}
+            }
+        },
         load: function() { try { var s = localStorage.getItem('xingce_sets'); var q = localStorage.getItem('xingce_questions'); if (s) this.sets = JSON.parse(s); if (q) this.questions = JSON.parse(q); } catch (e) {} }
     };
 
