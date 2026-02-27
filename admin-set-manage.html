@@ -730,10 +730,18 @@
             var box = document.getElementById('detailKnowledgeHistory');
             if (!box) return;
             var data = loadStore();
+            var secSel = document.getElementById('detailSectionSelect');
+            var subInput = document.getElementById('detailSubcategoryInput');
+            var section = secSel ? secSel.value : '';
+            var sub = subInput ? (subInput.value || '').trim() : '';
             var kpMap = {};
             Object.keys(data.questions || {}).forEach(function(id) {
                 var q = data.questions[id];
                 if (!q) return;
+                var sec = (q.section || q.category || '').trim();
+                if (section && sec !== section) return;
+                var sub2 = (q.subcategory || '').trim() || sec;
+                if (sub && sub2 !== sub) return;
                 var arr = Array.isArray(q.knowledgePoints) ? q.knowledgePoints : (q.knowledgePoint ? [q.knowledgePoint] : []);
                 (arr || []).forEach(function(kp) {
                     var v = (kp && String(kp).trim()) || '';
