@@ -48,6 +48,7 @@
                     <div>
                         <a href="admin.html" class="btn btn-default">返回管理员后台</a>
                         <button type="button" class="btn btn-primary" id="btnAddQuestion">在此套卷添加题目</button>
+                        <button type="button" class="btn btn-info" id="btnImportFromOther">从其它套卷导入</button>
                     </div>
                 </div>
                 <p class="muted" style="margin-top:10px;">说明：此页面仅管理本地管理员题库（`localStorage`），需要同步到 GitHub 请回到管理员后台操作。</p>
@@ -1046,6 +1047,18 @@
                     document.getElementById('setTitle').textContent = (currentSet.name || '未命名套卷') + '（管理员题库）';
                     document.getElementById('btnAddQuestion').style.display = 'inline-flex';
                     document.getElementById('btnAddQuestion').onclick = goAddQuestion;
+                    var btnImport = document.getElementById('btnImportFromOther');
+                    if (btnImport) {
+                        btnImport.style.display = 'inline-flex';
+                        btnImport.onclick = function() {
+                            if (!currentSetId) {
+                                alert('当前套卷不存在，无法导入。');
+                                return;
+                            }
+                            // 在新页面中完成从其它套卷/题库搜索导入题目的操作
+                            window.location.href = 'admin-set-import.html?setId=' + encodeURIComponent(currentSetId);
+                        };
+                    }
                 }
                 try {
                     var data = loadStore();

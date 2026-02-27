@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>从其它套卷/题库导入题目</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="js/admin-store-idb.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --primary-color:#4a6baf;
+      --success-color:#28a745;
+      --border-radius:8px;
+      --box-shadow:0 4px 12px rgba(0,0,0,.08);
+    }
+    body{
+      font-family:'Microsoft YaHei',sans-serif;
+      background:#f5f7fa;
+      min-height:100vh;
+      padding:20px;
+    }
+    .container{max-width:1100px;margin:0 auto;}
+    .card{
+      background:#fff;
+      border-radius:var(--border-radius);
+      box-shadow:var(--box-shadow);
+      padding:20px 24px;
+      margin-bottom:20px;
+    }
+    .title-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .page-title{
+      font-size:1.3rem;
+      color:var(--primary-color);
+      font-weight:600;
+    }
+    .btn{
+      padding:8px 16px;
+      border:none;
+      border-radius:var(--border-radius);
+      font-size:0.9rem;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .btn-default{background:#e9ecef;color:#333;}
+    .btn-primary{background:var(--primary-color);color:#fff;}
+    .btn-success{background:var(--success-color);color:#fff;}
+    .btn-info{background:#17a2b8;color:#fff;}
+    .btn-sm{padding:4px 10px;font-size:0.8rem;}
+    .muted{color:#6c757d;font-size:0.9rem;}
+    .tabs{
+      display:flex;
+      border-bottom:1px solid #e0e4ea;
+      margin-bottom:12px;
+    }
+    .tab{
+      padding:8px 16px;
+      cursor:pointer;
+      font-size:0.9rem;
+      color:#6c757d;
+      border-bottom:2px solid transparent;
+    }
+    .tab.active{
+      color:var(--primary-color);
+      border-bottom-color:var(--primary-color);
+      font-weight:600;
+    }
+    .form-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:12px;
+      align-items:flex-end;
+    }
+    .field{
+      min-width:180px;
+    }
+    .field label{
+      display:block;
+      font-size:0.85rem;
+      color:#6c757d;
+      margin-bottom:4px;
+    }
+    select,input[type="text"]{
+      width:100%;
+      padding:6px 10px;
+      border-radius:4px;
+      border:1px solid #ced4da;
+      font-size:0.9rem;
+    }
+    .question-list{
+      margin-top:8px;
+      max-height:420px;
+      overflow:auto;
+      border-radius:var(--border-radius);
+      border:1px solid #e0e4ea;
+      background:#fff;
+    }
+    .question-row{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+      padding:10px 14px;
+      border-bottom:1px solid #f1f3f6;
+    }
+    .question-row:last-child{border-bottom:none;}
+    .q-main{flex:1;min-width:0;}
+    .badge-sec{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      background:#e3eafc;
+      color:#3453a3;
+      font-size:0.75rem;
+      margin-right:6px;
+    }
+    .q-snippet{
+      font-size:0.9rem;
+      color:#333;
+      word-break:break-all;
+    }
+    .q-meta{
+      margin-top:4px;
+      font-size:0.78rem;
+      color:#6c757d;
+    }
+    .empty{
+      padding:32px 16px;
+      text-align:center;
+      color:#6c757d;
+      font-size:0.9rem;
+    }
+    .section-title{
+      font-size:0.95rem;
+      font-weight:600;
+      margin-bottom:6px;
+      color:#343a40;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="title-row">
+        <div>
+          <div class="page-title">从其它套卷/题库导入题目</div>
+          <div id="targetSetInfo" class="muted" style="margin-top:4px;"></div>
+        </div>
+        <div>
+          <a href="admin.html" class="btn btn-default">返回管理员后台</a>
+          <button type="button" class="btn btn-default" id="btnBackSet">返回当前套卷题目</button>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:10px;">
+        可从已有套卷按顺序批量导入题目，或在整个管理员题库中按照条件搜索并批量加入当前套卷。
+        导入时会以完整拷贝的方式新增题目，保留材料、题干、选项、答案、解析、考点等信息。
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <div class="tab active" id="tabBySet">按套卷导入</div>
+        <div class="tab" id="tabBySearch">题库搜索导入</div>
+      </div>
+
+      <!-- 按套卷导入 -->
+      <div id="panelBySet">
+        <div class="section-title">步骤 1：选择来源套卷</div>
+        <div class="form-row">
+          <div class="field" style="min-width:240px;">
+            <label>来源套卷</label>
+            <select id="sourceSetSelect"></select>
+          </div>
+          <div class="field">
+            <label>按大类筛选（可选）</label>
+            <select id="sourceFilterSection"></select>
+          </div>
+          <div class="field">
+            <label>按小类筛选（可选）</label>
+            <select id="sourceFilterSubcategory">
+              <option value="">全部</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1;min-width:200px;">
+            <label>关键词（题干/材料/选项/解析）</label>
+            <input type="text" id="sourceFilterKeyword" placeholder="输入关键字后回车或停止输入自动筛选">
+          </div>
+          <div style="white-space:nowrap;">
+            <button type="button" class="btn btn-sm btn-default" id="btnSourceSelectAll">全选/反选</button>
+          </div>
+        </div>
+        <div class="section-title" style="margin-top:8px;">步骤 2：勾选要导入的题目</div>
+        <div id="sourceList" class="question-list">
+          <div class="empty">请选择来源套卷，系统会按录入顺序列出题目。</div>
+        </div>
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <span class="muted" id="sourceHint">已选择 0 道题</span>
+          <button type="button" class="btn btn-success" id="btnImportFromSet">导入到当前套卷</button>
+        </div>
+      </div>
+
+      <!-- 题库搜索导入 -->
+      <div id="panelBySearch" style="display:none;">
+        <div class="section-title">步骤 1：设置搜索条件</div>
+        <div class="form-row">
+          <div class="field">
+            <label>按大类筛选</label>
+            <select id="searchSection"></select>
+          </div>
+          <div class="field">
+            <label>按小类筛选</label>
+            <select id="searchSubcategory">
+              <option value="">全部</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1;min-width:220px;">
+            <label>关键词（题干/材料/选项/解析）</label>
+            <input type="text" id="searchKeyword" placeholder="留空为全部题目，可结合大类/小类筛选">
+          </div>
+          <div style="white-space:nowrap;">
+            <button type="button" class="btn btn-primary btn-sm" id="btnDoSearch">搜索</button>
+            <button type="button" class="btn btn-sm btn-default" id="btnSearchSelectAll">全选/反选</button>
+          </div>
+        </div>
+        <div class="section-title" style="margin-top:8px;">步骤 2：从搜索结果中勾选要导入的题目</div>
+        <div id="searchList" class="question-list">
+          <div class="empty">请先设置筛选条件并点击「搜索」。</div>
+        </div>
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <span class="muted" id="searchHint">已选择 0 道题</span>
+          <button type="button" class="btn btn-success" id="btnImportFromSearch">从搜索结果导入到当前套卷</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var MAIN_SECTIONS = ['言语理解','数量关系','判断推理','资料分析','政治理论','常识判断','策略选择'];
+    var currentSetId = null;
+    var currentSet = null;
+    var _adminCache = null;
+
+    function loadStore() {
+      if (_adminCache) return _adminCache;
+      try {
+        var s = localStorage.getItem('xingce_admin_sets');
+        var q = localStorage.getItem('xingce_admin_questions');
+        _adminCache = { sets: s ? JSON.parse(s) : [], questions: q ? JSON.parse(q) : {} };
+        return _adminCache;
+      } catch (e) {
+        return { sets: [], questions: {} };
+      }
+    }
+    function saveStore(data) {
+      _adminCache = data;
+      if (typeof XingceAdminIDB !== 'undefined' && XingceAdminIDB.set) {
+        XingceAdminIDB.set(data).catch(function(){});
+        return;
+      }
+      try {
+        localStorage.setItem('xingce_admin_sets', JSON.stringify(data.sets));
+        localStorage.setItem('xingce_admin_questions', JSON.stringify(data.questions));
+      } catch (e) {
+        alert('保存失败：' + (e.message || '写入本地存储异常'));
+      }
+    }
+    function getSet(setId) {
+      var data = loadStore();
+      return data.sets.filter(function(s){ return s.id === setId; })[0] || null;
+    }
+    function esc(s){
+      if (s==null) return '';
+      var d=document.createElement('div');
+      d.textContent=s;
+      return d.innerHTML;
+    }
+    function getSetIdFromUrl(){
+      var m=/[?&]setId=([^&]+)/.exec(location.search);
+      return m?decodeURIComponent(m[1]):null;
+    }
+    function renderTargetInfo(){
+      var el=document.getElementById('targetSetInfo');
+      if (!el) return;
+      if (!currentSet){
+        el.textContent='未找到当前套卷，请从管理员页面重新进入。';
+        return;
+      }
+      el.textContent='当前套卷：' + (currentSet.name || '未命名套卷') + '（ID: ' + currentSet.id + '）';
+    }
+
+    function initSectionSelect(selectEl, withAll){
+      if (!selectEl) return;
+      var html='';
+      if (withAll) html+='<option value="">全部</option>';
+      MAIN_SECTIONS.forEach(function(sec){
+        html+='<option value="'+esc(sec)+'">'+esc(sec)+'</option>';
+      });
+      selectEl.innerHTML=html;
+      if (withAll) selectEl.value='';
+      else if (MAIN_SECTIONS.length) selectEl.value=MAIN_SECTIONS[0];
+    }
+
+    function buildSubcategoryOptions(section, isSearch){
+      var data=loadStore();
+      var subs={};
+      Object.keys(data.questions||{}).forEach(function(qid){
+        var q=data.questions[qid];
+        if (!q) return;
+        var sec=q.section||q.category||'';
+        if (section && sec!==section) return;
+        var sub=q.subcategory||'';
+        if (sub) subs[sub]=true;
+      });
+      var list=Object.keys(subs).sort(function(a,b){return String(a).localeCompare(String(b));});
+      var sel=document.getElementById(isSearch?'searchSubcategory':'sourceFilterSubcategory');
+      if (!sel) return;
+      var html='<option value="">全部</option>';
+      list.forEach(function(s){ html+='<option value="'+esc(s)+'">'+esc(s)+'</option>'; });
+      sel.innerHTML=html;
+      sel.value='';
+    }
+
+    // ---------- 按套卷导入 ----------
+    function renderSourceSetOptions(){
+      var data=loadStore();
+      var sel=document.getElementById('sourceSetSelect');
+      if (!sel) return;
+      var html='';
+      (data.sets||[]).forEach(function(s,idx){
+        html+='<option value="'+esc(s.id)+'">'+esc((s.name||'未命名套卷') + '（' + s.id + '）')+'</option>';
+      });
+      if (!html){
+        html='<option value="">暂无套卷</option>';
+      }
+      sel.innerHTML=html;
+      if (currentSetId){
+        // 默认选中与当前套卷不同的第一个套卷
+        var firstOther = (data.sets||[]).find(function(s){return s.id!==currentSetId;});
+        if (firstOther) sel.value=firstOther.id;
+      }
+    }
+
+    function collectQuestionsBySet(sourceSetId, filterSection, filterSubcategory, keyword){
+      var data=loadStore();
+      var set=data.sets.filter(function(s){return s.id===sourceSetId;})[0];
+      if (!set) return [];
+      var pairs=[];
+      MAIN_SECTIONS.forEach(function(sec){
+        (set[sec]||[]).forEach(function(qid){ pairs.push({qid:qid, section:sec}); });
+      });
+      pairs.sort(function(a,b){
+        var qa=data.questions[a.qid], qb=data.questions[b.qid];
+        var ta=(qa && qa.createdAt!=null)?qa.createdAt:0;
+        var tb=(qb && qb.createdAt!=null)?qb.createdAt:0;
+        return ta-tb;
+      });
+      var kw=(keyword||'').trim().toLowerCase();
+      var out=[];
+      pairs.forEach(function(p,idx){
+        var q=data.questions[p.qid];
+        if (!q) return;
+        var sec=q.section||q.category||p.section||'';
+        if (filterSection && sec!==filterSection) return;
+        var sub=q.subcategory||sec;
+        if (filterSubcategory && sub!==filterSubcategory) return;
+        if (kw){
+          var texts=[q.content||'', q.material||'', q.explanation||''];
+          (q.options||[]).forEach(function(o){texts.push(o.text||'');});
+          var joined=texts.join(' ').toLowerCase();
+          if (joined.indexOf(kw)===-1) return;
+        }
+        out.push({q:q, section:sec, sub:sub, order:idx});
+      });
+      return out;
+    }
+
+    function renderSourceList(){
+      var listEl=document.getElementById('sourceList');
+      if (!listEl) return;
+      var sel=document.getElementById('sourceSetSelect');
+      var sourceId=sel && sel.value ? sel.value : '';
+      if (!sourceId){
+        listEl.innerHTML='<div class="empty">请选择来源套卷。</div>';
+        document.getElementById('sourceHint').textContent='已选择 0 道题';
+        return;
+      }
+      var secSel=document.getElementById('sourceFilterSection');
+      var subSel=document.getElementById('sourceFilterSubcategory');
+      var kwInput=document.getElementById('sourceFilterKeyword');
+      var filterSection=secSel?secSel.value:'';
+      var filterSub=subSel?subSel.value:'';
+      var kw=kwInput?kwInput.value:'';
+      var items=collectQuestionsBySet(sourceId, filterSection, filterSub, kw);
+      if (!items.length){
+        listEl.innerHTML='<div class="empty">未找到符合条件的题目。</div>';
+        document.getElementById('sourceHint').textContent='已选择 0 道题';
+        return;
+      }
+      var html='';
+      items.forEach(function(item,idx){
+        var q=item.q;
+        var qid=String(q.id||'');
+        html+='<div class="question-row">'+
+          '<div style="flex-shrink:0;margin-top:3px;"><input type="checkbox" class="source-check" value="'+esc(qid)+'"></div>'+
+          '<div class="q-main">'+
+            '<div><span class="badge-sec">'+esc(item.section)+(item.sub && item.sub!==item.section?(' · '+esc(item.sub)):'')+'</span>'+
+            '<span class="muted">#'+(idx+1)+'</span></div>'+
+            '<div class="q-snippet">'+esc((q.content||'').slice(0,120))+(q.content && q.content.length>120?'…':'')+'</div>'+
+            '<div class="q-meta">ID: '+esc(qid)+(q.source?(' ｜ 来源：'+esc(q.source)):'')+'</div>'+
+          '</div>'+
+        '</div>';
+      });
+      listEl.innerHTML=html;
+      updateSourceHint();
+    }
+
+    function updateSourceHint(){
+      var checks=document.querySelectorAll('.source-check:checked');
+      var n=checks?checks.length:0;
+      var el=document.getElementById('sourceHint');
+      if (el) el.textContent='已选择 '+n+' 道题';
+    }
+
+    function toggleSourceSelectAll(){
+      var all=document.querySelectorAll('.source-check');
+      if (!all.length) return;
+      var checkedCount=document.querySelectorAll('.source-check:checked').length;
+      var targetCheck = checkedCount === all.length ? false : true;
+      all.forEach(function(cb){ cb.checked=targetCheck; });
+      updateSourceHint();
+    }
+
+    function importFromSet(){
+      if (!currentSet){
+        alert('当前套卷不存在，无法导入。');
+        return;
+      }
+      var checks=document.querySelectorAll('.source-check:checked');
+      if (!checks.length){
+        alert('请先勾选要导入的题目。');
+        return;
+      }
+      var data=loadStore();
+      var sourceIds=[];
+      checks.forEach(function(cb){ if (cb.value) sourceIds.push(cb.value); });
+      if (!sourceIds.length) return;
+      // 为了保持与来源套卷中出现顺序一致，按当前列表顺序导入
+      var ordered=[];
+      var all=document.querySelectorAll('.source-check');
+      all.forEach(function(cb){
+        if (cb.checked && cb.value) ordered.push(cb.value);
+      });
+      var imported=0;
+      ordered.forEach(function(oldId){
+        var q=data.questions[oldId];
+        if (!q) return;
+        var sec=q.section||q.category||MAIN_SECTIONS[0]||'';
+        var newId='q_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+        var copy=JSON.parse(JSON.stringify(q));
+        copy.id=newId;
+        copy.setId=currentSetId;
+        copy.section=sec;
+        copy.createdAt=Date.now();
+        data.questions[newId]=copy;
+        // 按原大类加入当前套卷
+        if (!Array.isArray(currentSet[sec])) currentSet[sec]=[];
+        currentSet[sec].push(newId);
+        imported++;
+      });
+      // 写回 sets
+      data.sets = (data.sets||[]).map(function(s){ return s.id===currentSetId ? currentSet : s; });
+      saveStore(data);
+      alert('已从其它套卷导入 '+imported+' 道题目到当前套卷。');
+      updateSourceHint();
+    }
+
+    // ---------- 搜索导入 ----------
+    function collectQuestionsBySearch(section, subcategory, keyword){
+      var data=loadStore();
+      var ids=[];
+      Object.keys(data.questions||{}).forEach(function(qid){
+        ids.push(qid);
+      });
+      ids.sort(function(a,b){
+        var qa=data.questions[a], qb=data.questions[b];
+        var ta=(qa && qa.createdAt!=null)?qa.createdAt:0;
+        var tb=(qb && qb.createdAt!=null)?qb.createdAt:0;
+        return ta-tb;
+      });
+      var kw=(keyword||'').trim().toLowerCase();
+      var out=[];
+      ids.forEach(function(qid,idx){
+        var q=data.questions[qid];
+        if (!q) return;
+        var sec=q.section||q.category||'';
+        if (section && sec!==section) return;
+        var sub=q.subcategory||sec;
+        if (subcategory && sub!==subcategory) return;
+        if (kw){
+          var texts=[q.content||'', q.material||'', q.explanation||''];
+          (q.options||[]).forEach(function(o){texts.push(o.text||'');});
+          var joined=texts.join(' ').toLowerCase();
+          if (joined.indexOf(kw)===-1) return;
+        }
+        out.push({q:q, section:sec, sub:sub, order:idx});
+      });
+      return out;
+    }
+
+    function renderSearchList(){
+      var listEl=document.getElementById('searchList');
+      if (!listEl) return;
+      var secSel=document.getElementById('searchSection');
+      var subSel=document.getElementById('searchSubcategory');
+      var kwInput=document.getElementById('searchKeyword');
+      var section=secSel?secSel.value:'';
+      var sub=subSel?subSel.value:'';
+      var kw=kwInput?kwInput.value:'';
+      var items=collectQuestionsBySearch(section, sub, kw);
+      if (!items.length){
+        listEl.innerHTML='<div class="empty">未找到符合条件的题目。</div>';
+        document.getElementById('searchHint').textContent='已选择 0 道题';
+        return;
+      }
+      var html='';
+      items.forEach(function(item,idx){
+        var q=item.q;
+        var qid=String(q.id||'');
+        html+='<div class="question-row">'+
+          '<div style="flex-shrink:0;margin-top:3px;"><input type="checkbox" class="search-check" value="'+esc(qid)+'"></div>'+
+          '<div class="q-main">'+
+            '<div><span class="badge-sec">'+esc(item.section)+(item.sub && item.sub!==item.section?(' · '+esc(item.sub)):'')+'</span>'+
+            '<span class="muted">ID: '+esc(qid)+'</span></div>'+
+            '<div class="q-snippet">'+esc((q.content||'').slice(0,120))+(q.content && q.content.length>120?'…':'')+'</div>'+
+            '<div class="q-meta">'+(q.source?('来源：'+esc(q.source)+' ｜ '):'')+'所属套卷数：暂不区分</div>'+
+          '</div>'+
+        '</div>';
+      });
+      listEl.innerHTML=html;
+      updateSearchHint();
+    }
+
+    function updateSearchHint(){
+      var checks=document.querySelectorAll('.search-check:checked');
+      var n=checks?checks.length:0;
+      var el=document.getElementById('searchHint');
+      if (el) el.textContent='已选择 '+n+' 道题';
+    }
+
+    function toggleSearchSelectAll(){
+      var all=document.querySelectorAll('.search-check');
+      if (!all.length) return;
+      var checkedCount=document.querySelectorAll('.search-check:checked').length;
+      var targetCheck = checkedCount === all.length ? false : true;
+      all.forEach(function(cb){ cb.checked=targetCheck; });
+      updateSearchHint();
+    }
+
+    function importFromSearch(){
+      if (!currentSet){
+        alert('当前套卷不存在，无法导入。');
+        return;
+      }
+      var checks=document.querySelectorAll('.search-check:checked');
+      if (!checks.length){
+        alert('请先勾选要导入的题目。');
+        return;
+      }
+      var data=loadStore();
+      var ordered=[];
+      var all=document.querySelectorAll('.search-check');
+      all.forEach(function(cb){
+        if (cb.checked && cb.value) ordered.push(cb.value);
+      });
+      var imported=0;
+      ordered.forEach(function(oldId){
+        var q=data.questions[oldId];
+        if (!q) return;
+        var sec=q.section||q.category||MAIN_SECTIONS[0]||'';
+        var newId='q_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+        var copy=JSON.parse(JSON.stringify(q));
+        copy.id=newId;
+        copy.setId=currentSetId;
+        copy.section=sec;
+        copy.createdAt=Date.now();
+        data.questions[newId]=copy;
+        if (!Array.isArray(currentSet[sec])) currentSet[sec]=[];
+        currentSet[sec].push(newId);
+        imported++;
+      });
+      data.sets = (data.sets||[]).map(function(s){ return s.id===currentSetId ? currentSet : s; });
+      saveStore(data);
+      alert('已从题库搜索结果导入 '+imported+' 道题目到当前套卷。');
+      updateSearchHint();
+    }
+
+    // ---------- 页面初始化 ----------
+    window.onload=function(){
+      currentSetId=getSetIdFromUrl();
+      var backBtn=document.getElementById('btnBackSet');
+      if (backBtn){
+        backBtn.onclick=function(){
+          if (!currentSetId) location.href='admin.html';
+          else location.href='admin-set-manage.html?setId='+encodeURIComponent(currentSetId);
+        };
+      }
+
+      var loadPromise = (typeof XingceAdminIDB!=='undefined' && XingceAdminIDB.load)
+        ? XingceAdminIDB.load()
+        : Promise.resolve({sets:[],questions:{}});
+      loadPromise.then(function(data){
+        if (data && data.sets){
+          _adminCache=data;
+        }
+        var store=loadStore();
+        currentSet = currentSetId ? getSet(currentSetId) : null;
+        if (!currentSet){
+          alert('未找到当前套卷，请从管理员页面重新进入。');
+        }
+        renderTargetInfo();
+
+        // 初始化下拉
+        initSectionSelect(document.getElementById('sourceFilterSection'), true);
+        initSectionSelect(document.getElementById('searchSection'), true);
+        buildSubcategoryOptions('', false);
+        buildSubcategoryOptions('', true);
+        renderSourceSetOptions();
+        renderSourceList();
+
+        // tab 切换
+        var tabSet=document.getElementById('tabBySet');
+        var tabSearch=document.getElementById('tabBySearch');
+        var panelSet=document.getElementById('panelBySet');
+        var panelSearch=document.getElementById('panelBySearch');
+        if (tabSet && tabSearch && panelSet && panelSearch){
+          tabSet.onclick=function(){
+            tabSet.classList.add('active');
+            tabSearch.classList.remove('active');
+            panelSet.style.display='';
+            panelSearch.style.display='none';
+          };
+          tabSearch.onclick=function(){
+            tabSearch.classList.add('active');
+            tabSet.classList.remove('active');
+            panelSearch.style.display='';
+            panelSet.style.display='none';
+          };
+        }
+
+        // 事件绑定：按套卷
+        var srcSetSel=document.getElementById('sourceSetSelect');
+        if (srcSetSel){
+          srcSetSel.onchange=function(){
+            // 切换来源套卷时清空筛选条件
+            document.getElementById('sourceFilterSection').value='';
+            buildSubcategoryOptions('', false);
+            document.getElementById('sourceFilterKeyword').value='';
+            renderSourceList();
+          };
+        }
+        var srcSec=document.getElementById('sourceFilterSection');
+        if (srcSec){
+          srcSec.onchange=function(){
+            buildSubcategoryOptions(srcSec.value, false);
+            renderSourceList();
+          };
+        }
+        var srcSub=document.getElementById('sourceFilterSubcategory');
+        if (srcSub){
+          srcSub.onchange=renderSourceList;
+        }
+        var srcKw=document.getElementById('sourceFilterKeyword');
+        if (srcKw){
+          var kwTimer=null;
+          srcKw.oninput=function(){
+            if (kwTimer) clearTimeout(kwTimer);
+            kwTimer=setTimeout(function(){
+              renderSourceList();
+            }, 300);
+          };
+        }
+        var srcList=document.getElementById('sourceList');
+        if (srcList){
+          srcList.addEventListener('change',function(e){
+            if (e.target && e.target.classList && e.target.classList.contains('source-check')){
+              updateSourceHint();
+            }
+          });
+        }
+        var btnSrcAll=document.getElementById('btnSourceSelectAll');
+        if (btnSrcAll) btnSrcAll.onclick=toggleSourceSelectAll;
+        var btnImportSet=document.getElementById('btnImportFromSet');
+        if (btnImportSet) btnImportSet.onclick=importFromSet;
+
+        // 事件绑定：搜索
+        var searchSec=document.getElementById('searchSection');
+        if (searchSec){
+          searchSec.onchange=function(){
+            buildSubcategoryOptions(searchSec.value, true);
+          };
+        }
+        var btnDoSearch=document.getElementById('btnDoSearch');
+        if (btnDoSearch) btnDoSearch.onclick=renderSearchList;
+        var searchList=document.getElementById('searchList');
+        if (searchList){
+          searchList.addEventListener('change',function(e){
+            if (e.target && e.target.classList && e.target.classList.contains('search-check')){
+              updateSearchHint();
+            }
+          });
+        }
+        var btnSearchAll=document.getElementById('btnSearchSelectAll');
+        if (btnSearchAll) btnSearchAll.onclick=toggleSearchSelectAll;
+        var btnImportSearch=document.getElementById('btnImportFromSearch');
+        if (btnImportSearch) btnImportSearch.onclick=importFromSearch;
+      }).catch(function(){
+        _adminCache={sets:[],questions:{}};
+        alert('加载管理员题库失败，请刷新页面重试。');
+      });
+    };
+  </script>
+</body>
+</html>
+
