@@ -3985,8 +3985,8 @@
       "setId": "id_1771681911569_ufq8wxb",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 2,
+      "totalAttempts": 2
     },
     "id_1771681939506_tvl3xfs": {
       "category": "言语理解",
@@ -9730,7 +9730,7 @@
     },
     "id_1771681939506_rgpuccm": {
       "category": "言语理解",
-      "subcategory": "中心理解",
+      "subcategory": "接语选择",
       "source": "26海海刷",
       "content": "题号17：\n题目：规模化是工业现代化的重要方式之一，中国农业发展是否适应大规模农业生产模式还值得商榷。美国多年的大农场生产方式已经证明，集约化的农业生产会造成农业生态环境退化、生物多样性被破坏，进而影响到粮食安全。当前，我国人均耕地面积仅1.52亩，只有世界平均水平的45%，更远低于美国的人均水平，所以美国的大农场模式并不一定适合中国的发展。同时，我国农业现代化起步较晚，相较于美国等发达国家，无论是在农业科技还是经营管理方式上还存在一定差距，现代化的“步子”骤然迈得太大，很有可能造成上下层“脱节”。这段文字接下来最可能说的是:",
       "options": [
@@ -9767,7 +9767,8 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1,
+      "subsubcategory": ""
     },
     "id_1771681939506_c2z4jls": {
       "category": "言语理解",
@@ -17187,8 +17188,8 @@
       "setId": "id_1771681911569_ufq8wxb",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1
     },
     "id_1771681939506_nwb6fsc": {
       "category": "言语理解",
@@ -18831,5 +18832,6 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-22T12:58:04.055Z"
+  "exportTime": "2026-02-27T02:40:11.986Z",
+  "notes": []
 }
