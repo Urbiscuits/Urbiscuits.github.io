@@ -1933,7 +1933,7 @@
     },
     "id_1771572234686_ug4ro08": {
       "category": "言语理解",
-      "subcategory": "中心理解",
+      "subcategory": "逻辑填空",
       "source": "26CG超大杯刷题",
       "content": "题号12： 【2025山东】中医药学作为中华民族原创的医学科学，是一门关于生命智慧和生命艺术的学问，被古人称为“生生之学”。中医药文化博大精深，蕴含着______的“整体观”和“中和观”、养生防病的“未病观”。它______于中华民族优秀传统文化，体现了和而不同、仁者爱人、以人为本等中华文化精髓。\n依次填入画横部分最贴切的一项是：",
       "options": [
@@ -1969,8 +1969,9 @@
       "setId": "id_1771740165580_c6isz8b",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1,
+      "subsubcategory": ""
     },
     "id_1771572234686_nt7bd9v": {
       "category": "言语理解",
@@ -7135,8 +7136,8 @@
       "setId": "id_1771740165580_c6isz8b",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1
     },
     "id_1771572234687_1l0unak": {
       "category": "言语理解",
@@ -8160,8 +8161,8 @@
       "setId": "id_1771740165580_c6isz8b",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1
     },
     "id_1771572234687_kq3n16i": {
       "category": "言语理解",
@@ -9886,5 +9887,6 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-24T08:47:40.196Z"
+  "exportTime": "2026-02-27T02:37:59.659Z",
+  "notes": []
 }
