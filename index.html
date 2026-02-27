@@ -1617,11 +1617,18 @@
                                     <div id="adminKnowledgePageTabs" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
                                     <button type="button" class="btn btn-sm btn-primary" onclick="adminKnowledgeAddPage()"><i class="fas fa-plus"></i> 新增页面</button>
                                 </div>
+                                <div style="margin-bottom:12px; display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+                                    <div style="flex:1; min-width:220px;">
+                                        <label style="display:block; margin-bottom:6px;">当前页名称（可自定义）</label>
+                                        <input type="text" id="adminKnowledgePageTitleInput" placeholder="例如：言语理解技巧" oninput="adminKnowledgeUpdateCurrentPageTitle()" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius);">
+                                    </div>
+                                </div>
                                 <label style="display:block; margin-bottom:8px;">笔记内容（富文本、LaTeX、图片）</label>
                                 <div id="adminKnowledgeNoteEditor" style="min-height:200px; border:1px solid var(--border-color); border-radius:var(--border-radius); background:var(--surface);"></div>
                                 <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
                                     <button class="btn btn-primary" onclick="adminKnowledgeSave()"><i class="fas fa-save"></i> 保存到本地(下载)</button>
                                     <button class="btn btn-success" onclick="adminKnowledgeUploadToGitHub()"><i class="fas fa-cloud-upload-alt"></i> 上传到 GitHub</button>
+                                    <button class="btn" style="background:var(--light-bg); border:1px solid var(--border-color);" onclick="adminKnowledgeOpenMarkdownModal()"><i class="fas fa-code"></i> Markdown</button>
                                     <button class="btn btn-info" onclick="adminKnowledgePreview()"><i class="fas fa-eye"></i> 预览</button>
                                 </div>
                                 <div id="adminKnowledgeStatus" class="status-message" style="margin-top:8px;"></div>
@@ -1633,6 +1640,33 @@
                                         <button type="button" class="btn btn-sm" onclick="document.getElementById('adminKnowledgePreviewModal').style.display='none';">关闭</button>
                                     </div>
                                     <div id="adminKnowledgePreviewContent" class="explanation-preview" style="max-height:60vh; overflow:auto;"></div>
+                                </div>
+                            </div>
+
+                            <!-- 知识管理：Markdown 弹窗（可选） -->
+                            <div id="adminKnowledgeMarkdownModal" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.55); z-index:10001; overflow:auto; padding:20px;">
+                                <div class="card" style="max-width:880px; margin:20px auto;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                                        <h4 style="margin:0; color:var(--primary-color);"><i class="fas fa-code"></i> Markdown 编辑</h4>
+                                        <button type="button" class="btn btn-sm" onclick="adminKnowledgeCloseMarkdownModal()">关闭</button>
+                                    </div>
+                                    <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:10px;">
+                                        在这里使用 Markdown 语法编写（支持标题、列表、①②编号、图片 <code>![](url)</code>、LaTeX <code>$...$</code> / <code>$$...$$</code>）。点击“应用到富文本编辑器”后，会转换为富文本并写入当前页。
+                                    </p>
+                                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                                        <div>
+                                            <div style="font-size:0.85rem; color:#666; margin-bottom:6px;">Markdown</div>
+                                            <textarea id="adminKnowledgeMarkdownInput" style="width:100%; min-height:320px; padding:10px; border:1px solid var(--border-color); border-radius:var(--border-radius); font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size:0.85rem;"></textarea>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:0.85rem; color:#666; margin-bottom:6px;">预览</div>
+                                            <div id="adminKnowledgeMarkdownPreview" class="explanation-preview" style="min-height:320px; border:1px solid var(--border-color); border-radius:var(--border-radius); padding:10px; background:var(--surface);"></div>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
+                                        <button type="button" class="btn btn-info" onclick="adminKnowledgeRenderMarkdownPreview()"><i class="fas fa-eye"></i> 预览</button>
+                                        <button type="button" class="btn btn-success" onclick="adminKnowledgeApplyMarkdownToEditor()"><i class="fas fa-check"></i> 应用到富文本编辑器</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -3771,8 +3805,9 @@
         // 知识管理：data/zhishikaodian/ 文件夹，每小类一个 JSON
         var _adminKnowledgeDataCache = { questions: {} };
         var _adminKnowledgeQuill = null;
-        // 每页内容使用“Markdown 文本”，由预览/保存时统一转换为 HTML
+        // 每页内容保存为 HTML（富文本编辑器的内容）；Markdown 仅作为可选输入方式
         var _adminKnowledgePages = [''];
+        var _adminKnowledgePageTitles = [''];
         var _adminKnowledgeCurrentPageIndex = 0;
         var SLUG_MAP = { '逻辑填空':'luojitiankong','中心理解':'zhongxinlijie','语句表达':'yujubiaoda','篇章阅读':'pianzhangyuedu','图形推理':'tuxingtuili','定义判断':'dingyipanduan','类比推理':'leibituili','逻辑判断':'luojipanduan','数字推理':'shuzituili','数学运算':'shuxueyunsuan','未分类':'other' };
         function toSlug(s) { return (SLUG_MAP[s] || (s || '').replace(/[\u4e00-\u9fa5]/g, function(c){ var x = {'逻':'luo','辑':'ji','填':'tian','空':'kong','中':'zhong','心':'xin','理':'li','解':'jie','语':'yu','句':'ju','表':'biao','达':'da','篇':'pian','章':'zhang','阅':'yue','读':'du','图':'tu','形':'xing','推':'tui','定':'ding','义':'yi','判':'pan','断':'duan','类':'lei','比':'bi','数':'shu','字':'zi','学':'xue','运':'yun','算':'suan','未':'wei','分':'fen','类':'lei'}; return x[c] || c; }).replace(/[^a-z0-9]/gi,'').toLowerCase() || 'note'); }
@@ -3819,51 +3854,74 @@
         function adminKnowledgeInitQuill() {
             var el = document.getElementById('adminKnowledgeNoteEditor');
             if (!el || _adminKnowledgeQuill) return;
-            // 简化为纯文本编辑区域：在此直接编写 Markdown（支持 # 标题、列表、LaTeX 与图片链接）
-            el.contentEditable = true;
-            el.style.whiteSpace = 'pre-wrap';
-            el.style.outline = 'none';
-            _adminKnowledgeQuill = {
-                root: el,
-                getText: function() { return el.innerText || ''; },
-                setText: function(text) { el.innerText = text || ''; }
-            };
+            _adminKnowledgeQuill = new Quill(el, {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }, { 'size': ['small', false, 'large', 'huge'] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['blockquote', 'code-block'],
+                        ['link', 'image'],
+                        ['clean']
+                    ]
+                }
+            });
         }
         function adminKnowledgeGetQuillHtml() {
             if (!_adminKnowledgeQuill) return '';
-            // 统一把编辑区文本视为 Markdown 源
-            return _adminKnowledgeQuill.getText() || '';
+            var root = _adminKnowledgeQuill.root;
+            return root.innerHTML || '';
         }
         function adminKnowledgeSetQuillHtml(html) {
             if (!_adminKnowledgeQuill) return;
-            _adminKnowledgeQuill.setText(html || '');
+            _adminKnowledgeQuill.root.innerHTML = html || '';
         }
         function adminKnowledgeSaveCurrentToPages() {
             if (_adminKnowledgePages.length > _adminKnowledgeCurrentPageIndex && _adminKnowledgeQuill) {
-                // 仅保存 Markdown 文本，不保存任何富文本标签
-                _adminKnowledgePages[_adminKnowledgeCurrentPageIndex] = _adminKnowledgeQuill.getText() || '';
+                _adminKnowledgePages[_adminKnowledgeCurrentPageIndex] = _adminKnowledgeQuill.root.innerHTML || '';
             }
+        }
+        function adminKnowledgeUpdateCurrentPageTitle() {
+            var input = document.getElementById('adminKnowledgePageTitleInput');
+            if (!input) return;
+            if (!_adminKnowledgePageTitles) _adminKnowledgePageTitles = [];
+            _adminKnowledgePageTitles[_adminKnowledgeCurrentPageIndex] = (input.value || '').trim();
+            adminKnowledgeRenderPageTabs();
+        }
+        function adminKnowledgeSyncPageTitleInput() {
+            var input = document.getElementById('adminKnowledgePageTitleInput');
+            if (!input) return;
+            var t = (_adminKnowledgePageTitles && _adminKnowledgePageTitles[_adminKnowledgeCurrentPageIndex]) || '';
+            input.value = t;
         }
         function adminKnowledgeAddPage() {
             adminKnowledgeSaveCurrentToPages();
             _adminKnowledgePages.push('');
+            if (!_adminKnowledgePageTitles) _adminKnowledgePageTitles = [];
+            _adminKnowledgePageTitles.push('');
             _adminKnowledgeCurrentPageIndex = _adminKnowledgePages.length - 1;
             adminKnowledgeRenderPageTabs();
             adminKnowledgeSetQuillHtml('');
+            adminKnowledgeSyncPageTitleInput();
         }
         function adminKnowledgeRemovePage(idx) {
             if (_adminKnowledgePages.length <= 1) return;
             adminKnowledgeSaveCurrentToPages();
             _adminKnowledgePages.splice(idx, 1);
+            if (_adminKnowledgePageTitles && _adminKnowledgePageTitles.length) _adminKnowledgePageTitles.splice(idx, 1);
             if (_adminKnowledgeCurrentPageIndex >= _adminKnowledgePages.length) _adminKnowledgeCurrentPageIndex = Math.max(0, _adminKnowledgePages.length - 1);
             adminKnowledgeRenderPageTabs();
             adminKnowledgeSetQuillHtml(_adminKnowledgePages[_adminKnowledgeCurrentPageIndex] || '');
+            adminKnowledgeSyncPageTitleInput();
         }
         function adminKnowledgeSwitchPage(idx) {
             adminKnowledgeSaveCurrentToPages();
             _adminKnowledgeCurrentPageIndex = idx;
             adminKnowledgeRenderPageTabs();
             adminKnowledgeSetQuillHtml(_adminKnowledgePages[idx] || '');
+            adminKnowledgeSyncPageTitleInput();
         }
         function adminKnowledgeRenderPageTabs() {
             var el = document.getElementById('adminKnowledgePageTabs');
@@ -3871,7 +3929,8 @@
             el.innerHTML = _adminKnowledgePages.map(function(_, i) {
                 var active = i === _adminKnowledgeCurrentPageIndex;
                 var canDel = _adminKnowledgePages.length > 1;
-                return '<button type="button" class="btn btn-sm ' + (active ? 'btn-primary' : '') + '" style="' + (active ? '' : 'background:var(--light-bg); border:1px solid var(--border-color);') + '" onclick="adminKnowledgeSwitchPage(' + i + ')">页面' + (i + 1) + '</button>' +
+                var title = (_adminKnowledgePageTitles && _adminKnowledgePageTitles[i]) ? _adminKnowledgePageTitles[i] : ('页面' + (i + 1));
+                return '<button type="button" class="btn btn-sm ' + (active ? 'btn-primary' : '') + '" style="' + (active ? '' : 'background:var(--light-bg); border:1px solid var(--border-color);') + '" onclick="adminKnowledgeSwitchPage(' + i + ')">' + (title || ('页面' + (i + 1))).replace(/</g,'&lt;') + '</button>' +
                     (canDel ? '<button type="button" class="btn btn-sm" style="padding:4px 8px; color:#dc3545; background:transparent; border:none;" onclick="event.stopPropagation(); adminKnowledgeRemovePage(' + i + ')" title="删除此页面"><i class="fas fa-times"></i></button>' : '');
             }).join('');
         }
@@ -3894,36 +3953,46 @@
                     var files = (manifest.topics || {})[key];
                     if (!files || !files.length) {
                         _adminKnowledgePages = [''];
+                        _adminKnowledgePageTitles = [''];
                         _adminKnowledgeCurrentPageIndex = 0;
                         adminKnowledgeRenderPageTabs();
                         adminKnowledgeSetQuillHtml('');
+                        adminKnowledgeSyncPageTitleInput();
                         return;
                     }
                     return Promise.all((files || []).map(function(f) { return fetch(getZhishikaodianUrl(f) + '?t=' + Date.now()).then(function(r) { return r.ok ? r.json() : null; }); }))
                         .then(function(parts) {
                             var byPage = {};
+                            var titleByPage = {};
                             (parts || []).filter(Boolean).forEach(function(p) {
                                 var pageNum = p.page != null ? p.page : 1;
                                 var partNum = p.part != null ? p.part : 1;
                                 if (!byPage[pageNum]) byPage[pageNum] = [];
                                 byPage[pageNum].push({ part: partNum, content: p.content || '' });
+                                if (p.title != null && String(p.title).trim()) {
+                                    titleByPage[pageNum] = String(p.title).trim();
+                                }
                             });
                             var pageNums = Object.keys(byPage).map(Number).sort(function(a,b){ return a - b; });
                             _adminKnowledgePages = pageNums.map(function(n) {
                                 var arr = byPage[n].sort(function(a,b){ return a.part - b.part; });
                                 return arr.map(function(x){ return x.content; }).join('');
                             });
+                            _adminKnowledgePageTitles = pageNums.map(function(n) { return titleByPage[n] || ''; });
                             if (_adminKnowledgePages.length === 0) _adminKnowledgePages = [''];
                             _adminKnowledgeCurrentPageIndex = 0;
                             adminKnowledgeRenderPageTabs();
                             adminKnowledgeSetQuillHtml(_adminKnowledgePages[0] || '');
+                            adminKnowledgeSyncPageTitleInput();
                         });
                 })
                 .catch(function() {
                     _adminKnowledgePages = [''];
+                    _adminKnowledgePageTitles = [''];
                     _adminKnowledgeCurrentPageIndex = 0;
                     adminKnowledgeRenderPageTabs();
                     adminKnowledgeSetQuillHtml('');
+                    adminKnowledgeSyncPageTitleInput();
                 });
         }
         function adminKnowledgeGetCurrent() {
@@ -4012,6 +4081,50 @@
             closeLists();
             return html.join('\n');
         }
+
+        // 知识管理：Markdown 弹窗（仅作为可选输入方式，不影响富文本工具栏）
+        function adminKnowledgeOpenMarkdownModal() {
+            var modal = document.getElementById('adminKnowledgeMarkdownModal');
+            var input = document.getElementById('adminKnowledgeMarkdownInput');
+            if (!modal || !input) return;
+            // 默认把当前富文本内容转为纯文本（作为起点），避免清空
+            var html = adminKnowledgeGetQuillHtml();
+            try {
+                var tmp = document.createElement('div');
+                tmp.innerHTML = html || '';
+                input.value = (tmp.innerText || '').trim();
+            } catch (e) {
+                input.value = '';
+            }
+            var wrap = document.getElementById('adminKnowledgeMarkdownPreview');
+            if (wrap) wrap.innerHTML = '<p style="color:#6c757d;">点击“预览”查看渲染效果</p>';
+            modal.style.display = 'block';
+        }
+        function adminKnowledgeCloseMarkdownModal() {
+            var modal = document.getElementById('adminKnowledgeMarkdownModal');
+            if (modal) modal.style.display = 'none';
+        }
+        function adminKnowledgeRenderMarkdownPreview() {
+            var input = document.getElementById('adminKnowledgeMarkdownInput');
+            var wrap = document.getElementById('adminKnowledgeMarkdownPreview');
+            if (!input || !wrap) return;
+            var md = input.value || '';
+            var html = markdownToHtml(md);
+            var processed = processLatexInHtml(html || '');
+            wrap.innerHTML = processed || '<p style="color:#6c757d;">暂无内容</p>';
+            if (typeof renderLaTeXInElement === 'function') renderLaTeXInElement(wrap);
+        }
+        function adminKnowledgeApplyMarkdownToEditor() {
+            var input = document.getElementById('adminKnowledgeMarkdownInput');
+            if (!input) return;
+            var md = input.value || '';
+            var html = markdownToHtml(md);
+            // 写入富文本编辑器（保留 LaTeX 源文本，保存/上传时再统一转公式图片）
+            adminKnowledgeSetQuillHtml(html || '');
+            adminKnowledgeSaveCurrentToPages();
+            adminKnowledgeCloseMarkdownModal();
+            showMsg('adminKnowledgeStatus', '已将 Markdown 转为富文本并写入当前页', 'success');
+        }
         function splitContentBy800k(content) {
             var MAX = 800 * 1024;
             var overhead = 500;
@@ -4043,9 +4156,8 @@
             adminKnowledgeSaveCurrentToPages();
             var files = [];
             var toDownload = [];
-            _adminKnowledgePages.forEach(function(rawMarkdown, pageIdx) {
-                var html = markdownToHtml(rawMarkdown || '');
-                var content = processLatexInHtml(html || '');
+            _adminKnowledgePages.forEach(function(rawHtml, pageIdx) {
+                var content = processLatexInHtml(rawHtml || '');
                 var chunks = splitContentBy800k(content);
                 chunks.forEach(function(chunk, chunkIdx) {
                     var fn = pageIdx === 0 && chunks.length === 1 ? cur.baseName + '.json'
@@ -4053,7 +4165,8 @@
                         : chunks.length === 1 ? cur.baseName + '_p' + (pageIdx + 1) + '.json'
                         : cur.baseName + '_p' + (pageIdx + 1) + '_' + (chunkIdx + 1) + '.json';
                     files.push(fn);
-                    toDownload.push({ name: fn, content: JSON.stringify({ section: cur.section, subcategory: cur.subcategory, content: chunk, page: pageIdx + 1, part: chunkIdx + 1, updatedAt: new Date().toISOString() }, null, 2) });
+                    var title = (_adminKnowledgePageTitles && _adminKnowledgePageTitles[pageIdx]) ? _adminKnowledgePageTitles[pageIdx] : '';
+                    toDownload.push({ name: fn, content: JSON.stringify({ section: cur.section, subcategory: cur.subcategory, title: title, content: chunk, page: pageIdx + 1, part: chunkIdx + 1, updatedAt: new Date().toISOString() }, null, 2) });
                 });
             });
             var manifest = { topics: {}, updatedAt: new Date().toISOString() };
@@ -4087,9 +4200,8 @@
             adminKnowledgeSaveCurrentToPages();
             var files = [];
             var toUpload = [];
-            _adminKnowledgePages.forEach(function(rawMarkdown, pageIdx) {
-                var html = markdownToHtml(rawMarkdown || '');
-                var content = processLatexInHtml(html || '');
+            _adminKnowledgePages.forEach(function(rawHtml, pageIdx) {
+                var content = processLatexInHtml(rawHtml || '');
                 var chunks = splitContentBy800k(content);
                 chunks.forEach(function(chunk, chunkIdx) {
                     var fn = pageIdx === 0 && chunks.length === 1 ? cur.baseName + '.json'
@@ -4097,7 +4209,8 @@
                         : chunks.length === 1 ? cur.baseName + '_p' + (pageIdx + 1) + '.json'
                         : cur.baseName + '_p' + (pageIdx + 1) + '_' + (chunkIdx + 1) + '.json';
                     files.push(fn);
-                    toUpload.push({ fn: fn, payload: JSON.stringify({ section: cur.section, subcategory: cur.subcategory, content: chunk, page: pageIdx + 1, part: chunkIdx + 1, updatedAt: new Date().toISOString() }, null, 2) });
+                    var title = (_adminKnowledgePageTitles && _adminKnowledgePageTitles[pageIdx]) ? _adminKnowledgePageTitles[pageIdx] : '';
+                    toUpload.push({ fn: fn, payload: JSON.stringify({ section: cur.section, subcategory: cur.subcategory, title: title, content: chunk, page: pageIdx + 1, part: chunkIdx + 1, updatedAt: new Date().toISOString() }, null, 2) });
                 });
             });
             var branch = GITHUB_CONFIG.branch || 'main';
@@ -4153,10 +4266,7 @@
         function adminKnowledgePreview() {
             var cur = adminKnowledgeGetCurrent();
             if (!cur.subcategory) { showMsg('adminKnowledgeStatus', '请先选择小类', 'error'); return; }
-            // 预览当前页：以 Markdown → HTML → LaTeX 渲染链路呈现
-            adminKnowledgeSaveCurrentToPages();
-            var rawMarkdown = _adminKnowledgePages[_adminKnowledgeCurrentPageIndex] || '';
-            var html = markdownToHtml(rawMarkdown || '');
+            var html = adminKnowledgeGetQuillHtml();
             var processed = processLatexInHtml(html || '');
             var wrap = document.getElementById('adminKnowledgePreviewContent');
             var modal = document.getElementById('adminKnowledgePreviewModal');
