@@ -1143,13 +1143,16 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/提出对策/背景+问题+对策"
+      ],
       "id": "id_1771834803491_1okmjs0",
       "setId": "id_1771830557128_zctaiso",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1,
+      "subsubcategory": "分总结构"
     },
     "id_1771834803491_qlus513": {
       "category": "言语理解",
@@ -1476,8 +1479,8 @@
       "setId": "id_1771830557128_zctaiso",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 2,
+      "totalAttempts": 2
     },
     "id_1771834803491_x3i9822": {
       "category": "言语理解",
@@ -2004,13 +2007,16 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/总分结构"
+      ],
       "id": "id_1771834803491_fd01a0j",
       "setId": "id_1771830557128_zctaiso",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 2,
+      "subsubcategory": "总分结构"
     },
     "id_1771834803491_2glmdd7": {
       "category": "言语理解",
@@ -25378,5 +25384,13 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-24T07:40:08.501Z"
+  "exportTime": "2026-02-27T02:43:35.370Z",
+  "notes": [
+    {
+      "qid": "id_1771834803491_fd01a0j",
+      "content": "A项：“制造紧迫感”与观点中的方式“创造诱惑”不符，不能佐证观点，排除。",
+      "images": [],
+      "createdAt": 1772159224760
+    }
+  ]
 }
