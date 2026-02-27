@@ -3771,6 +3771,7 @@
         // 知识管理：data/zhishikaodian/ 文件夹，每小类一个 JSON
         var _adminKnowledgeDataCache = { questions: {} };
         var _adminKnowledgeQuill = null;
+        // 每页内容使用“Markdown 文本”，由预览/保存时统一转换为 HTML
         var _adminKnowledgePages = [''];
         var _adminKnowledgeCurrentPageIndex = 0;
         var SLUG_MAP = { '逻辑填空':'luojitiankong','中心理解':'zhongxinlijie','语句表达':'yujubiaoda','篇章阅读':'pianzhangyuedu','图形推理':'tuxingtuili','定义判断':'dingyipanduan','类比推理':'leibituili','逻辑判断':'luojipanduan','数字推理':'shuzituili','数学运算':'shuxueyunsuan','未分类':'other' };
@@ -3818,33 +3819,29 @@
         function adminKnowledgeInitQuill() {
             var el = document.getElementById('adminKnowledgeNoteEditor');
             if (!el || _adminKnowledgeQuill) return;
-            _adminKnowledgeQuill = new Quill(el, {
-                theme: 'snow',
-                modules: {
-                    toolbar: [
-                        [{ 'header': [1, 2, 3, false] }, { 'size': ['small', false, 'large', 'huge'] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'color': [] }, { 'background': [] }],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        ['blockquote', 'code-block'],
-                        ['link', 'image'],
-                        ['clean']
-                    ]
-                }
-            });
+            // 简化为纯文本编辑区域：在此直接编写 Markdown（支持 # 标题、列表、LaTeX 与图片链接）
+            el.contentEditable = true;
+            el.style.whiteSpace = 'pre-wrap';
+            el.style.outline = 'none';
+            _adminKnowledgeQuill = {
+                root: el,
+                getText: function() { return el.innerText || ''; },
+                setText: function(text) { el.innerText = text || ''; }
+            };
         }
         function adminKnowledgeGetQuillHtml() {
             if (!_adminKnowledgeQuill) return '';
-            var root = _adminKnowledgeQuill.root;
-            return root.innerHTML || '';
+            // 统一把编辑区文本视为 Markdown 源
+            return _adminKnowledgeQuill.getText() || '';
         }
         function adminKnowledgeSetQuillHtml(html) {
             if (!_adminKnowledgeQuill) return;
-            _adminKnowledgeQuill.root.innerHTML = html || '';
+            _adminKnowledgeQuill.setText(html || '');
         }
         function adminKnowledgeSaveCurrentToPages() {
             if (_adminKnowledgePages.length > _adminKnowledgeCurrentPageIndex && _adminKnowledgeQuill) {
-                _adminKnowledgePages[_adminKnowledgeCurrentPageIndex] = _adminKnowledgeQuill.root.innerHTML || '';
+                // 仅保存 Markdown 文本，不保存任何富文本标签
+                _adminKnowledgePages[_adminKnowledgeCurrentPageIndex] = _adminKnowledgeQuill.getText() || '';
             }
         }
         function adminKnowledgeAddPage() {
@@ -3950,6 +3947,71 @@
                 } catch (e) { return esc(m); }
             });
         }
+
+        // 极简 Markdown 转 HTML：支持标题、段落、列表、图片与 LaTeX 协同
+        function markdownToHtml(md) {
+            if (!md) return '';
+            var text = String(md || '').replace(/\r\n?/g, '\n');
+            var lines = text.split('\n');
+            var html = [];
+            var inUl = false, inOl = false;
+            function closeLists() {
+                if (inUl) { html.push('</ul>'); inUl = false; }
+                if (inOl) { html.push('</ol>'); inOl = false; }
+            }
+            function processInline(s) {
+                if (!s) return '';
+                // 图片：![](url) 或 ![alt](url)
+                s = s.replace(/!\[[^\]]*]\(([^)]+)\)/g, function(_, url) {
+                    return '<img src="' + url + '" style="max-width:100%;margin:8px 0;vertical-align:middle;" />';
+                });
+                return s;
+            }
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                var raw = line;
+                line = line.replace(/\s+$/g, '');
+                if (!line.trim()) {
+                    closeLists();
+                    continue;
+                }
+                // 标题
+                var m = /^(#{1,6})\s+(.*)$/.exec(line);
+                if (m) {
+                    closeLists();
+                    var level = m[1].length;
+                    var textPart = processInline(m[2]);
+                    html.push('<h' + level + '>' + textPart + '</h' + level + '>');
+                    continue;
+                }
+                // 无序列表
+                m = /^[-*]\s+(.+)$/.exec(line);
+                if (m) {
+                    if (!inUl) { closeLists(); html.push('<ul>'); inUl = true; }
+                    html.push('<li>' + processInline(m[1]) + '</li>');
+                    continue;
+                }
+                // 有序列表（1. 2.）
+                m = /^(\d+)\.\s+(.+)$/.exec(line);
+                if (m) {
+                    if (!inOl) { closeLists(); html.push('<ol>'); inOl = true; }
+                    html.push('<li>' + processInline(m[2]) + '</li>');
+                    continue;
+                }
+                // ①②… 列表：直接当作普通段落，字符本身已是有序标号
+                m = /^([①②③④⑤⑥⑦⑧⑨⑩])\s*(.+)$/.exec(line);
+                if (m) {
+                    closeLists();
+                    html.push('<p>' + m[1] + ' ' + processInline(m[2]) + '</p>');
+                    continue;
+                }
+                // 普通段落
+                closeLists();
+                html.push('<p>' + processInline(raw) + '</p>');
+            }
+            closeLists();
+            return html.join('\n');
+        }
         function splitContentBy800k(content) {
             var MAX = 800 * 1024;
             var overhead = 500;
@@ -3981,8 +4043,9 @@
             adminKnowledgeSaveCurrentToPages();
             var files = [];
             var toDownload = [];
-            _adminKnowledgePages.forEach(function(rawHtml, pageIdx) {
-                var content = processLatexInHtml(rawHtml || '');
+            _adminKnowledgePages.forEach(function(rawMarkdown, pageIdx) {
+                var html = markdownToHtml(rawMarkdown || '');
+                var content = processLatexInHtml(html || '');
                 var chunks = splitContentBy800k(content);
                 chunks.forEach(function(chunk, chunkIdx) {
                     var fn = pageIdx === 0 && chunks.length === 1 ? cur.baseName + '.json'
@@ -4024,8 +4087,9 @@
             adminKnowledgeSaveCurrentToPages();
             var files = [];
             var toUpload = [];
-            _adminKnowledgePages.forEach(function(rawHtml, pageIdx) {
-                var content = processLatexInHtml(rawHtml || '');
+            _adminKnowledgePages.forEach(function(rawMarkdown, pageIdx) {
+                var html = markdownToHtml(rawMarkdown || '');
+                var content = processLatexInHtml(html || '');
                 var chunks = splitContentBy800k(content);
                 chunks.forEach(function(chunk, chunkIdx) {
                     var fn = pageIdx === 0 && chunks.length === 1 ? cur.baseName + '.json'
@@ -4089,7 +4153,10 @@
         function adminKnowledgePreview() {
             var cur = adminKnowledgeGetCurrent();
             if (!cur.subcategory) { showMsg('adminKnowledgeStatus', '请先选择小类', 'error'); return; }
-            var html = adminKnowledgeGetQuillHtml();
+            // 预览当前页：以 Markdown → HTML → LaTeX 渲染链路呈现
+            adminKnowledgeSaveCurrentToPages();
+            var rawMarkdown = _adminKnowledgePages[_adminKnowledgeCurrentPageIndex] || '';
+            var html = markdownToHtml(rawMarkdown || '');
             var processed = processLatexInHtml(html || '');
             var wrap = document.getElementById('adminKnowledgePreviewContent');
             var modal = document.getElementById('adminKnowledgePreviewModal');
