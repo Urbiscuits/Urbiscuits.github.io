@@ -8985,8 +8985,8 @@
       "setId": "id_1771650102315_ztbwyzi",
       "section": "言语理解",
       "done": false,
-      "correctCount": 2,
-      "totalAttempts": 2,
+      "correctCount": 0,
+      "totalAttempts": 0,
       "subsubcategory": ""
     },
     "id_1771650117049_v7y6am3": {
@@ -9028,7 +9028,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 1,
+      "totalAttempts": 0,
       "subsubcategory": ""
     },
     "id_1771650117049_1xogciz": {
@@ -11852,13 +11852,16 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/分总结构"
+      ],
       "id": "id_1771650117050_p6d7yw3",
       "setId": "id_1771650102315_ztbwyzi",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1,
+      "subsubcategory": "分总结构"
     },
     "id_1771650117050_ap93v6v": {
       "category": "言语理解",
@@ -11939,8 +11942,8 @@
       "setId": "id_1771650102315_ztbwyzi",
       "section": "言语理解",
       "done": false,
-      "correctCount": 2,
-      "totalAttempts": 2,
+      "correctCount": 0,
+      "totalAttempts": 0,
       "subsubcategory": ""
     },
     "id_1771650117050_yo1rixo": {
@@ -15924,6 +15927,6 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-28T03:02:12.410Z",
+  "exportTime": "2026-02-28T16:23:36.619Z",
   "notes": []
 }
