@@ -246,7 +246,8 @@
       "资料分析": [],
       "政治理论": [],
       "常识判断": [],
-      "Ã¨Â¨ÂÃ¨Â¯Â­Ã§ÂÂÃ¨Â§Â£": []
+      "Ã¨Â¨ÂÃ¨Â¯Â­Ã§ÂÂÃ¨Â§Â£": [],
+      "策略选择": []
     }
   ],
   "questions": {
@@ -1969,8 +1970,8 @@
       "setId": "id_1771740165580_c6isz8b",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1,
+      "correctCount": 0,
+      "totalAttempts": 0,
       "subsubcategory": ""
     },
     "id_1771572234686_nt7bd9v": {
@@ -7138,8 +7139,8 @@
       "setId": "id_1771740165580_c6isz8b",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1,
+      "correctCount": 0,
+      "totalAttempts": 0,
       "subsubcategory": "对策类"
     },
     "id_1771572234687_1l0unak": {
@@ -8164,8 +8165,8 @@
       "setId": "id_1771740165580_c6isz8b",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1
+      "correctCount": 0,
+      "totalAttempts": 0
     },
     "id_1771572234687_kq3n16i": {
       "category": "言语理解",
@@ -8292,7 +8293,7 @@
     },
     "id_1771572234687_hcs70kf": {
       "category": "言语理解",
-      "subcategory": "中心理解",
+      "subcategory": "接语选择",
       "source": "26CG超大杯刷题",
       "content": "题号22： 【2025江苏】治国之要，首在用人。党的十八大以来，以习近平同志为核心的党中央明确信念坚定、为民服务、勤政务实、敢于担当、清正廉洁的新时代好干部标准，着力建设忠诚干净担当的高素质干部队伍。______，注重在基层一线和困难艰苦环境中培养锻炼干部、在重大任务和重大斗争一线发现使用干部，放眼各条战线、各个领域、各个行业选拔优秀干部。同时，建立管思想、管工作、管作风、管纪律的从严管理体系，建立崇尚实干、带动担当、加油鼓劲的正向激励体系，不断增强组织工作、队伍建设的整体效能。\n填入画横线部分最恰当的一项是：",
       "options": [
@@ -8329,7 +8330,8 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1,
+      "subsubcategory": ""
     },
     "id_1771572234687_6t87vu0": {
       "category": "言语理解",
@@ -9890,6 +9892,6 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-27T02:39:34.675Z",
+  "exportTime": "2026-02-28T02:55:55.700Z",
   "notes": []
 }
