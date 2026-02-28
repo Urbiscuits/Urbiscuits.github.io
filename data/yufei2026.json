@@ -6971,13 +6971,16 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/分总分结构"
+      ],
       "id": "id_1771650117049_ohiyds0",
       "setId": "id_1771650102315_ztbwyzi",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1,
+      "subsubcategory": "分总分"
     },
     "id_1771650117049_l3dnixv": {
       "category": "言语理解",
@@ -15927,6 +15930,6 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-28T16:23:36.619Z",
+  "exportTime": "2026-02-28T16:25:11.691Z",
   "notes": []
 }
