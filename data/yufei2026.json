@@ -8985,13 +8985,13 @@
       "setId": "id_1771650102315_ztbwyzi",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1,
+      "correctCount": 2,
+      "totalAttempts": 2,
       "subsubcategory": ""
     },
     "id_1771650117049_v7y6am3": {
       "category": "言语理解",
-      "subcategory": "中心理解",
+      "subcategory": "接语选择",
       "source": "雨菲速解36计",
       "content": "题号3：传统文化，其幽静深邃堪比深深庭院，正是因为有最单纯、最本初的文化热爱，路过之人才愿意叩开门扉，一探究竟。以或萌或雅的方式吸引人来，只是极为关键的第一步。而最终决定大家能在这庭院之中停留多久的，还是文化本身的魅力。因此，判断文化创意产品是否成功，一条重要的原则就是看能否将______融会贯通。填入画横线部分最恰当的一项是：",
       "options": [
@@ -9028,7 +9028,8 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1,
+      "subsubcategory": ""
     },
     "id_1771650117049_1xogciz": {
       "category": "言语理解",
@@ -15923,6 +15924,6 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-28T02:56:58.695Z",
+  "exportTime": "2026-02-28T03:02:12.410Z",
   "notes": []
 }
