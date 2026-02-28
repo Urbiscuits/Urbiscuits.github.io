@@ -8949,7 +8949,7 @@
     },
     "id_1771650117049_awykssi": {
       "category": "言语理解",
-      "subcategory": "中心理解",
+      "subcategory": "接语选择",
       "source": "雨菲速解36计",
       "content": "题号2：元素周期表是化学科学的基石，在化学发展史上具有里程碑意义。作为元素周期表中的“住户”，元素的发现几乎与人类文明相伴。像铁、铜、金、银等容易以单质形态存在的元素发现得最早，之后从铁器时代到青铜时代，从炼金术到电解技术，从核辐射到核裂变，______，新“住户”不断占据各自的位置。直至今日，仍然有新的元素被发现(合成)，而且关于元素在生命起源、物种进化中的作用以及元素如何精准调控材料性能及生命过程等仍然是科学家们非常关注的科学问题。填入划横线处最恰当的一句是：",
       "options": [
@@ -8985,8 +8985,9 @@
       "setId": "id_1771650102315_ztbwyzi",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1,
+      "subsubcategory": ""
     },
     "id_1771650117049_v7y6am3": {
       "category": "言语理解",
@@ -11937,8 +11938,8 @@
       "setId": "id_1771650102315_ztbwyzi",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1,
+      "correctCount": 2,
+      "totalAttempts": 2,
       "subsubcategory": ""
     },
     "id_1771650117050_yo1rixo": {
@@ -15922,6 +15923,6 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-28T02:50:57.496Z",
+  "exportTime": "2026-02-28T02:56:58.695Z",
   "notes": []
 }
