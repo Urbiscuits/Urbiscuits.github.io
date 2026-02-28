@@ -1139,8 +1139,8 @@
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1,
+      "correctCount": 0,
+      "totalAttempts": 0,
       "subsubcategory": "对策类"
     },
     "id_1771497620309_vrz2y7c": {
@@ -1183,8 +1183,8 @@
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1,
+      "correctCount": 0,
+      "totalAttempts": 0,
       "subsubcategory": "总分结构"
     },
     "id_1771497620309_gxqe2o6": {
@@ -3745,13 +3745,17 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/分总结构",
+        "中心理解/提出对策/背景+问题+对策"
+      ],
       "id": "id_1771497620309_x39auog",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1,
+      "subsubcategory": "对策类"
     },
     "id_1771497620309_ljta4eo": {
       "category": "言语理解",
@@ -30684,7 +30688,7 @@
       "correctCount": 0
     }
   },
-  "exportTime": "2026-02-26T16:02:37.757Z",
+  "exportTime": "2026-02-28T02:49:42.132Z",
   "notes": [
     {
       "qid": "id_1771497620309_nb64cws",
