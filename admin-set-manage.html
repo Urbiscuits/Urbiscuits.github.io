@@ -39,14 +39,12 @@
     <div class="container">
         <div id="noSet" class="card empty-state" style="display:none;">
             <p>未指定套卷，请从管理员页面点击「查看题目」进入。</p>
-            <p style="margin-top:12px;"><a href="admin.html">返回管理员后台</a></p>
         </div>
         <div id="mainBlock" style="display:none;">
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                     <h2 style="color:var(--primary-color);" id="setTitle"></h2>
                     <div>
-                        <a href="admin.html" class="btn btn-default">返回管理员后台</a>
                         <button type="button" class="btn btn-primary" id="btnAddQuestion">在此套卷添加题目</button>
                         <button type="button" class="btn btn-info" id="btnImportFromOther">从其它套卷导入</button>
                     </div>
@@ -200,7 +198,7 @@
         </div>
     </div>
 
-    <!-- 资料分析多题合并：共用材料编辑 + 保留各题题干/选项/答案/解析 -->
+    <!-- 一材料多题合并：共用材料编辑 + 保留各题题干/选项/答案/解析（支持 资料分析 / 言语理解-长篇阅读） -->
     <div id="mergeOverlay" class="overlay" style="display:none;">
         <div class="overlay-inner" style="max-width:900px;">
             <h3 style="margin-bottom:12px; color:var(--primary-color);">合并为「一材料多题」</h3>
@@ -567,15 +565,16 @@
             var hist = (q.totalAttempts || 0) > 0 ? ((q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)') : '暂无';
             var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
             var stemHtml = esc(q.content || '') + (q.stemImages || []).map(imgTag).join('');
-            var optHtml = (q.options || []).map(function(o) {
+            var optHtml = (q.options || []).map(function(o, idx) {
                 var c = o.label === q.answer ? 'correct' : '';
-                return '<div class="option ' + c + '"><span>' + o.label + '.</span> ' + esc(o.text) + (o.images || []).map(imgTag).join('') + '</div>';
+                // data-label / data-index 便于点击修改答案和双击修改选项内容
+                return '<div class="option ' + c + '" data-label="' + o.label + '" data-index="' + idx + '"><span class="opt-label">' + o.label + '.</span> <span class="opt-text">' + esc(o.text) + '</span>' + (o.images || []).map(imgTag).join('') + '</div>';
             }).join('');
             document.getElementById('detailBody').innerHTML =
                 '<p style="margin-bottom:8px;"><strong>历史正确率：</strong>' + hist + '</p>' +
                 '<div style="font-size:0.95rem; color:var(--primary-color); margin-bottom:8px;">【' + esc(q.section) + '-' + esc(q.subcategory||q.section) + '】</div>' +
                 (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') +
-                '<div class="question-content" style="line-height:1.7;">' + stemHtml + '</div>' +
+                '<div class="question-content" id="detailQuestionContent" style="line-height:1.7; cursor:pointer;" title="双击可快速修改题干">' + stemHtml + '</div>' +
                 '<div style="margin-top:12px;">' + optHtml + '</div>' +
                 (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：' + esc(q.explanation) + '</div>' : '') +
                 '<div style="margin-top:16px; padding-top:12px; border-top:1px solid #e0e4ea;">' +
@@ -630,9 +629,74 @@
                 closeDetail();
                 openEditPage(qid);
             };
+
+            bindDetailQuickEditEvents();
             document.getElementById('detailOverlay').style.display = 'block';
         }
-        function closeDetail() {
+        // 题目详情中的快捷操作：
+        // 1）单击选项：直接修改答案并保存到本地
+        // 2）双击题干：快速修改题干文本
+        // 3）双击选项文本：快速修改该选项内容
+        function bindDetailQuickEditEvents() {
+            var bodyEl = document.getElementById('detailBody');
+            if (!bodyEl) return;
+
+            // 单击选项：切换正确答案并立即保存
+            bodyEl.onclick = function(e) {
+                var opt = e.target.closest ? e.target.closest('.option') : null;
+                if (!opt || !detailQid) return;
+                var label = opt.getAttribute('data-label');
+                if (!label) return;
+                var data = loadStore();
+                var q = data.questions[detailQid];
+                if (!q) return;
+                if (q.answer === label) return; // 无变化
+                q.answer = label;
+                data.questions[detailQid] = q;
+                saveStore(data);
+                // 重新渲染当前题，更新高亮
+                showDetail(detailQid);
+            };
+
+            // 双击题干或选项文本：快捷修改内容
+            bodyEl.ondblclick = function(e) {
+                if (!detailQid) return;
+                var data = loadStore();
+                var q = data.questions[detailQid];
+                if (!q) return;
+
+                // 双击题干
+                var stemEl = e.target.closest ? e.target.closest('#detailQuestionContent') : null;
+                if (stemEl) {
+                    var oldText = stemEl.innerText || stemEl.textContent || '';
+                    var newText = window.prompt('修改题干：', oldText);
+                    if (newText == null || newText === oldText) return;
+                    q.content = newText;
+                    data.questions[detailQid] = q;
+                    saveStore(data);
+                    showDetail(detailQid);
+                    return;
+                }
+
+                // 双击选项
+                var optEl = e.target.closest ? e.target.closest('.option') : null;
+                if (optEl && q.options && q.options.length) {
+                    var idxStr = optEl.getAttribute('data-index');
+                    var idx = idxStr != null ? parseInt(idxStr, 10) : -1;
+                    if (idx < 0 || !q.options[idx]) return;
+                    var textSpan = optEl.querySelector ? optEl.querySelector('.opt-text') : null;
+                    var oldOptText = textSpan ? (textSpan.innerText || textSpan.textContent || '') : (q.options[idx].text || '');
+                    var newOptText = window.prompt('修改选项内容：', oldOptText);
+                    if (newOptText == null || newOptText === oldOptText) return;
+                    q.options[idx].text = newOptText;
+                    data.questions[detailQid] = q;
+                    saveStore(data);
+                    showDetail(detailQid);
+                }
+            };
+        }
+
+        function closeDetail() { 
             document.getElementById('detailOverlay').style.display = 'none';
             detailQid = null;
         }
@@ -1147,14 +1211,20 @@
             document.querySelectorAll('.q-check').forEach(function(cb) { cb.checked = checked; });
             updateBatchDeleteVisibility();
         }
-        /** 获取当前勾选且属于资料分析的题目 id 列表（用于合并一材料多题） */
+        /** 获取当前勾选且属于资料分析或言语理解-长篇阅读的题目 id 列表（用于合并一材料多题） */
         function getCheckedZiliaoQids() {
             var data = loadStore();
             var ids = [];
             document.querySelectorAll('.q-check:checked').forEach(function(cb) {
                 if (!cb.value) return;
                 var q = data.questions[cb.value];
-                if (q && (q.section === '资料分析' || q.category === '资料分析')) ids.push(cb.value);
+                if (!q) return;
+                var sec = q.section || q.category || '';
+                var sub = q.subcategory || '';
+                // 资料分析整体，或 言语理解-长篇阅读 都允许合并一材料多题
+                if (sec === '资料分析' || sec === '言语理解' && sub === '长篇阅读') {
+                    ids.push(cb.value);
+                }
             });
             return ids;
         }

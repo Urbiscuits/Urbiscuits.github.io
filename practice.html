@@ -88,11 +88,7 @@
                     <button class="btn btn-success" id="btnSubmit" onclick="submitPractice()">提交并查看结果</button>
                     <button class="btn btn-sm" id="btnRevealAnswer" style="display:none; margin-left:8px; background:#fff3cd;" onclick="revealCurrentAnswer()">查看答案与解析</button>
                 </div>
-                <div id="practiceDeepSeekWrap" style="margin-top:12px; display:none;">
-                    <button class="btn btn-info btn-sm" id="btnDeepSeekPractice" onclick="fetchDeepSeekInPractice()">AI 解析 (DeepSeek)</button>
-                    <span id="deepSeekStatusPractice" style="margin-left:8px; font-size:0.9rem;"></span>
-                    <div id="deepSeekResultPractice" style="display:none; margin-top:12px; padding:12px; background:#f0f5ff; border-radius:8px;"></div>
-                </div>
+                <!-- DeepSeek AI 解析已移除 -->
             </div>
             <div id="practiceQuestionNav" class="practice-question-nav" style="display:none;">
                 <div style="margin-bottom:8px; font-weight:500; color:#6c757d;">题号导航</div>
@@ -110,11 +106,7 @@
                 <div id="practiceResultNavBtns" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;"></div>
                 <div id="practiceResultQuestion"></div>
                 <div id="practiceResultAnswer" class="answer-block" style="margin-top:16px;"></div>
-                <div style="margin-top:12px;">
-                    <button class="btn btn-info btn-sm" id="btnDeepSeekResult" onclick="fetchDeepSeekInResult()">AI 解析 (DeepSeek)</button>
-                    <span id="deepSeekStatusResult" style="margin-left:8px; font-size:0.9rem;"></span>
-                    <div id="deepSeekResultResult" style="display:none; margin-top:12px; padding:12px; background:#f0f5ff; border-radius:8px;"></div>
-                </div>
+                <!-- DeepSeek AI 解析已移除 -->
                 <div class="practice-nav" style="margin-top:16px;">
                     <button class="btn" id="btnResultPrev" onclick="prevResultQuestion()">上一题</button>
                     <span id="practiceResultProgress">1/10</span>
@@ -193,77 +185,7 @@
         function setPoints(n) { try { localStorage.setItem('xingce_points', String(Math.max(0, n))); } catch (e) {} }
         function logPointsUsage(type, amount, desc) { try { var log = []; var s = localStorage.getItem('xingce_points_log'); log = s ? JSON.parse(s) : []; log.unshift({ t: type, amount: amount, desc: desc || '', date: new Date().toISOString() }); log = log.slice(0, 200); localStorage.setItem('xingce_points_log', JSON.stringify(log)); } catch (e) {} }
 
-        var DEEPSEEK_API_KEY = 'sk-0c154dd4e49a471492ffd96e8de2091e';
-        function fetchDeepSeekForQuestion(q, statusId, resultId, btnId, onSave) {
-            if (!q) return;
-            var statusEl = document.getElementById(statusId);
-            var resultEl = document.getElementById(resultId);
-            var btn = document.getElementById(btnId);
-            if (statusEl) statusEl.textContent = '请求中…';
-            if (resultEl) { resultEl.style.display = 'none'; resultEl.innerHTML = ''; }
-            if (btn) btn.disabled = true;
-            var optStr = (q.options || []).map(function(o) { return o.label + '. ' + (o.text || ''); }).join('\n');
-            var userContent = '请对以下行测题目给出解析（为什么选正确答案，其他选项为何不选）：\n\n' + (q.content || '') + '\n\n选项：\n' + optStr + '\n\n正确答案：' + (q.answer || '');
-            fetch('https://api.deepseek.com/chat/completions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_API_KEY },
-                body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: '你是一名行测题目解析助手，用简洁清晰的中文作答。' }, { role: 'user', content: userContent }], stream: false })
-            }).then(function(res) { return res.json(); }).then(function(data) {
-                if (statusEl) statusEl.textContent = '';
-                if (btn) btn.disabled = false;
-                var text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? data.choices[0].message.content : (data.error ? (data.error.message || '请求失败') : '无返回内容');
-                if (resultEl) {
-                    resultEl.innerHTML = '<strong>AI 解析：</strong><div style="margin-top:8px; white-space:pre-wrap;">' + String(text).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>' + (onSave ? '<p style="margin-top:8px;"><button class="btn btn-success btn-sm" onclick="' + onSave + '">保存为题目解析</button></p>' : '');
-                    resultEl.style.display = 'block';
-                }
-            }).catch(function(err) {
-                if (statusEl) statusEl.textContent = '失败';
-                if (btn) btn.disabled = false;
-                if (resultEl) {
-                    resultEl.innerHTML = '<span style="color:#dc3545;">' + (err.message || '网络错误') + '</span>';
-                    resultEl.style.display = 'block';
-                }
-            });
-        }
-        function saveDeepSeekToQuestionInPractice() {
-            var q = practiceQuestions[practiceIndex];
-            if (!q) return;
-            var resultEl = document.getElementById('deepSeekResultPractice');
-            var div = resultEl ? resultEl.querySelector('div[style*="white-space"]') : null;
-            var text = div ? div.textContent : '';
-            var data = loadStore();
-            if (data.questions[q.id]) {
-                data.questions[q.id].explanation = (data.questions[q.id].explanation ? data.questions[q.id].explanation + '\n\n【AI解析】\n' : '') + text;
-                saveStore(data);
-            }
-            if (resultEl) resultEl.style.display = 'none';
-            revealCurrentAnswer();
-        }
-        function saveDeepSeekToQuestionInResult() {
-            var q = practiceQuestions[practiceResultIndex];
-            if (!q) return;
-            var resultEl = document.getElementById('deepSeekResultResult');
-            var div = resultEl ? resultEl.querySelector('div[style*="white-space"]') : null;
-            var text = div ? div.textContent : '';
-            var data = loadStore();
-            if (data.questions[q.id]) {
-                data.questions[q.id].explanation = (data.questions[q.id].explanation ? data.questions[q.id].explanation + '\n\n【AI解析】\n' : '') + text;
-                saveStore(data);
-            }
-            if (resultEl) resultEl.style.display = 'none';
-            q.explanation = (q.explanation ? q.explanation + '\n\n【AI解析】\n' : '') + text;
-            renderResultQuestion();
-        }
-        function fetchDeepSeekInPractice() {
-            var q = practiceQuestions[practiceIndex];
-            var wrap = document.getElementById('practiceDeepSeekWrap');
-            if (wrap) wrap.style.display = 'block';
-            fetchDeepSeekForQuestion(q, 'deepSeekStatusPractice', 'deepSeekResultPractice', 'btnDeepSeekPractice', 'saveDeepSeekToQuestionInPractice()');
-        }
-        function fetchDeepSeekInResult() {
-            var q = practiceQuestions[practiceResultIndex];
-            fetchDeepSeekForQuestion(q, 'deepSeekStatusResult', 'deepSeekResultResult', 'btnDeepSeekResult', 'saveDeepSeekToQuestionInResult()');
-        }
+        // DeepSeek AI 解析已移除
         function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
         function renderLaTeXInElement(el) {
             if (!el || !window.renderMathInElement) return;
@@ -346,8 +268,6 @@
             document.getElementById('practiceDoneMsg').style.display = allAnswered ? 'block' : 'none';
             var revEl = document.getElementById('practiceRevealAnswer');
             if (revEl) { revEl.style.display = 'none'; revEl.innerHTML = ''; }
-            var dsWrap = document.getElementById('practiceDeepSeekWrap');
-            if (dsWrap) dsWrap.style.display = 'none';
             var btnRev = document.getElementById('btnRevealAnswer');
             if (btnRev) btnRev.style.display = practiceMode === 'memorize' ? 'inline-flex' : 'none';
             // 背题模式：若当前题已选过答案，切换回来时也显示答案
@@ -416,10 +336,7 @@
                 revEl.style.display = 'block';
                 renderLaTeXInElement(revEl);
             }
-            var dsWrap = document.getElementById('practiceDeepSeekWrap');
-            if (dsWrap) dsWrap.style.display = 'block';
-            var dsRes = document.getElementById('deepSeekResultPractice');
-            if (dsRes) { dsRes.style.display = 'none'; dsRes.innerHTML = ''; }
+            // DeepSeek AI 解析已移除
         }
         function onPracticeOptionClick(label) {
             var q = practiceQuestions[practiceIndex];

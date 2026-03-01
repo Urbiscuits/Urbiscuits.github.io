@@ -630,7 +630,7 @@
             metaEl.innerHTML =
                 '套卷：<strong>' + esc(set.name || '未命名套卷') + '</strong>' +
                 '<span class="badge">题目 ID：' + esc(qid) + '</span>' +
-                (q.section ? '<span class="badge">' + esc(q.section) + (q.subcategory ? ' - ' + esc(q.subcategory) : '') + '</span>' : '');
+                (q.section ? '<span class="badge">' + esc(q.section) + (q.subcategory ? ' - ' + esc(q.subcategory) : '') + (q.subsubcategory ? ' - ' + esc(q.subsubcategory) : '') + '</span>' : '');
 
             setEditableContent('fieldMaterial', q.material || '', q.materialImages || []);
             setEditableContent('fieldContent', q.content || '', q.stemImages || []);
