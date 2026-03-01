@@ -31,6 +31,20 @@
         .editable-area { outline: none; }
         .editable-area:focus { border-color: var(--primary-color) !important; }
         .editable-area img { max-width: 100%; margin: 6px 0; display: block; }
+        .detail-rich-block { margin-bottom: 12px; }
+        .detail-rich-title { font-size: 0.9rem; color: #4a6baf; margin-bottom: 6px; font-weight: 600; }
+        .detail-editable { min-height: 28px; padding: 6px 8px; border-radius: 6px; }
+        .detail-editable:hover { background: #f8fbff; }
+        .detail-editable.inline-editing {
+            background: #fff;
+            border: 2px solid var(--primary-color);
+            outline: none;
+        }
+        .detail-editable img { max-width: 100%; margin: 6px 0; display: block; }
+        .detail-option { display: flex; align-items: flex-start; gap: 6px; }
+        .detail-option .opt-label { min-width: 22px; font-weight: 600; }
+        .detail-option .opt-content { flex: 1; min-width: 0; }
+        .rich-empty-tip { color: #8a94a6; font-size: 0.9rem; font-style: italic; }
     </style>
 </head>
 <body>
@@ -186,6 +200,90 @@
             if (!el || !window.renderMathInElement) return;
             try { renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '\\(', right: '\\)', display: false }, { left: '$', right: '$', display: false }], throwOnError: false }); } catch (e) {}
         }
+        function sanitizeRichHtml(rawHtml) {
+            if (!rawHtml) return '';
+            var holder = document.createElement('div');
+            holder.innerHTML = String(rawHtml);
+            holder.querySelectorAll('script,style,iframe,object,embed').forEach(function(node) { node.remove(); });
+            holder.querySelectorAll('*').forEach(function(node) {
+                [].slice.call(node.attributes || []).forEach(function(attr) {
+                    var n = (attr.name || '').toLowerCase();
+                    if (n.indexOf('on') === 0 || n === 'contenteditable') node.removeAttribute(attr.name);
+                });
+                if (node.nodeName === 'IMG') {
+                    var src = node.getAttribute('src') || '';
+                    if (!/^data:image\//i.test(src) && !/^https?:\/\//i.test(src)) node.remove();
+                }
+            });
+            return holder.innerHTML;
+        }
+        function richHasContent(html) {
+            if (!html) return false;
+            var plain = String(html).replace(/<img[\s\S]*?>/gi, '').replace(/<br\s*\/?>/gi, '').replace(/<[^>]+>/g, '').replace(/\s+/g, '');
+            return plain.length > 0 || /<img[\s\S]*?>/i.test(html);
+        }
+        function composeMixedHtml(text, images, richHtml) {
+            var rich = sanitizeRichHtml(richHtml || '');
+            if (richHasContent(rich)) return rich;
+            var fallback = esc(text || '').replace(/\n/g, '<br>');
+            if (images && images.length) fallback += images.map(imgTag).join('');
+            return fallback;
+        }
+        function extractTextWithBreaks(rootNode) {
+            function walk(node) {
+                if (!node) return '';
+                if (node.nodeType === 3) return node.textContent || '';
+                if (node.nodeType !== 1) return '';
+                if (node.nodeName === 'BR') return '\n';
+                var childText = [].map.call(node.childNodes || [], walk).join('');
+                if (node.nodeName === 'DIV' || node.nodeName === 'P' || node.nodeName === 'LI') return childText + '\n';
+                return childText;
+            }
+            return walk(rootNode).replace(/\n{3,}/g, '\n\n').trim();
+        }
+        function extractRichPayloadFromElement(el) {
+            if (!el) return { html: '', text: '', images: [] };
+            var html = sanitizeRichHtml(el.innerHTML || '');
+            var box = document.createElement('div');
+            box.innerHTML = html;
+            var images = [].map.call(box.querySelectorAll('img'), function(img) { return img.getAttribute('src') || ''; }).filter(Boolean);
+            var text = extractTextWithBreaks(box);
+            return { html: html, text: text, images: images };
+        }
+        function insertImageToSelection(file, editableEl, done) {
+            if (!file || !editableEl) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                editableEl.focus();
+                var img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.maxWidth = '100%';
+                img.style.margin = '6px 0';
+                img.style.display = 'block';
+                var selection = window.getSelection();
+                if (selection && selection.rangeCount > 0) {
+                    var range = selection.getRangeAt(0);
+                    range.deleteContents();
+                    range.insertNode(img);
+                    range.setStartAfter(img);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                } else {
+                    editableEl.appendChild(img);
+                }
+                if (done) done();
+            };
+            reader.readAsDataURL(file);
+        }
+        function placeCaretToEnd(el) {
+            if (!el) return;
+            var range = document.createRange();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
 
         function renderList() {
             if (!currentSetId || !currentSet) return;
@@ -221,18 +319,37 @@
             var q = getQuestion(qid);
             if (!q) return;
             var hist = (q.totalAttempts || 0) > 0 ? ((q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)') : '暂无';
-            var materialHtml = (q.material ? '<p>' + esc(q.material) + '</p>' : '') + (q.materialImages || []).map(imgTag).join('');
-            var stemHtml = esc(q.content || '') + (q.stemImages || []).map(imgTag).join('');
+            var materialHtml = composeMixedHtml(q.material || '', q.materialImages || [], q.materialRich || '');
+            var stemHtml = composeMixedHtml(q.content || '', q.stemImages || [], q.contentRich || '');
+            var materialDisplayHtml = richHasContent(materialHtml) ? materialHtml : '<span class="rich-empty-tip">（暂无材料，双击此处添加；支持 Ctrl+V 粘贴图片）</span>';
             var optHtml = (q.options || []).map(function(o) {
                 var c = o.label === q.answer ? 'correct' : '';
-                return '<div class="option ' + c + '"><span>' + o.label + '.</span> ' + esc(o.text) + (o.images || []).map(imgTag).join('') + '</div>';
+                var optionHtml = composeMixedHtml(o.text || '', o.images || [], o.html || '');
+                if (!richHasContent(optionHtml)) optionHtml = '<span class="rich-empty-tip">（双击编辑选项）</span>';
+                return '<div class="option detail-option ' + c + '">' +
+                    '<span class="opt-label">' + o.label + '.</span>' +
+                    '<div class="opt-content detail-editable" data-editable-field="option" data-label="' + esc(o.label) + '" title="双击原位编辑选项，支持 Ctrl+V 图片">' + optionHtml + '</div>' +
+                '</div>';
             }).join('');
-            document.getElementById('detailBody').innerHTML = '<p style="margin-bottom:8px;"><strong>历史正确率：</strong>' + hist + '</p><div style="font-size:0.95rem; color:var(--primary-color); margin-bottom:8px;">【' + esc(q.section) + '-' + esc(q.subcategory||q.section) + '】</div>' + (materialHtml ? '<div style="margin-bottom:12px;">' + materialHtml + '</div>' : '') + '<div class="question-content" style="line-height:1.7;">' + stemHtml + '</div><div style="margin-top:12px;">' + optHtml + '</div>' + (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：' + esc(q.explanation) + '</div>' : '');
+            document.getElementById('detailBody').innerHTML =
+                '<p style="margin-bottom:8px;"><strong>历史正确率：</strong>' + hist + '</p>' +
+                '<div style="font-size:0.95rem; color:var(--primary-color); margin-bottom:8px;">【' + esc(q.section) + '-' + esc(q.subcategory||q.section) + '】</div>' +
+                '<div class="detail-rich-block">' +
+                    '<div class="detail-rich-title">材料（双击原位编辑，支持图文混排）</div>' +
+                    '<div id="detailMaterialContent" class="detail-editable" data-editable-field="material" style="line-height:1.7;" title="双击原位编辑材料，支持 Ctrl+V 图片">' + materialDisplayHtml + '</div>' +
+                '</div>' +
+                '<div class="detail-rich-block">' +
+                    '<div class="detail-rich-title">题干（双击原位编辑，支持图文混排）</div>' +
+                    '<div class="question-content detail-editable" id="detailQuestionContent" data-editable-field="content" style="line-height:1.7;" title="双击原位编辑题干，支持 Ctrl+V 图片">' + stemHtml + '</div>' +
+                '</div>' +
+                '<div style="margin-top:12px;">' + optHtml + '</div>' +
+                (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：' + esc(q.explanation) + '</div>' : '');
             renderLaTeX(document.getElementById('detailBody'));
             document.getElementById('btnEditFromDetail').onclick = function() {
                 closeDetail();
                 openEdit(qid);
             };
+            bindDetailQuickEditEvents();
             document.getElementById('detailOverlay').style.display = 'block';
         }
         function closeDetail() { 
@@ -242,6 +359,118 @@
 
         var currentImageUploadTarget = null;
         var detailQid = null;
+        var activeInlineEditor = null;
+
+        function beginDetailInlineEdit(editableEl) {
+            if (!editableEl || !detailQid) return;
+            if (activeInlineEditor && activeInlineEditor.el === editableEl) return;
+            if (activeInlineEditor && activeInlineEditor.save) activeInlineEditor.save();
+
+            var field = editableEl.getAttribute('data-editable-field');
+            var optionLabel = editableEl.getAttribute('data-label');
+            var originalHtml = editableEl.innerHTML;
+            var committed = false;
+            var saveTimer = null;
+
+            if (editableEl.querySelector && editableEl.querySelector('.rich-empty-tip')) editableEl.innerHTML = '';
+            editableEl.setAttribute('contenteditable', 'true');
+            editableEl.classList.add('inline-editing');
+            editableEl.focus();
+            placeCaretToEnd(editableEl);
+
+            function cleanup() {
+                editableEl.removeAttribute('contenteditable');
+                editableEl.classList.remove('inline-editing');
+                editableEl.removeEventListener('paste', onPaste);
+                editableEl.removeEventListener('keydown', onKeydown);
+                editableEl.removeEventListener('blur', onBlur);
+                if (saveTimer) clearTimeout(saveTimer);
+                if (activeInlineEditor && activeInlineEditor.el === editableEl) activeInlineEditor = null;
+            }
+            function commit() {
+                if (committed) return;
+                committed = true;
+                var data = loadStore();
+                var qidKey = String(detailQid);
+                var q = data.questions[qidKey];
+                if (!q) {
+                    cleanup();
+                    return;
+                }
+                var payload = extractRichPayloadFromElement(editableEl);
+                if (field === 'material') {
+                    q.materialRich = payload.html;
+                    q.material = payload.text;
+                    q.materialImages = payload.images;
+                } else if (field === 'content') {
+                    q.contentRich = payload.html;
+                    q.content = payload.text;
+                    q.stemImages = payload.images;
+                } else if (field === 'option' && q.options && q.options.length) {
+                    var idx = -1;
+                    for (var i = 0; i < q.options.length; i++) {
+                        if (String(q.options[i].label || '') === String(optionLabel || '')) { idx = i; break; }
+                    }
+                    if (idx >= 0 && q.options[idx]) {
+                        q.options[idx].html = payload.html;
+                        q.options[idx].text = payload.text;
+                        q.options[idx].images = payload.images;
+                    }
+                }
+                data.questions[qidKey] = q;
+                saveStore(data);
+                cleanup();
+                showDetail(detailQid);
+                renderList();
+            }
+            function cancel() {
+                if (committed) return;
+                committed = true;
+                editableEl.innerHTML = originalHtml;
+                cleanup();
+            }
+            function onPaste(e) {
+                var items = e.clipboardData && e.clipboardData.items;
+                if (!items) return;
+                for (var i = 0; i < items.length; i++) {
+                    if ((items[i].type || '').indexOf('image') !== -1) {
+                        e.preventDefault();
+                        var file = items[i].getAsFile();
+                        insertImageToSelection(file, editableEl);
+                        return;
+                    }
+                }
+            }
+            function onKeydown(e) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    cancel();
+                    return;
+                }
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    commit();
+                }
+            }
+            function onBlur() {
+                saveTimer = setTimeout(function() { commit(); }, 120);
+            }
+            editableEl.addEventListener('paste', onPaste);
+            editableEl.addEventListener('keydown', onKeydown);
+            editableEl.addEventListener('blur', onBlur);
+            activeInlineEditor = { el: editableEl, save: commit, cancel: cancel };
+        }
+
+        function bindDetailQuickEditEvents() {
+            var bodyEl = document.getElementById('detailBody');
+            if (!bodyEl) return;
+            bodyEl.ondblclick = function(e) {
+                if (!detailQid) return;
+                var editable = e.target.closest ? e.target.closest('[data-editable-field]') : null;
+                if (!editable) return;
+                beginDetailInlineEdit(editable);
+            };
+        }
 
         function getEditableContent(id) {
             var el = document.getElementById(id);
