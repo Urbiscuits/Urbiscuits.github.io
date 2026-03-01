@@ -1135,8 +1135,8 @@
       "setId": "id_1771473648578_aa9tjlt",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 2,
+      "totalAttempts": 2
     },
     "id_1771473668434_nlxw1b5": {
       "category": "言语理解",
@@ -1335,13 +1335,16 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/总分结构"
+      ],
       "id": "id_1771473668434_3kj9tgd",
       "setId": "id_1771473648578_aa9tjlt",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1,
+      "subsubcategory": "总分结构"
     },
     "id_1771473668434_cyflb8a": {
       "category": "言语理解",
@@ -29962,5 +29965,6 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-22T12:59:28.719Z"
+  "exportTime": "2026-03-01T02:35:35.332Z",
+  "notes": []
 }
