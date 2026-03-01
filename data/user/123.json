@@ -1,6 +1,229 @@
 {
   "history": [
     {
+      "date": "2026-03-01T03:26:49.275Z",
+      "mode": "practice",
+      "challengeLevel": null,
+      "total": 15,
+      "correct": 1,
+      "score": 7,
+      "totalTime": 5,
+      "details": [
+        {
+          "qid": "id_1771572234686_ele20oe",
+          "selected": "B",
+          "correct": false,
+          "timeSpent": 1,
+          "answer": "D",
+          "section": "言语理解",
+          "subcategory": "中心理解",
+          "sourceNames": [
+            "2026超格超大杯"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771857274747_mtp8dtj",
+          "selected": "A",
+          "correct": false,
+          "timeSpent": 0,
+          "answer": "C",
+          "section": "言语理解",
+          "subcategory": "语句排序",
+          "sourceNames": [
+            "新途径精选300题"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771857274747_zphhbp6",
+          "selected": "A",
+          "correct": false,
+          "timeSpent": 0,
+          "answer": "D",
+          "section": "言语理解",
+          "subcategory": "中心理解",
+          "sourceNames": [
+            "新途径精选300题"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771834803492_c423nvj",
+          "selected": "B",
+          "correct": false,
+          "timeSpent": 0,
+          "answer": "A",
+          "section": "言语理解",
+          "subcategory": "接语选择",
+          "sourceNames": [
+            "2026大熊猫省言语600题"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771834803491_o35n86s",
+          "selected": "B",
+          "correct": false,
+          "timeSpent": 0,
+          "answer": "D",
+          "section": "言语理解",
+          "subcategory": "中心理解",
+          "sourceNames": [
+            "2026大熊猫省言语600题"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771650117050_23wx990",
+          "selected": "C",
+          "correct": true,
+          "timeSpent": 0,
+          "answer": "C",
+          "section": "言语理解",
+          "subcategory": "接语选择",
+          "sourceNames": [
+            "2026雨菲言语速解36技"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 1
+        },
+        {
+          "qid": "id_1772169871130_laow8lv",
+          "selected": "C",
+          "correct": false,
+          "timeSpent": 0,
+          "answer": "D",
+          "section": "言语理解",
+          "subcategory": "中心理解",
+          "sourceNames": [
+            "2026超小马省考"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1772169870308_aler1rb",
+          "selected": "B",
+          "correct": false,
+          "timeSpent": 0,
+          "answer": "A",
+          "section": "言语理解",
+          "subcategory": "中心理解",
+          "sourceNames": [
+            "2026超小马省考"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771473684251_ip3yhcp",
+          "selected": "D",
+          "correct": false,
+          "timeSpent": 0,
+          "answer": "A",
+          "section": "言语理解",
+          "subcategory": "中心理解",
+          "sourceNames": [
+            "2025粉笔必刷题(重庆)"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771650117049_42ocqvu",
+          "selected": "B",
+          "correct": false,
+          "timeSpent": 0,
+          "answer": "C",
+          "section": "言语理解",
+          "subcategory": "中心理解",
+          "sourceNames": [
+            "2026雨菲言语速解36技"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771681939506_8nui08m",
+          "selected": "B",
+          "correct": false,
+          "timeSpent": 1,
+          "answer": "A",
+          "section": "言语理解",
+          "subcategory": "中心理解",
+          "sourceNames": [
+            "2026海海刷言语"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771681939506_thpcqr3",
+          "selected": "D",
+          "correct": false,
+          "timeSpent": 0,
+          "answer": "C",
+          "section": "言语理解",
+          "subcategory": "逻辑填空",
+          "sourceNames": [
+            "2026海海刷言语"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771477638318_r74vaer",
+          "selected": "C",
+          "correct": false,
+          "timeSpent": 1,
+          "answer": "B",
+          "section": "言语理解",
+          "subcategory": "逻辑填空",
+          "sourceNames": [
+            "2026雨菲百词斩"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771473668435_eiicwiv",
+          "selected": "A",
+          "correct": false,
+          "timeSpent": 0,
+          "answer": "C",
+          "section": "言语理解",
+          "subcategory": "逻辑填空",
+          "sourceNames": [
+            "2025粉笔必刷题(重庆)"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        },
+        {
+          "qid": "id_1771681939505_6xe6kvc",
+          "selected": "B",
+          "correct": false,
+          "timeSpent": 2,
+          "answer": "A",
+          "section": "言语理解",
+          "subcategory": "逻辑填空",
+          "sourceNames": [
+            "2026海海刷言语"
+          ],
+          "totalAttempts": 1,
+          "correctCount": 0
+        }
+      ],
+      "completed": true,
+      "id": "s1772335609275"
+    },
+    {
       "date": "2026-02-22T02:55:12.814Z",
       "mode": "practice",
       "challengeLevel": null,
@@ -170,6 +393,11 @@
       "id": "s1771726137775"
     }
   ],
+  "notes": [],
+  "favorites": [
+    "id_1771473668435_m1j7ov4",
+    "id_1771650117050_jsb66s9"
+  ],
   "points": 4,
   "signInDate": "2026-02-22",
   "pointsLog": [],
@@ -238,19 +466,94 @@
   "challengeUnlocked": [
     2
   ],
-  "favorites": [
-    "id_1771473668435_m1j7ov4",
-    "id_1771650117050_jsb66s9"
-  ],
-  "notes": [],
   "questionStatsFiles": [],
   "questionStats": {
+    "id_1771477638318_r74vaer": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771650117049_42ocqvu": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
     "id_1771650117050_jsb66s9": {
       "totalAttempts": 1,
       "correctCount": 0,
       "done": false
     },
+    "id_1771650117050_23wx990": {
+      "totalAttempts": 1,
+      "correctCount": 1,
+      "done": false
+    },
+    "id_1771650209664_4oai8ei": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771572234686_ele20oe": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
     "id_1771473668435_m1j7ov4": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771473668435_eiicwiv": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771473684251_ip3yhcp": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771681939505_6xe6kvc": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771681939506_8nui08m": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771681939506_thpcqr3": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771834803491_o35n86s": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771834803492_c423nvj": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771857274747_zphhbp6": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1771857274747_mtp8dtj": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1772169870308_aler1rb": {
+      "totalAttempts": 1,
+      "correctCount": 0,
+      "done": false
+    },
+    "id_1772169871130_laow8lv": {
       "totalAttempts": 1,
       "correctCount": 0,
       "done": false
