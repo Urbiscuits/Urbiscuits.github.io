@@ -1342,8 +1342,8 @@
       "setId": "id_1771473648578_aa9tjlt",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1,
+      "correctCount": 2,
+      "totalAttempts": 2,
       "subsubcategory": "总分结构"
     },
     "id_1771473668434_cyflb8a": {
@@ -4008,8 +4008,8 @@
       "setId": "id_1771473648578_aa9tjlt",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 2,
+      "totalAttempts": 2
     },
     "id_1771473668434_i6xlozl": {
       "category": "言语理解",
@@ -9790,7 +9790,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1
     },
     "id_1771473684251_y1l3fz3": {
       "category": "言语理解",
@@ -11552,8 +11552,8 @@
       "setId": "id_1771473648578_aa9tjlt",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1
     },
     "id_1771473684251_k92c4rm": {
       "category": "言语理解",
@@ -12912,7 +12912,7 @@
       "category": "言语理解",
       "subcategory": "语句排序",
       "source": "2025粉笔言语必刷200题",
-      "content": "题号98：①将会造成时间上的错位，舍近求远②靠单纯大力发展新能源，远水解不了近渴③如果忽视了这点，而盲目发展可再生能源的“装机容量”④目前而言，最需要重点对待的是传统能源的改进和合理利用⑤但是可再生能源(含水能)产量只相当于6亿吨标准煤，约占全部能源的13%⑥根据目前的能源消耗水平进行测试，到2020年，我国总耗能约达45亿吨标准煤将以上6个句子重新排列，语序正确的是（ ）。",
+      "content": "题号98：①将会造成时间上的错位，舍近求远\n②靠单纯大力发展新能源，远水解不了近渴\n③如果忽视了这点，而盲目发展可再生能源的“装机容量”\n④目前而言，最需要重点对待的是传统能源的改进和合理利用\n⑤但是可再生能源(含水能)产量只相当于6亿吨标准煤，约占全部能源的13%\n⑥根据目前的能源消耗水平进行测试，到2020年，我国总耗能约达45亿吨标准煤\n将以上6个句子重新排列，语序正确的是（ ）。",
       "options": [
         {
           "label": "A",
@@ -12946,8 +12946,9 @@
       "setId": "id_1771473648578_aa9tjlt",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1,
+      "subsubcategory": ""
     },
     "id_1771473684251_8wjenae": {
       "category": "言语理解",
@@ -16390,8 +16391,8 @@
       "setId": "id_1771473648578_aa9tjlt",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 2,
+      "totalAttempts": 2
     },
     "id_1771473684251_6gymf0w": {
       "category": "言语理解",
@@ -29965,6 +29966,6 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-03-01T02:35:35.332Z",
+  "exportTime": "2026-03-01T02:59:34.609Z",
   "notes": []
 }
