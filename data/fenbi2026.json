@@ -1271,8 +1271,8 @@
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0,
+      "correctCount": 2,
+      "totalAttempts": 2,
       "subsubcategory": "对策类"
     },
     "id_1771497620309_vgl8a5x": {
@@ -3754,7 +3754,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 1,
+      "totalAttempts": 2,
       "subsubcategory": "对策类"
     },
     "id_1771497620309_ljta4eo": {
@@ -4125,8 +4125,8 @@
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1,
+      "correctCount": 2,
+      "totalAttempts": 2,
       "subsubcategory": "分总结构"
     },
     "id_1771497620309_ixsyp3m": {
@@ -12743,7 +12743,7 @@
       "category": "言语理解",
       "subcategory": "逻辑填空",
       "source": "2024联考",
-      "content": "15：音乐诗画《听此青绿--乐咏千里江山》以十三幅图景展现传世名画《千里江山图》中的景观和风情，借鉴《高山流水》《渔舟唱晚》《梅花三弄》等古曲的艺术表达，融合编钟、箜篌、筑等民族乐器和西洋铜管乐，加入绘画、书法、意境化舞蹈等表现方式，为千山万壑、江河交错的盛景注入______而深邃、浑厚而轻盈的悠远神韵。\n依次填入画横线部分最恰当的一项是：",
+      "content": "15：音乐诗画《听此青绿--乐咏千里江山》以十三幅____________图景展现传世名画《千里江山图》中的景观和风情，借鉴《高山流水》《渔舟唱晚》《梅花三弄》等古曲的艺术表达，融合编钟、箜篌、筑等民族乐器和西洋铜管乐，加入绘画、书法、意境化舞蹈等表现方式，为千山万壑、江河交错的盛景注入______而深邃、浑厚而轻盈的悠远神韵。\n依次填入画横线部分最恰当的一项是：",
       "options": [
         {
           "label": "A",
@@ -12777,8 +12777,9 @@
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1,
+      "subsubcategory": ""
     },
     "id_1771497620310_oxfig29": {
       "category": "言语理解",
@@ -30691,7 +30692,7 @@
       "correctCount": 0
     }
   },
-  "exportTime": "2026-02-28T02:51:51.472Z",
+  "exportTime": "2026-03-01T02:56:27.769Z",
   "notes": [
     {
       "qid": "id_1771497620309_nb64cws",
