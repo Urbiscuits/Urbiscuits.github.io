@@ -1150,8 +1150,8 @@
       "setId": "id_1771830557128_zctaiso",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1,
+      "correctCount": 0,
+      "totalAttempts": 0,
       "subsubcategory": "分总结构"
     },
     "id_1771834803491_qlus513": {
@@ -1479,8 +1479,8 @@
       "setId": "id_1771830557128_zctaiso",
       "section": "言语理解",
       "done": false,
-      "correctCount": 2,
-      "totalAttempts": 2
+      "correctCount": 0,
+      "totalAttempts": 0
     },
     "id_1771834803491_x3i9822": {
       "category": "言语理解",
@@ -2015,7 +2015,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 2,
+      "totalAttempts": 0,
       "subsubcategory": "总分结构"
     },
     "id_1771834803491_2glmdd7": {
@@ -6361,8 +6361,8 @@
       "setId": "id_1771830557128_zctaiso",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 2,
+      "totalAttempts": 2
     },
     "id_1771834803491_pd8g2ta": {
       "category": "言语理解",
@@ -23823,7 +23823,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1
     },
     "id_1771834803492_wxkbdxr": {
       "category": "言语理解",
@@ -25384,7 +25384,7 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-27T02:43:35.370Z",
+  "exportTime": "2026-03-01T03:17:21.346Z",
   "notes": [
     {
       "qid": "id_1771834803491_fd01a0j",
