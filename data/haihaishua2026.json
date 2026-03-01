@@ -2345,8 +2345,8 @@
       "setId": "id_1771681911569_ufq8wxb",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 2,
+      "totalAttempts": 2
     },
     "id_1771681939505_hrpa7v6": {
       "category": "言语理解",
@@ -3985,8 +3985,8 @@
       "setId": "id_1771681911569_ufq8wxb",
       "section": "言语理解",
       "done": false,
-      "correctCount": 2,
-      "totalAttempts": 2
+      "correctCount": 0,
+      "totalAttempts": 0
     },
     "id_1771681939506_tvl3xfs": {
       "category": "言语理解",
@@ -4518,8 +4518,8 @@
       "setId": "id_1771681911569_ufq8wxb",
       "section": "言语理解",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 2,
+      "totalAttempts": 2
     },
     "id_1771681939506_0ys79zb": {
       "category": "言语理解",
@@ -9767,7 +9767,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 1,
+      "totalAttempts": 0,
       "subsubcategory": ""
     },
     "id_1771681939506_c2z4jls": {
@@ -10838,7 +10838,7 @@
     },
     "id_1771681939506_geb5z53": {
       "category": "言语理解",
-      "subcategory": "中心理解",
+      "subcategory": "接语选择",
       "source": "26海海刷",
       "content": "题号14：\n题目：疫情对全球生产和需求造成全面冲击，各国应该联手加大宏观政策对冲力度，防止世界经济陷入衰退。要实施有力有效的财政和货币政策，促进各国货币汇率基本稳定。要加强金融监管协调，维护全球金融市场稳定，________________________，中国将加大力度向国际市场供应原料药、生活必需品、防疫物资等产品。要保护妇女儿童，保护老年人、残疾人等弱势群体，保障人民基本生活。中国将继续实施积极的财政政策和稳健的货币政策，坚定不移扩大改革开放，放宽市场准入，持续优化营商环境，积极扩大进口，扩大对外投资，为世界经济稳定作出贡献。填入文中画横线部分最恰当的一项是:",
       "options": [
@@ -10875,7 +10875,8 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1,
+      "subsubcategory": ""
     },
     "id_1771681939506_e8rhwp8": {
       "category": "言语理解",
@@ -17188,8 +17189,8 @@
       "setId": "id_1771681911569_ufq8wxb",
       "section": "言语理解",
       "done": false,
-      "correctCount": 1,
-      "totalAttempts": 1
+      "correctCount": 0,
+      "totalAttempts": 0
     },
     "id_1771681939506_nwb6fsc": {
       "category": "言语理解",
@@ -18832,6 +18833,6 @@
       "totalAttempts": 0
     }
   },
-  "exportTime": "2026-02-27T02:40:11.986Z",
+  "exportTime": "2026-03-01T02:37:48.561Z",
   "notes": []
 }
