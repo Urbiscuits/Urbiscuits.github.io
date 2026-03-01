@@ -747,15 +747,26 @@
         // 1）单击选项：直接修改答案并保存到本地
         // 2）双击题干/材料/选项：在原框原位编辑（支持 Ctrl+V 粘贴图片）
         var activeInlineEditor = null;
+        function saveActiveInlineEditor(options) {
+            if (activeInlineEditor && typeof activeInlineEditor.save === 'function') {
+                activeInlineEditor.save(options || {});
+            }
+        }
+        function cancelActiveInlineEditor() {
+            if (activeInlineEditor && typeof activeInlineEditor.cancel === 'function') {
+                activeInlineEditor.cancel();
+            }
+        }
         function beginDetailInlineEdit(editableEl) {
             if (!editableEl || !detailQid) return;
             if (activeInlineEditor && activeInlineEditor.el === editableEl) return;
-            if (activeInlineEditor && activeInlineEditor.save) activeInlineEditor.save();
+            saveActiveInlineEditor();
 
             var field = editableEl.getAttribute('data-editable-field');
             var indexStr = editableEl.getAttribute('data-index');
             var optionIndex = indexStr != null ? parseInt(indexStr, 10) : -1;
             var originalHtml = editableEl.innerHTML;
+            var editingQid = String(detailQid);
             var committed = false;
             var saveTimer = null;
 
@@ -774,11 +785,11 @@
                 if (saveTimer) clearTimeout(saveTimer);
                 if (activeInlineEditor && activeInlineEditor.el === editableEl) activeInlineEditor = null;
             }
-            function commit() {
+            function commit(options) {
                 if (committed) return;
                 committed = true;
                 var data = loadStore();
-                var qidKey = String(detailQid);
+                var qidKey = editingQid;
                 var q = data.questions[qidKey];
                 if (!q) {
                     cleanup();
@@ -801,7 +812,9 @@
                 data.questions[qidKey] = q;
                 saveStore(data);
                 cleanup();
-                showDetail(detailQid);
+                if (!(options && options.skipRerender) && String(detailQid) === editingQid) {
+                    showDetail(editingQid);
+                }
             }
             function cancel() {
                 if (committed) return;
@@ -875,12 +888,14 @@
         }
 
         function closeDetail() { 
+            cancelActiveInlineEditor();
             document.getElementById('detailOverlay').style.display = 'none';
             detailQid = null;
         }
         // 详情弹层：上一题 / 下一题导航
         function showPrevDetail() {
             if (!detailQid || !currentOrderedQids || !currentOrderedQids.length) return;
+            saveActiveInlineEditor({ skipRerender: true });
             var idx = currentOrderedQids.indexOf(String(detailQid));
             if (idx <= 0) return;
             var prevId = currentOrderedQids[idx - 1];
@@ -888,6 +903,7 @@
         }
         function showNextDetail() {
             if (!detailQid || !currentOrderedQids || !currentOrderedQids.length) return;
+            saveActiveInlineEditor({ skipRerender: true });
             var idx = currentOrderedQids.indexOf(String(detailQid));
             if (idx < 0 || idx >= currentOrderedQids.length - 1) return;
             var nextId = currentOrderedQids[idx + 1];
