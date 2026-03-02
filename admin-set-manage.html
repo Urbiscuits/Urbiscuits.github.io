@@ -97,6 +97,10 @@
                             <option value="">全部</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="muted">按来源筛选</label>
+                        <input type="text" id="filterSource" placeholder="按 source/timeRegion 过滤，如 2018江苏" oninput="onFilterSourceInput()" style="display:block; margin-top:4px; width:180px; padding:6px 10px; border-radius:4px; border:1px solid #ced4da;">
+                    </div>
                     <div style="flex:1; min-width:200px;">
                         <label class="muted">关键词搜索</label>
                         <input type="text" id="filterKeyword" placeholder="按题干/材料/选项/解析搜索…" oninput="onFilterKeywordInput()" style="display:block; margin-top:4px; width:100%; padding:6px 10px; border-radius:4px; border:1px solid #ced4da;">
@@ -288,6 +292,7 @@
         var filterSection = '';
         var filterSubcategory = '';
         var filterKeyword = '';
+        var filterSource = '';
         var currentSetId = null;
         var currentSet = null;
         var editQid = null;
@@ -572,6 +577,11 @@
             filterKeyword = (el && el.value || '').trim().toLowerCase();
             renderList();
         }
+        function onFilterSourceInput() {
+            var el = document.getElementById('filterSource');
+            filterSource = (el && el.value || '').trim().toLowerCase();
+            renderList();
+        }
 
         function collectQuestionIds() {
             var data = loadStore();
@@ -623,6 +633,10 @@
                 if (!q) return;
                 var sec = q.section || q.category || '';
                 if (filterSection && sec !== filterSection) return;
+                if (filterSource) {
+                    var src = ((q.source || q.timeRegion || '').trim() || '').toLowerCase();
+                    if (!src || src.indexOf(filterSource) === -1) return;
+                }
                 if (filterKeyword) {
                     var textParts = [];
                     textParts.push(q.content || '');
