@@ -750,6 +750,7 @@
             };
 
             bindDetailQuickEditEvents();
+            refreshDetailSaveUi();
             document.getElementById('detailOverlay').style.display = 'block';
         }
         // 题目详情中的快捷操作：
@@ -759,6 +760,7 @@
         var detailAnswerOriginal = '';
         var detailAnswerCurrent = '';
         var detailAnswerDirty = false;
+        var detailPendingEdit = false;
         function updateDetailAnswerCompareUi() {
             var oldEl = document.getElementById('detailAnswerOld');
             var newEl = document.getElementById('detailAnswerNew');
@@ -769,10 +771,22 @@
                 wrap.style.display = detailAnswerDirty ? 'block' : 'none';
             }
         }
+        function applyDraftAnswerHighlight() {
+            var targetLabel = detailAnswerCurrent || detailAnswerOriginal || '';
+            var bodyEl = document.getElementById('detailBody');
+            if (!bodyEl) return;
+            var optionEls = bodyEl.querySelectorAll('.detail-option');
+            [].forEach.call(optionEls, function(optEl) {
+                var label = optEl.getAttribute('data-label') || '';
+                if (targetLabel && label === targetLabel) optEl.classList.add('correct');
+                else optEl.classList.remove('correct');
+            });
+        }
         function refreshDetailSaveUi() {
-            var shouldShow = !!activeInlineEditor || !!detailAnswerDirty;
+            var shouldShow = !!activeInlineEditor || !!detailAnswerDirty || !!detailPendingEdit;
             setDetailSaveUi(shouldShow);
             updateDetailAnswerCompareUi();
+            applyDraftAnswerHighlight();
         }
         function setDetailSaveUi(show) {
             var btn = document.getElementById('btnSaveDetailLocal');
@@ -781,26 +795,8 @@
             if (hint) hint.style.display = show ? 'block' : 'none';
         }
         function saveActiveInlineEditor(options) {
-            if (activeInlineEditor && typeof activeInlineEditor.save === 'function') {
-                activeInlineEditor.save(options || {});
-            }
-        }
-        function saveDraftAnswerChange(options) {
-            if (!detailAnswerDirty || !detailQid) return;
-            var qidKey = String(detailQid);
-            var data = loadStore();
-            var q = data.questions[qidKey];
-            if (!q) return;
-            q.answer = detailAnswerCurrent || q.answer || 'A';
-            data.questions[qidKey] = q;
-            saveStore(data);
-            detailAnswerOriginal = q.answer || 'A';
-            detailAnswerCurrent = detailAnswerOriginal;
-            detailAnswerDirty = false;
-            if (!(options && options.skipRerender)) {
-                showDetail(qidKey);
-            } else {
-                refreshDetailSaveUi();
+            if (activeInlineEditor && typeof activeInlineEditor.finish === 'function') {
+                activeInlineEditor.finish(options || {});
             }
         }
         function cancelActiveInlineEditor() {
@@ -811,13 +807,12 @@
         function beginDetailInlineEdit(editableEl) {
             if (!editableEl || !detailQid) return;
             if (activeInlineEditor && activeInlineEditor.el === editableEl) return;
-            saveActiveInlineEditor();
+            // 允许随时切换到其它编辑块：先结束上一个块的编辑态（不落本地）
+            if (activeInlineEditor && activeInlineEditor.el !== editableEl) {
+                saveActiveInlineEditor({ skipRefresh: true });
+            }
 
-            var field = editableEl.getAttribute('data-editable-field');
-            var indexStr = editableEl.getAttribute('data-index');
-            var optionIndex = indexStr != null ? parseInt(indexStr, 10) : -1;
             var originalHtml = editableEl.innerHTML;
-            var editingQid = String(detailQid);
             var committed = false;
 
             if (editableEl.querySelector && editableEl.querySelector('.rich-empty-tip')) editableEl.innerHTML = '';
@@ -825,6 +820,7 @@
             editableEl.classList.add('inline-editing');
             editableEl.focus();
             placeCaretToEnd(editableEl);
+            detailPendingEdit = true;
             refreshDetailSaveUi();
 
             function cleanup() {
@@ -834,38 +830,11 @@
                 editableEl.removeEventListener('keydown', onKeydown);
                 if (activeInlineEditor && activeInlineEditor.el === editableEl) activeInlineEditor = null;
             }
-            function commit(options) {
+            function finish(options) {
                 if (committed) return;
                 committed = true;
-                var data = loadStore();
-                var qidKey = editingQid;
-                var q = data.questions[qidKey];
-                if (!q) {
-                    cleanup();
-                    return;
-                }
-                var payload = extractRichPayloadFromElement(editableEl);
-                if (field === 'material') {
-                    q.materialRich = payload.html;
-                    q.material = payload.text;
-                    q.materialImages = payload.images;
-                } else if (field === 'content') {
-                    q.contentRich = payload.html;
-                    q.content = payload.text;
-                    q.stemImages = payload.images;
-                } else if (field === 'option' && q.options && optionIndex >= 0 && q.options[optionIndex]) {
-                    q.options[optionIndex].html = payload.html;
-                    q.options[optionIndex].text = payload.text;
-                    q.options[optionIndex].images = payload.images;
-                }
-                data.questions[qidKey] = q;
-                saveStore(data);
                 cleanup();
-                if (!(options && options.skipRerender) && String(detailQid) === editingQid) {
-                    showDetail(editingQid);
-                } else {
-                    refreshDetailSaveUi();
-                }
+                if (!(options && options.skipRefresh)) refreshDetailSaveUi();
             }
             function cancel() {
                 if (committed) return;
@@ -894,19 +863,63 @@
                 }
                 if (e.ctrlKey && e.key === 'Enter') {
                     e.preventDefault();
-                    commit();
+                    finish();
                 }
             }
 
             editableEl.addEventListener('paste', onPaste);
             editableEl.addEventListener('keydown', onKeydown);
-            activeInlineEditor = { el: editableEl, save: commit, cancel: cancel };
+            activeInlineEditor = { el: editableEl, finish: finish, cancel: cancel };
         }
         function saveDetailInlineEdit(options) {
             var opts = options || {};
             var qidAtSave = detailQid ? String(detailQid) : '';
-            saveActiveInlineEditor({ skipRerender: true });
-            saveDraftAnswerChange({ skipRerender: true });
+            saveActiveInlineEditor({ skipRefresh: true });
+            if (qidAtSave) {
+                var data = loadStore();
+                var q = data.questions[qidAtSave];
+                if (q) {
+                    var materialEl = document.getElementById('detailMaterialContent');
+                    var contentEl = document.getElementById('detailQuestionContent');
+                    var materialPayload = extractRichPayloadFromElement(materialEl);
+                    var contentPayload = extractRichPayloadFromElement(contentEl);
+                    q.materialRich = materialPayload.html;
+                    q.material = materialPayload.text;
+                    q.materialImages = materialPayload.images;
+                    q.contentRich = contentPayload.html;
+                    q.content = contentPayload.text;
+                    q.stemImages = contentPayload.images;
+
+                    var optionPayloadByLabel = {};
+                    var optionBlocks = document.querySelectorAll('#detailBody .detail-option');
+                    [].forEach.call(optionBlocks, function(optEl) {
+                        var label = optEl.getAttribute('data-label') || '';
+                        var contentNode = optEl.querySelector('[data-editable-field="option"]');
+                        if (!label || !contentNode) return;
+                        optionPayloadByLabel[label] = extractRichPayloadFromElement(contentNode);
+                    });
+                    if (!Array.isArray(q.options) || !q.options.length) {
+                        q.options = [{ label: 'A', text: '', images: [] }, { label: 'B', text: '', images: [] }, { label: 'C', text: '', images: [] }, { label: 'D', text: '', images: [] }];
+                    }
+                    q.options = q.options.map(function(opt) {
+                        var out = { label: opt.label, text: opt.text || '', images: Array.isArray(opt.images) ? opt.images : [] };
+                        if (Object.prototype.hasOwnProperty.call(opt, 'html')) out.html = opt.html || '';
+                        var payload = optionPayloadByLabel[opt.label];
+                        if (payload) {
+                            out.text = payload.text;
+                            out.images = payload.images;
+                            out.html = payload.html;
+                        }
+                        return out;
+                    });
+                    q.answer = detailAnswerCurrent || q.answer || 'A';
+                    data.questions[qidAtSave] = q;
+                    saveStore(data);
+                }
+            }
+            detailAnswerOriginal = detailAnswerCurrent || detailAnswerOriginal;
+            detailAnswerDirty = false;
+            detailPendingEdit = false;
             if (!opts.skipRerender && qidAtSave && String(detailQid || '') === qidAtSave) {
                 showDetail(qidAtSave);
             } else {
@@ -920,17 +933,20 @@
             // 双击题干/材料/选项：在原框内快捷修改内容
             bodyEl.ondblclick = function(e) {
                 if (!detailQid) return;
-                var labelEl = e.target.closest ? e.target.closest('.detail-option .opt-label') : null;
+                var targetEl = e.target;
+                if (targetEl && targetEl.nodeType === 3) targetEl = targetEl.parentElement;
+                var labelEl = targetEl && targetEl.closest ? targetEl.closest('.detail-option .opt-label') : null;
                 if (labelEl) {
                     var optionWrap = labelEl.closest ? labelEl.closest('.detail-option') : null;
                     var label = optionWrap ? optionWrap.getAttribute('data-label') : '';
                     if (!label) return;
+                    detailPendingEdit = true;
                     detailAnswerCurrent = label;
                     detailAnswerDirty = detailAnswerCurrent !== detailAnswerOriginal;
                     refreshDetailSaveUi();
                     return;
                 }
-                var editable = e.target.closest ? e.target.closest('[data-editable-field]') : null;
+                var editable = targetEl && targetEl.closest ? targetEl.closest('[data-editable-field]') : null;
                 if (!editable) return;
                 beginDetailInlineEdit(editable);
             };
@@ -941,6 +957,7 @@
             detailAnswerDirty = false;
             detailAnswerOriginal = '';
             detailAnswerCurrent = '';
+            detailPendingEdit = false;
             setDetailSaveUi(false);
             document.getElementById('detailOverlay').style.display = 'none';
             detailQid = null;
