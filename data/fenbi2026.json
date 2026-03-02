@@ -3790,13 +3790,16 @@
       "materialImages": [],
       "stemImages": [],
       "optionImages": [],
-      "knowledgePoints": [],
+      "knowledgePoints": [
+        "中心理解/提出对策/背景+问题+对策"
+      ],
       "id": "id_1771497620309_ljta4eo",
       "setId": "id_1771489552903_ul6ooiy",
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 0,
+      "subsubcategory": "对策类"
     },
     "id_1771497620309_gmx2i1q": {
       "category": "言语理解",
@@ -17084,7 +17087,7 @@
       "section": "言语理解",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1
     },
     "id_1771497620310_kec7kix": {
       "category": "言语理解",
@@ -19011,7 +19014,7 @@
       "section": "判断推理",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1
     },
     "id_1771489622727_fn5jel4": {
       "category": "判断推理",
@@ -19093,7 +19096,7 @@
       "section": "判断推理",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1
     },
     "id_1771489622727_5wrwhpt": {
       "category": "判断推理",
@@ -19134,7 +19137,7 @@
       "section": "判断推理",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1
     },
     "id_1771489622727_bdaybem": {
       "category": "判断推理",
@@ -20117,8 +20120,8 @@
       "setId": "id_1771489552903_ul6ooiy",
       "section": "判断推理",
       "done": false,
-      "correctCount": 0,
-      "totalAttempts": 0
+      "correctCount": 1,
+      "totalAttempts": 1
     },
     "id_1771489622727_6x25jws": {
       "category": "判断推理",
@@ -23849,7 +23852,7 @@
       "section": "判断推理",
       "done": false,
       "correctCount": 0,
-      "totalAttempts": 0
+      "totalAttempts": 1
     },
     "id_1771489622728_g94y2he": {
       "category": "判断推理",
@@ -30692,7 +30695,7 @@
       "correctCount": 0
     }
   },
-  "exportTime": "2026-03-01T02:56:27.769Z",
+  "exportTime": "2026-03-02T08:33:10.505Z",
   "notes": [
     {
       "qid": "id_1771497620309_nb64cws",
