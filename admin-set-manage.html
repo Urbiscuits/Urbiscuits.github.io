@@ -114,10 +114,12 @@
                 <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                     <button type="button" class="btn btn-default btn-sm" onclick="showPrevDetail()">上一题</button>
                     <button type="button" class="btn btn-default btn-sm" onclick="showNextDetail()">下一题</button>
+                    <button type="button" class="btn btn-success btn-sm" id="btnSaveDetailLocal" style="display:none;" onclick="saveDetailInlineEdit()">保存到本地</button>
                     <button type="button" class="btn btn-primary btn-sm" id="btnEditFromDetail" style="margin-left:4px;">编辑</button>
                     <button type="button" class="btn btn-default btn-sm" onclick="closeDetail()">关闭</button>
                 </div>
             </div>
+            <div id="detailSaveHint" style="display:none; margin-bottom:10px; font-size:0.85rem; color:#6c757d;">已修改当前题，点击“保存到本地”后，再到管理员后台执行同步到云端。</div>
             <div id="detailBody"></div>
         </div>
     </div>
@@ -660,6 +662,10 @@
             detailQid = qid;
             var q = getQuestion(qid);
             if (!q) return;
+            detailAnswerOriginal = q.answer || 'A';
+            detailAnswerCurrent = detailAnswerOriginal;
+            detailAnswerDirty = false;
+            refreshDetailSaveUi();
             var hist = (q.totalAttempts || 0) > 0 ? ((q.correctCount || 0) + '/' + q.totalAttempts + ' (' + Math.round(100 * (q.correctCount || 0) / q.totalAttempts) + '%)') : '暂无';
             var materialHtml = composeMixedHtml(q.material || '', q.materialImages || [], q.materialRich || '');
             var stemHtml = composeMixedHtml(q.content || '', q.stemImages || [], q.contentRich || '');
@@ -670,7 +676,7 @@
                 var optionHtml = composeMixedHtml(o.text || '', o.images || [], o.html || '');
                 if (!richHasContent(optionHtml)) optionHtml = '<span class="rich-empty-tip">（双击编辑选项）</span>';
                 return '<div class="option detail-option ' + c + '" data-label="' + o.label + '" data-index="' + idx + '">' +
-                    '<span class="opt-label">' + o.label + '.</span>' +
+                    '<span class="opt-label" title="双击字母修改正确答案">' + o.label + '.</span>' +
                     '<div class="opt-content detail-editable" data-editable-field="option" data-index="' + idx + '" title="双击原位编辑选项，支持 Ctrl+V 图片">' + optionHtml + '</div>' +
                 '</div>';
             }).join('');
@@ -686,6 +692,9 @@
                     '<div class="question-content detail-editable" id="detailQuestionContent" data-editable-field="content" style="line-height:1.7;" title="双击原位编辑题干，支持 Ctrl+V 图片">' + stemHtml + '</div>' +
                 '</div>' +
                 '<div style="margin-top:12px;">' + optHtml + '</div>' +
+                '<div id="detailAnswerCompare" style="display:none; margin-top:8px; padding:8px 10px; background:#fff8e1; border:1px solid #ffe08a; border-radius:6px; font-size:0.9rem;">' +
+                    '原答案：<strong id="detailAnswerOld"></strong>，修改后答案：<strong id="detailAnswerNew"></strong>' +
+                '</div>' +
                 (q.explanation ? '<div class="answer-block" style="margin-top:12px;">解析：' + esc(q.explanation) + '</div>' : '') +
                 '<div style="margin-top:16px; padding-top:12px; border-top:1px solid #e0e4ea;">' +
                   '<div style="margin-bottom:8px; font-weight:600; color:var(--primary-color);">分类与考点</div>' +
@@ -744,12 +753,54 @@
             document.getElementById('detailOverlay').style.display = 'block';
         }
         // 题目详情中的快捷操作：
-        // 1）单击选项：直接修改答案并保存到本地
-        // 2）双击题干/材料/选项：在原框原位编辑（支持 Ctrl+V 粘贴图片）
+        // 1）双击选项字母：修改正确答案（进入待保存状态）
+        // 2）双击题干/材料/选项正文：在原框原位编辑（支持 Ctrl+V 粘贴图片）
         var activeInlineEditor = null;
+        var detailAnswerOriginal = '';
+        var detailAnswerCurrent = '';
+        var detailAnswerDirty = false;
+        function updateDetailAnswerCompareUi() {
+            var oldEl = document.getElementById('detailAnswerOld');
+            var newEl = document.getElementById('detailAnswerNew');
+            var wrap = document.getElementById('detailAnswerCompare');
+            if (oldEl) oldEl.textContent = detailAnswerOriginal || '-';
+            if (newEl) newEl.textContent = detailAnswerCurrent || '-';
+            if (wrap) {
+                wrap.style.display = detailAnswerDirty ? 'block' : 'none';
+            }
+        }
+        function refreshDetailSaveUi() {
+            var shouldShow = !!activeInlineEditor || !!detailAnswerDirty;
+            setDetailSaveUi(shouldShow);
+            updateDetailAnswerCompareUi();
+        }
+        function setDetailSaveUi(show) {
+            var btn = document.getElementById('btnSaveDetailLocal');
+            var hint = document.getElementById('detailSaveHint');
+            if (btn) btn.style.display = show ? 'inline-flex' : 'none';
+            if (hint) hint.style.display = show ? 'block' : 'none';
+        }
         function saveActiveInlineEditor(options) {
             if (activeInlineEditor && typeof activeInlineEditor.save === 'function') {
                 activeInlineEditor.save(options || {});
+            }
+        }
+        function saveDraftAnswerChange(options) {
+            if (!detailAnswerDirty || !detailQid) return;
+            var qidKey = String(detailQid);
+            var data = loadStore();
+            var q = data.questions[qidKey];
+            if (!q) return;
+            q.answer = detailAnswerCurrent || q.answer || 'A';
+            data.questions[qidKey] = q;
+            saveStore(data);
+            detailAnswerOriginal = q.answer || 'A';
+            detailAnswerCurrent = detailAnswerOriginal;
+            detailAnswerDirty = false;
+            if (!(options && options.skipRerender)) {
+                showDetail(qidKey);
+            } else {
+                refreshDetailSaveUi();
             }
         }
         function cancelActiveInlineEditor() {
@@ -768,21 +819,19 @@
             var originalHtml = editableEl.innerHTML;
             var editingQid = String(detailQid);
             var committed = false;
-            var saveTimer = null;
 
             if (editableEl.querySelector && editableEl.querySelector('.rich-empty-tip')) editableEl.innerHTML = '';
             editableEl.setAttribute('contenteditable', 'true');
             editableEl.classList.add('inline-editing');
             editableEl.focus();
             placeCaretToEnd(editableEl);
+            refreshDetailSaveUi();
 
             function cleanup() {
                 editableEl.removeAttribute('contenteditable');
                 editableEl.classList.remove('inline-editing');
                 editableEl.removeEventListener('paste', onPaste);
                 editableEl.removeEventListener('keydown', onKeydown);
-                editableEl.removeEventListener('blur', onBlur);
-                if (saveTimer) clearTimeout(saveTimer);
                 if (activeInlineEditor && activeInlineEditor.el === editableEl) activeInlineEditor = null;
             }
             function commit(options) {
@@ -814,6 +863,8 @@
                 cleanup();
                 if (!(options && options.skipRerender) && String(detailQid) === editingQid) {
                     showDetail(editingQid);
+                } else {
+                    refreshDetailSaveUi();
                 }
             }
             function cancel() {
@@ -821,6 +872,7 @@
                 committed = true;
                 editableEl.innerHTML = originalHtml;
                 cleanup();
+                refreshDetailSaveUi();
             }
             function onPaste(e) {
                 var items = e.clipboardData && e.clipboardData.items;
@@ -845,42 +897,39 @@
                     commit();
                 }
             }
-            function onBlur() {
-                saveTimer = setTimeout(function() { commit(); }, 120);
-            }
 
             editableEl.addEventListener('paste', onPaste);
             editableEl.addEventListener('keydown', onKeydown);
-            editableEl.addEventListener('blur', onBlur);
             activeInlineEditor = { el: editableEl, save: commit, cancel: cancel };
+        }
+        function saveDetailInlineEdit(options) {
+            var opts = options || {};
+            var qidAtSave = detailQid ? String(detailQid) : '';
+            saveActiveInlineEditor({ skipRerender: true });
+            saveDraftAnswerChange({ skipRerender: true });
+            if (!opts.skipRerender && qidAtSave && String(detailQid || '') === qidAtSave) {
+                showDetail(qidAtSave);
+            } else {
+                refreshDetailSaveUi();
+            }
         }
         function bindDetailQuickEditEvents() {
             var bodyEl = document.getElementById('detailBody');
             if (!bodyEl) return;
 
-            // 单击选项：切换正确答案并立即保存
-            bodyEl.onclick = function(e) {
-                if (activeInlineEditor) return;
-                var clickedEditable = e.target.closest ? e.target.closest('[data-editable-field]') : null;
-                if (clickedEditable && clickedEditable.getAttribute('data-editable-field') === 'option') return;
-                var opt = e.target.closest ? e.target.closest('.detail-option') : null;
-                if (!opt || !detailQid) return;
-                var label = opt.getAttribute('data-label');
-                if (!label) return;
-                var data = loadStore();
-                var q = data.questions[String(detailQid)];
-                if (!q) return;
-                if (q.answer === label) return; // 无变化
-                q.answer = label;
-                data.questions[String(detailQid)] = q;
-                saveStore(data);
-                // 重新渲染当前题，更新高亮
-                showDetail(detailQid);
-            };
-
             // 双击题干/材料/选项：在原框内快捷修改内容
             bodyEl.ondblclick = function(e) {
                 if (!detailQid) return;
+                var labelEl = e.target.closest ? e.target.closest('.detail-option .opt-label') : null;
+                if (labelEl) {
+                    var optionWrap = labelEl.closest ? labelEl.closest('.detail-option') : null;
+                    var label = optionWrap ? optionWrap.getAttribute('data-label') : '';
+                    if (!label) return;
+                    detailAnswerCurrent = label;
+                    detailAnswerDirty = detailAnswerCurrent !== detailAnswerOriginal;
+                    refreshDetailSaveUi();
+                    return;
+                }
                 var editable = e.target.closest ? e.target.closest('[data-editable-field]') : null;
                 if (!editable) return;
                 beginDetailInlineEdit(editable);
@@ -889,13 +938,17 @@
 
         function closeDetail() { 
             cancelActiveInlineEditor();
+            detailAnswerDirty = false;
+            detailAnswerOriginal = '';
+            detailAnswerCurrent = '';
+            setDetailSaveUi(false);
             document.getElementById('detailOverlay').style.display = 'none';
             detailQid = null;
         }
         // 详情弹层：上一题 / 下一题导航
         function showPrevDetail() {
             if (!detailQid || !currentOrderedQids || !currentOrderedQids.length) return;
-            saveActiveInlineEditor({ skipRerender: true });
+            saveDetailInlineEdit({ skipRerender: true });
             var idx = currentOrderedQids.indexOf(String(detailQid));
             if (idx <= 0) return;
             var prevId = currentOrderedQids[idx - 1];
@@ -903,7 +956,7 @@
         }
         function showNextDetail() {
             if (!detailQid || !currentOrderedQids || !currentOrderedQids.length) return;
-            saveActiveInlineEditor({ skipRerender: true });
+            saveDetailInlineEdit({ skipRerender: true });
             var idx = currentOrderedQids.indexOf(String(detailQid));
             if (idx < 0 || idx >= currentOrderedQids.length - 1) return;
             var nextId = currentOrderedQids[idx + 1];
