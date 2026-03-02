@@ -28,6 +28,10 @@
         .answer-block { margin-top: 12px; padding: 12px; background: #f0f5ff; border-left: 4px solid var(--primary-color); border-radius: var(--border-radius); }
         .empty-state { text-align: center; padding: 48px 24px; color: #6c757d; }
         .overlay { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9998; overflow: auto; }
+        /* 多个 overlay 同时打开时，确保编辑弹窗在最上层（否则会被合并弹窗遮住，表现为“双击无法编辑”） */
+        #detailOverlay { z-index: 9998; }
+        #mergeOverlay { z-index: 9999; }
+        #editOverlay { z-index: 10000; }
         .overlay-inner { max-width: 800px; margin: 24px auto; background: #fff; border-radius: var(--border-radius); padding: 24px; box-shadow: var(--box-shadow); }
         .editable-area { outline: none; }
         .editable-area:focus { border-color: var(--primary-color) !important; }
@@ -47,6 +51,8 @@
         .detail-option .opt-label { cursor: pointer; user-select: none; min-width: 22px; font-weight: 600; }
         .detail-option .opt-content { flex: 1; min-width: 0; }
         .rich-empty-tip { color: #8a94a6; font-size: 0.9rem; font-style: italic; }
+        .dblclick-editable:hover { background: #f0f5ff; }
+        .merge-q-content img, .merge-q-option img { max-width: 100%; margin: 4px 0; display: block; }
     </style>
 </head>
 <body>
@@ -69,7 +75,7 @@
                         <input type="checkbox" id="checkAll" onchange="onCheckAllChange()"> 全选
                     </label>
                     <button type="button" class="btn btn-danger btn-sm" id="btnBatchDelete" onclick="doBatchDelete()" style="display:none;">批量删除</button>
-                    <button type="button" class="btn btn-info btn-sm" id="btnMergeZiliao" onclick="openMerge()" style="display:none;" title="将选中的多道资料分析题合并为一材料多题">合并（一材料多题）</button>
+                    <button type="button" class="btn btn-info btn-sm" id="btnMergeZiliao" onclick="openMerge()" style="display:none;" title="将选中的多道题合并为一材料多题（资料分析/言语理解/判断推理）">合并（一材料多题）</button>
                 </div>
                 <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
                     <div>
@@ -214,7 +220,7 @@
         </div>
     </div>
 
-    <!-- 一材料多题合并：共用材料编辑 + 保留各题题干/选项/答案/解析（支持 资料分析 / 言语理解-长篇阅读） -->
+    <!-- 一材料多题合并：共用材料编辑 + 保留各题题干/选项/答案/解析（支持 资料分析 / 言语理解 / 判断推理） -->
     <div id="mergeOverlay" class="overlay" style="display:none;">
         <div class="overlay-inner" style="max-width:900px;">
             <h3 style="margin-bottom:12px; color:var(--primary-color);">合并为「一材料多题」</h3>
@@ -268,6 +274,7 @@
                 </div>
                 <button type="button" class="btn btn-info btn-sm" onclick="mergeAddNewQuestion()">新增并加入合并列表</button>
             </div>
+            <div style="font-size:0.85rem; color:#666; margin-bottom:6px;">下方题目支持双击编辑题干、选项、答案（支持 LaTeX、粘贴图片）</div>
             <div id="mergeQuestionList" style="max-height:320px; overflow-y:auto; margin-bottom:16px; padding:8px; background:#f8f9fa; border-radius:var(--border-radius);"></div>
             <div>
                 <button type="button" class="btn btn-success" id="btnSaveMerge" onclick="saveMerge()">保存合并</button>
@@ -289,6 +296,8 @@
         var currentOrderedQids = [];
         var currentImageUploadTarget = null;
         var mergeQids = [];
+        var mergeBaseSection = '';
+        var mergeBaseSubcategory = '';
 
         // GitHub 配置（与 index 管理员一致，token 从 localStorage 读取；本页仅做保存到本地，同步请在管理员后台操作）
         var GITHUB_CONFIG = { owner: 'urbiscuits', repo: 'urbiscuits.github.io', branch: 'main', token: '' };
@@ -1409,6 +1418,10 @@
             document.getElementById('editOverlay').style.display = 'none';
             editQid = null;
             currentImageUploadTarget = null;
+            var mergeOverlay = document.getElementById('mergeOverlay');
+            if (mergeOverlay && mergeOverlay.style.display === 'block' && mergeQids.length) {
+                renderMergeQuestionList();
+            }
         }
         function saveEdit() {
             if (!editQid) return;
@@ -1475,7 +1488,7 @@
             document.querySelectorAll('.q-check').forEach(function(cb) { cb.checked = checked; });
             updateBatchDeleteVisibility();
         }
-        /** 获取当前勾选且属于资料分析或言语理解-长篇阅读的题目 id 列表（用于合并一材料多题） */
+        /** 获取当前勾选且属于可合并大类的题目 id 列表（用于合并一材料多题） */
         function getCheckedZiliaoQids() {
             var data = loadStore();
             var ids = [];
@@ -1484,9 +1497,8 @@
                 var q = data.questions[cb.value];
                 if (!q) return;
                 var sec = q.section || q.category || '';
-                var sub = q.subcategory || '';
-                // 资料分析整体，或 言语理解-长篇阅读 都允许合并一材料多题
-                if (sec === '资料分析' || sec === '言语理解' && sub === '长篇阅读') {
+                // 可合并大类：资料分析 / 言语理解 / 判断推理（兼容“逻辑判断”写法）
+                if (sec === '资料分析' || sec === '言语理解' || sec === '判断推理' || sec === '逻辑判断') {
                     ids.push(cb.value);
                 }
             });
@@ -1538,23 +1550,28 @@
             mergeQids.forEach(function(qid, idx) {
                 var q = data.questions[qid];
                 if (!q) return;
+                var contentHtml = composeMixedHtml(q.content, q.stemImages, null);
                 var optHtml = (q.options || []).map(function(o) {
                     var c = o.label === (q.answer || 'A') ? 'correct' : '';
-                    return '<div class="option ' + c + '" style="margin:4px 0;">' + o.label + '. ' + esc(o.text || '') + '</div>';
+                    var oHtml = composeMixedHtml(o.text, o.images, null);
+                    return '<div class="option merge-q-option dblclick-editable ' + c + '" style="margin:4px 0; cursor:pointer;" data-qid="' + esc(qid) + '" data-opt="' + esc(o.label) + '" title="双击编辑选项">' + o.label + '. <span class="merge-opt-inner">' + oHtml + '</span></div>';
                 }).join('');
                 var upBtn = idx > 0 ? '<button type="button" class="btn btn-default btn-sm" onclick="mergeMoveItem(' + idx + ', -1)" title="上移">↑</button>' : '';
                 var downBtn = idx < mergeQids.length - 1 ? '<button type="button" class="btn btn-default btn-sm" onclick="mergeMoveItem(' + idx + ', 1)" title="下移">↓</button>' : '';
-                html += '<div class="question-item" style="margin-bottom:12px; display:flex; align-items:flex-start; gap:8px;">' +
+                html += '<div class="question-item merge-q-item" style="margin-bottom:12px; display:flex; align-items:flex-start; gap:8px;" data-qid="' + esc(qid) + '">' +
                     '<div style="flex-shrink:0; display:flex; flex-direction:column; gap:4px;">' + upBtn + downBtn + '</div>' +
                     '<div style="flex:1; min-width:0;">' +
                     '<div style="font-weight:600; color:var(--primary-color); margin-bottom:6px;">题目' + (idx + 1) + '</div>' +
-                    '<div style="margin-bottom:6px;">' + esc((q.content || '').slice(0, 200)) + (q.content && q.content.length > 200 ? '…' : '') + '</div>' +
+                    '<div class="merge-q-content dblclick-editable" style="margin-bottom:6px; padding:6px; border-radius:4px; cursor:pointer;" data-qid="' + esc(qid) + '" title="双击编辑题干（支持 LaTeX、粘贴图片）">' + contentHtml + '</div>' +
                     '<div style="margin-bottom:6px;">' + optHtml + '</div>' +
-                    '<div style="font-size:0.9rem; color:#666;">答案：' + esc(q.answer || 'A') + '</div>' +
+                    '<div class="merge-q-answer dblclick-editable" style="font-size:0.9rem; color:#666; padding:6px; border-radius:4px; cursor:pointer;" data-qid="' + esc(qid) + '" title="双击编辑答案">答案：' + esc(q.answer || 'A') + '</div>' +
                     (q.explanation ? '<div style="margin-top:4px; font-size:0.9rem;">解析：' + esc((q.explanation || '').slice(0, 150)) + (q.explanation.length > 150 ? '…' : '') + '</div>' : '') +
                     '</div></div>';
             });
             listEl.innerHTML = html || '<p class="muted">无题目</p>';
+            listEl.querySelectorAll('.merge-q-content, .merge-q-option, .merge-q-answer').forEach(function(el) {
+                renderLaTeX(el);
+            });
         }
         function mergeAddNewQuestion() {
             var contentData = getEditableContent('mergeNewContent');
@@ -1579,6 +1596,8 @@
             var explanationData = getEditableContent('mergeNewExplanation');
             var explanation = (explanationData.text || '').trim();
             var qid = 'q_' + Date.now();
+            var section = mergeBaseSection || filterSection || '资料分析';
+            var subcategory = mergeBaseSubcategory || filterSubcategory || section;
             var q = {
                 id: qid,
                 content: content,
@@ -1593,16 +1612,16 @@
                 ],
                 answer: answer,
                 explanation: explanation,
-                section: '资料分析',
-                subcategory: '资料分析',
+                section: section,
+                subcategory: subcategory,
                 setId: currentSetId
             };
             var data = loadStore();
             data.questions[qid] = q;
             if (!currentSet) currentSet = getSet(currentSetId);
             if (currentSet) {
-                if (!currentSet['资料分析']) currentSet['资料分析'] = [];
-                if (currentSet['资料分析'].indexOf(qid) === -1) currentSet['资料分析'].push(qid);
+                if (!currentSet[section]) currentSet[section] = [];
+                if (currentSet[section].indexOf(qid) === -1) currentSet[section].push(qid);
                 var setIndex = data.sets.findIndex(function(s) { return s.id === currentSetId; });
                 if (setIndex >= 0) data.sets[setIndex] = currentSet;
             }
@@ -1634,10 +1653,23 @@
         function openMerge() {
             var ids = getCheckedZiliaoQids();
             if (ids.length < 2) {
-                alert('请至少勾选 2 道资料分析题目后再点击「合并」。');
+                alert('请至少勾选 2 道可合并题目后再点击「合并」（资料分析/言语理解/判断推理/逻辑判断）。');
                 return;
             }
-            var orderInSet = (currentSet && currentSet['资料分析']) ? currentSet['资料分析'] : [];
+            var data = loadStore();
+            var first = data.questions[ids[0]];
+            mergeBaseSection = first ? (first.section || first.category || '') : '';
+            mergeBaseSubcategory = first ? (first.subcategory || mergeBaseSection) : '';
+            var invalid = ids.some(function(qid) {
+                var q = data.questions[qid];
+                var sec = q ? (q.section || q.category || '') : '';
+                return sec !== mergeBaseSection;
+            });
+            if (invalid) {
+                alert('合并失败：请选择同一大类（资料分析/言语理解/判断推理/逻辑判断）下的题目进行合并。');
+                return;
+            }
+            var orderInSet = (currentSet && mergeBaseSection && currentSet[mergeBaseSection]) ? currentSet[mergeBaseSection] : [];
             mergeQids = ids.slice().sort(function(a, b) {
                 var ia = orderInSet.indexOf(a);
                 var ib = orderInSet.indexOf(b);
@@ -1646,7 +1678,12 @@
                 if (ib === -1) return -1;
                 return ia - ib;
             });
-            setEditableContent('mergeMaterial', '', []);
+            var firstQ = mergeQids.length ? getQuestion(mergeQids[0]) : null;
+            if (firstQ && (firstQ.material || (firstQ.materialImages && firstQ.materialImages.length))) {
+                setEditableContent('mergeMaterial', firstQ.material || '', firstQ.materialImages || []);
+            } else {
+                setEditableContent('mergeMaterial', '', []);
+            }
             renderMergeQuestionList();
             document.getElementById('mergeOverlay').style.display = 'block';
             setTimeout(function() { updatePreview('mergeMaterial'); }, 50);
@@ -1654,6 +1691,8 @@
         function closeMerge() {
             document.getElementById('mergeOverlay').style.display = 'none';
             mergeQids = [];
+            mergeBaseSection = '';
+            mergeBaseSubcategory = '';
         }
         function saveMerge() {
             if (!mergeQids.length) return;
@@ -1761,6 +1800,16 @@
                         }
                         if (ev.target && ev.target.classList && ev.target.classList.contains('q-check')) {
                             setTimeout(updateBatchDeleteVisibility, 0);
+                        }
+                    });
+                }
+                var mergeListEl = document.getElementById('mergeQuestionList');
+                if (mergeListEl) {
+                    mergeListEl.addEventListener('dblclick', function(ev) {
+                        var target = ev.target && ev.target.closest ? ev.target.closest('.dblclick-editable') : null;
+                        if (target && target.dataset && target.dataset.qid) {
+                            ev.preventDefault();
+                            openEdit(target.dataset.qid);
                         }
                     });
                 }
