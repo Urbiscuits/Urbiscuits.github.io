@@ -639,13 +639,19 @@
             // 记录当前渲染顺序，供「上一题 / 下一题」使用
             currentOrderedQids = ordered.map(function(item) { return String(item.q.id || ''); });
 
-            var html = '<p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">题目按录入顺序显示</p>';
+            var html = '<p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:12px;">题目按录入顺序显示（格式类似 [言语理解-中心理解](2018江苏)50. 题干…）</p>';
             ordered.forEach(function(item, idx) {
                 var q = item.q, sub = item.sub, qid = String(q.id || '');
+                var section = q.section || item.sec || '';
+                var catLabel = section ? (section + (sub && sub !== section ? '-' + sub : '')) : sub;
+                var srcLabel = (q.source || q.timeRegion || '').trim();
                 html += '<div class="question-item" style="display:flex; align-items:flex-start; gap:8px;">' +
                     '<label style="flex-shrink:0; cursor:pointer; margin-top:4px;"><input type="checkbox" class="q-check" value="' + esc(qid) + '"></label>' +
                     '<div style="flex:1; min-width:0;">' +
-                    '<span class="question-category">' + esc(sub) + '</span> <span style="color:#6c757d;">' + (idx + 1) + '.</span> ' + esc((q.content||'').slice(0, 80)) + '… ' +
+                    '<span class="question-category">[' + esc(catLabel) + ']</span>' +
+                    (srcLabel ? ' <span style="color:#6c757d;">(' + esc(srcLabel) + ')</span>' : '') +
+                    ' <span style="color:#6c757d;">' + (idx + 1) + '.</span> ' +
+                    esc((q.content || '').slice(0, 80)) + '… ' +
                     '<button type="button" class="btn btn-info btn-sm" data-action="view" data-qid="' + esc(qid) + '">查看</button> ' +
                     '<button type="button" class="btn btn-default btn-sm" data-action="edit" data-qid="' + esc(qid) + '">编辑</button> ' +
                     '<button type="button" class="btn btn-danger btn-sm" data-action="delete" data-qid="' + esc(qid) + '">删除</button>' +

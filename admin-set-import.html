@@ -409,11 +409,16 @@
       items.forEach(function(item,idx){
         var q=item.q;
         var qid=String(q.id||'');
+        var section=item.section||'';
+        var sub=item.sub||section;
+        var catLabel=section ? (section+(sub && sub!==section?('-'+sub):'')) : sub;
+        var srcLabel=(q.source || q.timeRegion || '').trim();
         html+='<div class="question-row">'+
           '<div style="flex-shrink:0;margin-top:3px;"><input type="checkbox" class="source-check" value="'+esc(qid)+'"></div>'+
           '<div class="q-main">'+
-            '<div><span class="badge-sec">'+esc(item.section)+(item.sub && item.sub!==item.section?(' · '+esc(item.sub)):'')+'</span>'+
-            '<span class="muted">#'+(idx+1)+'</span></div>'+
+            '<div><span class="badge-sec">['+esc(catLabel)+']</span>'+
+            (srcLabel ? '<span class="muted">('+esc(srcLabel)+')</span>' : '')+
+            '<span class="muted"> #'+(idx+1)+'</span></div>'+
             '<div class="q-snippet">'+esc((q.content||'').slice(0,120))+(q.content && q.content.length>120?'…':'')+'</div>'+
             '<div class="q-meta">ID: '+esc(qid)+(q.source?(' ｜ 来源：'+esc(q.source)):'')+'</div>'+
           '</div>'+
@@ -535,11 +540,16 @@
       items.forEach(function(item,idx){
         var q=item.q;
         var qid=String(q.id||'');
+        var section=item.section||'';
+        var sub=item.sub||section;
+        var catLabel=section ? (section+(sub && sub!==section?('-'+sub):'')) : sub;
+        var srcLabel=(q.source || q.timeRegion || '').trim();
         html+='<div class="question-row">'+
           '<div style="flex-shrink:0;margin-top:3px;"><input type="checkbox" class="search-check" value="'+esc(qid)+'"></div>'+
           '<div class="q-main">'+
-            '<div><span class="badge-sec">'+esc(item.section)+(item.sub && item.sub!==item.section?(' · '+esc(item.sub)):'')+'</span>'+
-            '<span class="muted">ID: '+esc(qid)+'</span></div>'+
+            '<div><span class="badge-sec">['+esc(catLabel)+']</span>'+
+            (srcLabel ? '<span class="muted">('+esc(srcLabel)+')</span>' : '')+
+            '<span class="muted"> ID: '+esc(qid)+'</span></div>'+
             '<div class="q-snippet">'+esc((q.content||'').slice(0,120))+(q.content && q.content.length>120?'…':'')+'</div>'+
             '<div class="q-meta">'+(q.source?('来源：'+esc(q.source)+' ｜ '):'')+'所属套卷数：暂不区分</div>'+
           '</div>'+
