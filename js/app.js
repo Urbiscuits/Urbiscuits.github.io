@@ -431,6 +431,10 @@ function pkUpdateCurrentUserLabel() {
     if (!el) return;
     var u = getCurrentUser();
     el.textContent = u ? ('已登录账号：' + u) : '未登录（在个人中心登录后可显示用户名）';
+    if (u) {
+        // 登录账号后自动在 pk.json 里登记一条用户信息
+        pkEnsureUser();
+    }
 }
 function pkGetSectionsFromUi() {
     var boxes = document.querySelectorAll('#pkSectionsWrap input[name="pkSection"]:checked');
@@ -449,6 +453,22 @@ function pkApiHeaders() {
     if (!GITHUB_CONFIG || !GITHUB_CONFIG.token || !GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo) return null;
     return { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
 }
+function pkEnsureUser() {
+    var headers = pkApiHeaders();
+    if (!headers) return;
+    var userId = pkGetUserId();
+    var nick = pkGetNick();
+    var now = Date.now();
+    pkSaveState(function(state) {
+        if (!state.users || typeof state.users !== 'object') state.users = {};
+        var u = state.users[userId] || {};
+        u.nick = nick || u.nick || '';
+        if (u.matching === undefined) u.matching = false;
+        if (u.roomId === undefined) u.roomId = null;
+        u.lastSeen = now;
+        state.users[userId] = u;
+    }, 'pk ensure user').catch(function() {});
+}
 function pkFetchState() {
     var headers = pkApiHeaders();
     if (!headers) return Promise.reject(new Error('未配置 GitHub Token 或仓库信息'));
@@ -457,7 +477,7 @@ function pkFetchState() {
     return fetch(apiUrl + '?ref=' + branch, { method: 'GET', headers: headers })
         .then(function(resp) {
             if (resp.status === 404) {
-                return { sha: null, data: { queue: [], rooms: {} } };
+                return { sha: null, data: { users: {}, rooms: {} } };
             }
             if (!resp.ok) throw new Error('获取 PK 数据失败：HTTP ' + resp.status);
             return resp.json().then(function(info) {
@@ -465,7 +485,7 @@ function pkFetchState() {
                 var obj;
                 try { obj = text ? JSON.parse(text) : {}; } catch (e) { obj = {}; }
                 if (!obj || typeof obj !== 'object') obj = {};
-                if (!Array.isArray(obj.queue)) obj.queue = [];
+                if (!obj.users || typeof obj.users !== 'object') obj.users = {};
                 if (!obj.rooms || typeof obj.rooms !== 'object') obj.rooms = {};
                 return { sha: info.sha, data: obj };
             });
@@ -581,52 +601,58 @@ function pkStartMatch() {
     pkSelections = {};
     var now = Date.now();
     pkSaveState(function(state) {
-        var rooms = state.rooms || {};
-        for (var rid in rooms) {
-            var r = rooms[rid];
-            if (r.players && r.players.some(function(p) { return p && p.token === pkPlayerToken; })) return;
-        }
-        var q = Array.isArray(state.queue) ? state.queue : [];
-        var fresh = q.filter(function(item) { return item && (now - (item.ts || 0) < 60000); });
-        fresh = fresh.filter(function(item) { return item.userId !== userId; });
-        state.queue = fresh;
-        var partnerIndex = -1;
-        for (var i = 0; i < state.queue.length; i++) {
-            var it = state.queue[i];
-            if (!it) continue;
-            if (it.userId === userId) continue;
-            partnerIndex = i;
-            break;
-        }
-        if (partnerIndex >= 0) {
-            var partner = state.queue[partnerIndex];
-            state.queue.splice(partnerIndex, 1);
+        if (!state.users || typeof state.users !== 'object') state.users = {};
+        if (!state.rooms || typeof state.rooms !== 'object') state.rooms = {};
+        // 若已在某个房间中，则不重复加入匹配
+        var existingRoomId = null;
+        Object.keys(state.rooms).forEach(function(rid) {
+            var r = state.rooms[rid];
+            if (r && Array.isArray(r.players) && r.players.indexOf(userId) !== -1) {
+                existingRoomId = rid;
+            }
+        });
+        if (existingRoomId) return;
+        // 当前用户标记为正在匹配
+        var me = state.users[userId] || { nick: nick };
+        me.nick = nick || me.nick || '';
+        me.matching = true;
+        me.roomId = null;
+        me.ts = now;
+        state.users[userId] = me;
+        // 在其它用户中寻找 matching=true 的对手
+        var opponentId = null;
+        Object.keys(state.users).forEach(function(uid) {
+            if (uid === userId) return;
+            var u = state.users[uid];
+            if (!u || !u.matching) return;
+            // 只匹配尚未在房间里的用户
+            var inRoom = false;
+            Object.keys(state.rooms).forEach(function(rid) {
+                var r = state.rooms[rid];
+                if (r && Array.isArray(r.players) && r.players.indexOf(uid) !== -1) inRoom = true;
+            });
+            if (!inRoom && !opponentId) opponentId = uid;
+        });
+        if (opponentId) {
+            var opp = state.users[opponentId];
             var roomId = 'room_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-            var roomSections = partner.sections && partner.sections.length ? partner.sections : sections;
-            var roomCount = partner.count || count;
-            var qids = pkPickQuestions(roomSections, roomCount);
-            state.rooms = state.rooms || {};
+            var qids = pkPickQuestions(sections, count);
             state.rooms[roomId] = {
                 id: roomId,
                 createdAt: now,
-                sections: roomSections,
-                count: roomCount,
-                questionIds: qids,
-                players: [
-                    { userId: partner.userId, nick: partner.nick, token: partner.token },
-                    { userId: userId, nick: nick, token: pkPlayerToken }
-                ],
-                scores: {}
-            };
-        } else {
-            state.queue.push({
-                userId: userId,
-                nick: nick,
-                token: pkPlayerToken,
                 sections: sections,
                 count: count,
-                ts: now
-            });
+                questionIds: qids,
+                players: [userId, opponentId],
+                answers: {}
+            };
+            // 双方从匹配状态中移除，记录各自当前 roomId
+            me.matching = false;
+            me.roomId = roomId;
+            state.users[userId] = me;
+            opp.matching = false;
+            opp.roomId = roomId;
+            state.users[opponentId] = opp;
         }
     }, 'pk match join').then(function() {
         pkStartPolling();
@@ -648,9 +674,14 @@ function pkCancelMatch() {
     if (btnCancel) btnCancel.style.display = 'none';
     pkSetStatus('已取消匹配。', null);
     pkSaveState(function(state) {
-        if (!Array.isArray(state.queue)) state.queue = [];
-        if (!pkPlayerToken) return;
-        state.queue = state.queue.filter(function(item) { return item && item.token !== pkPlayerToken; });
+        if (!state.users || typeof state.users !== 'object') state.users = {};
+        var userId = pkGetUserId();
+        var me = state.users[userId];
+        if (me) {
+            me.matching = false;
+            if (!me.roomId) me.roomId = null;
+            state.users[userId] = me;
+        }
     }, 'pk cancel').catch(function() {});
 }
 function pkStartPolling() {
@@ -660,17 +691,27 @@ function pkStartPolling() {
 function pkPollRoom() {
     if (!pkPlayerToken) return;
     pkFetchState().then(function(res) {
-        var state = res.data || { queue: [], rooms: {} };
+        var state = res.data || { users: {}, rooms: {} };
+        var userId = pkGetUserId();
+        var users = state.users || {};
+        var me = users[userId];
         var rooms = state.rooms || {};
         var myRoom = null;
-        Object.keys(rooms).forEach(function(rid) {
-            var room = rooms[rid];
-            if (!room || !Array.isArray(room.players)) return;
-            var hasMe = room.players.some(function(p) { return p && p.token === pkPlayerToken; });
-            if (hasMe) myRoom = room;
-        });
+        if (me && me.roomId && rooms[me.roomId]) {
+            myRoom = rooms[me.roomId];
+        } else {
+            Object.keys(rooms).forEach(function(rid) {
+                var room = rooms[rid];
+                if (!room || !Array.isArray(room.players)) return;
+                if (room.players.indexOf(userId) !== -1) myRoom = room;
+            });
+        }
         if (!myRoom) {
-            pkSetStatus('正在匹配对手…（如长时间无结果，可取消后重试）', null);
+            if (me && me.matching) {
+                pkSetStatus('正在匹配对手…（如长时间无结果，可取消后重试）', null);
+            } else {
+                pkSetStatus('未处于匹配状态。', null);
+            }
             return;
         }
         if (!pkCurrentRoomId) {
