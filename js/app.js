@@ -388,7 +388,8 @@ function renderLaTeXInElement(el) {
 }
 
 /* ========== PK 对战（基于 GitHub JSON） ========== */
-var PK_FILE_PATH = 'data/pk-matches.json';
+// 将匹配信息存放在 data/user 目录下，方便与用户数据一并管理
+var PK_FILE_PATH = 'data/user/pk-matches.json';
 var pkPlayerToken = null;
 var pkCurrentRoomId = null;
 var pkPollingTimer = null;

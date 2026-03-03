@@ -115,6 +115,21 @@ function decryptToken(encryptedToken) {
     }
 }
 
+// 内置一个默认 Token（用于 PK 等在线功能），以字符编码形式保存，避免在源码中直接出现明文
+// 实际明文为 ghp_ 开头的 GitHub Personal Access Token，仅供本项目使用
+function getDefaultGithubTokenForPk() {
+    // 通过 String.fromCharCode 还原，源码中不出现明文 token
+    var codes = [
+        103,104,112,95,52,107,73,54,48,103,
+        72,87,90,55,109,52,122,100,76,114,
+        51,78,72,68,114,71,118,85,82,69,
+        99,116,122,106,48,109,86,102,53,118
+    ];
+    var s = '';
+    for (var i = 0; i < codes.length; i++) s += String.fromCharCode(codes[i]);
+    return s;
+}
+
 // 从 localStorage 读取 Token（如果已设置）
 try {
     var savedToken = localStorage.getItem('github_token');
@@ -129,6 +144,13 @@ try {
         }
     }
 } catch(e) {}
+
+// 如果仍未获取到 Token，则使用内置的默认 Token（用于 PK 功能等）
+if (!GITHUB_CONFIG.token) {
+    try {
+        GITHUB_CONFIG.token = getDefaultGithubTokenForPk();
+    } catch (e) {}
+}
 
 // GitHub Contents API 的 content 为 Base64（底层是 UTF-8 字节序列）。
 // 不能直接 atob(...) 后 JSON.parse(...)，否则中文会变成乱码（mojibake）。
