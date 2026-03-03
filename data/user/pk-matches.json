@@ -151,5 +151,13 @@
       ],
       "scores": {}
     }
+  },
+  "users": {
+    "bi2002": {
+      "nick": "bi2002",
+      "matching": false,
+      "roomId": null,
+      "lastSeen": 1772513659491
+    }
   }
 }
