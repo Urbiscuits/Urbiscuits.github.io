@@ -1,9 +1,9 @@
 {
-  "queue": [
-    {
-      "userId": "bi2002",
-      "nick": "bi2002",
-      "token": "p_1772510622103_kupf96",
+  "queue": [],
+  "rooms": {
+    "room_1772510638402_y50k": {
+      "id": "room_1772510638402_y50k",
+      "createdAt": 1772510637280,
       "sections": [
         "言语理解",
         "数量关系",
@@ -14,8 +14,26 @@
         "策略选择"
       ],
       "count": 5,
-      "ts": 1772510622103
+      "questionIds": [
+        "id_1771489622728_gg9jofk",
+        "id_1771489622727_j4erott",
+        "id_1771473724619_louh2ak",
+        "id_1771473724618_fdaop3v",
+        "id_1771473684251_jhg0ki6"
+      ],
+      "players": [
+        {
+          "userId": "bi2002",
+          "nick": "bi2002",
+          "token": "p_1772510622103_kupf96"
+        },
+        {
+          "userId": "123",
+          "nick": "123",
+          "token": "p_1772510637280_s7m9tr"
+        }
+      ],
+      "scores": {}
     }
-  ],
-  "rooms": {}
+  }
 }
