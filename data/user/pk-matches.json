@@ -172,9 +172,10 @@
   "users": {
     "bi2002": {
       "nick": "bi2002",
-      "matching": false,
+      "matching": true,
       "roomId": null,
-      "lastSeen": 1772513659491
+      "lastSeen": 1772513659491,
+      "ts": 1772513741755
     }
   }
 }
