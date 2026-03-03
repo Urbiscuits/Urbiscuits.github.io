@@ -387,6 +387,377 @@ function renderLaTeXInElement(el) {
     } catch (e) {}
 }
 
+/* ========== PK 对战（基于 GitHub JSON） ========== */
+var PK_FILE_PATH = 'data/pk-matches.json';
+var pkPlayerToken = null;
+var pkCurrentRoomId = null;
+var pkPollingTimer = null;
+var pkQuestions = [];
+var pkIndex = 0;
+var pkSelections = {};
+
+function pkGetUserId() {
+    var u = getCurrentUser();
+    if (u) return u;
+    try {
+        var gid = localStorage.getItem('xingce_pk_guest_id');
+        if (!gid) {
+            gid = 'guest_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+            localStorage.setItem('xingce_pk_guest_id', gid);
+        }
+        return gid;
+    } catch (e) {
+        return 'guest_' + Date.now();
+    }
+}
+function pkGetNick() {
+    var u = getCurrentUser();
+    if (u) return u;
+    return '游客';
+}
+function pkSetStatus(msg, type) {
+    var el = document.getElementById('pkStatus');
+    if (!el) return;
+    el.style.color = type === 'error' ? '#dc3545' : (type === 'success' ? '#28a745' : '#6c757d');
+    el.textContent = msg || '';
+}
+function pkUpdateCurrentUserLabel() {
+    var el = document.getElementById('pkCurrentUser');
+    if (!el) return;
+    var u = getCurrentUser();
+    el.textContent = u ? ('已登录账号：' + u) : '未登录（在个人中心登录后可显示用户名）';
+}
+function pkGetSectionsFromUi() {
+    var boxes = document.querySelectorAll('#pkSectionsWrap input[name="pkSection"]:checked');
+    var arr = [];
+    boxes.forEach(function(cb) { if (cb.value) arr.push(cb.value); });
+    return arr;
+}
+function pkGetCountFromUi() {
+    var el = document.getElementById('pkCount');
+    var n = el && el.value ? parseInt(el.value, 10) : 5;
+    if (!(n >= 1)) n = 5;
+    if (n > 20) n = 20;
+    return n;
+}
+function pkApiHeaders() {
+    if (!GITHUB_CONFIG || !GITHUB_CONFIG.token || !GITHUB_CONFIG.owner || !GITHUB_CONFIG.repo) return null;
+    return { 'Authorization': 'token ' + GITHUB_CONFIG.token, 'Accept': 'application/vnd.github.v3+json' };
+}
+function pkFetchState() {
+    var headers = pkApiHeaders();
+    if (!headers) return Promise.reject(new Error('未配置 GitHub Token 或仓库信息'));
+    var branch = GITHUB_CONFIG.branch || 'main';
+    var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + PK_FILE_PATH;
+    return fetch(apiUrl + '?ref=' + branch, { method: 'GET', headers: headers })
+        .then(function(resp) {
+            if (resp.status === 404) {
+                return { sha: null, data: { queue: [], rooms: {} } };
+            }
+            if (!resp.ok) throw new Error('获取 PK 数据失败：HTTP ' + resp.status);
+            return resp.json().then(function(info) {
+                var text = typeof base64ToUtf8 === 'function' ? base64ToUtf8(info.content || '') : atob(info.content || '');
+                var obj;
+                try { obj = text ? JSON.parse(text) : {}; } catch (e) { obj = {}; }
+                if (!obj || typeof obj !== 'object') obj = {};
+                if (!Array.isArray(obj.queue)) obj.queue = [];
+                if (!obj.rooms || typeof obj.rooms !== 'object') obj.rooms = {};
+                return { sha: info.sha, data: obj };
+            });
+        });
+}
+function pkSaveState(mutator, commitMessage) {
+    var headers = pkApiHeaders();
+    if (!headers) return Promise.reject(new Error('未配置 GitHub Token 或仓库信息'));
+    var branch = GITHUB_CONFIG.branch || 'main';
+    var apiUrl = 'https://api.github.com/repos/' + GITHUB_CONFIG.owner + '/' + GITHUB_CONFIG.repo + '/contents/' + PK_FILE_PATH;
+    return pkFetchState().then(function(res) {
+        var state = res.data || { queue: [], rooms: {} };
+        mutator(state);
+        var content = JSON.stringify(state, null, 2);
+        var encoded = typeof utf8ToBase64 === 'function'
+            ? utf8ToBase64(content)
+            : btoa(unescape(encodeURIComponent(content)));
+        var body = {
+            message: commitMessage || ('update pk matches - ' + new Date().toLocaleString('zh-CN')),
+            content: encoded,
+            branch: branch
+        };
+        if (res.sha) body.sha = res.sha;
+        return fetch(apiUrl, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(body)
+        }).then(function(resp) {
+            if (!resp.ok) throw new Error('保存 PK 数据失败：HTTP ' + resp.status);
+            return resp.json();
+        });
+    });
+}
+function pkPickQuestions(sections, count) {
+    var allQids = [];
+    if (!window.store || !store.questions) return [];
+    Object.keys(store.questions).forEach(function(qid) {
+        var q = store.questions[qid];
+        if (!q) return;
+        var sec = q.section || q.category || '';
+        if (sections && sections.length && sections.indexOf(sec) === -1) return;
+        allQids.push(qid);
+    });
+    if (!allQids.length) return [];
+    allQids.sort(function() { return Math.random() - 0.5; });
+    return allQids.slice(0, Math.max(1, count || 5));
+}
+function pkStartMatch() {
+    pkUpdateCurrentUserLabel();
+    var headers = pkApiHeaders();
+    if (!headers) { pkSetStatus('未配置 GitHub Token，无法进行在线 PK，请在个人中心配置。', 'error'); return; }
+    var userId = pkGetUserId();
+    var nick = pkGetNick();
+    var sections = pkGetSectionsFromUi();
+    var count = pkGetCountFromUi();
+    if (!sections.length) {
+        sections = ['言语理解','数量关系','判断推理','资料分析','政治理论','常识判断','策略选择'];
+    }
+    pkPlayerToken = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    document.getElementById('btnPkStart').disabled = true;
+    var btnCancel = document.getElementById('btnPkCancel');
+    if (btnCancel) btnCancel.style.display = 'inline-flex';
+    pkSetStatus('正在匹配对手，请在另一设备上用不同账号点击“开始匹配”…', null);
+    pkCurrentRoomId = null;
+    pkQuestions = [];
+    pkIndex = 0;
+    pkSelections = {};
+    var now = Date.now();
+    pkSaveState(function(state) {
+        var q = Array.isArray(state.queue) ? state.queue : [];
+        var fresh = q.filter(function(item) { return item && (now - (item.ts || 0) < 60000); });
+        state.queue = fresh;
+        var partnerIndex = -1;
+        for (var i = 0; i < state.queue.length; i++) {
+            var it = state.queue[i];
+            if (!it) continue;
+            if (it.userId === userId) continue;
+            partnerIndex = i;
+            break;
+        }
+        if (partnerIndex >= 0) {
+            var partner = state.queue[partnerIndex];
+            state.queue.splice(partnerIndex, 1);
+            var roomId = 'room_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+            var roomSections = partner.sections && partner.sections.length ? partner.sections : sections;
+            var roomCount = partner.count || count;
+            var qids = pkPickQuestions(roomSections, roomCount);
+            state.rooms = state.rooms || {};
+            state.rooms[roomId] = {
+                id: roomId,
+                createdAt: now,
+                sections: roomSections,
+                count: roomCount,
+                questionIds: qids,
+                players: [
+                    { userId: partner.userId, nick: partner.nick, token: partner.token },
+                    { userId: userId, nick: nick, token: pkPlayerToken }
+                ],
+                scores: {}
+            };
+        } else {
+            state.queue.push({
+                userId: userId,
+                nick: nick,
+                token: pkPlayerToken,
+                sections: sections,
+                count: count,
+                ts: now
+            });
+        }
+    }, 'pk match join').then(function() {
+        pkStartPolling();
+    }).catch(function(err) {
+        document.getElementById('btnPkStart').disabled = false;
+        if (btnCancel) btnCancel.style.display = 'none';
+        pkSetStatus(err && err.message ? err.message : '匹配失败，请稍后重试。', 'error');
+    });
+}
+function pkCancelMatch() {
+    if (pkPollingTimer) {
+        clearInterval(pkPollingTimer);
+        pkPollingTimer = null;
+    }
+    var btnStart = document.getElementById('btnPkStart');
+    if (btnStart) btnStart.disabled = false;
+    var btnCancel = document.getElementById('btnPkCancel');
+    if (btnCancel) btnCancel.style.display = 'none';
+    pkSetStatus('已取消匹配。', null);
+    pkSaveState(function(state) {
+        if (!Array.isArray(state.queue)) state.queue = [];
+        if (!pkPlayerToken) return;
+        state.queue = state.queue.filter(function(item) { return item && item.token !== pkPlayerToken; });
+    }, 'pk cancel').catch(function() {});
+}
+function pkStartPolling() {
+    if (pkPollingTimer) clearInterval(pkPollingTimer);
+    pkPollingTimer = setInterval(pkPollRoom, 2000);
+}
+function pkPollRoom() {
+    if (!pkPlayerToken) return;
+    pkFetchState().then(function(res) {
+        var state = res.data || { queue: [], rooms: {} };
+        var rooms = state.rooms || {};
+        var myRoom = null;
+        Object.keys(rooms).forEach(function(rid) {
+            var room = rooms[rid];
+            if (!room || !Array.isArray(room.players)) return;
+            var hasMe = room.players.some(function(p) { return p && p.token === pkPlayerToken; });
+            if (hasMe) myRoom = room;
+        });
+        if (!myRoom) {
+            pkSetStatus('正在匹配对手…（如长时间无结果，可取消后重试）', null);
+            return;
+        }
+        if (!pkCurrentRoomId) {
+            pkCurrentRoomId = myRoom.id;
+            pkEnterRoom(myRoom);
+        } else {
+            pkSyncScores(myRoom);
+        }
+    }).catch(function(err) {
+        pkSetStatus(err && err.message ? err.message : '轮询 PK 状态失败。', 'error');
+    });
+}
+function pkEnterRoom(room) {
+    var btnStart = document.getElementById('btnPkStart');
+    if (btnStart) btnStart.disabled = true;
+    var btnCancel = document.getElementById('btnPkCancel');
+    if (btnCancel) btnCancel.style.display = 'none';
+    pkSetStatus('已匹配到对手，开始 PK！', 'success');
+    var wrap = document.getElementById('pkBattle');
+    if (wrap) wrap.style.display = 'block';
+    var infoEl = document.getElementById('pkRoomInfo');
+    var meId = pkGetUserId();
+    var opponentNick = '';
+    if (room && Array.isArray(room.players)) {
+        room.players.forEach(function(p) {
+            if (!p) return;
+            if (p.userId !== meId) opponentNick = p.nick || '对手';
+        });
+    }
+    if (infoEl) infoEl.textContent = '对手：' + (opponentNick || '对手') + ' ｜ 题数：' + (room.count || (room.questionIds ? room.questionIds.length : 0) || 5);
+    var count = room.count || (room.questionIds ? room.questionIds.length : 0) || 5;
+    pkQuestions = [];
+    pkIndex = 0;
+    pkSelections = {};
+    if (room.questionIds && room.questionIds.length && window.store && store.questions) {
+        room.questionIds.forEach(function(qid) {
+            var q = store.questions[qid];
+            if (q) pkQuestions.push(q);
+        });
+    }
+    if (!pkQuestions.length && window.store && store.questions) {
+        var secs = room.sections || [];
+        var qids = pkPickQuestions(secs, count);
+        qids.forEach(function(qid) {
+            var q = store.questions[qid];
+            if (q) pkQuestions.push(q);
+        });
+    }
+    if (!pkQuestions.length) {
+        pkSetStatus('当前题库中没有可用于 PK 的题目。', 'error');
+        return;
+    }
+    pkRenderQuestion();
+}
+function pkRenderQuestion() {
+    var total = pkQuestions.length;
+    var progressEl = document.getElementById('pkQuestionProgress');
+    if (progressEl) progressEl.textContent = '第 ' + (pkIndex + 1) + ' / ' + total + ' 题';
+    var q = pkQuestions[pkIndex];
+    var container = document.getElementById('pkQuestionContainer');
+    if (!container || !q) return;
+    var opts = q.options || [];
+    var html = '<div class="question-item" style="border:2px solid #eaeaea; border-radius:8px; padding:12px; background:#fff;">';
+    html += '<div style="font-weight:600; margin-bottom:8px;">' + (q.content || '') + '</div>';
+    html += '<div>';
+    ['A','B','C','D'].forEach(function(label) {
+        var o = opts.filter(function(x) { return x.label === label; })[0] || {};
+        var text = o.text || '';
+        var key = String(q.id || q.qid || '');
+        var selected = pkSelections[key] === label;
+        html += '<div style="margin:4px 0; padding:6px 8px; border-radius:6px; cursor:pointer; border:1px solid ' + (selected ? '#4a6baf' : '#e0e0e0') + ';" onclick="pkSelectOption(\'' + key.replace(/'/g, "\\'") + '\',\'' + label + '\')">';
+        html += '<strong>' + label + '.</strong> ' + text + '</div>';
+    });
+    html += '</div></div>';
+    container.innerHTML = html;
+    renderLaTeXInElement(container);
+    var btnNext = document.getElementById('btnPkNext');
+    var btnSubmit = document.getElementById('btnPkSubmit');
+    if (btnNext) btnNext.style.display = (pkIndex < pkQuestions.length - 1) ? 'inline-flex' : 'none';
+    if (btnSubmit) btnSubmit.style.display = (pkIndex === pkQuestions.length - 1) ? 'inline-flex' : 'none';
+}
+function pkSelectOption(qid, label) {
+    pkSelections[qid] = label;
+    pkRenderQuestion();
+}
+function pkNextQuestion() {
+    if (pkIndex < pkQuestions.length - 1) {
+        pkIndex++;
+        pkRenderQuestion();
+    }
+}
+function pkSubmitBattle() {
+    var meId = pkGetUserId();
+    var score = 0;
+    pkQuestions.forEach(function(q) {
+        var key = String(q.id || '');
+        var sel = pkSelections[key];
+        if (sel && sel === q.answer) score++;
+    });
+    pkSetStatus('已提交答案，正在等待对手完成…', null);
+    var resultEl = document.getElementById('pkResult');
+    if (resultEl) resultEl.textContent = '你的得分：' + score + ' / ' + pkQuestions.length + '，正在等待对手…';
+    pkSaveState(function(state) {
+        var rooms = state.rooms || {};
+        var room = rooms[pkCurrentRoomId];
+        if (!room) return;
+        room.scores = room.scores || {};
+        room.scores[meId] = { score: score, total: pkQuestions.length, finishedAt: Date.now() };
+    }, 'pk submit').then(function() {
+        // 提交后继续通过轮询同步比分
+    }).catch(function(err) {
+        pkSetStatus(err && err.message ? err.message : '提交得分失败。', 'error');
+    });
+}
+function pkSyncScores(room) {
+    var meId = pkGetUserId();
+    var scores = room.scores || {};
+    var myScore = scores[meId];
+    var oppScore = null;
+    if (room.players && room.players.length) {
+        room.players.forEach(function(p) {
+            if (!p) return;
+            if (p.userId !== meId && scores[p.userId]) oppScore = scores[p.userId];
+        });
+    }
+    var resultEl = document.getElementById('pkResult');
+    if (myScore && resultEl && !resultEl.textContent) {
+        resultEl.textContent = '你的得分：' + myScore.score + ' / ' + myScore.total + '，正在等待对手…';
+    } else if (myScore && resultEl && /等待对手/.test(resultEl.textContent)) {
+        resultEl.textContent = '你的得分：' + myScore.score + ' / ' + myScore.total + '，正在等待对手…';
+    }
+    if (myScore && oppScore && resultEl) {
+        var msg = '你的得分：' + myScore.score + '，对手得分：' + oppScore.score + '。';
+        if (myScore.score > oppScore.score) msg += ' 恭喜，你赢了！';
+        else if (myScore.score < oppScore.score) msg += ' 很遗憾，对手略胜一筹。';
+        else msg += ' 平局，再战一场吧！';
+        resultEl.textContent = msg;
+        pkSetStatus('本局 PK 已结束。', 'success');
+        if (pkPollingTimer) {
+            clearInterval(pkPollingTimer);
+            pkPollingTimer = null;
+        }
+    }
+}
+
 /* ========== 积分与闯关 ========== */
 function getTodayStr() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function getPoints() {
@@ -888,6 +1259,7 @@ function switchTab(tabName) {
     if (tabName === 'single') { updateSinglePreview(); renderSingleHistory(); }
     if (tabName === 'practice') { updatePracticeSub(); onPracticeTypeChange(); }
     if (tabName === 'challenge') { renderChallengeTab(); }
+    if (tabName === 'pk') { pkUpdateCurrentUserLabel(); }
     if (tabName === 'history') { renderHistoryList(); }
     if (tabName === 'points') { renderPointsList(); }
     if (tabName === 'export') { checkExportState(); onExportScopeChange(); }

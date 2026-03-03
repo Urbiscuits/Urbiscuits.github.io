@@ -29,6 +29,7 @@
                 <button type="button" class="nav-item" data-tab="manage" onclick="switchTab('manage')"><i class="fas fa-list"></i> 题目管理</button>
                 <button type="button" class="nav-item" data-tab="practice" onclick="switchTab('practice')"><i class="fas fa-pen-fancy"></i> 刷题</button>
                 <button type="button" class="nav-item" data-tab="challenge" onclick="switchTab('challenge')"><i class="fas fa-flag-checkered"></i> 闯关</button>
+                <button type="button" class="nav-item" data-tab="pk" onclick="switchTab('pk')"><i class="fas fa-bolt"></i> PK对战</button>
                 <button type="button" class="nav-item" data-tab="history" onclick="switchTab('history')"><i class="fas fa-history"></i> 历史记录</button>
                 <button type="button" class="nav-item" data-tab="points" onclick="switchTab('points')"><i class="fas fa-tag"></i> 考点</button>
                 <button type="button" class="nav-item" data-tab="export" onclick="switchTab('export')"><i class="fas fa-file-pdf"></i> 导出PDF</button>
@@ -225,6 +226,57 @@
                             <label><input type="radio" name="challengeL5Count" value="10"> 10 题</label>
                         </div>
                         <div id="challengeLevelList" style="display:flex; flex-direction:column; gap:12px;"></div>
+                    </div>
+                </div>
+
+                <!-- PK 对战 -->
+                <div id="tab-pk" class="tab-content">
+                    <div class="card">
+                        <h2 style="margin-bottom: 16px; color: var(--primary-color);"><i class="fas fa-bolt"></i> PK 对战</h2>
+                        <p style="margin-bottom: 12px; color:#6c757d; font-size:0.9rem;">
+                            在不同设备的两个账号下同时点击「开始匹配」，系统将为双方随机抽取 5 道相同题目进行 PK，答完后自动比较得分。
+                        </p>
+                        <div style="margin-bottom:12px; padding:10px; background:#fff3cd; border-radius:var(--border-radius); border:1px solid #ffeeba; color:#856404; font-size:0.85rem;">
+                            请先在「个人中心 → 数据同步操作」中配置 GitHub Token，并确保两位玩家都使用同一 GitHub 仓库。
+                        </div>
+                        <div class="filter-controls" id="pkSetup">
+                            <div>
+                                <label>当前账号</label>
+                                <div id="pkCurrentUser" style="margin-top:6px; font-size:0.9rem; color:#333;">未登录（在个人中心登录后可显示用户名）</div>
+                            </div>
+                            <div>
+                                <label>大类（可多选）</label>
+                                <div id="pkSectionsWrap" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:8px; font-size:0.9rem;">
+                                    <label><input type="checkbox" name="pkSection" value="言语理解"> 言语理解</label>
+                                    <label><input type="checkbox" name="pkSection" value="数量关系"> 数量关系</label>
+                                    <label><input type="checkbox" name="pkSection" value="判断推理"> 判断推理</label>
+                                    <label><input type="checkbox" name="pkSection" value="资料分析"> 资料分析</label>
+                                    <label><input type="checkbox" name="pkSection" value="政治理论"> 政治理论</label>
+                                    <label><input type="checkbox" name="pkSection" value="常识判断"> 常识判断</label>
+                                    <label><input type="checkbox" name="pkSection" value="策略选择"> 策略选择</label>
+                                </div>
+                            </div>
+                            <div>
+                                <label>PK 题数</label>
+                                <input type="number" id="pkCount" value="5" min="1" max="20" style="width:80px; padding:8px; margin-top:5px;">
+                            </div>
+                            <div style="align-self:flex-end; display:flex; gap:8px; margin-top:4px;">
+                                <button class="btn btn-primary" id="btnPkStart" onclick="pkStartMatch()"><i class="fas fa-play"></i> 开始匹配</button>
+                                <button class="btn btn-default" id="btnPkCancel" onclick="pkCancelMatch()" style="display:none;">取消匹配</button>
+                            </div>
+                        </div>
+                        <div id="pkStatus" style="margin-top:8px; font-size:0.9rem; color:#6c757d;"></div>
+                        <div id="pkBattle" style="margin-top:16px; display:none;">
+                            <h3 style="margin-bottom:8px; font-size:1rem; color:var(--primary-color);">对战中</h3>
+                            <div id="pkRoomInfo" style="margin-bottom:8px; font-size:0.9rem; color:#555;"></div>
+                            <div id="pkQuestionProgress" style="margin-bottom:8px; font-size:0.9rem; color:#555;"></div>
+                            <div id="pkQuestionContainer" style="margin-top:8px;"></div>
+                            <div style="margin-top:12px; display:flex; gap:8px;">
+                                <button class="btn btn-primary" id="btnPkNext" onclick="pkNextQuestion()">下一题</button>
+                                <button class="btn btn-success" id="btnPkSubmit" onclick="pkSubmitBattle()" style="display:none;">提交并查看结果</button>
+                            </div>
+                            <div id="pkResult" style="margin-top:16px; font-size:0.95rem;"></div>
+                        </div>
                     </div>
                 </div>
 
