@@ -67,7 +67,13 @@
           "token": "p_1772510704731_w73bab"
         }
       ],
-      "scores": {}
+      "scores": {
+        "bi2002": {
+          "score": 0,
+          "total": 1,
+          "finishedAt": 1772510776930
+        }
+      }
     }
   }
 }
