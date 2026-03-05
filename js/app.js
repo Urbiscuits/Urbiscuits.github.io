@@ -7546,13 +7546,17 @@ function adminSingleQueueUpdateUI() {
     listEl.innerHTML = _adminSingleQueue.map(function(item, idx) {
         var q = item.question || {};
         var preview = (q.content || '').slice(0, 60) + ((q.content || '').length > 60 ? '…' : '');
-        return '<div class="question-row">' +
+        return '<div class="question-row" style="align-items:center;">' +
             '<div class="q-main">' +
             '<div><span class="badge-sec">[' + esc(q.category || '') + (q.subcategory ? ' - ' + esc(q.subcategory) : '') + ']</span>' +
             '<span class="muted"> #' + (idx + 1) + '</span>' +
             (q.source ? ' <span class="muted">(' + esc(q.source) + ')</span>' : '') +
             '</div>' +
             '<div class="q-snippet">' + esc(preview || '(无题干)') + '</div>' +
+            '</div>' +
+            '<div style="flex-shrink:0; display:flex; flex-direction:column; gap:4px; margin-left:8px;">' +
+            '<button class="btn btn-sm btn-default" type="button" onclick="adminSingleQueueEdit(' + idx + ')" style="padding:4px 8px;">返回编辑</button>' +
+            '<button class="btn btn-sm" type="button" onclick="adminSingleQueueRemove(' + idx + ')" style="padding:4px 8px; background:#f8d7da; color:#721c24;">删除</button>' +
             '</div>' +
             '</div>';
     }).join('');
@@ -7589,6 +7593,53 @@ function adminSingleQueueBuildQuestion() {
         explanation: explanationStr
     };
     return { ok: true, question: question };
+}
+function adminSingleQueueRemove(idx) {
+    if (idx < 0 || idx >= _adminSingleQueue.length) return;
+    _adminSingleQueue.splice(idx, 1);
+    adminSingleQueueUpdateUI();
+}
+function adminSingleQueueEdit(idx) {
+    if (idx < 0 || idx >= _adminSingleQueue.length) return;
+    var item = _adminSingleQueue[idx];
+    if (!item || !item.question) return;
+    var q = item.question;
+    // 将题目回填到编辑区域
+    var sectionEl = document.getElementById('adminSingleSection');
+    if (sectionEl) sectionEl.value = q.category || '';
+    if (typeof updateAdminSingleSub === 'function') updateAdminSingleSub();
+    var subEl = document.getElementById('adminSingleSubcategory');
+    if (subEl && q.subcategory) subEl.value = q.subcategory;
+    var subCustomEl = document.getElementById('adminSingleSubcategoryCustom');
+    if (subCustomEl) subCustomEl.value = '';
+    var sourceEl = document.getElementById('adminSingleSource');
+    if (sourceEl) sourceEl.value = q.source || '';
+    // 文本和图片
+    function setEditable(id, text, images) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var html = (text || '').replace(/\n/g, '<br>');
+        if (images && images.length) {
+            html += images.map(function(src) {
+                return '<img src="' + src + '" style="max-width:100%; margin:6px 0;" />';
+            }).join('');
+        }
+        el.innerHTML = html;
+    }
+    setEditable('adminSingleMaterial', q.material || '', q.materialImages || []);
+    setEditable('adminSingleStem', q.content || '', q.stemImages || []);
+    var opts = q.options || [];
+    setEditable('adminSingleOptA', (opts[0] && opts[0].text) || '', (opts[0] && opts[0].images) || []);
+    setEditable('adminSingleOptB', (opts[1] && opts[1].text) || '', (opts[1] && opts[1].images) || []);
+    setEditable('adminSingleOptC', (opts[2] && opts[2].text) || '', (opts[2] && opts[2].images) || []);
+    setEditable('adminSingleOptD', (opts[3] && opts[3].text) || '', (opts[3] && opts[3].images) || []);
+    var ansEl = document.getElementById('adminSingleAnswer');
+    if (ansEl) ansEl.value = q.answer || 'A';
+    var expEl = document.getElementById('adminSingleExplanation');
+    if (expEl) expEl.innerHTML = (q.explanation || '').replace(/\n/g, '<br>');
+    // 从队列中移除本题
+    _adminSingleQueue.splice(idx, 1);
+    adminSingleQueueUpdateUI();
 }
 function adminSingleQueueAdd() {
     var statusEl = document.getElementById('adminSingleQueueStatus');
