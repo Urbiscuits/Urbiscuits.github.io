@@ -3754,6 +3754,139 @@ function singleSave() {
         updateSinglePreview();
     }
 }
+var _singleQueue = [];
+var _singleQueueImportTimer = null;
+function singleQueueUpdateUI() {
+    var countEl = document.getElementById('singleQueueCount');
+    var listEl = document.getElementById('singleQueueList');
+    var n = _singleQueue.length;
+    if (countEl) countEl.textContent = '队列中 ' + n + ' 题';
+    if (!listEl) return;
+    if (!n) {
+        listEl.innerHTML = '<div class="empty" style="padding:16px; font-size:0.85rem; color:#6c757d;">当前队列为空，可先在上方录入题目后加入队列。</div>';
+        return;
+    }
+    function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    listEl.innerHTML = _singleQueue.map(function(item, idx) {
+        var q = item.question || {};
+        var preview = (q.content || '').slice(0, 60) + ((q.content || '').length > 60 ? '…' : '');
+        return '<div class="question-row">' +
+            '<div class="q-main">' +
+            '<div><span class="badge-sec">[' + esc(q.category || '') + (q.subcategory ? ' - ' + esc(q.subcategory) : '') + ']</span>' +
+            '<span class="muted"> #' + (idx + 1) + '</span>' +
+            (q.source ? ' <span class="muted">(' + esc(q.source) + ')</span>' : '') +
+            '</div>' +
+            '<div class="q-snippet">' + esc(preview || '(无题干)') + '</div>' +
+            '</div>' +
+            '</div>';
+    }).join('');
+}
+function singleQueueBuildQuestion() {
+    var section = document.getElementById('singleSection').value;
+    var subCustom = (document.getElementById('singleSubcategoryCustom') && document.getElementById('singleSubcategoryCustom').value || '').trim();
+    var subcategory = subCustom || (document.getElementById('singleSubcategory').value || '');
+    var source = (document.getElementById('singleSource').value || '').trim();
+    var stemData = getEditableContent('singleStem');
+    var materialData = getEditableContent('singleMaterial');
+    var optA = getEditableContent('singleOptA'), optB = getEditableContent('singleOptB'), optC = getEditableContent('singleOptC'), optD = getEditableContent('singleOptD');
+    if (!stemData.text && !stemData.images.length) {
+        return { ok: false, msg: '请先填写题干，再加入队列。' };
+    }
+    if (subcategory) ensureSubcategory(section, subcategory);
+    var options = [
+        { label: 'A', text: optA.text, images: optA.images },
+        { label: 'B', text: optB.text, images: optB.images },
+        { label: 'C', text: optC.text, images: optC.images },
+        { label: 'D', text: optD.text, images: optD.images }
+    ];
+    var explanationStr = getExplanationWithInlineImages('singleExplanation') || '';
+    var q = {
+        category: section,
+        subcategory: subcategory,
+        source: source,
+        content: stemData.text,
+        stemImages: stemData.images,
+        material: materialData.text,
+        materialImages: materialData.images,
+        options: options,
+        answer: document.getElementById('singleAnswer').value,
+        explanation: explanationStr
+    };
+    return { ok: true, question: q };
+}
+function singleQueueAdd() {
+    var statusEl = document.getElementById('singleQueueStatus');
+    if (statusEl) { statusEl.textContent = ''; statusEl.className = 'status-message'; }
+    var setIdEl = document.getElementById('singleSetId');
+    if (!setIdEl || !setIdEl.value) {
+        if (statusEl) { statusEl.textContent = '请先选择套卷，再将题目加入队列。'; statusEl.className = 'status-message error'; }
+        return;
+    }
+    var ziliaoModeEl = document.getElementById('singleZiliaoMode');
+    if (ziliaoModeEl && ziliaoModeEl.checked) {
+        if (statusEl) { statusEl.textContent = '当前为资料分析（一材料多题）模式，暂不支持加入单题队列，请关闭该模式后使用队列功能。'; statusEl.className = 'status-message error'; }
+        return;
+    }
+    var built = singleQueueBuildQuestion();
+    if (!built.ok) {
+        if (statusEl) { statusEl.textContent = built.msg || '题目内容不完整，无法加入队列。'; statusEl.className = 'status-message error'; }
+        return;
+    }
+    _singleQueue.push({ setId: setIdEl.value, question: built.question });
+    singleQueueUpdateUI();
+    if (statusEl) { statusEl.textContent = '已将当前题加入队列（未立即保存到题库）。'; statusEl.className = 'status-message success'; }
+    // 不自动清空表单，方便基于上一题微调继续录入
+}
+function singleQueueImport() {
+    var statusEl = document.getElementById('singleQueueStatus');
+    if (statusEl) { statusEl.textContent = ''; statusEl.className = 'status-message'; }
+    if (!_singleQueue.length) {
+        if (statusEl) { statusEl.textContent = '队列为空，请先通过“将当前题加入队列”添加题目。'; statusEl.className = 'status-message error'; }
+        return;
+    }
+    if (_singleQueueImportTimer) {
+        if (statusEl) { statusEl.textContent = '正在导入中，请稍候…'; statusEl.className = 'status-message'; }
+        return;
+    }
+    var items = _singleQueue.slice();
+    var total = items.length;
+    var index = 0;
+    var imported = 0;
+    var perDelay = 50; // 每题约 0.05s
+    function step() {
+        if (index >= total) {
+            store.save();
+            renderTree();
+            renderSingleHistory();
+            _singleQueue = [];
+            singleQueueUpdateUI();
+            if (statusEl) {
+                statusEl.textContent = '已按队列顺序导入 ' + imported + ' 题到对应套卷（每题约 0.05 秒）。';
+                statusEl.className = 'status-message success';
+            }
+            _singleQueueImportTimer = null;
+            return;
+        }
+        var item = items[index];
+        index++;
+        if (item && item.setId && item.question && item.question.category) {
+            var set = store.getSet(item.setId);
+            var section = item.question.category;
+            if (set) {
+                if (typeof ensureCategory === 'function') ensureCategory(section);
+                if (!set[section]) set[section] = [];
+                store.addQuestion(item.setId, section, Object.assign({}, item.question));
+                imported++;
+            }
+        }
+        if (statusEl) {
+            statusEl.textContent = '正在导入队列第 ' + index + ' / ' + total + ' 题…';
+            statusEl.className = 'status-message';
+        }
+        _singleQueueImportTimer = setTimeout(step, perDelay);
+    }
+    step();
+}
 
 function updateManageSub() {
     var section = document.getElementById('manageSection').value;
@@ -7378,23 +7511,9 @@ function adminSingleSave() {
         adminSingleZiliaoQIndex = 0;
         addAdminSingleZiliaoQuestion();
     } else {
-        var stemData = getEditableContent('adminSingleStem');
-        var materialData = getEditableContent('adminSingleMaterial');
-        var optA = getEditableContent('adminSingleOptA'), optB = getEditableContent('adminSingleOptB'), optC = getEditableContent('adminSingleOptC'), optD = getEditableContent('adminSingleOptD');
-        if (!stemData.text && !stemData.images.length) { showMsg('adminSingleStatus', '请填写题干', 'error'); return; }
-        var section = document.getElementById('adminSingleSection').value;
-        var subCustom = (document.getElementById('adminSingleSubcategoryCustom') && document.getElementById('adminSingleSubcategoryCustom').value || '').trim();
-        var subcategory = subCustom || (document.getElementById('adminSingleSubcategory').value || '');
-        if (subcategory) ensureSubcategory(section, subcategory);
-        var source = (document.getElementById('adminSingleSource').value || '').trim();
-        var options = [
-            { label: 'A', text: optA.text, images: optA.images },
-            { label: 'B', text: optB.text, images: optB.images },
-            { label: 'C', text: optC.text, images: optC.images },
-            { label: 'D', text: optD.text, images: optD.images }
-        ];
-        var explanationStr = getExplanationWithInlineImages('adminSingleExplanation') || '';
-        var question = { category: section, subcategory: subcategory, source: source, content: stemData.text, stemImages: stemData.images, material: materialData.text, materialImages: materialData.images, options: options, answer: document.getElementById('adminSingleAnswer').value, explanation: explanationStr };
+        var built = adminSingleQueueBuildQuestion();
+        if (!built.ok) { showMsg('adminSingleStatus', built.msg || '题目内容不完整', 'error'); return; }
+        var question = built.question;
         adminStore.addQuestion(setId, section, question);
         adminStore.save();
         fillAdminSetSelects();
@@ -7409,6 +7528,150 @@ function adminSingleSave() {
         document.getElementById('adminSingleSubcategory').value = '图形推理';
         setAdminSingleOptionDefaults();
     }
+}
+
+var _adminSingleQueue = [];
+var _adminSingleQueueImportTimer = null;
+function adminSingleQueueUpdateUI() {
+    var countEl = document.getElementById('adminSingleQueueCount');
+    var listEl = document.getElementById('adminSingleQueueList');
+    var n = _adminSingleQueue.length;
+    if (countEl) countEl.textContent = '队列中 ' + n + ' 题';
+    if (!listEl) return;
+    if (!n) {
+        listEl.innerHTML = '<div class="empty" style="padding:16px; font-size:0.85rem; color:#6c757d;">当前队列为空，可先在上方录入题目后加入队列。</div>';
+        return;
+    }
+    function esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    listEl.innerHTML = _adminSingleQueue.map(function(item, idx) {
+        var q = item.question || {};
+        var preview = (q.content || '').slice(0, 60) + ((q.content || '').length > 60 ? '…' : '');
+        return '<div class="question-row">' +
+            '<div class="q-main">' +
+            '<div><span class="badge-sec">[' + esc(q.category || '') + (q.subcategory ? ' - ' + esc(q.subcategory) : '') + ']</span>' +
+            '<span class="muted"> #' + (idx + 1) + '</span>' +
+            (q.source ? ' <span class="muted">(' + esc(q.source) + ')</span>' : '') +
+            '</div>' +
+            '<div class="q-snippet">' + esc(preview || '(无题干)') + '</div>' +
+            '</div>' +
+            '</div>';
+    }).join('');
+}
+function adminSingleQueueBuildQuestion() {
+    var stemData = getEditableContent('adminSingleStem');
+    var materialData = getEditableContent('adminSingleMaterial');
+    var optA = getEditableContent('adminSingleOptA'), optB = getEditableContent('adminSingleOptB'), optC = getEditableContent('adminSingleOptC'), optD = getEditableContent('adminSingleOptD');
+    if (!stemData.text && !stemData.images.length) {
+        return { ok: false, msg: '请填写题干后再加入队列或保存。' };
+    }
+    var section = document.getElementById('adminSingleSection').value;
+    var subCustom = (document.getElementById('adminSingleSubcategoryCustom') && document.getElementById('adminSingleSubcategoryCustom').value || '').trim();
+    var subcategory = subCustom || (document.getElementById('adminSingleSubcategory').value || '');
+    if (subcategory) ensureSubcategory(section, subcategory);
+    var source = (document.getElementById('adminSingleSource').value || '').trim();
+    var options = [
+        { label: 'A', text: optA.text, images: optA.images },
+        { label: 'B', text: optB.text, images: optB.images },
+        { label: 'C', text: optC.text, images: optC.images },
+        { label: 'D', text: optD.text, images: optD.images }
+    ];
+    var explanationStr = getExplanationWithInlineImages('adminSingleExplanation') || '';
+    var question = {
+        category: section,
+        subcategory: subcategory,
+        source: source,
+        content: stemData.text,
+        stemImages: stemData.images,
+        material: materialData.text,
+        materialImages: materialData.images,
+        options: options,
+        answer: document.getElementById('adminSingleAnswer').value,
+        explanation: explanationStr
+    };
+    return { ok: true, question: question };
+}
+function adminSingleQueueAdd() {
+    var statusEl = document.getElementById('adminSingleQueueStatus');
+    if (statusEl) { statusEl.textContent = ''; statusEl.className = 'status-message'; }
+    if (!adminAuthenticated) {
+        if (statusEl) { statusEl.textContent = '请先登录管理员。'; statusEl.className = 'status-message error'; }
+        return;
+    }
+    var setIdEl = document.getElementById('adminSingleSetId');
+    if (!setIdEl || !setIdEl.value) {
+        if (statusEl) { statusEl.textContent = '请先选择或新建套卷，再将题目加入队列。'; statusEl.className = 'status-message error'; }
+        return;
+    }
+    var ziliaoModeEl = document.getElementById('adminSingleZiliaoMode');
+    if (ziliaoModeEl && ziliaoModeEl.checked) {
+        if (statusEl) { statusEl.textContent = '当前为资料分析（一材料多题）模式，暂不支持加入单题队列，请关闭该模式后使用队列功能。'; statusEl.className = 'status-message error'; }
+        return;
+    }
+    var built = adminSingleQueueBuildQuestion();
+    if (!built.ok) {
+        if (statusEl) { statusEl.textContent = built.msg || '题目内容不完整，无法加入队列。'; statusEl.className = 'status-message error'; }
+        return;
+    }
+    _adminSingleQueue.push({ setId: setIdEl.value, question: built.question });
+    adminSingleQueueUpdateUI();
+    if (statusEl) { statusEl.textContent = '已将当前题加入队列（未立即保存到题库）。'; statusEl.className = 'status-message success'; }
+}
+function adminSingleQueueImport() {
+    var statusEl = document.getElementById('adminSingleQueueStatus');
+    if (statusEl) { statusEl.textContent = ''; statusEl.className = 'status-message'; }
+    if (!adminAuthenticated) {
+        if (statusEl) { statusEl.textContent = '请先登录管理员。'; statusEl.className = 'status-message error'; }
+        return;
+    }
+    if (!_adminSingleQueue.length) {
+        if (statusEl) { statusEl.textContent = '队列为空，请先通过“将当前题加入队列”添加题目。'; statusEl.className = 'status-message error'; }
+        return;
+    }
+    if (_adminSingleQueueImportTimer) {
+        if (statusEl) { statusEl.textContent = '正在导入中，请稍候…'; statusEl.className = 'status-message'; }
+        return;
+    }
+    var items = _adminSingleQueue.slice();
+    var total = items.length;
+    var index = 0;
+    var imported = 0;
+    var perDelay = 50; // 每题约 0.05s
+    function step() {
+        if (index >= total) {
+            adminStore.save();
+            fillAdminSetSelects();
+            adminFilterSetList();
+            if (adminCurrentViewSetId) {
+                adminViewSetDetails(adminCurrentViewSetId);
+            }
+            _adminSingleQueue = [];
+            adminSingleQueueUpdateUI();
+            if (statusEl) {
+                statusEl.textContent = '已按队列顺序导入 ' + imported + ' 题到对应套卷（每题约 0.05 秒）。';
+                statusEl.className = 'status-message success';
+            }
+            _adminSingleQueueImportTimer = null;
+            return;
+        }
+        var item = items[index];
+        index++;
+        if (item && item.setId && item.question && item.question.category) {
+            var set = adminStore.getSet(item.setId);
+            var section = item.question.category;
+            if (set) {
+                if (typeof ensureCategory === 'function') ensureCategory(section);
+                if (!set[section]) set[section] = [];
+                adminStore.addQuestion(item.setId, section, Object.assign({}, item.question));
+                imported++;
+            }
+        }
+        if (statusEl) {
+            statusEl.textContent = '正在导入队列第 ' + index + ' / ' + total + ' 题…';
+            statusEl.className = 'status-message';
+        }
+        _adminSingleQueueImportTimer = setTimeout(step, perDelay);
+    }
+    step();
 }
 
 

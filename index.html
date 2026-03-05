@@ -134,6 +134,21 @@
                             <h4 style="margin-bottom:12px; color:var(--primary-color);">下方预览（公式与图片实时渲染）</h4>
                             <div id="singlePreview" class="preview-area" style="min-height:80px; padding:16px; background:var(--surface); border-radius:var(--border-radius);"></div>
                         </div>
+                        <div style="margin-top:24px; padding:20px; background:var(--surface); border-radius:var(--border-radius); border:1px dashed var(--border-color);">
+                            <h3 style="margin-bottom:8px; font-size:1rem; color:var(--primary-color);"><i class="fas fa-layer-group"></i> 多条单题录入队列</h3>
+                            <p style="font-size:0.85rem; color:#6c757d; margin-bottom:8px;">
+                                使用上方“单题录入”样式逐题填写，每道题点击“加入队列（不立即保存）”，最后按顺序导入到套卷（每题约 0.05 秒）。
+                            </p>
+                            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:8px;">
+                                <button class="btn btn-info btn-sm" type="button" onclick="singleQueueAdd()"><i class="fas fa-plus"></i> 将当前题加入队列</button>
+                                <button class="btn btn-success btn-sm" type="button" onclick="singleQueueImport()"><i class="fas fa-upload"></i> 按顺序导入队列到套卷</button>
+                                <span id="singleQueueCount" class="muted">队列中 0 题</span>
+                            </div>
+                            <div id="singleQueueStatus" class="status-message" style="margin-bottom:6px;"></div>
+                            <div id="singleQueueList" class="question-list" style="max-height:220px; overflow:auto;">
+                                <div class="empty" style="padding:16px; font-size:0.85rem; color:#6c757d;">当前队列为空，可先在上方录入题目后加入队列。</div>
+                            </div>
+                        </div>
                     </div>
                         </div>
                         <div class="single-entry-history">
@@ -984,6 +999,21 @@
                             </div>
                             <button class="btn btn-success" onclick="adminSingleSave()" style="margin-top: 12px;"><i class="fas fa-save"></i> 保存题目</button>
                             <div id="adminSingleStatus" class="status-message"></div>
+                            <div style="margin-top:16px; padding:16px; background:var(--surface); border-radius:var(--border-radius); border:1px dashed var(--border-color);">
+                                <h3 style="margin-bottom:8px; font-size:0.95rem; color:var(--primary-color);"><i class="fas fa-layer-group"></i> 多条单题录入队列（管理员）</h3>
+                                <p style="font-size:0.85rem; color:#6c757d; margin-bottom:8px;">
+                                    使用上方“单题录入”样式逐题填写，每道题点击“加入队列（不立即保存）”，最后按顺序导入到套卷（每题约 0.05 秒）。
+                                </p>
+                                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:8px;">
+                                    <button class="btn btn-info btn-sm" type="button" onclick="adminSingleQueueAdd()"><i class="fas fa-plus"></i> 将当前题加入队列</button>
+                                    <button class="btn btn-success btn-sm" type="button" onclick="adminSingleQueueImport()"><i class="fas fa-upload"></i> 按顺序导入队列到套卷</button>
+                                    <span id="adminSingleQueueCount" class="muted">队列中 0 题</span>
+                                </div>
+                                <div id="adminSingleQueueStatus" class="status-message" style="margin-bottom:6px;"></div>
+                                <div id="adminSingleQueueList" class="question-list" style="max-height:220px; overflow:auto;">
+                                    <div class="empty" style="padding:16px; font-size:0.85rem; color:#6c757d;">当前队列为空，可先在上方录入题目后加入队列。</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
