@@ -1,5 +1,3030 @@
 {
-  "sets": [],
-  "questions": {},
-  "exportTime": "2026-04-18T07:23:29.050Z"
+  "sets": [
+    {
+      "id": "id_1776497056297_qm1k1lf",
+      "name": "陈折桂",
+      "category": "其他",
+      "言语理解": [],
+      "数量关系": [
+        "id_1776497320365_66amuz4",
+        "id_1776497320422_nl25qkl",
+        "id_1776497320486_klapxmm",
+        "id_1776497320547_yljxrzc",
+        "id_1776497320608_2flxwaz",
+        "id_1776497320663_svditnr",
+        "id_1776497320719_v4bw57y",
+        "id_1776497320779_w3o3uoh",
+        "id_1776497320833_924an12",
+        "id_1776497320890_2jmea8w",
+        "id_1776497320946_rno26fm",
+        "id_1776497320999_xkbhoj5",
+        "id_1776497321053_cley5pm",
+        "id_1776497321104_thoxaac",
+        "id_1776497321156_mpbpyar",
+        "id_1776497321212_exms3tp",
+        "id_1776497321270_z1qqpo8",
+        "id_1776497321332_69gv1sg",
+        "id_1776497321388_u26tp3r",
+        "id_1776497321445_f8to6n4",
+        "id_1776497321500_gi2k8wn",
+        "id_1776497321565_gd8208c",
+        "id_1776497321619_c2bszdv",
+        "id_1776497321684_z7jdtsa",
+        "id_1776497321745_pqp6rt5",
+        "id_1776497321797_vrem11o",
+        "id_1776497321850_qwdftza",
+        "id_1776497321913_muv3ndl",
+        "id_1776497321964_19j9n0y",
+        "id_1776497322030_krsi3y3",
+        "id_1776497322086_huwukmm",
+        "id_1776497322147_yogear2",
+        "id_1776497322199_y9sus2c",
+        "id_1776497322256_vq79zpp",
+        "id_1776497322312_ko5zwaa",
+        "id_1776497322369_kg7rmer",
+        "id_1776497322434_flo2712",
+        "id_1776497322490_i1ocsx0",
+        "id_1776497322546_ohyzhca",
+        "id_1776497322599_zzesi3s",
+        "id_1776497322662_nt57fyv",
+        "id_1776497322714_h3soafp",
+        "id_1776497322771_rmwiob7",
+        "id_1776497322828_26fr061",
+        "id_1776497322878_rnywc9r",
+        "id_1776497322933_kkrkx6a",
+        "id_1776497322987_ok9bknv",
+        "id_1776497323045_y1a9i15",
+        "id_1776497323098_nk1hvm7",
+        "id_1776497323162_e0h44bj",
+        "id_1776497323220_27tf40e",
+        "id_1776497323286_09tigmi",
+        "id_1776497323338_79sp10h",
+        "id_1776497323401_jwm5mr0",
+        "id_1776497323463_j8751h5",
+        "id_1776497323522_6lowoay",
+        "id_1776497323586_h6mo2t0",
+        "id_1776497323647_t98kllx",
+        "id_1776497323705_oqid8lh",
+        "id_1776497323772_2rqa0g0",
+        "id_1776497323835_r9yfmgv",
+        "id_1776497323896_ji6nj5f",
+        "id_1776497323947_gfc9ms1",
+        "id_1776497324000_mq2kxwg",
+        "id_1776497324063_y9fke1g",
+        "id_1776497324113_xh98tvo",
+        "id_1776497324171_6yifik1",
+        "id_1776497324237_sq5tfg2",
+        "id_1776497324298_tvzkrh8",
+        "id_1776497324364_vl9oz0a"
+      ],
+      "判断推理": [],
+      "资料分析": [],
+      "政治理论": [],
+      "常识判断": [],
+      "策略选择": []
+    }
+  ],
+  "questions": {
+    "id_1776497320365_66amuz4": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号1：由于改良了种植技术，农场2017年种植的$A$和$B$两种作物，产量分别增加了$10\\%$和$25\\%$。已知2017年两种作物总产量增加了$18\\%$，问2017年$A$和$B$两种作物的产量比为：",
+      "options": [
+        {
+          "label": "A",
+          "text": "7:8",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "8:7",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "176:175",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "77:100",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "十字交叉：$\\dfrac{25\\%-18\\%}{18\\%-10\\%}=\\dfrac{7}{8}$，现期比$7\\times1.1:8\\times1.25=77:100$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320365_66amuz4",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320365,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320422_nl25qkl": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号2：某公司组织员工义务献血，有一半的员工都参与了献血。该公司员工中的男性与女性的比例为$3:2$，参与了献血的员工中男性与女性比例是$7:3$。则未参与献血的员工中，男性与女性的比例为（）。",
+      "options": [
+        {
+          "label": "A",
+          "text": "1:1",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "2:1",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "3:1",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "4:1",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "赋值总人数$50$，男$30$女$20$，献血$25$人，未献血比例$1:1$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320422_nl25qkl",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320422,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320486_klapxmm": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号3：某县政府组织干部职工开展党建知识竞赛，其中甲、乙两镇参赛人数之比为$4:3$，甲镇有$8$人、乙镇有$24$人没有参加竞赛。已知甲、乙两镇干部职工人数之比为$5:6$，则乙镇的干部职工比甲镇多（）人。",
+      "options": [
+        {
+          "label": "A",
+          "text": "8",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "7",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "6",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "5",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "设甲参赛$4x$，乙参赛$3x$，$\\dfrac{4x+8}{3x+24}=\\dfrac{5}{6}$，解得$x=8$，差$8$人。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320486_klapxmm",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320486,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320547_yljxrzc": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号4：某单位开设暑托班，开班时男孩与女孩的比例为$3:4$，后来有$2$个男孩、$1$个女孩退出，此时男孩与女孩的比例为$2:3$。那么开班时女孩有多少人？",
+      "options": [
+        {
+          "label": "A",
+          "text": "10",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "12",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "14",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "16",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "设男孩$3x$，女孩$4x$，$\\dfrac{3x-2}{4x-1}=\\dfrac{2}{3}$，$x=4$，女孩$16$人。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320547_yljxrzc",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320547,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320608_2flxwaz": {
+      "category": "数量关系",
+      "subcategory": "概率问题",
+      "source": "陈折桂",
+      "content": "题号5：盒子里红、黄两色球，随机摸红球概率为$\\dfrac{1}{3}$，取出$3$红$7$黄后，摸红球概率为$\\dfrac{2}{5}$，原来红球多少个？",
+      "options": [
+        {
+          "label": "A",
+          "text": "5",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "10",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "15",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "20",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "设红球$x$，总球$3x$，$\\dfrac{x-3}{3x-10}=\\dfrac{2}{5}$，解得$x=5$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320608_2flxwaz",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320608,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320663_svditnr": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号6：铜、铁各$30$吨，每天耗铜$2$吨、铁$3$吨，几天后剩余铜是铁的$4$倍？",
+      "options": [
+        {
+          "label": "A",
+          "text": "6",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "7",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "8",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "9",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "$30-2x=4(30-3x)$，解得$x=9$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320663_svditnr",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320663,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320719_v4bw57y": {
+      "category": "数量关系",
+      "subcategory": "行程问题",
+      "source": "陈折桂",
+      "content": "题号7：汽车先$40\\ \\mathrm{km/h}$走一半，再加速到$80\\ \\mathrm{km/h}$，后减速到$0$，全程平均速度范围？",
+      "options": [
+        {
+          "label": "A",
+          "text": "不到$44\\ \\mathrm{km/h}$",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "$44$~$45\\ \\mathrm{km/h}$",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "$45$~$46\\ \\mathrm{km/h}$",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "超过$46\\ \\mathrm{km/h}$",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "赋值路程，分段算时，平均速度$\\approx43.6\\ \\mathrm{km/h}$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320719_v4bw57y",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320719,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320779_w3o3uoh": {
+      "category": "数量关系",
+      "subcategory": "行程问题",
+      "source": "陈折桂",
+      "content": "题号8：运动员$3$小时骑$60\\ \\mathrm{km}$，上坡、下坡速度$2$倍关系，下列正确的是？",
+      "options": [
+        {
+          "label": "A",
+          "text": "上坡路程大则上坡时速$<15$",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "上坡路程大则上坡时速$>20$",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "下坡路程大则下坡时速$<30$",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "下坡路程大则下坡时速$>25$",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "设上坡速度$v$，下坡$2v$，推导得下坡速度必小于$30\\ \\mathrm{km/h}$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320779_w3o3uoh",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320779,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320833_924an12": {
+      "category": "数量关系",
+      "subcategory": "行程问题",
+      "source": "陈折桂",
+      "content": "题号9：小明往返$A$、$B$地，步行、骑车、电动车速度已知，往返平均速度为多少$\\mathrm{km/h}$？",
+      "options": [
+        {
+          "label": "A",
+          "text": "4.75",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "5.76",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "5.96",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "6.25",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "总路程$10.8\\ \\mathrm{km}$，总时间$1.875\\ \\mathrm{h}$，平均速度$5.76\\ \\mathrm{km/h}$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320833_924an12",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320833,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320890_2jmea8w": {
+      "category": "数量关系",
+      "subcategory": "行程问题",
+      "source": "陈折桂",
+      "content": "题号10：志愿者徒步、捡拾、返程速度已知，海岸线长多少$\\mathrm{km}$？",
+      "options": [
+        {
+          "label": "A",
+          "text": "4",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "6",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "12",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "18",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "总时间$6\\ \\mathrm{h}$，去返各$3\\ \\mathrm{h}$，解得海岸线长$6\\ \\mathrm{km}$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320890_2jmea8w",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320890,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320946_rno26fm": {
+      "category": "数量关系",
+      "subcategory": "利润问题",
+      "source": "陈折桂",
+      "content": "题号11：甲、乙研发经费占收入比$x\\%$、$y\\%$，则$x-y$满足？",
+      "options": [
+        {
+          "label": "A",
+          "text": "$x-y<-5$",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "$-5\\leq x-y<0$",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "$0\\leq x-y<5$",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "$x-y\\geq5$",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "赋值得$x=10.8$，$y=14.4$，满足$-5\\leq-3.6<0$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320946_rno26fm",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320946,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497320999_xkbhoj5": {
+      "category": "数量关系",
+      "subcategory": "利润问题",
+      "source": "陈折桂",
+      "content": "题号12：$A$、$B$商品打折后总利润率$12.8\\%$，$A$打几折？",
+      "options": [
+        {
+          "label": "A",
+          "text": "六五折",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "七五折",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "八折",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "九折",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "数量比$2:3$，算售价得$A$打八折。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497320999_xkbhoj5",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497320999,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321053_cley5pm": {
+      "category": "数量关系",
+      "subcategory": "利润问题",
+      "source": "陈折桂",
+      "content": "题号13：中介五折买票，不同折扣销售，利润率？",
+      "options": [
+        {
+          "label": "A",
+          "text": "60%",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "65%",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "70%",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "75%",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "总收入为成本的$1.6$倍，利润率$60\\%$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321053_cley5pm",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321053,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321104_thoxaac": {
+      "category": "数量关系",
+      "subcategory": "利润问题",
+      "source": "陈折桂",
+      "content": "题号14：今年营收增$15\\%$，支出增$10\\%$，利润增$600$万，今年支出？",
+      "options": [
+        {
+          "label": "A",
+          "text": "9000 万",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "9900 万",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "10800 万",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "11500 万",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "去年支出$9000$万，今年$9000\\times1.1=9900$万。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321104_thoxaac",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321104,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321156_mpbpyar": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号15：甲、乙玩具共$50$件，用完零件后剩多少？",
+      "options": [
+        {
+          "label": "A",
+          "text": "4",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "3",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "2",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "1",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "甲$20$件，乙$30$件，剩余零件$2$个。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321156_mpbpyar",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321156,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321212_exms3tp": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号16：红黑笔共$66$支，打折后少付$18\\%$，红笔多少支？",
+      "options": [
+        {
+          "label": "A",
+          "text": "36",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "34",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "32",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "30",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "十字交叉得数量比$18:15$，红笔$36$支。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321212_exms3tp",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321212,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321270_z1qqpo8": {
+      "category": "数量关系",
+      "subcategory": "溶液问题",
+      "source": "陈折桂",
+      "content": "题号17：$60\\%$、$30\\%$酒精混合为$50\\%$，加水后$30\\%$，$A$原有多少？",
+      "options": [
+        {
+          "label": "A",
+          "text": "200 ml",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "240 ml",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "300 ml",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "360 ml",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "混合液$400\\ \\mathrm{ml}$，$A:B=2:1$，$A=200\\ \\mathrm{ml}$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321270_z1qqpo8",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321270,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321332_69gv1sg": {
+      "category": "数量关系",
+      "subcategory": "数量问题",
+      "source": "陈折桂",
+      "content": "题号18：两班总分相同，平均分$99$，一班$110$，一班比二班高多少？",
+      "options": [
+        {
+          "label": "A",
+          "text": "25",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "20",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "18",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "15",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "二班$90$分，差值$110-90=20$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321332_69gv1sg",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321332,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321388_u26tp3r": {
+      "category": "数量关系",
+      "subcategory": "数量问题",
+      "source": "陈折桂",
+      "content": "题号1：甲、乙分公司党员$96$人，甲均分比总均高高$0.5$，比乙高$1.2$，甲比乙多？",
+      "options": [
+        {
+          "label": "A",
+          "text": "少不到10",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "多不到10",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "多10以上",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "少10以上",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "人数比$5:7$，甲$60$，乙$36$，多$24$人。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321388_u26tp3r",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321388,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321445_f8to6n4": {
+      "category": "数量关系",
+      "subcategory": "最值问题",
+      "source": "陈折桂",
+      "content": "题号2：快递员送件，最多一人送多少？",
+      "options": [
+        {
+          "label": "A",
+          "text": "542",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "560",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "582",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "596",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "总件$4620$，减去$260$与$19$个$200$，得$560$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321445_f8to6n4",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321445,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321500_gi2k8wn": {
+      "category": "数量关系",
+      "subcategory": "数量问题",
+      "source": "陈折桂",
+      "content": "题号3：$A$、$B$批次均分$86$、$80$，总均分$84$，参与最多多少人？",
+      "options": [
+        {
+          "label": "A",
+          "text": "36",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "37",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "38",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "39",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "人数比$2:1$，总数为$3$的倍数，最多$39$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321500_gi2k8wn",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321500,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321565_gd8208c": {
+      "category": "数量关系",
+      "subcategory": "溶液问题",
+      "source": "陈折桂",
+      "content": "题号4：三种酒精混合，$72\\%$溶液质量？",
+      "options": [
+        {
+          "label": "A",
+          "text": "30 g",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "40 g",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "48 g",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "60 g",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "$72\\%$与$78\\%$质量比$1:1$，最终得$72\\%$为$60\\ \\mathrm{g}$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321565_gd8208c",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321565,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321619_c2bszdv": {
+      "category": "数量关系",
+      "subcategory": "溶液问题",
+      "source": "陈折桂",
+      "content": "题号5：$10\\%$、$25\\%$盐酸配$15\\%$，剩余混合浓度？",
+      "options": [
+        {
+          "label": "A",
+          "text": "16.5%",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "18.6%",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "20%",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "21.25%",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "取用比$2:1$，剩余混合浓度$21.25\\%$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321619_c2bszdv",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321619,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321684_z7jdtsa": {
+      "category": "数量关系",
+      "subcategory": "数量问题",
+      "source": "陈折桂",
+      "content": "题号6：选手选拔规定时间？",
+      "options": [
+        {
+          "label": "A",
+          "text": "116",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "125",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "134",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "139",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "人数比$1:3$，设时间$x$，解得$x=134$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321684_z7jdtsa",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321684,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321745_pqp6rt5": {
+      "category": "数量关系",
+      "subcategory": "溶液问题",
+      "source": "陈折桂",
+      "content": "题号7：甲瓶溶液两次稀释倒入乙，乙最终浓度？",
+      "options": [
+        {
+          "label": "A",
+          "text": "38%",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "32%",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "26%",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "20%",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "第一次$40\\%$，第二次$24\\%$，混合$32\\%$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321745_pqp6rt5",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321745,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321797_vrem11o": {
+      "category": "数量关系",
+      "subcategory": "溶液问题",
+      "source": "陈折桂",
+      "content": "题号8：配$66\\%$硫酸$100\\ \\mathrm{g}$，加水多少？",
+      "options": [
+        {
+          "label": "A",
+          "text": "10 g",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "12 g",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "15 g",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "18 g",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "需$90\\%$溶液$40\\ \\mathrm{g}$，加水$10\\ \\mathrm{g}$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321797_vrem11o",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321797,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321850_qwdftza": {
+      "category": "数量关系",
+      "subcategory": "溶液问题",
+      "source": "陈折桂",
+      "content": "题号9：$4\\%$盐水加盐蒸发水，新浓度？",
+      "options": [
+        {
+          "label": "A",
+          "text": "10%",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "15%",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "20%",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "25%",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "溶质$20\\ \\mathrm{g}$，溶液$100\\ \\mathrm{g}$，浓度$20\\%$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321850_qwdftza",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321850,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321913_muv3ndl": {
+      "category": "数量关系",
+      "subcategory": "最值问题",
+      "source": "陈折桂",
+      "content": "题号10：$8$次测验去最高最低，第$2$、$7$次最少差多少？",
+      "options": [
+        {
+          "label": "A",
+          "text": "10",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "11",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "12",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "18",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "构造极值，最小差$12$分。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321913_muv3ndl",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321913,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497321964_19j9n0y": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号1：小王从甲公司跳槽到乙公司，年工资总额增长25%，乙公司的工资总额包括现金部分和股票部分，现金总额和股票价值总额比例为3:1，股票价值按照签订合同当日股票收盘价计算。一年后公司由于重大变动股价比小王入职时下跌48%，如果按此时股价计算，小王在乙公司工作一年获得的实际工资总额与在甲公司相比：",
+      "options": [
+        {
+          "label": "A",
+          "text": "下降10%",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "下降15%",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "增长10%",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "增长15%",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "设甲工资为$100$，乙为$125$，实际可得$110$，增长$\\dfrac{10}{100}=10\\%$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497321964_19j9n0y",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497321964,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322030_krsi3y3": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号2：高架桥12:00~14:00每分钟车流量比9:00~11:00少20%，9:00~11:00、12:00~14:00、17:00~19:00三个时间段的平均每分钟车流量比9:00~11:00多10%。问17:00~19:00每分钟的车流量比9:00~11:00多：",
+      "options": [
+        {
+          "label": "A",
+          "text": "40%",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "50%",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "20%",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "30%",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "设9点流量为$100$，12点为$80$，总平均$110$，17点为$150$，多$\\dfrac{50}{100}=50\\%$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322030_krsi3y3",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322030,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322086_huwukmm": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号3：某企业四月的营业额比三月的营业额多三分之一，五月的营业额比四月多三分之一，则三月的营业额比五月的营业额少（）",
+      "options": [
+        {
+          "label": "A",
+          "text": "$\\dfrac{1}{6}$",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "$\\dfrac{2}{3}$",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "$\\dfrac{7}{9}$",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "$\\dfrac{7}{16}$",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "三月$9$，四月$12$，五月$16$，少$\\dfrac{16-9}{16}=\\dfrac{7}{16}$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322086_huwukmm",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322086,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322147_yogear2": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号4：台风过后，某单位发起救灾捐款活动，甲、乙两部门的员工人数之比是4:3，捐款总额之比是5:4。若甲部门的人均捐款是300元，则乙部门的人均捐款是",
+      "options": [
+        {
+          "label": "A",
+          "text": "270元",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "290元",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "320元",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "350元",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "人均比$\\dfrac{5}{4}:\\dfrac{4}{3}=15:16$，乙为$320$元。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322147_yogear2",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322147,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322199_y9sus2c": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号5：某农场有A、B、C三个粮仓，原先粮食储量之比为5:9:10，今年丰收后每个粮仓新增加的粮食储量相同，A、B两个粮仓的储量之比变为3:5，则今年丰收后三个粮仓的储存总量比原先增加：",
+      "options": [
+        {
+          "label": "A",
+          "text": "12.5%",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "15%",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "17.5%",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "20%",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "设增量为$x$，$\\dfrac{5+x}{9+x}=\\dfrac{3}{5}$，$x=1$，增$\\dfrac{3}{24}=12.5\\%$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322199_y9sus2c",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322199,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322256_vq79zpp": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号6：某个品牌的洗洁精分为大瓶、小瓶两种包装，5大瓶洗洁精的总容量与12小瓶相同，8大瓶洗洁精的总容量比20小瓶少320毫升，则一大瓶洗洁精的容量是多少毫升？",
+      "options": [
+        {
+          "label": "A",
+          "text": "960",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "1000",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "1080",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "1200",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "设大瓶$x$，小瓶$y$，$\\begin{cases}5x=12y\\\\8x=20y-320\\end{cases}$，解得$x=960$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322256_vq79zpp",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322256,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322312_ko5zwaa": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号7：某工厂有甲、乙两个生产车间，每个工人的生产效率都相同。甲车间的总生产效率是乙车间的1.5倍；从甲车间调派30名工人到乙车间之后，甲车间的生产效率是乙车间的1.2倍。问需要从甲车间再调多少名工人到乙车间，两个车间的生产效率才能相同？",
+      "options": [
+        {
+          "label": "A",
+          "text": "20",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "22",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "24",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "25",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "原人数比$3:2$，调后$6:5$，总$275$人，再调$25$人相等。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322312_ko5zwaa",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322312,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322369_kg7rmer": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号8：某县通过网络直播帮助本地农民销售农副产品，总共直播6次，其中第2次直播销售额比第1次高40%，比第3次低12.5%。直播3次后电视台报道了这一新闻，此后销量大幅提升，后3次直播总销售额是前3次总销售额的3倍。其中第5次直播销售额相当于6次直播总销售额的25%，且比第4次直播高10%，比第6次直播少16万元，问第6次直播的销售额比第3次直播高：",
+      "options": [
+        {
+          "label": "A",
+          "text": "不到100万元",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "100~120万元之间",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "140万元以上",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "120~140万元之间",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "按比例赋值计算，差值在$120$~$140$万元之间。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322369_kg7rmer",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322369,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322434_flo2712": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号9：某社区组织了一次助学捐款活动，在场的老王、老李和老张均积极捐款。若老王捐款的$\\dfrac{1}{3}$与老李捐款的$\\dfrac{1}{5}$、老张捐款的$\\dfrac{1}{11}$相等，且老张比老王多捐192元，则他们的捐款总额是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "418元",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "456元",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "494元",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "532元",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "设捐款$3x$、$5x$、$11x$，$8x=192$，$x=24$，总额$456$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322434_flo2712",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322434,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322490_i1ocsx0": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号10：某单位本科与研究生学历的职工人数之比为7:5。上半年公开招聘本科毕业生若干人后，本科与研究生之比为3:1；下半年通过引才计划引入研究生若干人后，本科与研究生之比为15:8。已知该年度引进的本科生比研究生多10人，则该单位原有本科与研究生学历的职工共（）人。",
+      "options": [
+        {
+          "label": "A",
+          "text": "12",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "24",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "36",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "48",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "原比例$7:5$，招本科$15:5$，招研究生$15:8$，差$10$人，总原$24$人。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322490_i1ocsx0",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322490,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322546_ohyzhca": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号11：某单位去年报名参加志愿活动的党员与非党员之比为1:3。今年的报名总人数提高了20%，党员与非党员之比为1:2，党员人数比去年多了6人。则今年该单位报名参加志愿活动的党员共有（）人。",
+      "options": [
+        {
+          "label": "A",
+          "text": "16",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "24",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "32",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "48",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "设去年党员$x$，今年$1.6x$，$0.6x=6$，$x=10$，今年$16$人。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322546_ohyzhca",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322546,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322599_zzesi3s": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号12：某单位组织100多名员工在周一、周三、周五晚上参加夜跑。每人至少参加一次，跑1次的人数是跑2次及以上的2.5倍，跑2次的人数是跑3次的10倍。那么该单位仅参加1次夜跑的有多少人？",
+      "options": [
+        {
+          "label": "A",
+          "text": "80",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "105",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "110",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "154",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "总人数$140$，跑$1$次$110$人。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322599_zzesi3s",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322599,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322662_nt57fyv": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号13：某单位从理工大学、政法大学和财经大学总计招聘应届毕业生三百多人。其中从理工大学招聘人数是政法大学和财经大学之和的80%，从政法大学招聘的人数比财经大学多60%。问该单位至少再多招聘多少人，就能将从这三所大学招聘的应届生平均分配到7个部门？",
+      "options": [
+        {
+          "label": "A",
+          "text": "6",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "5",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "4",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "3",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "总$360$人，$360\\div7$余$1$，再招$6$人。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322662_nt57fyv",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322662,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322714_h3soafp": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号14：某货运公司承运一批工艺品，每件运费20元。如果运输途中出现破损，那么每件破损的工艺品不仅收不到运费，还要赔偿30元。运输完成后发现，工艺品的破损率为6.4%，最终货运公司收到了16800元运费，则运输途中破损的工艺品有（）件。",
+      "options": [
+        {
+          "label": "A",
+          "text": "64",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "96",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "128",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "156",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "设总$x$，$20\\times0.936x-30\\times0.064x=16800$，$x=1000$，破损$64$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322714_h3soafp",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322714,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322771_rmwiob7": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号15：在某大型医院的建设过程中，施工单位调配了吊机、挖掘机和推土机共120台工程设备进场施工。其中，推土机数量是吊机的3倍，挖掘机数量是吊机的4倍，则吊机有（）台。",
+      "options": [
+        {
+          "label": "A",
+          "text": "18",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "15",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "12",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "10",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "设吊机$x$，$x+3x+4x=120$，$x=15$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322771_rmwiob7",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322771,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322828_26fr061": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号16：小王去超市购买便携包和小哑铃作为知识竞赛活动的奖品。这两种商品超市正在进行促销，便携包单价18元，买2送1；小哑铃单价12元，买3送1。小王按计划购买了便携包和小哑铃合计56个，共使用活动经费606元，则他购买小哑铃的数量是：",
+      "options": [
+        {
+          "label": "A",
+          "text": "24个",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "25个",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "26个",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "27个",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "组合计算得小哑铃$25$个。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322828_26fr061",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322828,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322878_rnywc9r": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号17：某餐饮公司甲、乙两种外卖每份的售价分别为30元和50元，若该公司某天售出这两种外卖共500份，销售收入为21400元，则售出的两种外卖数量相差：",
+      "options": [
+        {
+          "label": "A",
+          "text": "140份",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "160份",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "180份",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "200份",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "甲$180$份，乙$320$份，差$140$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322878_rnywc9r",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322878,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322933_kkrkx6a": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号18：小陈计划在一定时间内完成法律常识题库中的所有练习题。如果每天做50道题，那么最后2天每天要做85道题才能完成，如果每天做55道题，恰好可以提前1天完成，则该题库共有（）道题。",
+      "options": [
+        {
+          "label": "A",
+          "text": "1215",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "1250",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "1320",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "1375",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "设计划$x$天，$50(x-2)+170=55(x-1)$，$x=27$，题量$1320$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322933_kkrkx6a",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322933,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497322987_ok9bknv": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号19：某企业在展销会上销售甲、乙两种产品。已知甲产品的库存比乙产品多100件，展销会结束后，甲产品全部售完，乙产品售出库存的60%，两种产品共售出1260件，则甲、乙两种产品原有总库存（）件。",
+      "options": [
+        {
+          "label": "A",
+          "text": "1450",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "1500",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "1550",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "1600",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "乙$725$，甲$825$，总库存$1550$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497322987_ok9bknv",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497322987,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323045_y1a9i15": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号20：甲、乙两个仓库共存有340吨粮食。如果甲仓库存放的粮食是乙仓库的2倍多10吨，则甲仓库存有粮食（）吨。",
+      "options": [
+        {
+          "label": "A",
+          "text": "10",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "120",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "230",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "240",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "乙$110$，甲$230$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323045_y1a9i15",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323045,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323098_nk1hvm7": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号21：银行向71户农户发放小额扶贫贷款，单户贷款额有2万元、3万元和5万元三种，总计发放贷款218万元。已知贷款额3万元的农户总贷款额是贷款额5万元的农户总贷款额的2倍，请问贷款额2万元和3万元的农户合计平均每户贷款额在以下哪个范围内？",
+      "options": [
+        {
+          "label": "A",
+          "text": "不到2.5万元",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "2.5~2.6万元",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "2.6~2.7万元",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "超过2.7万元",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "算得均值在$2.6$~$2.7$万之间。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323098_nk1hvm7",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323098,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323162_e0h44bj": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号22：甲以技术入股加入某互联网初创企业，占企业总股份的10%。随后企业先后两次引入外来投资，其中第二次投资的金额是第一次的10倍。在两次投资完成之后，甲持有的股份占企业总股份的比例先后下降到8%和5%。那么第一次投资前公司的估算价值是第二次投资前的百分之几？",
+      "options": [
+        {
+          "label": "A",
+          "text": "24%",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "28%",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "32%",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "36%",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "股份不变，算价值比为$24\\%$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323162_e0h44bj",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323162,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323220_27tf40e": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号23：救灾部门紧急运送两批大米分给受灾群众。已知甲村人数是丙村的2倍，如果两批大米都给甲村，每人正好能分24斤；如果第一批大米分给乙村，每人正好能分12斤，第二批大米分给甲、乙、丙三个村，每人正好能分4斤。为尽量保障受灾群众的基本需求，现决定另运送一批面粉分给甲村，并将两批大米都分给乙、丙两村。问乙、丙两村平均每人分到的大米重量在以下哪个范围内？",
+      "options": [
+        {
+          "label": "A",
+          "text": "不到14斤",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "14~15斤之间",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "15~16斤之间",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "16斤以上",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "赋值人数，算得均值$14$~$15$斤。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323220_27tf40e",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323220,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323286_09tigmi": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号24：为实现精准扶贫，某县政府工作人员对辖区内所有贫困户进行走访。已知第一周走访的户数为贫困户总户数的46%，第二周走访的户数是两周后剩余未走访户数的1.2倍。问两周后最少还有多少户贫困户未走访？",
+      "options": [
+        {
+          "label": "A",
+          "text": "45",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "90",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "135",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "180",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "总户数百位为整数，未走访最少$135$户。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323286_09tigmi",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323286,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323338_79sp10h": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号25：某单位3个部门共有员工50人，拥有中级工程师职称的人员比重为40%。其中甲、乙两个部门拥有中级工程师职称的人员比重分别为45%和32%，则丙部门拥有中级工程师职称的人员比重为：",
+      "options": [
+        {
+          "label": "A",
+          "text": "60%",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "52%",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "44%",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "36%",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "甲$20$，乙$25$，丙$5$，中级占比$60\\%$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323338_79sp10h",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323338,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323401_jwm5mr0": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号26：某地调派96人分赴车站、机场、超市和学校四个人流密集的区域进行卫生安全检查，其中公共卫生专业人员有62人。已知派往机场的人员是四个区域中最多的，派往车站和超市的人员中，专业人员分别占64%和65%，派往学校的人员中，非专业人员比专业人员少30%，问派往机场的人员中，专业人员的占比在四个区域中排名",
+      "options": [
+        {
+          "label": "A",
+          "text": "第一",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "第二",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "第三",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "第四",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "算得机场专业占比最高，排第一。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323401_jwm5mr0",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323401,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323463_j8751h5": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号27：某居民楼居住人数介于90和110之间，其中50岁及以上居民占$\\dfrac{1}{12}$，女性占$\\dfrac{7}{16}$，若该居民楼30岁及以上居民比30岁以下居民多20人，则30岁以下居民比50岁及以上居民多：",
+      "options": [
+        {
+          "label": "A",
+          "text": "30人",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "27人",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "23人",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "20人",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "总人数$96$，算得差值$30$人。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323463_j8751h5",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323463,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323522_6lowoay": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号28：新华书店在售的某书籍有精装本和平装本，精装本售价80元/本，平装本售价50元/本，每购买20本精装本赠送1套平装本。若某单位花12100元购买了200本（含赠送的平装本），则其中精装本有：",
+      "options": [
+        {
+          "label": "A",
+          "text": "75本",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "77本",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "79本",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "81本",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "设精装$x$，列方程解得$x=75$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323522_6lowoay",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323522,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323586_h6mo2t0": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号29：疫情期间，爱心人士向某街道捐赠了两箱防疫物资，内装物资件数相同。街道将两箱物资分别给了甲、乙两个工作组，其中甲工作组除1人拿到4件物资外，其余每人各分得5件；乙工作组除1人拿到6件物资外，其余每人各分得7件。已知每箱物资数量在50到100件之间，则每箱装有防疫物资（）件。",
+      "options": [
+        {
+          "label": "A",
+          "text": "58",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "62",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "69",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "74",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "满足除$5$余$4$、除$7$余$6$，得$69$件。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323586_h6mo2t0",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323586,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323647_t98kllx": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号30：某防疫工作机构有检验人员和其他工作人员共55人，将检验人员平均分成若干个小组开展工作。近期，该机构补充了20位工作人员，其中，检验人员增加了2组，每组人数不变，其他工作人员增加了30%，则该机构原有检验人员共（）组。",
+      "options": [
+        {
+          "label": "A",
+          "text": "4",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "5",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "6",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "7",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "设每组$5$人，原有$5$组。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323647_t98kllx",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323647,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323705_oqid8lh": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号31：某单位四个党史宣讲小组各有若干组员，现增加2人并重新分配，使得四个小组人数相等。此时与原先相比，第一小组人数增加10人，第二小组人数减少1人，第三小组人数增加一倍，第四小组人数减半。则原先人数最多的小组与人数最少的小组之间相差：",
+      "options": [
+        {
+          "label": "A",
+          "text": "15人",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "21人",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "24人",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "32人",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "设相等人数$x$，算得最多与最少差$24$人。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323705_oqid8lh",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323705,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323772_2rqa0g0": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号32：三个书架共放有60本书，如果从第一个书架取出10本书放入第二个书架，再从第二个书架取出5本书放入第三个书架，则此时三个书架的书就会一样多。那么第二个书架最初存放了（）本书。",
+      "options": [
+        {
+          "label": "A",
+          "text": "15",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "20",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "25",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "30",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "最终各$20$本，逆推得第二个书架原$15$本。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323772_2rqa0g0",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323772,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323835_r9yfmgv": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号33：中秋节前夕，某商场采购了一批月饼礼盒，此后第一周售出了总数的一半多10份，第二周售出了剩下的一半多5份，若此时还剩下20份月饼礼盒，则商场最初采购了（）份月饼礼盒。",
+      "options": [
+        {
+          "label": "A",
+          "text": "60",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "80",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "100",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "120",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "逆推：$(20+5)\\times2=50$，$(50+10)\\times2=120$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323835_r9yfmgv",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323835,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323896_ji6nj5f": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号34：甲、乙二人合伙成立公司，约定每年利润的60%留作公司发展用途，40%按二人投资比例分配。已知公司成立第三年的利润比第二年高300万元，是第一年利润的3倍；甲第二年分配的金额是第三年的一半，且比第一年多20万元。问乙的投资额占比为多少？",
+      "options": [
+        {
+          "label": "A",
+          "text": "40%",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "50%",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "60%",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "75%",
+          "images": []
+        }
+      ],
+      "answer": "B",
+      "explanation": "利润比$1:2:3$，分配比得甲乙各占$50\\%$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323896_ji6nj5f",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323896,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497323947_gfc9ms1": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号35：某企业招聘笔试参考人员均来自甲、乙、丙三所高校。笔试结束后，在进入面试的100人中，来自甲高校人员占比从笔试时的50%下降至当前的40%，乙高校人员占比下降了15个百分点，丙高校的有50人。问笔试时来自甲、乙、丙三所高校的人员比例是多少？",
+      "options": [
+        {
+          "label": "A",
+          "text": "2:1:1",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "2:3:2",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "3:1:2",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "3:2:1",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "面试甲$40$、乙$10$、丙$50$，笔试比$2:1:1$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497323947_gfc9ms1",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497323947,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497324000_mq2kxwg": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号36：甲、乙、丙三人投资成立一家公司，初期共投入700万元。公司估值上涨50%时三人进行了二期投资，甲投入了与其初期投资相同的金额，乙投入了其初期投资金额的2倍，丙投入了其初期投资金额的$\\dfrac{1}{2}$，二期总投入刚好也是700万元，此时甲、乙、丙三人的持股比例为5:14:16，那么初期投资乙比甲投入：",
+      "options": [
+        {
+          "label": "A",
+          "text": "多100万元",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "多50万元",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "少100万元",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "少50万元",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "初投甲$100$、乙$200$、丙$400$，乙比甲多$100$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497324000_mq2kxwg",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497324000,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497324063_y9fke1g": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号37：某便民超市将薏米、红豆和小黄米按2:3:5混合后出售，每千克成本13.3元。若薏米每千克成本23.6元，红豆每千克成本9.8元，则小黄米每千克的成本是（）",
+      "options": [
+        {
+          "label": "A",
+          "text": "10.36元",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "10.18元",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "11.45元",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "11.28元",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "设小黄米$x$，$2\\times23.6+3\\times9.8+5x=10\\times13.3$，$x=11.28$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497324063_y9fke1g",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497324063,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497324113_xh98tvo": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号38：某高校机械学院有甲、乙、丙三个专业，学生人数之比是8:7:5。已知该学院三个专业学生的男女总人数之比是3:1，甲、乙两个专业学生的男女人数之比分别是7:3和6:1，则丙专业学生的男女人数之比是（）",
+      "options": [
+        {
+          "label": "A",
+          "text": "7:2",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "4:1",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "15:4",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "17:8",
+          "images": []
+        }
+      ],
+      "answer": "D",
+      "explanation": "赋值总人数$80$，算得丙男女比$17:8$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497324113_xh98tvo",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497324113,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497324171_6yifik1": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号39：某公司招聘员工，来应聘的男女人数比是18:17，最后被录取的有280人，其中男女人数比是3:4，未被录取的男女人数比是6:5。同来应聘的共有多少人？",
+      "options": [
+        {
+          "label": "A",
+          "text": "630",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "720",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "1050",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "1400",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "设应聘$35x$，录取$280$，未录取$35x-280$，解得$x=18$，总$630$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497324171_6yifik1",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497324171,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497324237_sq5tfg2": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号40：甲、乙、丙三种农产品价格分别为30元/包、24元/包和20元/包。某日销售三种农产品共6000包，总销售额为144000元，已知甲的销售量是乙的2倍，问丙销售了多少包？",
+      "options": [
+        {
+          "label": "A",
+          "text": "90",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "75",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "60",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "45",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "设乙$x$，甲$2x$，丙$6000-3x$，列方程得丙$90$包。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497324237_sq5tfg2",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497324237,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497324298_tvzkrh8": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号41：某政府机关将甲、乙两个部门合并。合并前，甲、乙两部门的男女人数之比分别为4:1和3:2，男女党员人数之比分别为9:2和9:4，乙部门女党员人数占本部门人数的比重是甲部门的两倍。合并后，若男女人数之比为7:3，则男女党员人数之比为：",
+      "options": [
+        {
+          "label": "A",
+          "text": "18:5",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "27:8",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "3:1",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "27:10",
+          "images": []
+        }
+      ],
+      "answer": "C",
+      "explanation": "甲$50$人、乙$50$人，合并党员比$3:1$。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497324298_tvzkrh8",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497324298,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    },
+    "id_1776497324364_vl9oz0a": {
+      "category": "数量关系",
+      "subcategory": "和差倍比",
+      "source": "陈折桂",
+      "content": "题号42：某县政府组织干部职工开展党建知识竞赛，其中甲、乙两镇参赛人数之比为4:3，甲镇有8人、乙镇有24人没有参加竞赛。已知甲、乙两镇干部职工人数之比为5:6，则乙镇的干部职工比甲镇多（）人。",
+      "options": [
+        {
+          "label": "A",
+          "text": "8",
+          "images": []
+        },
+        {
+          "label": "B",
+          "text": "7",
+          "images": []
+        },
+        {
+          "label": "C",
+          "text": "6",
+          "images": []
+        },
+        {
+          "label": "D",
+          "text": "5",
+          "images": []
+        }
+      ],
+      "answer": "A",
+      "explanation": "设参赛$4x$、$3x$，$\\dfrac{4x+8}{3x+24}=\\dfrac{5}{6}$，$x=8$，差$8$人。",
+      "material": "",
+      "materialImages": [],
+      "stemImages": [],
+      "optionImages": [],
+      "knowledgePoints": [],
+      "id": "id_1776497324364_vl9oz0a",
+      "setId": "id_1776497056297_qm1k1lf",
+      "section": "数量关系",
+      "createdAt": 1776497324364,
+      "done": false,
+      "correctCount": 0,
+      "totalAttempts": 0
+    }
+  },
+  "exportTime": "2026-04-18T07:29:19.285Z"
 }
